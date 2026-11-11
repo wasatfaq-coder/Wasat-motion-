@@ -1,0 +1,20 @@
+topic: Почему нам кажется, что время течёт быстро
+source: content/sources.md   # agent-researched popular-science sources; user chose "find it yourself"; list to be approved
+audience: взрослые 25–45 лет без подготовки, которые замечают, что годы летят всё быстрее
+goal: понять, почему время субъективно ускоряется, и получить практический совет, как замедлить это ощущение
+duration_sec: 60
+series: auto
+cover: on
+mode: auto
+language: ru
+voice_name: Nikolay - Confident, Clear and Engaging
+voice_id: 3EuKHIEZbSzrHGNmdYsx
+voice_model: eleven_v4
+voice_enhance: where_needed
+captions: on
+sfx: remotion
+music: forbidden
+palette:
+fonts:
+reference_url:
+cta:

@@ -2,13 +2,16 @@
 
 ## Current stage
 Stage 2 done: content/sources.md (from web search summaries; article pages blocked by network) and content/analysis.md (topic-analyst).
-Now at STOP 0: analyst proposes one video of ~100-110 s instead of 60 s. Waiting for the user's choice. Next: stage 5 script.
+STOP 0 passed: user chose one video ~100-110 s (target 105 s, tolerance 94.5-115.5 s).
+Stage 5 done: content/script.json (12 scenes, 228 words, est. 106 s), built by scripts/build-script.py; hook A selected provisionally.
+Stage 6 in progress: fact-checker, speech-editor, retention-editor reviewing the script. Next: apply reviews, stage 7 visual concept, stage 8 storyboard, STOP 1.
 
 ## User decisions
 - Topic: Почему нам кажется, что время течёт быстро.
 - Source: agent finds popular-science sources itself; facts only from content/sources.md.
 - Audience: взрослые 25–45 без подготовки.
 - Goal: понять механизм + практический совет.
+- Duration (STOP 0): one video ~105 s, no series.
 - Network: user chose "open access", but declined the environment-change prompt twice. Asked to add hosts manually in environment settings.
 
 ## Environment (2026-11-11)

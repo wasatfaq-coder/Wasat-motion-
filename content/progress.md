@@ -4,7 +4,9 @@
 Stage 2 done: content/sources.md (from web search summaries; article pages blocked by network) and content/analysis.md (topic-analyst).
 STOP 0 passed: user chose one video ~100-110 s (target 105 s, tolerance 94.5-115.5 s).
 Stage 5 done: content/script.json (12 scenes, 228 words, est. 106 s), built by scripts/build-script.py; hook A selected provisionally.
-Stage 6 in progress: fact-checker, speech-editor, retention-editor reviewing the script. Next: apply reviews, stage 7 visual concept, stage 8 storyboard, STOP 1.
+Stage 6: round 1 reviews applied (221 words, ~96 s speech, ~103 s video); round 2 of fact-checker and retention-editor running.
+Stage 7 done: content/concept.md (hourglass of memories, mode A). Stage 8 done: content/storyboard.md.
+Next: finish round 2, then STOP 1.
 
 ## User decisions
 - Topic: Почему нам кажется, что время течёт быстро.

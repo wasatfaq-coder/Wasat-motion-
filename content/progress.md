@@ -1,7 +1,8 @@
 # Progress
 
 ## Current stage
-Stage 1 (environment) done with blockers. Next: stage 2 — research sources (user chose "find it yourself"), write content/sources.md, run topic-analyst.
+Stage 2 done: content/sources.md (from web search summaries; article pages blocked by network) and content/analysis.md (topic-analyst).
+Now at STOP 0: analyst proposes one video of ~100-110 s instead of 60 s. Waiting for the user's choice. Next: stage 5 script.
 
 ## User decisions
 - Topic: Почему нам кажется, что время течёт быстро.

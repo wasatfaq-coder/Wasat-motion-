@@ -18,7 +18,7 @@ export const roomPoint = (p: P3): [number, number] => {
 export type Cam = {focus: [number, number]; zoom: number; screen?: [number, number]};
 
 /** Full-frame SVG with a camera: the focus point is shown at `screen` with `zoom`. */
-export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode}> = ({cam, children}) => {
+export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: number}> = ({cam, children, top = GRAPHICS_TOP}) => {
   const [fx, fy] = cam.focus;
   const [sx, sy] = cam.screen ?? [540, 760];
   return (
@@ -26,8 +26,8 @@ export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode}> = ({cam, c
       <defs>
         {/* Graphics live only in the band between the thesis and the caption zone; edges fade to the background. */}
         <linearGradient id="graphicsBand" x1="0" y1="0" x2="0" y2="1920" gradientUnits="userSpaceOnUse">
-          <stop offset={GRAPHICS_TOP / 1920} stopColor="white" stopOpacity={0} />
-          <stop offset={(GRAPHICS_TOP + 50) / 1920} stopColor="white" stopOpacity={1} />
+          <stop offset={top / 1920} stopColor="white" stopOpacity={0} />
+          <stop offset={(top + 50) / 1920} stopColor="white" stopOpacity={1} />
           <stop offset={(ZONES.captionsTop - 70) / 1920} stopColor="white" stopOpacity={1} />
           <stop offset={(ZONES.captionsTop - 10) / 1920} stopColor="white" stopOpacity={0} />
         </linearGradient>

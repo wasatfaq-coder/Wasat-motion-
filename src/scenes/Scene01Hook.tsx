@@ -6,7 +6,7 @@ import {EASE} from '../lib/anim';
 import {COS30, SIN30} from '../lib/iso';
 import {Thesis} from '../components/Thesis';
 import {Armchair, CAL, Calendar, CalendarPage, CardTray, Desk, Plant, RoomShell, TRAY, WallClock, DESK} from '../illustrations/Room';
-import {Cam, lerpCam, RoomSvg, ROOM_S, roomPoint} from './RoomScene';
+import {Cam, GRAPHICS_TOP, lerpCam, RoomSvg, ROOM_S, roomPoint} from './RoomScene';
 
 export const TRAY_FOCUS = roomPoint([TRAY.x + TRAY.w / 2, TRAY.y + TRAY.d / 2, DESK.h + 0.3]);
 export const CAM_WIDE: Cam = {focus: [540, 840], zoom: 1, screen: [540, 840]};
@@ -80,7 +80,7 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const thick = 0.09;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
-      <RoomSvg cam={cam}>
+      <RoomSvg cam={cam} top={interpolate(frame, [decade - 8, decade + 0.6 * fps], [GRAPHICS_TOP, 230], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut})}>
         <RoomShell s={ROOM_S} t={t} />
         <WallClock s={ROOM_S} t={t} />
         <Calendar s={ROOM_S} flutter={Math.min(1, flutter)} />

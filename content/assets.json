@@ -1,0 +1,14 @@
+{
+  "vo": {
+    "scene-01": {
+      "file": "public/audio/vo/scene-01.mp3",
+      "key": "9e7cd1ac28ad3815f249de3974e28887b3137a01a246673daa3962c88274865e",
+      "text": "Час не ускорился. [curious] А десять лет пролетают всё быстрее. [short pause] Почему?",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "v9mIcyv51glP0SnZkkeO",
+      "sha256": "d023b16ab96129babf495cd64b3b3a9e6aae2e063ddd99af262adda9aec335ed"
+    }
+  },
+  "sfx": {}
+}

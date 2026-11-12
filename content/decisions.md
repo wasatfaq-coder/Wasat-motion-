@@ -22,3 +22,4 @@
 | 2026-11-12 | Not one room: different detailed locations per explanation step (square, bus stop/sofa, beach, city block); shared style and through-line (calendar pages → memory cards) | user |
 | 2026-11-12 | Future topics: one repository, a folder per topic projects/<slug>/; shared rules, agents and code in the root (restructure after this video is delivered) | user |
 | 2026-11-12 | Merge PR #1 into main after the video is delivered | user |
+| 2026-11-12 | User asked to merge PR #1 now (before the master render) so new topics can start from main | user |

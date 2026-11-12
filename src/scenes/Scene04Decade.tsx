@@ -21,12 +21,12 @@ export const Scene04Decade: React.FC<{scene: SceneData}> = ({scene}) => {
   const small = beat(scene, 'small');
   const drawP = interpolate(frame, [faster - 1.2 * fps, faster + 0.6 * fps], [0, 1], cl);
   const pen = getPointAtLength(DECADE_PATH, Math.max(0.01, LEN * EASE.inOut(drawP)));
-  const follow: Cam2D = {focus: [pen ? pen.x : PX1, pen ? pen.y : PY0], zoom: 1.3, screen: [484, 740]};
+  const follow: Cam2D = {focus: [pen ? pen.x : PX1, pen ? pen.y : PY0], zoom: 0.95, screen: [484, 740]};
   const shots: [number, Cam2D][] = [
     [0, {focus: [490, 780], zoom: 0.82, screen: [484, 720]}], // the stand in the street with the crowd
-    [decade - 10, {focus: [490, 680], zoom: 1.1, screen: [484, 720]}], // the chart, short lanes fade away
+    [decade - 10, {focus: [490, 740], zoom: 0.9, screen: [484, 720]}], // the chart, short lanes fade away
     [faster - 1.2 * fps, follow], // follow the pen
-    [peak - 20, {focus: [PEAK[0] + 60, PEAK[1] + 60], zoom: 1.7, screen: [484, 720]}], // punch in on ≈50
+    [peak - 20, {focus: [PEAK[0] + 40, PEAK[1] + 120], zoom: 1.15, screen: [484, 720]}], // punch in on ≈50
     [small - 30, {focus: [490, 780], zoom: 0.82, screen: [484, 720]}], // wide: modest rise, crowd reacts
     [scene.durationInFrames - 0.9 * fps, {focus: [490, 760], zoom: 0.75, screen: [484, 720]}],
   ];

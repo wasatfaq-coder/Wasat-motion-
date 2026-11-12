@@ -76,8 +76,8 @@ export const Scene11Caveat: React.FC<{scene: SceneData}> = ({scene}) => {
   const eyeLit = interpolate(frame, [attention - 4, attention + 4], [0, 1], cl);
   const heartLit = interpolate(frame, [attention + 50, attention + 58], [0, 1], cl);
   const shots: [number, Cam2D][] = [
-    [0, {focus: [490, 600], zoom: 1.45, screen: [484, 720]}], // the marker is already writing the question
-    [hyp - 10, {focus: [490, 560], zoom: 0.85, screen: [484, 760]}], // pull back: scientists behind the desk
+    [0, {focus: [490, 420], zoom: 0.95, screen: [484, 720]}], // scientists at the desk, the marker already writing
+    [hyp - 10, {focus: [490, 600], zoom: 1.15, screen: [484, 740]}], // the question mark
     [argue - 16, {focus: [490, 120], zoom: 1.2, screen: [484, 720]}], // the scientists argue
     [attention - 50, {focus: [490, 920], zoom: 1.55, screen: [484, 760]}], // magnifier over icons
     [stretch - 30, {focus: [490, 700], zoom: 0.95, screen: [484, 740]}], // open question to the viewer

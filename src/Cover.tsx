@@ -52,7 +52,7 @@ export const CoverA: React.FC<{frame?: number}> = ({frame = 0}) => {
   const pages = Array.from({length: 9}, (_, i) => i);
   return (
     <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
-      <g transform={`translate(${cx + 40} ${cy + 10}) scale(1.15) translate(${-cx} ${-cy})`}>
+      <g transform={`translate(${cx + 20} ${cy - 30}) scale(1.08) translate(${-cx} ${-cy})`}>
       {pages.map((i) => {
         const a = -2.5 + i * 0.62 + drift * 0.35;
         const d = 230 + i * 24 + drift * (40 + i * 12);

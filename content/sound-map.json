@@ -262,7 +262,7 @@
   },
   {
    "beat": "brain",
-   "offset": 16,
+   "offset": 0,
    "file": "audio/sfx/whoosh.wav",
    "volume": 0.2,
    "reason": "cut to the head cabinet"
@@ -449,6 +449,13 @@
    "file": "audio/sfx/whoosh.wav",
    "volume": 0.2,
    "reason": "back to the cover composition (loop)"
+  },
+  {
+   "beat": "hour",
+   "offset": 41,
+   "file": "audio/sfx/page-turn.wav",
+   "volume": 0.24,
+   "reason": "the room clock turns into the cover (loop)"
   }
  ]
 }

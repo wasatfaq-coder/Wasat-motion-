@@ -10,9 +10,9 @@ const FIRST_VOICE_START = 6; // frame 0 is the cover pose; voice starts 0.1 s la
 const LAST_TAIL_MS = 300; // ≤ 0.8 s after the last word
 // Silence inserted inside a voice file after a given word (the audio is split into two segments, nothing is regenerated).
 // Used for the 0.3 s "pause of expectation" before main answers (MASTER_PROMPT_FINAL §19.4).
-const PAUSES = {'scene-08': {afterWord: 'версий,', frames: 18}, 'scene-09': {afterWord: 'следов.', frames: 18}};
+const PAUSES = {'scene-08': {afterWord: 'версий,', frames: 36}, 'scene-09': {afterWord: 'следов.', frames: 24}};
 // Extra hold after the voice (frames), e.g. to let the main transformation settle.
-const EXTRA_TAIL = {'scene-09': 24};
+const EXTRA_TAIL = {'scene-09': 54};
 
 const script = JSON.parse(fs.readFileSync('content/script.json', 'utf8'));
 const soundMap = fs.existsSync('content/sound-map.json') ? JSON.parse(fs.readFileSync('content/sound-map.json', 'utf8')) : {};
@@ -136,9 +136,10 @@ script.scenes.forEach((scene, si) => {
   const pause = PAUSES[scene.id];
   let cutMs = null;
   if (pause) {
-    const w = words.find((x) => x.text === pause.afterWord);
-    if (!w) throw new Error(`pause word ${pause.afterWord} not found in ${scene.id}`);
-    cutMs = w.endMs + 40;
+    const wi = words.findIndex((x) => x.text === pause.afterWord);
+    if (wi < 0 || wi + 1 >= words.length) throw new Error(`pause word ${pause.afterWord} not found in ${scene.id}`);
+    // cut in the gap between the words: at the start of the next word minus 30 ms (never inside a word)
+    cutMs = Math.max(words[wi].endMs, words[wi + 1].startMs - 30);
   }
   const pauseFrames = pause ? pause.frames : 0;
   const dur = voiceStart + toFrames(audioMs + tail) + pauseFrames + (EXTRA_TAIL[scene.id] ?? 0);

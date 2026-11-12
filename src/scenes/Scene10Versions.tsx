@@ -92,7 +92,21 @@ const Film: React.FC<{x: number; y: number; w: number; frames: number; scroll: n
           return (
             <g key={i}>
               <rect x={fx + 6} y={y + 24} width={fw - 12} height={72} rx={4} fill={i % 3 === 0 ? COLORS.accentSoft : COLORS.fillLight} />
-              <path d={`M${fx + 12},${y + 86} L${fx + fw * 0.4},${y + 50} L${fx + fw * 0.6},${y + 70} L${fx + fw - 12},${y + 44}`} fill="none" stroke={COLORS.ink} strokeWidth={2} />
+              {i % 3 === 0 ? (
+                <g>
+                  <path d={`M${fx + 14},${y + 88} L${fx + 14},${y + 62} L${fx + fw / 2},${y + 40} L${fx + fw - 14},${y + 62} L${fx + fw - 14},${y + 88} Z`} fill="none" stroke={COLORS.ink} strokeWidth={2} strokeLinejoin="round" />
+                </g>
+              ) : i % 3 === 1 ? (
+                <g>
+                  <circle cx={fx + fw / 2} cy={y + 52} r={12} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={2} />
+                  <path d={`M${fx + 10},${y + 88} Q${fx + fw / 2},${y + 66} ${fx + fw - 10},${y + 88}`} fill="none" stroke={COLORS.ink} strokeWidth={2} />
+                </g>
+              ) : (
+                <g>
+                  <circle cx={fx + fw / 2} cy={y + 55} r={16} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={2} />
+                  <line x1={fx + fw / 2} y1={y + 71} x2={fx + fw / 2} y2={y + 90} stroke={COLORS.ink} strokeWidth={2} />
+                </g>
+              )}
               {[0.25, 0.75].map((k) => (
                 <g key={k}>
                   <rect x={fx + fw * k - 5} y={y + 6} width={10} height={10} rx={2} fill={COLORS.fillLight} />
@@ -122,7 +136,7 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
   const candles = Math.round(10 + grow * 40);
   const r = 230 + grow * 70;
   const pull = interpolate(frame, [tenth - 14, tenth + 10], [0, 70], {...cl, easing: EASE.overshoot}) * (1 - grow * 0.4);
-  const cakeIn = interpolate(frame, [second, second + 24], [0, 1], {...cl, easing: EASE.out});
+  const cakeIn = interpolate(frame, [0, 18], [0, 1], {...cl, easing: EASE.out});
   const filmP = interpolate(frame, [third + 10, third + 50], [0, 1], cl);
   const scroll = frame * 6;
   const shots: [number, Cam2D][] = [
@@ -130,8 +144,8 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
     [second + 20, {focus: [500, 760], zoom: 1.0, screen: [484, 740]}], // the cake
     [tenth - 20, {focus: [500, 560], zoom: 1.5, screen: [484, 700]}], // the slice comes out
     [tiny - 1.3 * fps, {focus: [500, 760], zoom: 0.85, screen: [484, 740]}], // the cake grows: 50 candles
-    [third - 20, {focus: [2330, 800], zoom: 0.9, screen: [484, 720]}], // pan to the child and the elderly person
-    [images - 30, {focus: [2360, 760], zoom: 1.0, screen: [484, 720]}],
+    [third - 20, {focus: [2200, 700], zoom: 0.9, screen: [484, 720]}], // pan to the child and the elderly person
+    [images - 30, {focus: [2200, 640], zoom: 1.0, screen: [484, 720]}],
   ];
   let cam = shots[0][1];
   for (let i = 1; i < shots.length; i++) cam = lerpCam2D(cam, shots[i][1], interpolate(frame, [shots[i][0], shots[i][0] + 0.55 * fps], [0, 1], cl));
@@ -177,10 +191,14 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
         </g>
         {/* (3) a child and an elderly person with cameras: same day, different number of frames */}
         <g transform="translate(1700 0)">
-          <Bust x={330} y={720} s={1.15} kid />
-          <Film x={520} y={560} w={460} frames={8} scroll={scroll * 1.6} reveal={filmP} />
-          <Bust x={330} y={1080} s={1.3} />
-          <Film x={520} y={900} w={460} frames={4} scroll={scroll * 0.7} reveal={filmP} />
+          {/* both sit at a table: the child on the left, the elderly person on the right; films rise above them */}
+          <Film x={40} y={380} w={420} frames={8} scroll={scroll * 1.6} reveal={filmP} />
+          <Film x={540} y={380} w={420} frames={4} scroll={scroll * 0.7} reveal={filmP} />
+          <Bust x={230} y={850} s={1.0} kid />
+          <Bust x={720} y={850} s={1.15} />
+          <rect x={-40} y={960} width={1100} height={60} rx={10} fill="#D9C3A0" stroke={COLORS.ink} strokeWidth={LW} />
+          <rect x={20} y={1020} width={40} height={100} fill="#C9A27E" stroke={COLORS.ink} strokeWidth={LW3} />
+          <rect x={960} y={1020} width={40} height={100} fill="#C9A27E" stroke={COLORS.ink} strokeWidth={LW3} />
         </g>
       </FrontalSvg>
     </AbsoluteFill>

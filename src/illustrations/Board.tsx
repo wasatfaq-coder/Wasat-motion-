@@ -208,9 +208,12 @@ export const RoomWallBackdrop: React.FC<{frame?: number; window?: [number, numbe
       ))}
       {/* window with skyline */}
       <rect x={wx} y={wy} width={300} height={360} rx={8} fill="#EEF2F0" stroke={COLORS.ink} strokeWidth={LW} />
-      {[[wx + 20, 140], [wx + 80, 210], [wx + 150, 110], [wx + 210, 180]].map(([x, h], i) => (
-        <rect key={i} x={x} y={wy + 360 - h} width={60} height={h} fill={COLORS.fillMid} stroke={COLORS.inkSoft} strokeWidth={2} />
+      <circle cx={wx + 230} cy={wy + 90} r={30} fill="#F8E7B5" stroke={COLORS.inkSoft} strokeWidth={2} />
+      {[[wx + 20, 90], [wx + 110, 120], [wx + 200, 80]].map(([x, h], i) => (
+        <path key={i} d={`M${x},${wy + 360} L${x},${wy + 360 - h} L${x + 40},${wy + 360 - h - 40} L${x + 80},${wy + 360 - h} L${x + 80},${wy + 360} Z`} fill={COLORS.fillMid} stroke={COLORS.inkSoft} strokeWidth={2} strokeLinejoin="round" />
       ))}
+      <circle cx={wx + 190} cy={wy + 290} r={26} fill={COLORS.fillLight} stroke={COLORS.inkSoft} strokeWidth={2} />
+      <line x1={wx + 190} y1={wy + 316} x2={wx + 190} y2={wy + 360} stroke={COLORS.inkSoft} strokeWidth={2} />
       {Array.from({length: 6}, (_, i) => (
         <line key={i} x1={wx + 6} y1={wy + 20 + i * 22 + Math.sin(frame / 40 + i) * 1.5} x2={wx + 294} y2={wy + 20 + i * 22 + Math.sin(frame / 40 + i) * 1.5} stroke={COLORS.inkSoft} strokeWidth={2} />
       ))}

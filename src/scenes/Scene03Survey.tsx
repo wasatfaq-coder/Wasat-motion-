@@ -11,7 +11,7 @@ import {Box, Line3} from '../illustrations/primitives';
 import {planeMatrix, P3} from '../lib/iso';
 import {Cam2D, FrontalSvg, FrontCrowd, lerpCam2D, StreetBackdrop} from '../illustrations/Board';
 import {Box2DPosts} from './SurveyBoard';
-import {BOARD, PX0, PX1, PY0, SurveyBoard} from './SurveyBoard';
+import {PX0, PX1, PY0, SurveyBoard} from './SurveyBoard';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 
@@ -63,7 +63,7 @@ export const Scene03Survey: React.FC<{scene: SceneData}> = ({scene}) => {
   const cam = shotCam(frame, isoShots, 28);
   const toBoard = interpolate(frame, [dive, dive + 14], [0, 1], cl);
   const boardShots: [number, Cam2D][] = [
-    [dive, {focus: [BOARD.x + BOARD.w / 2, 640], zoom: 1.2, screen: [484, 700]}],
+    [dive, {focus: [490, 760], zoom: 0.9, screen: [484, 720]}],
     [dive + 20, {focus: [(PX0 + PX1) / 2, PY0 - 160], zoom: 1.25, screen: [484, 740]}],
     [same + 0.3 * fps, {focus: [490, 780], zoom: 0.82, screen: [484, 720]}],
   ];

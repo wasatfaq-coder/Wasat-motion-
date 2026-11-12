@@ -75,8 +75,10 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
       {mystery > 0 ? (
         <g opacity={Math.min(1, mystery * 2)}>
           <g transform={planeMatrix(ROOM_S, 'wallX', [LOOP.c[0] - 0.6, LOOP.c[1], 3.2 + Math.sin(t * 2) * 0.1])}>
+            <g transform={`translate(0.6 0) scale(${Math.abs(Math.cos(t * 1.6)) * 0.9 + 0.1} 1) translate(-0.6 0)`}>
             <rect x={0} y={0} width={1.2} height={0.85} rx={0.08} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.main} vectorEffect="non-scaling-stroke" />
             <text x={0.6} y={0.68} textAnchor="middle" fontSize={0.62} fontWeight={700} fill={COLORS.accent} opacity={mystery}>?</text>
+            </g>
           </g>
         </g>
       ) : null}

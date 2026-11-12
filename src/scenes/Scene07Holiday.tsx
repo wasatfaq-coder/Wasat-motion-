@@ -48,9 +48,9 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   // part 1: the beach — the sun races across the sky three times (days fly)
   const home = long - 75;
   const beachCam = shotCam(frame, [
-    [0, {focus: roomPoint([5.0, 4.0, 0.8]), zoom: 1.7, screen: [484, 860]}],
-    [fast - 20, {focus: roomPoint([5.8, 3.6, 1.6]), zoom: 1.6, screen: [484, 900]}],
-    [fast + 1.2 * fps, {focus: roomPoint([6.2, 5.2, 0.4]), zoom: 2.6, screen: [484, 860]}], // suitcase and towel close
+    [0, {focus: roomPoint([6.4, 2.8, 1.6]), zoom: 1.55, screen: [484, 800]}],
+    [fast - 20, {focus: roomPoint([7.0, 2.6, 1.8]), zoom: 1.55, screen: [484, 820]}],
+    [fast + 1.2 * fps, {focus: roomPoint([6.6, 4.8, 0.9]), zoom: 2.2, screen: [484, 760]}], // suitcase and towel close
   ]);
   const sunP = interpolate(frame, [fast - 10, home], [0, 3], clamp);
   const sunA = Math.PI * (sunP % 1);

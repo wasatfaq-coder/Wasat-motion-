@@ -109,5 +109,57 @@
       "sha256": "c62265712628f05639b3c4f8731645915223ee2d3101d3d3ce0eb4b292589a82"
     }
   },
-  "sfx": {}
+  "sfx": {
+    "whoosh": {
+      "file": "public/audio/sfx/whoosh.wav",
+      "url": "https://remotion.media/whoosh.wav",
+      "author": "Woosh by 1bob",
+      "source": "https://freesound.org/s/831936",
+      "license": "CC0",
+      "sha256": "d98f010fa5f03fd3f4f77418f8ba6a962d36e63357265772771c4ac69c1a63a7"
+    },
+    "page-turn": {
+      "file": "public/audio/sfx/page-turn.wav",
+      "url": "https://remotion.media/page-turn.wav",
+      "author": "Draw Knife 1 by kenney.nl",
+      "source": "https://kenney.nl",
+      "license": "CC0",
+      "sha256": "72762a9dafd5f9dd4bdf365f373519a35a8786ae975de4e2bc339fcdcf6b5f6d"
+    },
+    "mouse-click": {
+      "file": "public/audio/sfx/mouse-click.wav",
+      "url": "https://remotion.media/mouse-click.wav",
+      "author": "Mouse Click Sound.mp3 by Pixeliota",
+      "source": "https://freesound.org/s/678248",
+      "license": "CC0",
+      "sha256": "887a9259203cafa24ad90274029d574ba29438bcdc87e6f384e4472f85736348"
+    },
+    "switch": {
+      "file": "public/audio/sfx/switch.wav",
+      "url": "https://remotion.media/switch.wav",
+      "author": "UI Audio - Switch 35 by kenney.nl",
+      "source": "https://kenney.nl",
+      "license": "CC0",
+      "sha256": "0d07c6daac595425c820d92966bbc35cbd6590f4bde8a59199743b9bf45da77e"
+    },
+    "shutter-modern": {
+      "file": "public/audio/sfx/shutter-modern.wav",
+      "url": "https://remotion.media/shutter-modern.wav",
+      "author": "DSLR Shutter fast 006.wav by ristooooo1",
+      "source": "https://freesound.org/s/539136",
+      "license": "CC0",
+      "sha256": "e9edb88765451ff07b247a22582f83048af5c260533d8b2e43613f45a3d1a898"
+    },
+    "whip": {
+      "file": "public/audio/sfx/whip.wav",
+      "url": "https://remotion.media/whip.wav",
+      "author": "SWSH_Badminton Racquet_Recording_01_JW Audio by JW_Audio",
+      "source": "https://freesound.org/s/838766",
+      "license": "CC0",
+      "sha256": "8713e68578c7f579bdfc24ff77fd3e3eefc1a9b5d1232a63c10800b81d0ead5f"
+    }
+  },
+  "sfx_excluded": {
+    "ding": "no explicit free license (remotion.dev/docs/sfx/ding)"
+  }
 }

@@ -45,6 +45,10 @@ Also covered by Scientific American, "Why Does Time Fly as We Get Older?"
 - S7.1 "we may be measuring past intervals of time by the number of events that can be recalled in that period" (hypothesis, attributed to James).
 - S7.2 James: fewer memorable events in adulthood make "the years grow hollow and collapse".
 
+## Re-check 2026-11-12 (after the draft)
+- S6.1 confirmed by the article abstract (Crossref, doi 10.1017/S1062798718000741): "The rate at which changes in mental images are perceived decreases with age, because of several physical features that change with age: saccades frequency, body size, pathways degradation".
+- S4.2: a specific "2025 review" could not be identified. The claims used in the video («учёные ещё спорят», «новизна помогает не всегда») are supported by secondary reports of empirical studies: Rome/Freiburg researchers found the memory (number-of-events) hypothesis not supported (theghanareport.com), a 2025 study reported by PsyPost found fewer events not reliably linked to slower time perception (psypost.org), and novelty slowing retrospective time is described as a hypothesis under active dispute (maketecheasier.com). «влияют внимание и эмоции» remains from secondhand summaries only — open risk, reported to the user.
+
 ## Notes for honesty
 - The age effect is real for long spans looking back (a decade), not for a single day or week (S1.2, S1.3).
 - Mechanisms (S2, S3, S5, S6) are hypotheses; the video must present them as explanations scientists propose, not proven laws.

@@ -119,7 +119,7 @@ const CoverC: React.FC = () => (
 const TITLES: Record<CoverProps['variant'], [string, string, number]> = {
   a: ['Почему годы', 'летят?', 112],
   b: ['Час', 'не ускоряется', 108],
-  c: ['Рутина сжимает', 'годы?', 96],
+  c: ['Рутина сжимает', 'годы в памяти?', 92],
 };
 
 export const Cover: React.FC<CoverProps> = ({variant}) => {

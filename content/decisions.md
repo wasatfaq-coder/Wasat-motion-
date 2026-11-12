@@ -14,3 +14,4 @@
 | 2026-11-12 | Voice (all 12 scenes) approved by listening; no regeneration needed | user |
 | 2026-11-12 | Title «Почему годы летят быстрее?» only as the opening preview (cover frame + first phrase), then removed | user |
 | 2026-11-12 | Remove all on-screen headings except the opening preview title; captions larger (68 px) in Rubik; preview built for Shorts (centre zone, 4:5-crop safe) | user |
+| 2026-11-12 | No theses in any scene (3–12 included); text only in the preview title and captions | user |

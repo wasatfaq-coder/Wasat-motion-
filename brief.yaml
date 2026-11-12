@@ -1,20 +1,26 @@
 topic: Почему нам кажется, что время течёт быстро
-source: content/sources.md   # agent-researched popular-science sources; user chose "find it yourself"; list to be approved
-audience: взрослые 25–45 лет без подготовки, которые замечают, что годы летят всё быстрее
-goal: понять, почему время субъективно ускоряется, и получить практический совет, как замедлить это ощущение
-duration_sec: 60
-series: auto
-cover: on
-mode: auto
+source: content/sources.md
+research_mode: web            # user: "find it yourself"
+audience: взрослые 25–45 лет без подготовки
+goal: понять, почему время субъективно ускоряется, и получить практический совет
+duration_sec: 105             # STOP 0 decision: one video ~100–110 s
+duration_tolerance: 0.10
+max_duration_sec: 180
+series: off
 language: ru
+style: detailed_isometric_line_art
+background: light_solid
+accent_colors: 1              # coral
+reference_comparison: off
+voice_provider: elevenlabs
 voice_name: Nikolay - Confident, Clear and Engaging
 voice_id: 3EuKHIEZbSzrHGNmdYsx
-voice_model: eleven_v4
-voice_enhance: where_needed
+voice_model: eleven_v4        # verified available in MCP tts node on 2026-11-11
+voice_budget: null            # to be agreed at STOP 1
+voice_tags: where_supported
 captions: on
-sfx: remotion
+sfx_source: remotion
 music: forbidden
-palette:
-fonts:
-reference_url:
-cta:
+cover: on
+cta: null
+delivery: auto                # SendUserFile works in this session

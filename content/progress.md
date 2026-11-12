@@ -21,4 +21,4 @@ STOP 1 passed (script, storyboard, voice budget ≤ 3200 credits). Next: style s
 - Delivery: SendUserFile works.
 
 ## Paid
-- Voice (ElevenLabs flow 5guk5yVDQ8mSnxrLUeBU): scene-01 generated, 85 credits (1 take). Cost ≈ 1 credit/char (estimate_only). Records in content/assets.json.
+- Voice (ElevenLabs flow 5guk5yVDQ8mSnxrLUeBU): all 12 scenes generated, 1 take each, 1577 credits of 3200 budget. Total speech ≈ 114.6 s. Records in content/assets.json. Not yet listened to by the user.

@@ -33,6 +33,7 @@ export const Thesis: React.FC<{lines: string[]; startFrame: number; endFrame?: n
                 transform: `translateY(${(1 - p) * size * 1.15}px)`,
                 letterSpacing: '-0.01em',
                 textAlign: 'center',
+                whiteSpace: 'nowrap',
                 fontVariantNumeric: 'tabular-nums',
               }}
             >

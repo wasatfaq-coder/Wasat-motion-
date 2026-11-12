@@ -184,21 +184,19 @@ export const Desk: React.FC<{s: number; t: number}> = React.memo(({s, t}) => {
       {/* drawer handles */}
       <Line3 s={s} points={[[x + w - 0.2, y + 0.7, 1.3], [x + w - 0.2, y + 1.3, 1.3]]} width={STROKE.secondary} />
       <Line3 s={s} points={[[x + w - 0.2, y + 0.7, 0.7], [x + w - 0.2, y + 1.3, 0.7]]} width={STROKE.secondary} />
+      {/* lamp cable: drawn before the desk top so the top hides it (no lines showing through) */}
+      <Line3 s={s} points={[[x + 0.3, y + 0.25, h - 0.15], [x + 0.15, y + 0.1, 1.2], [x + 0.2, 0.02, 0.6], [2.4, 0.02, 0.88]]} width={STROKE.micro} color={COLORS.inkSoft} />
       <Box s={s} at={[x, y, h - 0.15]} size={[w, d, 0.15]} />
       {/* lamp */}
-      <Box s={s} at={[x + 0.4, y + 0.3, h]} size={[0.6, 0.6, 0.08]} stroke={STROKE.secondary} />
-      <Line3 s={s} points={[[x + 0.7, y + 0.6, h + 0.08], [x + 0.7, y + 0.6, h + 1.6], [x + 1.4, y + 0.9, h + 2.0]]} width={STROKE.main} />
-      <Line3 s={s} close fill={COLORS.fillLight} points={[[x + 1.2, y + 0.6, h + 2.1], [x + 1.8, y + 1.1, h + 1.8], [x + 1.7, y + 1.3, h + 1.5], [x + 1.1, y + 0.9, h + 1.8]]} width={STROKE.main} />
+      <DeskLamp s={s} base={[x + 0.7, y + 0.6, h]} />
       {/* notebook */}
       <Box s={s} at={[x + 1.5, y + 1.1, h]} size={[1.3, 0.85, 0.08]} stroke={STROKE.secondary} />
       <Line3 s={s} points={[[x + 1.7, y + 1.3, h + 0.09], [x + 2.6, y + 1.3, h + 0.09]]} width={STROKE.micro} color={COLORS.inkSoft} />
       <Line3 s={s} points={[[x + 1.7, y + 1.55, h + 0.09], [x + 2.4, y + 1.55, h + 0.09]]} width={STROKE.micro} color={COLORS.inkSoft} />
-      {/* lamp cable */}
-      <Line3 s={s} points={[[x + 0.45, y + 0.35, h + 0.04], [x + 0.2, y + 0.15, h + 0.02], [x + 0.15, y + 0.1, 1.2], [x + 0.2, 0.02, 0.6], [2.4, 0.02, 0.88]]} width={STROKE.micro} color={COLORS.inkSoft} />
       {/* pen cup with pencils */}
       <Box s={s} at={[x + 4.6, y + 0.3, h]} size={[0.32, 0.32, 0.45]} stroke={STROKE.secondary} />
       <Line3 s={s} points={[[x + 4.7, y + 0.42, h + 0.45], [x + 4.6, y + 0.35, h + 0.95]]} width={STROKE.secondary} />
-      <Line3 s={s} points={[[x + 4.8, y + 0.45, h + 0.45], [x + 4.95, y + 0.4, h + 0.9]]} width={STROKE.secondary} color={COLORS.accent} />
+      <Line3 s={s} points={[[x + 4.8, y + 0.45, h + 0.45], [x + 4.95, y + 0.4, h + 0.9]]} width={STROKE.secondary} />
       <Line3 s={s} points={[[x + 4.75, y + 0.5, h + 0.45], [x + 4.78, y + 0.6, h + 1.0]]} width={STROKE.secondary} />
       {/* stack of papers */}
       <Box s={s} at={[x + 0.9, y + 1.45, h]} size={[0.75, 0.55, 0.05]} stroke={STROKE.micro} />
@@ -257,16 +255,51 @@ export const CardTray: React.FC<{
         <line x1={0.68} y1={0.13} x2={0.98} y2={0.13} stroke={COLORS.fillLight} strokeWidth={STROKE.micro} {...ns} />
         <line x1={0.68} y1={0.23} x2={0.9} y2={0.23} stroke={COLORS.fillLight} strokeWidth={STROKE.micro} {...ns} />
       </g>
-      {dashedExtra > 0 ? (
-        <Line3
-          s={s}
-          close
-          dash="10 8"
-          color={COLORS.accent}
-          width={STROKE.secondary}
-          points={[[x + 0.15, y + 0.15 + cardD, pileTop + dashedExtra], [x + 0.15 + cardW, y + 0.15 + cardD, pileTop + dashedExtra], [x + 0.15 + cardW, y + 0.15, pileTop + dashedExtra], [x + 0.15 + cardW, y + 0.15, pileTop], [x + 0.15 + cardW, y + 0.15 + cardD, pileTop], [x + 0.15, y + 0.15 + cardD, pileTop]]}
-        />
-      ) : null}
+      {dashedExtra > 0
+        ? // "possible" extra cards: dashed coral outlines rising above the real pile
+          [0.45, 0.9, 1.35].filter((dz) => dz <= dashedExtra + 0.01).map((dz, i) => (
+            <Line3
+              key={i}
+              s={s}
+              close
+              dash="10 8"
+              color={COLORS.accent}
+              width={STROKE.secondary}
+              points={[[x + 0.15, y + 0.15, pileTop + dz], [x + 0.15 + cardW, y + 0.15, pileTop + dz], [x + 0.15 + cardW, y + 0.15 + cardD, pileTop + dz], [x + 0.15, y + 0.15 + cardD, pileTop + dz]]}
+            />
+          ))
+        : null}
+    </g>
+  );
+};
+
+/** Desk lamp: round base, two-segment arm with joints, cone shade pointing at the desk. */
+const DeskLamp: React.FC<{s: number; base: P3}> = ({s, base}) => {
+  const [bx, by, bz] = base;
+  const elbow: P3 = [bx - 0.15, by, bz + 1.25];
+  const head: P3 = [bx + 0.55, by + 0.25, bz + 1.85];
+  const aim: P3 = [bx + 1.0, by + 0.45, bz + 1.25];
+  const [hx, hy] = iso(s)(head);
+  const [ax, ay] = iso(s)(aim);
+  const dx = ax - hx;
+  const dy = ay - hy;
+  const len = Math.hypot(dx, dy);
+  const nx = -dy / len;
+  const ny = dx / len;
+  const r0 = 0.12 * s;
+  const r1 = 0.42 * s;
+  const shade = `M${hx + nx * r0},${hy + ny * r0} L${ax + nx * r1},${ay + ny * r1} L${ax - nx * r1},${ay - ny * r1} L${hx - nx * r0},${hy - ny * r0} Z`;
+  const [ex, ey] = iso(s)(elbow);
+  return (
+    <g>
+      <g transform={planeMatrix(s, 'floor', [bx, by, bz])}>
+        <ellipse cx={0} cy={0} rx={0.35} ry={0.35} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.secondary} vectorEffect="non-scaling-stroke" />
+      </g>
+      <Line3 s={s} points={[[bx, by, bz + 0.02], elbow, head]} width={STROKE.main} />
+      <circle cx={ex} cy={ey} r={0.07 * s} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
+      <path d={shade} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
+      <ellipse cx={ax} cy={ay} rx={r1} ry={r1 * 0.35} transform={`rotate(${(Math.atan2(ny, nx) * 180) / Math.PI} ${ax} ${ay})`} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
+      <circle cx={hx} cy={hy} r={0.08 * s} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
     </g>
   );
 };

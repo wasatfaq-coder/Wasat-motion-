@@ -9,8 +9,9 @@ import {SceneData} from '../lib/timeline';
  * Caption pages in the reserved band y=1210…1470, on the clean background (graphics fade out above it).
  * Dark ink text; the active word gets a coral underline bar drawn with an inset shadow, so its width never changes.
  */
-export const Captions: React.FC<{scene: SceneData}> = ({scene}) => {
+export const Captions: React.FC<{scene: SceneData; hideBefore?: number}> = ({scene, hideBefore = 0}) => {
   const frame = useCurrentFrame();
+  if (frame < hideBefore) return null;
   const page = scene.pages.find((p, i) => {
     const next = scene.pages[i + 1];
     const end = next ? next.startFrame : scene.durationInFrames;
@@ -48,7 +49,7 @@ export const Captions: React.FC<{scene: SceneData}> = ({scene}) => {
         {page.words.map((w, i) => {
           const active = frame >= w.startFrame && frame < w.endFrame + 6;
           return (
-            <span key={i} style={{boxShadow: active ? `inset 0 -0.2em 0 ${COLORS.accentSoft}` : 'none', borderRadius: 4}}>
+            <span key={i} style={{boxShadow: active ? `inset 0 -0.16em 0 ${COLORS.accent}` : 'none', borderRadius: 4}}>
               {w.text}
               {i < page.words.length - 1 ? ' ' : ''}
             </span>

@@ -6,7 +6,7 @@ import {COLORS} from './theme/tokens';
 import {TIMELINE, SceneData} from './lib/timeline';
 import {Captions} from './components/Captions';
 import {Sfx} from './components/Sfx';
-import {Scene01Hook} from './scenes/Scene01Hook';
+import {previewTitleOut, Scene01Hook} from './scenes/Scene01Hook';
 import {Scene02Stake} from './scenes/Scene02Stake';
 
 export const mainSchema = z.object({
@@ -37,7 +37,7 @@ export const Main: React.FC<MainProps> = ({muteVoice, hideCaptions, onlyScenes})
         return (
           <Sequence key={scene.id} from={from} durationInFrames={scene.durationInFrames} name={scene.id}>
             <C scene={scene} />
-            {hideCaptions ? null : <Captions scene={scene} />}
+            {hideCaptions ? null : <Captions scene={scene} hideBefore={scene.id === 'scene-01' ? previewTitleOut(scene) : 0} />}
             {muteVoice ? null : (
               <Sequence from={scene.voiceStartFrame} layout="none" name={`voice ${scene.id}`}>
                 <Audio src={staticFile(scene.audio)} />

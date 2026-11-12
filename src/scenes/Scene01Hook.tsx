@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {COLORS, TYPE} from '../theme/tokens';
+import {COLORS} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
 import {COS30, SIN30} from '../lib/iso';
@@ -12,7 +12,13 @@ export const TRAY_FOCUS = roomPoint([TRAY.x + TRAY.w / 2, TRAY.y + TRAY.d / 2, D
 export const CAM_WIDE: Cam = {focus: [540, 840], zoom: 1, screen: [540, 840]};
 export const CAM_TRAY: Cam = {focus: TRAY_FOCUS, zoom: 2.9, screen: [484, 860]};
 
+// preview title: largest size where «летят быстрее?» stays inside the 840 px safe width (checked on the rendered cover)
+export const PREVIEW_TITLE_SIZE = 98;
+
 export const PAGE_COUNT = 10;
+
+/** Frame where the opening preview title has left (captions start here). */
+export const previewTitleOut = (scene: SceneData) => beat(scene, 'decade') - 8;
 
 /** Start frames of the torn pages: intervals shrink, so the years fly faster and faster. */
 export const pageStarts = (start: number, fps: number, firstGapSec = 0.42) => {
@@ -70,13 +76,16 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const t = frame / fps;
   const decade = beat(scene, 'decade');
   const why = beat(scene, 'why');
-  // pages start slowly before the cover frame (the first one is mid-air on frame 0) and speed up on "десять лет"
-  const starts = pageStarts(-9, fps, 0.75);
-  const flight = Math.round(0.6 * fps);
-  const landed = starts.filter((st) => frame >= st + flight).length;
+  // cover pose: three pages already drift slowly in the air on frame 0 (calm, like the steady hour);
+  // on "десять лет" the remaining pages tear off faster and faster
+  const slow = [-40, -25, -10].map((st) => ({st, flight: Math.round(1.4 * fps)}));
+  const fast = pageStarts(decade - 4, fps, 0.4).slice(0, PAGE_COUNT - 3).map((st) => ({st, flight: Math.round(0.6 * fps)}));
+  const pages = [...slow, ...fast];
+  const starts = pages.map((p) => p.st);
+  const landed = pages.filter((p) => frame >= p.st + p.flight).length;
   const flutter = starts.reduce((acc, st) => acc + Math.max(0, 1 - Math.abs(frame - st) / 6), 0);
   // camera: cover close-up → wider desk view when the title leaves → push into the tray on "Почему"
-  const titleOut = decade - 8;
+  const titleOut = previewTitleOut(scene);
   const toDesk = interpolate(frame, [titleOut - 10, titleOut + 0.8 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const push = interpolate(frame, [why - 6, scene.durationInFrames], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const deskCam: Cam = {focus: roomPoint([6.0, 0.9, 3.5]), zoom: 2.0, screen: [484, 760]};
@@ -90,7 +99,7 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
         <Calendar s={ROOM_S} flutter={Math.min(1, flutter)} />
         <Desk s={ROOM_S} t={t} />
         <CardTray s={ROOM_S} cards={Array.from({length: landed}, () => ({novel: false}))} thickness={thick} />
-        {starts.map((st, i) => {
+        {pages.map(({st, flight}, i) => {
           const p = (frame - st) / flight;
           if (p <= 0 || p >= 1) return null;
           return <FlyingPage key={i} p={p} landingZ={DESK.h + 0.06 + i * thick} />;
@@ -99,7 +108,7 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
         <Plant s={ROOM_S} t={t} />
       </RoomSvg>
       {/* title only as the opening preview: visible on the cover frame and the first phrase, then removed */}
-      <Thesis lines={['Почему годы', 'летят быстрее?']} startFrame={-30} endFrame={titleOut} size={TYPE.title} accentLine={1} top={430} />
+      <Thesis lines={['Почему годы', 'летят быстрее?']} startFrame={-30} endFrame={titleOut} size={PREVIEW_TITLE_SIZE} accentLine={1} top={420} />
     </AbsoluteFill>
   );
 };

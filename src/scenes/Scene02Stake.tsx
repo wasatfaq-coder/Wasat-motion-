@@ -18,9 +18,9 @@ export const Scene02Stake: React.FC<{scene: SceneData}> = ({scene}) => {
   const pan = interpolate(frame, [stretch - 20, stretch + 0.9 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const cam = lerpCam(CAM_TRAY, {...CAM_TRAY, screen: [484, 960], zoom: 2.4}, pan);
   const hl = interpolate(frame, [answer - 4, answer + 8, answer + 40], [0, 1, 0.35], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const grow = interpolate(frame, [stretch - 5, stretch + 1.1 * fps], [0, 1.6], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.out});
+  const grow = interpolate(frame, [stretch - 5, stretch + 1.1 * fps], [0, 1.35], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.out});
   const labelP = interpolate(frame, [stretch + 0.6 * fps, stretch + 1.0 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const labelAt = roomPoint([TRAY.x + TRAY.w / 2, TRAY.y + TRAY.d / 2, DESK.h + 0.06 + PAGE_COUNT * 0.09 + 1.6]);
+  const labelAt = roomPoint([TRAY.x + TRAY.w / 2, TRAY.y + TRAY.d / 2, DESK.h + 0.06 + PAGE_COUNT * 0.09 + 1.35]);
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
       <RoomSvg cam={cam}>

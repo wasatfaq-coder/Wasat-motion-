@@ -2115,205 +2115,205 @@
      "id": "new",
      "word": "новое",
      "wordIndex": 5,
-     "frame": 153,
-     "status": "approximate"
+     "frame": 188,
+     "status": "verified"
     },
     {
      "id": "memory",
      "word": "памяти",
      "wordIndex": 12,
-     "frame": 368,
-     "status": "approximate"
+     "frame": 356,
+     "status": "verified"
     },
     {
      "id": "longer",
      "word": "длиннее",
      "wordIndex": 15,
-     "frame": 460,
-     "status": "approximate"
+     "frame": 439,
+     "status": "verified"
     },
     {
      "id": "hour",
      "word": "час",
      "wordIndex": 17,
-     "frame": 521,
-     "status": "approximate"
+     "frame": 489,
+     "status": "verified"
     }
    ],
    "pages": [
     {
      "text": "Можно попробовать:",
-     "startFrame": 0,
-     "endFrame": 61,
+     "startFrame": 8,
+     "endFrame": 84,
      "words": [
       {
        "text": "Можно",
-       "startFrame": 0,
-       "endFrame": 31,
-       "status": "approximate"
+       "startFrame": 8,
+       "endFrame": 25,
+       "status": "verified"
       },
       {
        "text": "попробовать:",
-       "startFrame": 31,
-       "endFrame": 61,
-       "status": "approximate"
+       "startFrame": 25,
+       "endFrame": 84,
+       "status": "verified"
       }
      ]
     },
     {
      "text": "меняйте маршрут,",
-     "startFrame": 61,
-     "endFrame": 123,
+     "startFrame": 84,
+     "endFrame": 157,
      "words": [
       {
        "text": "меняйте",
-       "startFrame": 61,
-       "endFrame": 92,
-       "status": "approximate"
+       "startFrame": 84,
+       "endFrame": 112,
+       "status": "verified"
       },
       {
        "text": "маршрут,",
-       "startFrame": 92,
-       "endFrame": 123,
-       "status": "approximate"
+       "startFrame": 112,
+       "endFrame": 157,
+       "status": "verified"
       }
      ]
     },
     {
      "text": "пробуйте новое",
-     "startFrame": 123,
-     "endFrame": 184,
+     "startFrame": 157,
+     "endFrame": 212,
      "words": [
       {
        "text": "пробуйте",
-       "startFrame": 123,
-       "endFrame": 153,
-       "status": "approximate"
+       "startFrame": 157,
+       "endFrame": 188,
+       "status": "verified"
       },
       {
        "text": "новое",
-       "startFrame": 153,
-       "endFrame": 184,
-       "status": "approximate"
+       "startFrame": 188,
+       "endFrame": 212,
+       "status": "verified"
       }
      ]
     },
     {
      "text": "и замечайте, что происходит.",
-     "startFrame": 184,
-     "endFrame": 307,
+     "startFrame": 212,
+     "endFrame": 332,
      "words": [
       {
        "text": "и",
-       "startFrame": 184,
-       "endFrame": 215,
-       "status": "approximate"
+       "startFrame": 212,
+       "endFrame": 217,
+       "status": "verified"
       },
       {
        "text": "замечайте,",
-       "startFrame": 215,
-       "endFrame": 245,
-       "status": "approximate"
+       "startFrame": 217,
+       "endFrame": 259,
+       "status": "verified"
       },
       {
        "text": "что",
-       "startFrame": 245,
-       "endFrame": 276,
-       "status": "approximate"
+       "startFrame": 259,
+       "endFrame": 275,
+       "status": "verified"
       },
       {
        "text": "происходит.",
-       "startFrame": 276,
-       "endFrame": 307,
-       "status": "approximate"
+       "startFrame": 275,
+       "endFrame": 332,
+       "status": "verified"
       }
      ]
     },
     {
      "text": "Годы в памяти",
-     "startFrame": 307,
-     "endFrame": 399,
+     "startFrame": 332,
+     "endFrame": 388,
      "words": [
       {
        "text": "Годы",
-       "startFrame": 307,
-       "endFrame": 337,
-       "status": "approximate"
+       "startFrame": 332,
+       "endFrame": 352,
+       "status": "verified"
       },
       {
        "text": "в",
-       "startFrame": 337,
-       "endFrame": 368,
-       "status": "approximate"
+       "startFrame": 352,
+       "endFrame": 356,
+       "status": "verified"
       },
       {
        "text": "памяти",
-       "startFrame": 368,
-       "endFrame": 399,
-       "status": "approximate"
+       "startFrame": 356,
+       "endFrame": 388,
+       "status": "verified"
       }
      ]
     },
     {
      "text": "могут стать длиннее.",
-     "startFrame": 399,
-     "endFrame": 491,
+     "startFrame": 388,
+     "endFrame": 488,
      "words": [
       {
        "text": "могут",
-       "startFrame": 399,
-       "endFrame": 429,
-       "status": "approximate"
+       "startFrame": 388,
+       "endFrame": 414,
+       "status": "verified"
       },
       {
        "text": "стать",
-       "startFrame": 429,
-       "endFrame": 460,
-       "status": "approximate"
+       "startFrame": 414,
+       "endFrame": 439,
+       "status": "verified"
       },
       {
        "text": "длиннее.",
-       "startFrame": 460,
-       "endFrame": 491,
-       "status": "approximate"
+       "startFrame": 439,
+       "endFrame": 488,
+       "status": "verified"
       }
      ]
     },
     {
      "text": "А час —",
-     "startFrame": 491,
-     "endFrame": 552,
+     "startFrame": 488,
+     "endFrame": 509,
      "words": [
       {
        "text": "А",
-       "startFrame": 491,
-       "endFrame": 521,
-       "status": "approximate"
+       "startFrame": 488,
+       "endFrame": 489,
+       "status": "verified"
       },
       {
        "text": "час",
-       "startFrame": 521,
-       "endFrame": 552,
-       "status": "approximate"
+       "startFrame": 489,
+       "endFrame": 509,
+       "status": "verified"
       }
      ]
     },
     {
      "text": "останется часом.",
-     "startFrame": 552,
-     "endFrame": 613,
+     "startFrame": 509,
+     "endFrame": 618,
      "words": [
       {
        "text": "останется",
-       "startFrame": 552,
-       "endFrame": 583,
-       "status": "approximate"
+       "startFrame": 509,
+       "endFrame": 573,
+       "status": "verified"
       },
       {
        "text": "часом.",
-       "startFrame": 583,
-       "endFrame": 613,
-       "status": "approximate"
+       "startFrame": 573,
+       "endFrame": 618,
+       "status": "verified"
       }
      ]
     }

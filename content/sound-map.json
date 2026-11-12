@@ -262,7 +262,7 @@
   },
   {
    "beat": "brain",
-   "offset": 0,
+   "offset": -25,
    "file": "audio/sfx/whoosh.wav",
    "volume": 0.2,
    "reason": "cut to the head cabinet"

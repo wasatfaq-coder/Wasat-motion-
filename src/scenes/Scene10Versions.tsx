@@ -81,11 +81,11 @@ const Film: React.FC<{x: number; y: number; w: number; frames: number; scroll: n
   return (
     <g>
       <defs>
-        <clipPath id={`film${y}`}>
+        <clipPath id={`film${x}-${y}`}>
           <rect x={x} y={y} width={w * reveal} height={120} />
         </clipPath>
       </defs>
-      <g clipPath={`url(#film${y})`}>
+      <g clipPath={`url(#film${x}-${y})`}>
         <rect x={x} y={y} width={w} height={120} fill={COLORS.ink} />
         {Array.from({length: frames + 1}, (_, i) => {
           const fx = x + ((i * fw + scroll) % (w + fw)) - fw;
@@ -154,7 +154,7 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
       <FrontalSvg cam={cam}>
         {/* films part: a room to the right of the table (frontal); the table part is seen from above */}
         <g transform="translate(1700 0)">
-          <RoomWallBackdrop frame={frame} window={[520, 260]} shelf={-180} />
+          <RoomWallBackdrop frame={frame} window={[1180, 260]} shelf={-180} />
         </g>
         <g>
           <clipPath id="tableClip">

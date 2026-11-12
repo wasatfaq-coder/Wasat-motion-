@@ -89,7 +89,7 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
         }
       />
       {loopP > 0 ? (
-        <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: Math.min(1, loopP * 1.6), clipPath: 'inset(240px 0 710px 0)'}}>
+        <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: Math.min(1, loopP * 1.6), clipPath: 'inset(240px 0 710px 0)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)', maskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)'}}>
           <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '470px 960px'}}>
             <CoverA frame={Math.round(loopP * 40) - 40} />
           </div>

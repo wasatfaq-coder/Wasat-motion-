@@ -53,7 +53,7 @@ export const Scene04Decade: React.FC<{scene: SceneData}> = ({scene}) => {
             small: interpolate(frame, [small - 6, small + 18], [0, 1], cl),
           }}
         />
-        <FrontCrowd y={1215} react={drawP} frame={frame} />
+        <FrontCrowd y={1215} react={Math.max(drawP, interpolate(frame, [peak - 8, peak + 14], [0, 1], cl))} frame={frame} />
       </FrontalSvg>
     </AbsoluteFill>
   );

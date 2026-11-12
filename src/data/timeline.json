@@ -83,9 +83,9 @@
      ]
     },
     {
-     "text": "пролетают всё быстрее.",
+     "text": "пролетают всё быстрее. Почему?",
      "startFrame": 134,
-     "endFrame": 258,
+     "endFrame": 312,
      "words": [
       {
        "text": "пролетают",
@@ -104,14 +104,7 @@
        "startFrame": 203,
        "endFrame": 258,
        "status": "verified"
-      }
-     ]
-    },
-    {
-     "text": "Почему?",
-     "startFrame": 258,
-     "endFrame": 312,
-     "words": [
+      },
       {
        "text": "Почему?",
        "startFrame": 258,
@@ -1589,9 +1582,9 @@
      ]
     },
     {
-     "text": "И годы в памяти",
+     "text": "И годы в памяти сжимаются.",
      "startFrame": 523,
-     "endFrame": 584,
+     "endFrame": 643,
      "words": [
       {
        "text": "И",
@@ -1616,14 +1609,7 @@
        "startFrame": 553,
        "endFrame": 584,
        "status": "verified"
-      }
-     ]
-    },
-    {
-     "text": "сжимаются.",
-     "startFrame": 584,
-     "endFrame": 643,
-     "words": [
+      },
       {
        "text": "сжимаются.",
        "startFrame": 584,
@@ -2306,9 +2292,9 @@
      ]
     },
     {
-     "text": "А час —",
+     "text": "А час — останется часом.",
      "startFrame": 488,
-     "endFrame": 509,
+     "endFrame": 618,
      "words": [
       {
        "text": "А",
@@ -2321,14 +2307,7 @@
        "startFrame": 489,
        "endFrame": 509,
        "status": "verified"
-      }
-     ]
-    },
-    {
-     "text": "останется часом.",
-     "startFrame": 509,
-     "endFrame": 618,
-     "words": [
+      },
       {
        "text": "останется",
        "startFrame": 509,

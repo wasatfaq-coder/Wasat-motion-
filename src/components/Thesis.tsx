@@ -17,7 +17,7 @@ export const Thesis: React.FC<{lines: string[]; startFrame: number; endFrame?: n
   const {fps} = useVideoConfig();
   const out = endFrame === undefined ? 0 : interpolate(frame, [endFrame - 0.3 * fps, endFrame], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.in});
   return (
-    <div style={{position: 'absolute', left: SAFE.left - 24, top: SAFE.top - 14, width: 1080 - SAFE.left - SAFE.right + 48, padding: '16px 24px', boxSizing: 'border-box', background: COLORS.bg, borderRadius: 24, boxShadow: `0 0 0 3px ${COLORS.bg}`, opacity: 1 - out}}>
+    <div style={{position: 'absolute', left: SAFE.left, top: SAFE.top + 4, width: 1080 - SAFE.left - SAFE.right, opacity: 1 - out}}>
       {lines.map((line, i) => {
         const p = interpolate(frame, [startFrame + i * 4, startFrame + i * 4 + 0.45 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.out});
         return (
@@ -31,6 +31,7 @@ export const Thesis: React.FC<{lines: string[]; startFrame: number; endFrame?: n
                 color: i === accentLine ? COLORS.accent : COLORS.ink,
                 transform: `translateY(${(1 - p) * size * 1.15}px)`,
                 letterSpacing: '-0.01em',
+                textAlign: 'center',
                 fontVariantNumeric: 'tabular-nums',
               }}
             >

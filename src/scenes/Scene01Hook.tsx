@@ -55,7 +55,7 @@ const FlyingPage: React.FC<{p: number; landingZ: number}> = ({p, landingZ}) => {
   return (
     <g transform={`matrix(${m.join(',')})`}>
       <g transform={`rotate(${spin} ${pw / 2} ${ph / 2})`}>
-        <CalendarPage w={pw} h={ph} />
+        <CalendarPage w={pw} h={ph} accent={1 - Math.max(0, (p - 0.6) / 0.4)} />
       </g>
     </g>
   );

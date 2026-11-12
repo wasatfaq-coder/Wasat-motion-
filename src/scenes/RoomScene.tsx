@@ -1,6 +1,10 @@
 import React from 'react';
 import {COLORS} from '../theme/tokens';
 import {iso, P3} from '../lib/iso';
+import {ZONES} from '../theme/layout';
+
+/** Top of the illustration band: below the two-line thesis. */
+export const GRAPHICS_TOP = 500;
 
 export const ROOM_S = 54; // px per room unit at camera scale 1
 export const ROOM_ORIGIN: [number, number] = [540, 880]; // screen point of the back floor corner
@@ -19,8 +23,22 @@ export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode}> = ({cam, c
   const [sx, sy] = cam.screen ?? [540, 760];
   return (
     <svg width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0, background: COLORS.bg}}>
-      <g transform={`translate(${sx} ${sy}) scale(${cam.zoom}) translate(${-fx} ${-fy})`}>
-        <g transform={`translate(${ROOM_ORIGIN[0]} ${ROOM_ORIGIN[1]})`}>{children}</g>
+      <defs>
+        {/* Graphics live only in the band between the thesis and the caption zone; edges fade to the background. */}
+        <linearGradient id="graphicsBand" x1="0" y1="0" x2="0" y2="1920" gradientUnits="userSpaceOnUse">
+          <stop offset={GRAPHICS_TOP / 1920} stopColor="white" stopOpacity={0} />
+          <stop offset={(GRAPHICS_TOP + 50) / 1920} stopColor="white" stopOpacity={1} />
+          <stop offset={(ZONES.captionsTop - 70) / 1920} stopColor="white" stopOpacity={1} />
+          <stop offset={(ZONES.captionsTop - 10) / 1920} stopColor="white" stopOpacity={0} />
+        </linearGradient>
+        <mask id="graphicsMask" maskUnits="userSpaceOnUse" x={0} y={0} width={1080} height={1920}>
+          <rect x={0} y={0} width={1080} height={1920} fill="url(#graphicsBand)" />
+        </mask>
+      </defs>
+      <g mask="url(#graphicsMask)">
+        <g transform={`translate(${sx} ${sy}) scale(${cam.zoom}) translate(${-fx} ${-fy})`}>
+          <g transform={`translate(${ROOM_ORIGIN[0]} ${ROOM_ORIGIN[1]})`}>{children}</g>
+        </g>
       </g>
     </svg>
   );

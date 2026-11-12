@@ -15,3 +15,6 @@
 | 2026-11-12 | Title «Почему годы летят быстрее?» only as the opening preview (cover frame + first phrase), then removed | user |
 | 2026-11-12 | Remove all on-screen headings except the opening preview title; captions larger (68 px) in Rubik; preview built for Shorts (centre zone, 4:5-crop safe) | user |
 | 2026-11-12 | No theses in any scene (3–12 included); text only in the preview title and captions | user |
+| 2026-11-12 | Covers: 3 variants per topic, user picks | user |
+| 2026-11-12 | PR: whole project + rules (master prompt §19, agent shorts-quality-gate) into main | user |
+| 2026-11-12 | Scenes must be reworked: no empty sheets, denser detail, event every 1.5–3 s, all 5 retention techniques | user |

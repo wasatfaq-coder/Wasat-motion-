@@ -8,6 +8,10 @@ import {CAL, Calendar, DESK, TRAY} from '../illustrations/Room';
 import {shotCam} from './shots';
 import {FlyingCard, Suitcase} from '../illustrations/Props';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
+import {RoomSvg} from './RoomScene';
+import {Ground, IsoPerson, Sea, Tree, Umbrella} from '../illustrations/CityKit';
+import {Box} from '../illustrations/primitives';
+import {Suitcase as Suitcase3D} from '../illustrations/Props';
 import {P3} from '../lib/iso';
 
 export const HOLIDAY_CARDS = 8;
@@ -32,15 +36,57 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   void lerpCam;
   const calCam = {focus: roomPoint([CAL.u + 0.75, 0, CAL.z - 1.0]), zoom: 3.0, screen: [484, 760] as [number, number]};
   const suitCam = {focus: roomPoint([SUITCASE[0] + 0.9, SUITCASE[1] + 0.35, 1.0]), zoom: 2.6, screen: [484, 860] as [number, number]};
+  void calCam;
   const cam = shotCam(frame, [
     [0, camStart],
-    [fast - 30, calCam], // the calendar flips fast: days fly
     [long - 70, suitCam], // the suitcase opens
     [long + 10, camEnd], // bright cards pile up in memory
     [beat(scene, 'how') - 10, {...camEnd, zoom: 1.8}],
   ]);
   const src: P3 = [SUITCASE[0] + 0.3, SUITCASE[1] + 0.1, 1.4];
   const pileTop = (n: number) => DESK.h + 0.06 + n * 0.09;
+  // part 1: the beach — the sun races across the sky three times (days fly)
+  const home = long - 75;
+  const beachCam = shotCam(frame, [
+    [0, {focus: roomPoint([5.0, 4.0, 0.8]), zoom: 1.7, screen: [484, 860]}],
+    [fast - 20, {focus: roomPoint([5.0, 4.0, 1.4]), zoom: 1.35, screen: [484, 900]}],
+    [fast + 1.2 * fps, {focus: roomPoint([6.2, 5.2, 0.4]), zoom: 2.6, screen: [484, 860]}], // suitcase and towel close
+  ]);
+  const sunP = interpolate(frame, [fast - 10, home], [0, 3], clamp);
+  const sunA = Math.PI * (sunP % 1);
+  const [scx, scy] = [484 - Math.cos(sunA) * 360, 720 - Math.sin(sunA) * 300];
+  if (frame < home) {
+    return (
+      <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
+        <AbsoluteFill>
+          <RoomSvg cam={beachCam}>
+            <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.2} t={t} />
+            <Ground s={ROOM_S} at={[0, 3.2, 0]} w={12} d={6} fill="#F3E3C3" />
+            <Umbrella s={ROOM_S} at={[5.4, 4.6, 0]} />
+            <Box s={ROOM_S} at={[5.6, 5.0, 0.01]} size={[1.8, 0.8, 0.03]} stroke={2.5} top={COLORS.accentSoft} />
+            <IsoPerson s={ROOM_S} at={[4.2, 5.4, 0]} h={1.0} accent bob={Math.sin(t * 2) * 0.02} />
+            <Suitcase3D s={ROOM_S} at={[7.6, 5.4, 0]} />
+            <Tree s={ROOM_S} at={[1.2, 6.2, 0]} t={t} seed="palm1" h={2.2} />
+            <Tree s={ROOM_S} at={[10.4, 6.6, 0]} t={t} seed="palm2" h={1.8} />
+            {[[2.2, 7.6], [8.8, 7.8], [3.6, 8.4]].map(([x, y], i) => (
+              <Box key={i} s={ROOM_S} at={[x, y, 0]} size={[0.3, 0.3, 0.12]} stroke={2} top={COLORS.fillLight} />
+            ))}
+          </RoomSvg>
+        </AbsoluteFill>
+        <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
+          {sunP > 0 && sunP < 3 ? (
+            <g>
+              <circle cx={scx} cy={scy} r={56} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={5} />
+              {Array.from({length: 8}, (_, k) => {
+                const a = (k / 8) * Math.PI * 2 + frame * 0.05;
+                return <line key={k} x1={scx + Math.cos(a) * 70} y1={scy + Math.sin(a) * 70} x2={scx + Math.cos(a) * 92} y2={scy + Math.sin(a) * 92} stroke={COLORS.ink} strokeWidth={4} strokeLinecap="round" />;
+              })}
+            </g>
+          ) : null}
+        </svg>
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
       <RoomStage

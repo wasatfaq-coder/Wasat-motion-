@@ -1,18 +1,19 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {COLORS, STROKE} from '../theme/tokens';
+import {COLORS} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE, mix} from '../lib/anim';
-import {lerpCam, ROOM_S, roomPoint} from './RoomScene';
+import {ROOM_S, roomPoint} from './RoomScene';
 import {DESK, TRAY} from '../illustrations/Room';
 import {FlyingCard} from '../illustrations/Props';
-import {planeMatrix, P3} from '../lib/iso';
+import {P3} from '../lib/iso';
 import {CAM_COVER, CAM_TRAY} from './Scene01Hook';
 import {shotCam} from './shots';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {HOLIDAY_CARDS} from './Scene07Holiday';
+import {RoomSvg} from './RoomScene';
+import {CityLoop, LOOP} from './CityLoop';
 
-const LOOP_C: P3 = [5.9, 6.1, 0.01];
 
 /** Scene 12: advice and loop. The home-work loop opens into a new branching road; new bright cards arrive; the past may grow longer; the clock still runs evenly. */
 export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
@@ -21,34 +22,38 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
   const t = (frame + scene.from) / fps;
   const clamp = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
   const nw = beat(scene, 'new');
+  const memory = beat(scene, 'memory');
   const longer = beat(scene, 'longer');
   const hour = beat(scene, 'hour');
   const n = HOOK_CARDS + HOLIDAY_CARDS;
-  const openLoop = interpolate(frame, [0.2 * fps, nw], [0, 1], {...clamp, easing: EASE.inOut});
-  const starts = Array.from({length: 5}, (_, i) => nw + i * 14);
-  const flight = Math.round(0.6 * fps);
+  const toRoom = memory - 30;
+  if (frame < toRoom) {
+    // the city: the ring opens into new roads (park, museum, mountains); bright cards fly home
+    const open = interpolate(frame, [0.2 * fps, nw + 20], [0, 1], {...clamp, easing: EASE.inOut});
+    const cam = shotCam(frame, [
+      [0, {focus: roomPoint([LOOP.c[0] + LOOP.rx, LOOP.c[1], 0.4]), zoom: 2.3, screen: [484, 800]}], // the ring breaks open
+      [nw - 50, {focus: roomPoint([11.6, 4.4, 1.0]), zoom: 1.5, screen: [484, 800]}], // new roads to new places
+      [nw + 30, {focus: roomPoint([9.0, 3.6, 2.0]), zoom: 1.2, screen: [484, 760]}], // cards fly home
+    ]);
+    return (
+      <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
+        <RoomSvg cam={cam}>
+          <CityLoop t={t} frame={frame} carSpeed={(2 * Math.PI) / (3.4 * fps)} open={open} cards={interpolate(frame, [nw, toRoom], [0, 1], clamp)} />
+        </RoomSvg>
+      </AbsoluteFill>
+    );
+  }
+  const starts = Array.from({length: 5}, (_, i) => toRoom + 4 + i * 8);
+  const flight = Math.round(0.5 * fps);
   const landed = starts.filter((st) => frame >= st + flight).length;
   const cards = [...plainCards(n), ...Array.from({length: landed}, () => ({novel: true}))];
   const dashed = interpolate(frame, [longer - 10, longer + 0.8 * fps], [0, 1.35], {...clamp, easing: EASE.out});
-  const loopCam = {focus: roomPoint([6.4, 3.8, 1.0]), zoom: 1.55, screen: [484, 720] as [number, number]};
-  const toTray = interpolate(frame, [nw + 40, nw + 100], [0, 1], {...clamp, easing: EASE.inOut});
-  const toCover = interpolate(frame, [hour - 30, hour + 0.6 * fps], [0, 1], {...clamp, easing: EASE.inOut});
-  void toTray;
-  void toCover;
-  void lerpCam;
-  const memory = beat(scene, 'memory');
   const cam = shotCam(frame, [
-    [0, {...loopCam, zoom: 2.2, focus: roomPoint([LOOP_C[0] + 2.2, LOOP_C[1], 0.3])}], // the loop opens into a road
-    [nw - 30, loopCam],
-    [nw + 30, {...CAM_TRAY, zoom: 2.4, screen: [484, 880]}],
-    [memory - 20, {...CAM_TRAY, zoom: 2.9, screen: [484, 900]}],
+    [toRoom, {...CAM_TRAY, zoom: 2.9, screen: [484, 900]}],
     [longer - 10, {...CAM_TRAY, zoom: 2.2, screen: [484, 980]}],
     [hour - 30, CAM_COVER],
   ]);
-  // the loop opens: the ellipse gap widens and a road with branches grows out of it
-  const gap = openLoop * 22;
-  const road = (k: number) => interpolate(openLoop, [0.3 + k * 0.15, 0.8 + k * 0.1], [0, 1], clamp);
-  const src: P3 = [LOOP_C[0] + 2.0, LOOP_C[1], 0.3];
+  const src: P3 = [TRAY.x + 1.6, TRAY.y - 1.4, 5.0];
   const pileTop = (i: number) => DESK.h + 0.06 + i * 0.09 * 0.28;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -62,18 +67,12 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
         hideChair
         front={
           <g>
-            <g transform={planeMatrix(ROOM_S, 'floor', LOOP_C)}>
-              <ellipse cx={0} cy={0} rx={2.0} ry={1.4} fill="none" stroke={COLORS.ink} strokeWidth={STROKE.main} pathLength={100} strokeDasharray={`${100 - gap} ${gap}`} strokeDashoffset={-gap / 2} vectorEffect="non-scaling-stroke" />
-              <path d="M2.0,0 L3.2,0.4" fill="none" stroke={COLORS.accent} strokeWidth={STROKE.main} pathLength={1} strokeDasharray={`${road(0)} 1`} vectorEffect="non-scaling-stroke" />
-              <path d="M3.2,0.4 L3.9,-0.6" fill="none" stroke={COLORS.accent} strokeWidth={STROKE.main} pathLength={1} strokeDasharray={`${road(1)} 1`} vectorEffect="non-scaling-stroke" />
-              <path d="M3.2,0.4 L4.0,1.4" fill="none" stroke={COLORS.accent} strokeWidth={STROKE.main} pathLength={1} strokeDasharray={`${road(2)} 1`} vectorEffect="non-scaling-stroke" />
-            </g>
             {starts.map((st, i) => {
               const p = (frame - st) / flight;
               if (p <= 0 || p >= 1) return null;
               const e = EASE.inOut(p);
               const to: P3 = [TRAY.x + 0.2, TRAY.y + 0.2, pileTop(n + i)];
-              const at: P3 = [mix(src[0], to[0], e), mix(src[1], to[1], e), mix(src[2], to[2], e) + Math.sin(Math.PI * p) * 1.6];
+              const at: P3 = [mix(src[0], to[0], e), mix(src[1], to[1], e), mix(src[2], to[2], e)];
               return <FlyingCard key={i} s={ROOM_S} at={at} novel />;
             })}
           </g>

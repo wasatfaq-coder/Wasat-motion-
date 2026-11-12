@@ -1,95 +1,48 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {COLORS, STROKE} from '../theme/tokens';
+import {COLORS} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
-import {lerpCam, ROOM_S, roomPoint} from './RoomScene';
-import {Box} from '../illustrations/primitives';
-import {planeMatrix, P3} from '../lib/iso';
+import {RoomSvg, roomPoint} from './RoomScene';
 import {CAM_TRAY} from './Scene01Hook';
-import {shotCam} from './shots';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {HOLIDAY_CARDS} from './Scene07Holiday';
+import {shotCam} from './shots';
+import {CityLoop, LOOP} from './CityLoop';
 
-const LOOP_C: P3 = [5.9, 6.1, 0.01];
-const RX = 2.0;
-const RY = 1.4;
-const loopPoint = (a: number): P3 => [LOOP_C[0] + Math.cos(a) * RX, LOOP_C[1] + Math.sin(a) * RY, 0.02];
+const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 
-/** House (left of the loop) and office block (right): simple boxes with roofs. */
-const House: React.FC<{at: P3}> = ({at}) => (
-  <g>
-    <Box s={ROOM_S} at={at} size={[0.7, 0.7, 0.6]} stroke={STROKE.secondary} />
-    <path
-      d={(() => {
-        const [x, y, z] = at;
-        const pts: P3[] = [[x, y + 0.7, z + 0.6], [x + 0.35, y + 0.35, z + 1.0], [x + 0.7, y + 0.7, z + 0.6]];
-        return pts.map((p, i) => {
-          const sx = Math.cos(Math.PI / 6) * (p[0] - p[1]) * ROOM_S;
-          const sy = 0.5 * (p[0] + p[1]) * ROOM_S - p[2] * ROOM_S;
-          return `${i ? 'L' : 'M'}${sx},${sy}`;
-        }).join(' ') + ' Z';
-      })()}
-      fill={COLORS.fillLight}
-      stroke={COLORS.ink}
-      strokeWidth={STROKE.secondary}
-      strokeLinejoin="round"
-    />
-  </g>
-);
-
-/** Scene 9: routine. Identical grey days run the home → work → home loop and leave few traces; then the years in memory compress. */
+/** Scene 9: routine. A city block: the car runs the same ring home → work → home; identical grey days leave few traces.
+ *  After the pause, back home: the pile of years in memory compresses (the biggest transformation of the video). */
 export const Scene09Routine: React.FC<{scene: SceneData}> = ({scene}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = (frame + scene.from) / fps;
-  const clamp = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
   const routine = beat(scene, 'routine');
-  const shrink = beat(scene, 'shrink');
-  const loopCam = {focus: roomPoint([6.3, 4.2, 0.8]), zoom: 1.55, screen: [484, 720] as [number, number]};
-  const toTray = interpolate(frame, [shrink - 1.0 * fps, shrink - 0.3 * fps], [0, 1], {...clamp, easing: EASE.inOut});
-  void toTray;
-  void lerpCam;
   const traces = beat(scene, 'traces');
-  const cam = shotCam(frame, [
-    [0, {focus: roomPoint([6.0, 3.0, 1.2]), zoom: 1.2, screen: [484, 740]}],
-    [routine - 40, loopCam],
-    [routine + 1.2 * fps, {focus: roomPoint([LOOP_C[0] - 1.6, LOOP_C[1], 0.3]), zoom: 2.4, screen: [484, 760]}], // "дом"
-    [routine + 2.4 * fps, {focus: roomPoint([LOOP_C[0] + 1.6, LOOP_C[1], 0.5]), zoom: 2.4, screen: [484, 760]}], // "работа"
-    [traces - 40, {...loopCam, zoom: 1.9}], // the same grey days run around
-    [shrink - 1.0 * fps, {...CAM_TRAY, zoom: 2.4, screen: [484, 880]}],
-  ]);
-  const loopDraw = interpolate(frame, [routine - 40, routine + 20], [0, 1], {...clamp, easing: EASE.inOut});
-  // the big transformation: the pile compresses (after the pause in the voice)
-  const squash = interpolate(frame, [shrink - 5, shrink + 1.4 * fps], [1, 0.28], {...clamp, easing: EASE.inOut});
+  const shrink = beat(scene, 'shrink');
+  const backHome = shrink - 1.0 * fps;
   const n = HOOK_CARDS + HOLIDAY_CARDS;
-  const runners = Array.from({length: 6}, (_, i) => i);
-  const speed = (2 * Math.PI) / (3.0 * fps); // one lap per 3 s: steady, monotonous
+  if (frame < backHome) {
+    const cam = shotCam(frame, [
+      [0, {focus: roomPoint([6.0, 4.6, 1.0]), zoom: 1.4, screen: [484, 780]}], // the whole block
+      [routine - 30, {focus: roomPoint([1.9, 4.4, 0.8]), zoom: 2.6, screen: [484, 800]}], // "дом"
+      [routine + 0.9 * fps, {focus: roomPoint([10.4, 3.4, 1.6]), zoom: 2.1, screen: [484, 780]}], // "работа"
+      [routine + 1.9 * fps, {focus: roomPoint([1.9, 4.4, 0.8]), zoom: 2.6, screen: [484, 800]}], // "дом" again
+      [traces - 40, {focus: roomPoint([LOOP.c[0], LOOP.c[1], 0.4]), zoom: 1.5, screen: [484, 800]}], // the ring with faint traces
+    ]);
+    return (
+      <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
+        <RoomSvg cam={cam}>
+          <CityLoop t={t} frame={frame} carSpeed={(2 * Math.PI) / (2.6 * fps)} grey={interpolate(frame, [traces - 40, traces], [0, 1], cl)} />
+        </RoomSvg>
+      </AbsoluteFill>
+    );
+  }
+  const squash = interpolate(frame, [shrink - 5, shrink + 1.4 * fps], [1, 0.28], {...cl, easing: EASE.inOut});
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
-      <RoomStage
-        cam={cam}
-        t={t}
-        cards={plainCards(n)}
-        squash={squash}
-        hideChair
-        front={
-          <g>
-            <g transform={planeMatrix(ROOM_S, 'floor', LOOP_C)}>
-              <ellipse cx={0} cy={0} rx={RX} ry={RY} fill="none" stroke={COLORS.ink} strokeWidth={STROKE.main} strokeDasharray={`${loopDraw * 100} 100`} pathLength={100} vectorEffect="non-scaling-stroke" />
-            </g>
-            <House at={[LOOP_C[0] - RX - 0.35, LOOP_C[1] - 0.35, 0]} />
-            <Box s={ROOM_S} at={[LOOP_C[0] + RX - 0.35, LOOP_C[1] - 0.4, 0]} size={[0.7, 0.8, 1.2]} stroke={STROKE.secondary} />
-            {loopDraw >= 1
-              ? runners.map((i) => {
-                  const a = frame * speed + (i / runners.length) * Math.PI * 2;
-                  const p = loopPoint(a);
-                  return <Box key={i} s={ROOM_S} at={[p[0] - 0.25, p[1] - 0.18, 0.02]} size={[0.5, 0.36, 0.05]} stroke={STROKE.micro} top={COLORS.fillDark} />;
-                })
-              : null}
-          </g>
-        }
-      />
+      <RoomStage cam={{...CAM_TRAY, zoom: interpolate(frame, [backHome, shrink], [2.0, 2.5], cl), screen: [484, 880]}} t={t} cards={plainCards(n)} squash={squash} hideChair />
     </AbsoluteFill>
   );
 };

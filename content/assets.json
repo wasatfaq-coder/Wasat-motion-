@@ -1,0 +1,165 @@
+{
+  "vo": {
+    "scene-01": {
+      "file": "public/audio/vo/scene-01.mp3",
+      "key": "9e7cd1ac28ad3815f249de3974e28887b3137a01a246673daa3962c88274865e",
+      "text": "Час не ускорился. [curious] А десять лет пролетают всё быстрее. [short pause] Почему?",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "v9mIcyv51glP0SnZkkeO",
+      "sha256": "d023b16ab96129babf495cd64b3b3a9e6aae2e063ddd99af262adda9aec335ed"
+    },
+    "scene-02": {
+      "file": "public/audio/vo/scene-02.mp3",
+      "key": "7d0998cef943ae659b0b63c877478cce068330b565d9d825ec541010867470c3",
+      "text": "Большинство говорит: время летит. А ответ подскажет, как, возможно, растянуть годы в памяти.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "57SEc7xlparlrFCeLo3n",
+      "sha256": "434df14a82567bae4b2529ec4499e37dd32d7e13fb8ef2319db708d06ce2ade6"
+    },
+    "scene-03": {
+      "file": "public/audio/vo/scene-03.mp3",
+      "key": "34ad6523c3696b3af4f872869343df9aa8c08209cae229101b2acc57370941db",
+      "text": "Учёные проверили, летит ли время: опросили почти пятьсот человек. Час, неделя, даже целый месяц с возрастом не ускорялись.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "N10SaUq7QgjPcHYvnaLD",
+      "sha256": "1f9d524e909036b6895a85142e59c123533e3d2a90b3e37af89aae5f59edb225"
+    },
+    "scene-04": {
+      "file": "public/audio/vo/scene-04.mp3",
+      "key": "3a98ea914f7ad35b6026b06305b40f162fac13c3657c0748cb6c94f24f971e47",
+      "text": "[dramatically] Но спросите про последнее десятилетие. С возрастом оно пролетает всё быстрее. Пик — около пятидесяти, дальше ровно. Эффект небольшой, но он есть.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "ahRanyKjgbohsIQUeP9W",
+      "sha256": "0b37b543a8cbce3aa0fda39b5f14c899de10fb6a465475f06b1790a8ad5f25a8"
+    },
+    "scene-05": {
+      "file": "public/audio/vo/scene-05.mp3",
+      "key": "7cb13f487ab5fa80718cd66482453d2f66e066b97c6060da64f428f894c008b7",
+      "text": "Значит, ускоряются не сами дни. [short pause] Ускоряются ГОДЫ, когда мы оглядываемся назад.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "mUjq5TFWGpYd9TjnXn1t",
+      "sha256": "fa6a0cde71e82967b956ad1f04357b3869eabca7feb4320dd951b032ead1cf66"
+    },
+    "scene-06": {
+      "file": "public/audio/vo/scene-06.mp3",
+      "key": "96dc337df5490614c3c11d36e99be71f24af9255b75c23ffef85fff8d8bc7fc2",
+      "text": "Почему именно прошлое? Время мы оцениваем двумя способами: пока оно идёт и когда оглядываемся назад.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "MxIP4ls6ja5kMSKwDXK9",
+      "sha256": "2608f2d5ed476ef92576e1b8452c8b9daecde8c77b5620a4c1ac2e2041a76a36"
+    },
+    "scene-07": {
+      "file": "public/audio/vo/scene-07.mp3",
+      "key": "b8683fc8cd707c09588f4bb61bc2e817a4010e9ab25e8bfbcad15ba5cbb83700",
+      "text": "[dramatically] Но вот странность. В отпуске дни быстро пролетают. А дома кажется, что вы уехали надолго. [short pause] Как так?",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "pVRCgDMnVC8i0yfVus77",
+      "sha256": "9d538dfe4cedfd10d6a811be791296fd51676ce0d3eb907fbba37951bf0b19e1"
+    },
+    "scene-08": {
+      "file": "public/audio/vo/scene-08.mp3",
+      "key": "fd9be35aeca6dc93b8c234ceb5479d1555ed0a156e3ff94c33111aab95a387fb",
+      "text": "Учёные ищут разгадку в новизне. Вокруг новые улицы и впечатления. По одной из версий, мозг меряет прошлое новыми воспоминаниями. Много нового — период кажется длинным.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "NigiR3RWaor2PT4AYJnc",
+      "sha256": "64107d93f531d993c2f1073cc0b54209ba8b9b2c457faf5c487cacab7067ea7e"
+    },
+    "scene-09": {
+      "file": "public/audio/vo/scene-09.mp3",
+      "key": "49bd936cc65bc99f1bbdc3af705caafb78ab45bb603998369ff6ac1bdf62fa3a",
+      "text": "Поэтому взрослые годы и летят. Дом, работа, дом. Одинаковые дни оставляют мало следов. [short pause] И годы в памяти сжимаются.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "FQ41eZbe5fMFu51Xfc69",
+      "sha256": "e89e29a1c7a3880fb293beeea698765bcab7d2bb11ef70d281edf9ba3aa77ff4"
+    },
+    "scene-10": {
+      "file": "public/audio/vo/scene-10.mp3",
+      "key": "e76b908a36b18305278c3bc306e0d8b19e6c731a5882a1defbfbfbb28cc3b6ce",
+      "text": "Но это не единственная версия. Вторая: в десять лет год — десятая часть жизни. С годами эта доля всё меньше. Третья: молодой мозг замечает за день больше картинок.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "4IylxBXDZ8sqb02V3iGb",
+      "sha256": "b6f35bbfafdf0fd6ee186b0267c77f71d262f3a2dd0317bd9055d2c6084f460a"
+    },
+    "scene-11": {
+      "file": "public/audio/vo/scene-11.mp3",
+      "key": "c83e17159569c8e113737155c27464a28732f0adc68340611bf6be03b053dbfd",
+      "text": "[seriously] Поэтому честно: все эти объяснения — гипотезы. Учёные ещё спорят. Новизна помогает не всегда, влияют внимание и эмоции. [short pause] Так можно ли растянуть свои годы?",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "5N5fhn7WHhq3LVhaR2iE",
+      "sha256": "3ac42e4a87af77c73c56b634874be76f5517602b4dc870871d785211639a6400"
+    },
+    "scene-12": {
+      "file": "public/audio/vo/scene-12.mp3",
+      "key": "7190ca992a7e1812415a7798097726c1ac119fdd3c70626e5fc140b9fd050800",
+      "text": "[warmly] Можно попробовать: меняйте маршрут, пробуйте новое и замечайте, что происходит. Годы в памяти могут стать длиннее. [short pause] А час — останется часом.",
+      "voiceId": "3EuKHIEZbSzrHGNmdYsx",
+      "model": "eleven_v4",
+      "generationId": "jKlsFkJXM4JGiSmKdpqH",
+      "sha256": "c62265712628f05639b3c4f8731645915223ee2d3101d3d3ce0eb4b292589a82"
+    }
+  },
+  "sfx": {
+    "whoosh": {
+      "file": "public/audio/sfx/whoosh.wav",
+      "url": "https://remotion.media/whoosh.wav",
+      "author": "Woosh by 1bob",
+      "source": "https://freesound.org/s/831936",
+      "license": "CC0",
+      "sha256": "d98f010fa5f03fd3f4f77418f8ba6a962d36e63357265772771c4ac69c1a63a7"
+    },
+    "page-turn": {
+      "file": "public/audio/sfx/page-turn.wav",
+      "url": "https://remotion.media/page-turn.wav",
+      "author": "Draw Knife 1 by kenney.nl",
+      "source": "https://kenney.nl",
+      "license": "CC0",
+      "sha256": "72762a9dafd5f9dd4bdf365f373519a35a8786ae975de4e2bc339fcdcf6b5f6d"
+    },
+    "mouse-click": {
+      "file": "public/audio/sfx/mouse-click.wav",
+      "url": "https://remotion.media/mouse-click.wav",
+      "author": "Mouse Click Sound.mp3 by Pixeliota",
+      "source": "https://freesound.org/s/678248",
+      "license": "CC0",
+      "sha256": "887a9259203cafa24ad90274029d574ba29438bcdc87e6f384e4472f85736348"
+    },
+    "switch": {
+      "file": "public/audio/sfx/switch.wav",
+      "url": "https://remotion.media/switch.wav",
+      "author": "UI Audio - Switch 35 by kenney.nl",
+      "source": "https://kenney.nl",
+      "license": "CC0",
+      "sha256": "0d07c6daac595425c820d92966bbc35cbd6590f4bde8a59199743b9bf45da77e"
+    },
+    "shutter-modern": {
+      "file": "public/audio/sfx/shutter-modern.wav",
+      "url": "https://remotion.media/shutter-modern.wav",
+      "author": "DSLR Shutter fast 006.wav by ristooooo1",
+      "source": "https://freesound.org/s/539136",
+      "license": "CC0",
+      "sha256": "e9edb88765451ff07b247a22582f83048af5c260533d8b2e43613f45a3d1a898"
+    },
+    "whip": {
+      "file": "public/audio/sfx/whip.wav",
+      "url": "https://remotion.media/whip.wav",
+      "author": "SWSH_Badminton Racquet_Recording_01_JW Audio by JW_Audio",
+      "source": "https://freesound.org/s/838766",
+      "license": "CC0",
+      "sha256": "8713e68578c7f579bdfc24ff77fd3e3eefc1a9b5d1232a63c10800b81d0ead5f"
+    }
+  },
+  "sfx_excluded": {
+    "ding": "no explicit free license (remotion.dev/docs/sfx/ding)"
+  }
+}

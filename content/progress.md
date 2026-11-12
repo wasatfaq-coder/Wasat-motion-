@@ -7,7 +7,8 @@ Rules: MASTER_PROMPT_FINAL.md v2.1 (§19: density, pacing, retention, covers, ag
 - Cover A chosen (out/cover.png = frame 0); 3 variants in src/Cover.tsx.
 - Scenes reworked after user feedback: no empty sheets, several detailed locations (room, city square + info stand, bus stop, beach, head cabinet, cake/films, notebook, city block), shot changes every 1.5–3 s, sound map 52 events.
 - PR #1 (draft → main) contains everything.
-- Next: half-scale draft → shorts-quality-gate + fact-checker on stills → fix → STOP 3 (draft to user).
+- Half-scale draft rendered (out/draft.mp4, 243 s render). Audio check done (content/reviews/audio.md).
+- Next: shorts-quality-gate + fact-checker on out/qa/gate2 → fix → STOP 3; after delivery: restructure to projects/<slug>/ and merge PR #1.
 
 ## Environment
 - 4 cores, 15 GB RAM. Node 22, ffmpeg 6.1, uv. Remotion 4.0.542 pinned (prototype used 4.0.543; not required).

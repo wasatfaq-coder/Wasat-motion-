@@ -28,7 +28,7 @@ export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: numbe
         <linearGradient id="graphicsBand" x1="0" y1="0" x2="0" y2="1920" gradientUnits="userSpaceOnUse">
           <stop offset={top / 1920} stopColor="white" stopOpacity={0} />
           <stop offset={(top + 50) / 1920} stopColor="white" stopOpacity={1} />
-          <stop offset={(ZONES.captionsTop - 70) / 1920} stopColor="white" stopOpacity={1} />
+          <stop offset={(ZONES.captionsTop - 40) / 1920} stopColor="white" stopOpacity={1} />
           <stop offset={(ZONES.captionsTop - 10) / 1920} stopColor="white" stopOpacity={0} />
         </linearGradient>
         <mask id="graphicsMask" maskUnits="userSpaceOnUse" x={0} y={0} width={1080} height={1920}>

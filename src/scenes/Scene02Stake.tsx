@@ -16,7 +16,7 @@ export const Scene02Stake: React.FC<{scene: SceneData}> = ({scene}) => {
   const stretch = beat(scene, 'stretch');
   // camera: hold on the tray, gentle pan up as the possible taller pile appears
   const pan = interpolate(frame, [stretch - 20, stretch + 0.9 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
-  const cam = lerpCam(CAM_TRAY, {...CAM_TRAY, screen: [540, 980], zoom: 1.65}, pan);
+  const cam = lerpCam(CAM_TRAY, {...CAM_TRAY, screen: [484, 960], zoom: 2.4}, pan);
   const hl = interpolate(frame, [answer - 4, answer + 8, answer + 40], [0, 1, 0.35], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const grow = interpolate(frame, [stretch - 5, stretch + 1.1 * fps], [0, 1.6], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.out});
   const labelP = interpolate(frame, [stretch + 0.6 * fps, stretch + 1.0 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
@@ -33,8 +33,8 @@ export const Scene02Stake: React.FC<{scene: SceneData}> = ({scene}) => {
         <Plant s={ROOM_S} t={t} />
         {labelP > 0 ? (
           <g opacity={labelP} transform={`translate(${labelAt[0] - 540} ${labelAt[1] - 880 - 34})`}>
-            <rect x={-82} y={-30} width={164} height={42} rx={21} fill={COLORS.bg} stroke={COLORS.accent} strokeWidth={STROKE.secondary / 1.65} />
-            <text x={0} y={0} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={28} fill={COLORS.ink} textAnchor="middle">
+            <rect x={-56} y={-21} width={112} height={29} rx={14.5} fill={COLORS.bg} stroke={COLORS.accent} strokeWidth={STROKE.secondary / 2.4} />
+            <text x={0} y={0} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={19} fill={COLORS.ink} textAnchor="middle">
               возможно
             </text>
           </g>

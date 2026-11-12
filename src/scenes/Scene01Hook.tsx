@@ -10,7 +10,7 @@ import {Cam, GRAPHICS_TOP, lerpCam, RoomSvg, ROOM_S, roomPoint} from './RoomScen
 
 export const TRAY_FOCUS = roomPoint([TRAY.x + TRAY.w / 2, TRAY.y + TRAY.d / 2, DESK.h + 0.3]);
 export const CAM_WIDE: Cam = {focus: [540, 840], zoom: 1, screen: [540, 840]};
-export const CAM_TRAY: Cam = {focus: TRAY_FOCUS, zoom: 1.75, screen: [540, 900]};
+export const CAM_TRAY: Cam = {focus: TRAY_FOCUS, zoom: 2.9, screen: [484, 860]};
 
 export const PAGE_COUNT = 10;
 
@@ -79,7 +79,7 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const titleOut = decade - 8;
   const toDesk = interpolate(frame, [titleOut - 10, titleOut + 0.8 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const push = interpolate(frame, [why - 6, scene.durationInFrames], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
-  const deskCam: Cam = {focus: roomPoint([5.6, 0.6, 3.6]), zoom: 1.4, screen: [500, 820]};
+  const deskCam: Cam = {focus: roomPoint([6.0, 0.9, 3.5]), zoom: 2.0, screen: [484, 760]};
   const cam = lerpCam(lerpCam(CAM_COVER, deskCam, toDesk), CAM_TRAY, push);
   const thick = 0.09;
   return (

@@ -12,7 +12,7 @@ const LAST_TAIL_MS = 500; // ≤ 0.8 s after the last word
 const script = JSON.parse(fs.readFileSync('content/script.json', 'utf8'));
 const soundMap = fs.existsSync('content/sound-map.json') ? JSON.parse(fs.readFileSync('content/sound-map.json', 'utf8')) : {};
 // leading silence of each sfx file in frames (measured with silencedetect -40 dB): start that much earlier
-const LEAD = {'audio/sfx/mouse-click.wav': 7, 'audio/sfx/page-turn.wav': 3, 'audio/sfx/shutter-modern.wav': 8, 'audio/sfx/switch.wav': 6, 'audio/sfx/whip.wav': 4, 'audio/sfx/whoosh.wav': 2};
+const LEAD = {'audio/sfx/mouse-click.wav': 7, 'audio/sfx/page-turn.wav': 3, 'audio/sfx/shutter-modern.wav': 8, 'audio/sfx/switch.wav': 6, 'audio/sfx/whip.wav': 8, 'audio/sfx/whoosh.wav': 2};
 
 const norm = (w) => w.toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]/g, '');
 const stripTags = (t) => t.replace(/\[[^\]]+\]/g, ' ');

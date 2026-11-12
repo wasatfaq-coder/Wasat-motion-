@@ -518,7 +518,7 @@
     },
     {
      "file": "audio/sfx/whip.wav",
-     "frame": 142,
+     "frame": 138,
      "volume": 0.25,
      "reason": "clipboard slides away, cut to the board"
     },
@@ -1104,7 +1104,7 @@
    "sfx": [
     {
      "file": "audio/sfx/whip.wav",
-     "frame": 175,
+     "frame": 171,
      "volume": 0.28,
      "reason": "frame splits in two"
     },
@@ -1617,7 +1617,7 @@
     },
     {
      "file": "audio/sfx/whip.wav",
-     "frame": 628,
+     "frame": 624,
      "volume": 0.24,
      "reason": "tape measure shoots up"
     }
@@ -2111,7 +2111,7 @@
     },
     {
      "file": "audio/sfx/whip.wav",
-     "frame": 254,
+     "frame": 250,
      "volume": 0.24,
      "reason": "slice pulled out of the cake"
     },

@@ -4,7 +4,6 @@ import {COLORS, STROKE, TYPE} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
 import {fontFamily} from '../theme/font';
-import {Thesis} from '../components/Thesis';
 import {Armchair, CalendarPage, CardTray, Desk, DESK, Plant, RoomShell, TRAY, WallClock, Calendar} from '../illustrations/Room';
 import {lerpCam, RoomSvg, ROOM_S, roomPoint} from './RoomScene';
 import {CAM_TRAY, PAGE_COUNT} from './Scene01Hook';
@@ -13,7 +12,6 @@ export const Scene02Stake: React.FC<{scene: SceneData}> = ({scene}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const t = (frame + scene.from) / fps;
-  const most = beat(scene, 'most');
   const answer = beat(scene, 'answer');
   const stretch = beat(scene, 'stretch');
   // camera: hold on the tray, gentle pan up as the possible taller pile appears
@@ -42,7 +40,6 @@ export const Scene02Stake: React.FC<{scene: SceneData}> = ({scene}) => {
           </g>
         ) : null}
       </RoomSvg>
-      <Thesis lines={['Время летит —', 'так чувствует', 'большинство']} startFrame={most - 6} endFrame={scene.durationInFrames} />
     </AbsoluteFill>
   );
 };

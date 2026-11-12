@@ -5,7 +5,10 @@ import {ZONES, SAFE} from '../theme/layout';
 import {fontFamily} from '../theme/font';
 import {SceneData} from '../lib/timeline';
 
-/** Caption pages in the reserved band y=1210…1470. Active word changes colour only, so width never changes. */
+/**
+ * Caption pages in the reserved band y=1210…1470, on the clean background (graphics fade out above it).
+ * Dark ink text; the active word gets a coral underline bar drawn with an inset shadow, so its width never changes.
+ */
 export const Captions: React.FC<{scene: SceneData}> = ({scene}) => {
   const frame = useCurrentFrame();
   const page = scene.pages.find((p, i) => {
@@ -21,33 +24,36 @@ export const Captions: React.FC<{scene: SceneData}> = ({scene}) => {
         position: 'absolute',
         left: SAFE.left,
         width: 1080 - SAFE.left - SAFE.right,
-        top: ZONES.captionsTop + 40,
+        top: ZONES.captionsTop + 24,
+        height: ZONES.captionsBottom - ZONES.captionsTop - 24,
         display: 'flex',
         justifyContent: 'center',
+        alignItems: 'flex-start',
         opacity: appear,
-        transform: `translateY(${(1 - appear) * 10}px)`,
+        transform: `translateY(${(1 - appear) * 12}px)`,
       }}
     >
       <div
         style={{
           fontFamily,
-          fontWeight: TYPE.weightMedium,
+          fontWeight: TYPE.weightCaption,
           fontSize: TYPE.caption,
-          lineHeight: 1.2,
-          color: COLORS.captionText,
-          background: COLORS.captionBg,
-          padding: '14px 28px',
-          borderRadius: 18,
+          lineHeight: 1.18,
+          color: COLORS.ink,
           textAlign: 'center',
           maxWidth: 840,
+          textWrap: 'balance',
         }}
       >
-        {page.words.map((w, i) => (
-          <span key={i} style={{color: frame >= w.startFrame && frame < w.endFrame + 6 ? COLORS.accentSoft : COLORS.captionText}}>
-            {w.text}
-            {i < page.words.length - 1 ? ' ' : ''}
-          </span>
-        ))}
+        {page.words.map((w, i) => {
+          const active = frame >= w.startFrame && frame < w.endFrame + 6;
+          return (
+            <span key={i} style={{boxShadow: active ? `inset 0 -0.2em 0 ${COLORS.accentSoft}` : 'none', borderRadius: 4}}>
+              {w.text}
+              {i < page.words.length - 1 ? ' ' : ''}
+            </span>
+          );
+        })}
       </div>
     </div>
   );

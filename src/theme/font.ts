@@ -1,8 +1,9 @@
 import {loadFont} from '@remotion/fonts';
 import {staticFile} from 'remotion';
 
-// Onest variable font (SIL Open Font License, public/fonts/OFL.txt), stored locally so renders do not depend on the network.
-export const fontFamily = 'Onest';
+// Rubik variable font (SIL Open Font License, public/fonts/OFL-Rubik.txt): slightly rounded corners match the
+// round line joins of the illustrations. Stored locally so renders do not depend on the network.
+export const fontFamily = 'Rubik';
 
 const ranges = {
   cyrillic: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
@@ -12,8 +13,8 @@ const ranges = {
 for (const subset of ['cyrillic', 'latin'] as const) {
   loadFont({
     family: fontFamily,
-    url: staticFile(`fonts/onest-${subset}.woff2`),
-    weight: '100 900',
+    url: staticFile(`fonts/rubik-${subset}.woff2`),
+    weight: '300 900',
     unicodeRange: ranges[subset],
     format: 'woff2',
   }).catch((err) => {

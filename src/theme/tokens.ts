@@ -18,13 +18,14 @@ export const COLORS = {
 export const STROKE = {main: 3.5, secondary: 2.5, micro: 1.75} as const;
 
 export const TYPE = {
-  family: 'Onest',
-  title: 84,
+  family: 'Rubik',
+  title: 96,
   thesis: 72,
-  caption: 54,
+  caption: 68,
   label: 44,
   weightBold: 700,
   weightMedium: 500,
+  weightCaption: 600,
 } as const;
 
 export const DUR = {

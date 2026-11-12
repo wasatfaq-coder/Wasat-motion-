@@ -3,8 +3,8 @@ import {COLORS} from '../theme/tokens';
 import {iso, P3} from '../lib/iso';
 import {ZONES} from '../theme/layout';
 
-/** Top of the illustration band: below the two-line thesis. */
-export const GRAPHICS_TOP = 500;
+/** Top of the illustration band (no headings inside the video, only the opening preview title). */
+export const GRAPHICS_TOP = 240;
 
 export const ROOM_S = 54; // px per room unit at camera scale 1
 export const ROOM_ORIGIN: [number, number] = [540, 880]; // screen point of the back floor corner

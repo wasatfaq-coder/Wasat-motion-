@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {COLORS} from '../theme/tokens';
+import {COLORS, TYPE} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
 import {COS30, SIN30} from '../lib/iso';
@@ -15,17 +15,20 @@ export const CAM_TRAY: Cam = {focus: TRAY_FOCUS, zoom: 1.75, screen: [540, 900]}
 export const PAGE_COUNT = 10;
 
 /** Start frames of the torn pages: intervals shrink, so the years fly faster and faster. */
-export const pageStarts = (start: number, fps: number) => {
+export const pageStarts = (start: number, fps: number, firstGapSec = 0.42) => {
   const out: number[] = [];
   let t = start;
-  let gap = 0.42 * fps;
+  let gap = firstGapSec * fps;
   for (let i = 0; i < PAGE_COUNT; i++) {
     out.push(Math.round(t));
     t += gap;
-    gap = Math.max(0.1 * fps, gap * 0.78);
+    gap = Math.max(0.1 * fps, gap * 0.8);
   }
   return out;
 };
+
+/** Cover pose (frame 0): close on the wall calendar, clock and tray with the first page already in the air. */
+export const CAM_COVER: Cam = {focus: roomPoint([5.7, 0.2, 4.4]), zoom: 2.3, screen: [484, 1030]};
 
 type M = [number, number, number, number, number, number];
 const lerpM = (a: M, b: M, t: number): M => a.map((v, i) => v + (b[i] - v) * t) as M;
@@ -67,20 +70,21 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const t = frame / fps;
   const decade = beat(scene, 'decade');
   const why = beat(scene, 'why');
-  const starts = pageStarts(decade - 4, fps);
+  // pages start slowly before the cover frame (the first one is mid-air on frame 0) and speed up on "десять лет"
+  const starts = pageStarts(-9, fps, 0.75);
   const flight = Math.round(0.6 * fps);
   const landed = starts.filter((st) => frame >= st + flight).length;
   const flutter = starts.reduce((acc, st) => acc + Math.max(0, 1 - Math.abs(frame - st) / 6), 0);
-  // camera: slow drift in, then a motivated push toward the tray on "Почему"
-  // wide room on the cover frame, then a move toward the desk while pages tear, then into the tray on "Почему"
-  const toDesk = interpolate(frame, [decade - 12, decade + 0.9 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
+  // camera: cover close-up → wider desk view when the title leaves → push into the tray on "Почему"
+  const titleOut = decade - 8;
+  const toDesk = interpolate(frame, [titleOut - 10, titleOut + 0.8 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const push = interpolate(frame, [why - 6, scene.durationInFrames], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
-  const deskCam: Cam = {focus: roomPoint([5.6, 0.6, 3.6]), zoom: 1.4, screen: [540, 900]};
-  const cam = lerpCam(lerpCam(CAM_WIDE, deskCam, toDesk), CAM_TRAY, push);
+  const deskCam: Cam = {focus: roomPoint([5.6, 0.6, 3.6]), zoom: 1.4, screen: [500, 820]};
+  const cam = lerpCam(lerpCam(CAM_COVER, deskCam, toDesk), CAM_TRAY, push);
   const thick = 0.09;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
-      <RoomSvg cam={cam} top={interpolate(frame, [decade - 8, decade + 0.6 * fps], [GRAPHICS_TOP, 230], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut})}>
+      <RoomSvg cam={cam} top={interpolate(frame, [titleOut - 10, titleOut + 0.6 * fps], [GRAPHICS_TOP + 420, GRAPHICS_TOP], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut})}>
         <RoomShell s={ROOM_S} t={t} />
         <WallClock s={ROOM_S} t={t} />
         <Calendar s={ROOM_S} flutter={Math.min(1, flutter)} />
@@ -94,8 +98,8 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
         <Armchair s={ROOM_S} />
         <Plant s={ROOM_S} t={t} />
       </RoomSvg>
-      {/* title only as the opening preview: visible on the cover frame and the first phrase, gone before the pages start to tear */}
-      <Thesis lines={['Почему годы', 'летят быстрее?']} startFrame={-30} endFrame={decade - 8} size={88} accentLine={1} />
+      {/* title only as the opening preview: visible on the cover frame and the first phrase, then removed */}
+      <Thesis lines={['Почему годы', 'летят быстрее?']} startFrame={-30} endFrame={titleOut} size={TYPE.title} accentLine={1} top={430} />
     </AbsoluteFill>
   );
 };

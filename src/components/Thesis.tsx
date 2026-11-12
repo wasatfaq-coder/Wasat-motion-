@@ -6,18 +6,19 @@ import {fontFamily} from '../theme/font';
 import {EASE} from '../lib/anim';
 
 /** Short on-screen thesis at the top of the graphics area; lines rise from under a mask. */
-export const Thesis: React.FC<{lines: string[]; startFrame: number; endFrame?: number; size?: number; accentLine?: number}> = ({
+export const Thesis: React.FC<{lines: string[]; startFrame: number; endFrame?: number; size?: number; accentLine?: number; top?: number}> = ({
   lines,
   startFrame,
   endFrame,
   size = TYPE.thesis,
   accentLine,
+  top = SAFE.top + 4,
 }) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const out = endFrame === undefined ? 0 : interpolate(frame, [endFrame - 0.3 * fps, endFrame], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.in});
   return (
-    <div style={{position: 'absolute', left: SAFE.left, top: SAFE.top + 4, width: 1080 - SAFE.left - SAFE.right, opacity: 1 - out}}>
+    <div style={{position: 'absolute', left: SAFE.left, top, width: 1080 - SAFE.left - SAFE.right, opacity: 1 - out}}>
       {lines.map((line, i) => {
         const p = interpolate(frame, [startFrame + i * 4, startFrame + i * 4 + 0.45 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.out});
         return (

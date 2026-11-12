@@ -12,7 +12,8 @@ Fact-checker round 4: принято. TODO before final: verify S3.3, S4.1–S4.
 STOP 1 passed. Voice for all 12 scenes generated. Transcripts + timeline: 236/239 words verified, total 6924 frames = 115.4 s.
 Test fragment (scenes 01–02, 12.4 s, with voice and sfx) rendered: out/test_fragment.mp4 (not in git). Shown to user at STOP 2.
 Fragment reworked after user feedback (no headings except preview title, Rubik 68 px captions, Shorts preview cover, closer framing, memory icon, new lamp). Audit: content/reviews/visual-audit.md; art review: content/reviews/art.md.
-Next: user approval of the reworked fragment, then scenes 03–12 per audit §5, full draft (STOP 3).
+Scenes 03–12 implemented (first pass, per audit §5); key frames sheet out/qa/keys_sheet.jpg shown to user.
+Next: user feedback on key frames; sound map for scenes 03–12; full draft render (STOP 3); fact-check of on-screen labels on anchor stills.
 Render speed: 743 frames in 48 s at full size, png frames (~0.065 s/frame) → full video ≈ 8–15 min.
 
 ## Environment

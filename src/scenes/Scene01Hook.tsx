@@ -1,6 +1,8 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {COLORS} from '../theme/tokens';
+import {CoverA} from '../Cover';
+import {CLOCK} from '../illustrations/Room';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
 import {COS30, SIN30} from '../lib/iso';
@@ -84,12 +86,17 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const starts = pages.map((p) => p.st);
   const landed = pages.filter((p) => frame >= p.st + p.flight).length;
   const flutter = starts.reduce((acc, st) => acc + Math.max(0, 1 - Math.abs(frame - st) / 6), 0);
-  // camera: cover close-up → wider desk view when the title leaves → push into the tray on "Почему"
+  // camera: the room waits in the desk view under the cover; after the title the cover clock flies into the room's wall clock
   const titleOut = previewTitleOut(scene);
-  const toDesk = interpolate(frame, [titleOut - 10, titleOut + 0.8 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
+  const handover = interpolate(frame, [titleOut - 14, titleOut + 0.55 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const push = interpolate(frame, [why - 6, scene.durationInFrames], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const deskCam: Cam = {focus: roomPoint([6.0, 0.9, 3.5]), zoom: 2.0, screen: [484, 760]};
-  const cam = lerpCam(lerpCam(CAM_COVER, deskCam, toDesk), CAM_TRAY, push);
+  const cam = lerpCam(deskCam, CAM_TRAY, push);
+  const clockRoom = roomPoint([CLOCK.u, 0, CLOCK.z]);
+  const clockScreen: [number, number] = [deskCam.screen![0] + (clockRoom[0] - deskCam.focus[0]) * deskCam.zoom, deskCam.screen![1] + (clockRoom[1] - deskCam.focus[1]) * deskCam.zoom];
+  const coverScale = 1 + ((CLOCK.r * ROOM_S * deskCam.zoom) / 218 - 1) * handover;
+  const coverX = (clockScreen[0] - 470) * handover;
+  const coverY = (clockScreen[1] - 960) * handover;
   const thick = 0.09;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -107,8 +114,16 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
         <Armchair s={ROOM_S} />
         <Plant s={ROOM_S} t={t} />
       </RoomSvg>
+      {/* opening preview = cover A; it hands over to the room by flying into the wall clock */}
+      {handover < 1 ? (
+        <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: 1 - Math.max(0, (handover - 0.55) / 0.45)}}>
+          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '470px 960px'}}>
+            <CoverA frame={frame} />
+          </div>
+        </AbsoluteFill>
+      ) : null}
       {/* title only as the opening preview: visible on the cover frame and the first phrase, then removed */}
-      <Thesis lines={['Почему годы', 'летят быстрее?']} startFrame={-30} endFrame={titleOut} size={PREVIEW_TITLE_SIZE} accentLine={1} top={420} />
+      <Thesis lines={['Почему годы', 'летят?']} startFrame={-60} endFrame={titleOut} size={112} accentLine={1} top={420} />
     </AbsoluteFill>
   );
 };

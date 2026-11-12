@@ -50,20 +50,20 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
       ))}
       {/* counter on a sticky note */}
       <g opacity={s.count > 0 ? 1 : 0} transform={`translate(0 ${(1 - Math.min(1, s.count * 4)) * -40})`}>
-        <Sticky x={BOARD.x + 70} y={BOARD.y + 70} w={300} rot={-3}>
-          <text x={26} y={150} {...t(118)} style={{fontVariantNumeric: 'tabular-nums'}}>
+        <Sticky x={BOARD.x + 300} y={BOARD.y + 40} w={250} rot={-3}>
+          <text x={22} y={120} {...t(100)} style={{fontVariantNumeric: 'tabular-nums'}}>
             {count}
           </text>
-          <text x={30} y={215} {...t(44, TYPE.weightMedium)}>
+          <text x={26} y={180} {...t(40, TYPE.weightMedium)}>
             человек
           </text>
         </Sticky>
-        <Pin x={BOARD.x + 215} y={BOARD.y + 82} color={COLORS.ink} />
+        <Pin x={BOARD.x + 425} y={BOARD.y + 50} color={COLORS.ink} />
       </g>
       {/* axes drawn like marker on paper */}
       <line x1={PX0} y1={PY0} x2={PX1} y2={PY0} stroke={COLORS.ink} strokeWidth={LW} strokeLinecap="round" />
-      <line x1={PX0} y1={PY0} x2={PX0} y2={PY0 - 360} stroke={COLORS.ink} strokeWidth={LW} strokeLinecap="round" />
-      <path d={`M${PX0 - 12},${PY0 - 344} L${PX0},${PY0 - 366} L${PX0 + 12},${PY0 - 344}`} fill="none" stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
+      <line x1={PX0} y1={PY0} x2={PX0} y2={PY0 - 330} stroke={COLORS.ink} strokeWidth={LW} strokeLinecap="round" />
+      <path d={`M${PX0 - 12},${PY0 - 314} L${PX0},${PY0 - 336} L${PX0 + 12},${PY0 - 314}`} fill="none" stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
       <text x={PX0 - 24} y={PY0 - 20} {...t(34, TYPE.weightMedium, COLORS.inkSoft)} transform={`rotate(-90 ${PX0 - 24} ${PY0 - 20})`}>
         медленно → быстро
       </text>

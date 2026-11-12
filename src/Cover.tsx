@@ -45,15 +45,16 @@ const Clock: React.FC<{cx: number; cy: number; r: number; ring?: string}> = ({cx
 );
 
 /** A — contrast: a big calm clock; calendar pages burst away from it in a widening, accelerating spiral. */
-const CoverA: React.FC = () => {
+export const CoverA: React.FC<{frame?: number}> = ({frame = 0}) => {
   const cx = 470;
   const cy = 960;
+  const drift = frame / 60; // pages keep flying outward from frame 1 (the cover is not a frozen still)
   const pages = Array.from({length: 9}, (_, i) => i);
   return (
     <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
       {pages.map((i) => {
-        const a = -2.5 + i * 0.62;
-        const d = 230 + i * 24;
+        const a = -2.5 + i * 0.62 + drift * 0.35;
+        const d = 230 + i * 24 + drift * (40 + i * 12);
         const size = 1 - i * 0.07;
         return <Page key={i} x={cx + Math.cos(a) * d - 55 * size} y={cy + Math.sin(a) * d * 0.55 - 70 * size - 6} w={110 * size} h={140 * size} rot={a * 40 + random(`r${i}`) * 30} />;
       })}

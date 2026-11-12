@@ -20,7 +20,7 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
 5. Retention checklist (§19.4), each item PASS/FAIL: hook (0–2 s), suspense & micro-intrigues (every 8–12 s),
    visual graphics (story readable without sound), dynamic editing, sound design & editing to sound
    (sfx on all transitions and transformations, silence before the main answer), visual re-hook at 40–50 %.
-6. Covers (§19.5): 3 variants with different techniques; image 50–60 % of the frame and readable at 270×480;
+6. Covers (§19.5): 3 variants with different techniques; image 50–60 % of the central zone (420–1210 px) and readable at 270×480;
    2–4 words, 96–120 px, inside 420–1210 px; bottom and right button column clear; survives a 4:5 centre crop;
    honest (the video answers the question). Rank the variants and say which one wins and why.
 

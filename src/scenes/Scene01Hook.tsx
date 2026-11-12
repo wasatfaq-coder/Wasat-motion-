@@ -40,7 +40,7 @@ type M = [number, number, number, number, number, number];
 const lerpM = (a: M, b: M, t: number): M => a.map((v, i) => v + (b[i] - v) * t) as M;
 
 /** A calendar page flying from the wall into the tray, turning from a wall plane into a floor-plane card. */
-const FlyingPage: React.FC<{p: number; landingZ: number}> = ({p, landingZ}) => {
+export const FlyingPage: React.FC<{p: number; landingZ: number}> = ({p, landingZ}) => {
   const s = ROOM_S;
   const pw = CAL.w - 0.1;
   const ph = CAL.h - 0.5;

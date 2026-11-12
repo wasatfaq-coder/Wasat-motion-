@@ -94,7 +94,8 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
         <Armchair s={ROOM_S} />
         <Plant s={ROOM_S} t={t} />
       </RoomSvg>
-      <Thesis lines={['Почему годы', 'летят быстрее?']} startFrame={-30} endFrame={scene.durationInFrames} size={88} accentLine={1} />
+      {/* title only as the opening preview: visible on the cover frame and the first phrase, gone before the pages start to tear */}
+      <Thesis lines={['Почему годы', 'летят быстрее?']} startFrame={-30} endFrame={decade - 8} size={88} accentLine={1} />
     </AbsoluteFill>
   );
 };

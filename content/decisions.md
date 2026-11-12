@@ -12,3 +12,4 @@
 | 2026-11-12 | STOP 1 passed: script (12 scenes, ~101 s) and line-art room storyboard approved | user |
 | 2026-11-12 | Voice budget: up to 3 200 ElevenLabs credits | user |
 | 2026-11-12 | Voice (all 12 scenes) approved by listening; no regeneration needed | user |
+| 2026-11-12 | Title «Почему годы летят быстрее?» only as the opening preview (cover frame + first phrase), then removed | user |

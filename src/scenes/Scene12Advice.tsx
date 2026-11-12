@@ -67,6 +67,7 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
   const pileTop = (i: number) => DESK.h + 0.06 + i * 0.09 * 0.28;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
+      <AbsoluteFill style={{opacity: 1 - interpolate(loopP, [0.5, 0.95], [0, 1], clamp)}}>
       <RoomStage
         cam={cam}
         t={t}
@@ -88,6 +89,7 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
           </g>
         }
       />
+      </AbsoluteFill>
       {loopP > 0 ? (
         <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: Math.min(1, loopP * 1.6), clipPath: 'inset(240px 0 710px 0)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)', maskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)'}}>
           <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '470px 960px'}}>

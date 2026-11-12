@@ -1,0 +1,2325 @@
+{
+ "fps": 60,
+ "scenes": [
+  {
+   "id": "scene-01",
+   "from": 0,
+   "durationInFrames": 322,
+   "audio": "audio/vo/scene-01.mp3",
+   "audioDurationInFrames": 316,
+   "voiceStartFrame": 6,
+   "beats": [
+    {
+     "id": "hour",
+     "word": "Час",
+     "wordIndex": 0,
+     "frame": 9,
+     "status": "verified"
+    },
+    {
+     "id": "decade",
+     "word": "десять",
+     "wordIndex": 4,
+     "frame": 82,
+     "status": "verified"
+    },
+    {
+     "id": "why",
+     "word": "Почему",
+     "wordIndex": 9,
+     "frame": 258,
+     "status": "approximate"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Час не ускорился.",
+     "startFrame": 9,
+     "endFrame": 77,
+     "words": [
+      {
+       "text": "Час",
+       "startFrame": 9,
+       "endFrame": 19,
+       "status": "verified"
+      },
+      {
+       "text": "не",
+       "startFrame": 19,
+       "endFrame": 28,
+       "status": "verified"
+      },
+      {
+       "text": "ускорился.",
+       "startFrame": 28,
+       "endFrame": 77,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "А десять лет",
+     "startFrame": 77,
+     "endFrame": 134,
+     "words": [
+      {
+       "text": "А",
+       "startFrame": 77,
+       "endFrame": 82,
+       "status": "verified"
+      },
+      {
+       "text": "десять",
+       "startFrame": 82,
+       "endFrame": 117,
+       "status": "verified"
+      },
+      {
+       "text": "лет",
+       "startFrame": 117,
+       "endFrame": 134,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "пролетают всё быстрее.",
+     "startFrame": 134,
+     "endFrame": 258,
+     "words": [
+      {
+       "text": "пролетают",
+       "startFrame": 134,
+       "endFrame": 190,
+       "status": "verified"
+      },
+      {
+       "text": "всё",
+       "startFrame": 190,
+       "endFrame": 203,
+       "status": "verified"
+      },
+      {
+       "text": "быстрее.",
+       "startFrame": 203,
+       "endFrame": 258,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Почему?",
+     "startFrame": 258,
+     "endFrame": 312,
+     "words": [
+      {
+       "text": "Почему?",
+       "startFrame": 258,
+       "endFrame": 312,
+       "status": "approximate"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-02",
+   "from": 322,
+   "durationInFrames": 421,
+   "audio": "audio/vo/scene-02.mp3",
+   "audioDurationInFrames": 421,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "most",
+     "word": "Большинство",
+     "wordIndex": 0,
+     "frame": 2,
+     "status": "verified"
+    },
+    {
+     "id": "answer",
+     "word": "ответ",
+     "wordIndex": 5,
+     "frame": 175,
+     "status": "verified"
+    },
+    {
+     "id": "stretch",
+     "word": "растянуть",
+     "wordIndex": 9,
+     "frame": 300,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Большинство говорит:",
+     "startFrame": 2,
+     "endFrame": 88,
+     "words": [
+      {
+       "text": "Большинство",
+       "startFrame": 2,
+       "endFrame": 37,
+       "status": "verified"
+      },
+      {
+       "text": "говорит:",
+       "startFrame": 37,
+       "endFrame": 88,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "время летит.",
+     "startFrame": 88,
+     "endFrame": 146,
+     "words": [
+      {
+       "text": "время",
+       "startFrame": 88,
+       "endFrame": 103,
+       "status": "verified"
+      },
+      {
+       "text": "летит.",
+       "startFrame": 103,
+       "endFrame": 146,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "А ответ подскажет,",
+     "startFrame": 146,
+     "endFrame": 246,
+     "words": [
+      {
+       "text": "А",
+       "startFrame": 146,
+       "endFrame": 175,
+       "status": "verified"
+      },
+      {
+       "text": "ответ",
+       "startFrame": 175,
+       "endFrame": 184,
+       "status": "verified"
+      },
+      {
+       "text": "подскажет,",
+       "startFrame": 184,
+       "endFrame": 246,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "как, возможно,",
+     "startFrame": 246,
+     "endFrame": 300,
+     "words": [
+      {
+       "text": "как,",
+       "startFrame": 246,
+       "endFrame": 260,
+       "status": "verified"
+      },
+      {
+       "text": "возможно,",
+       "startFrame": 260,
+       "endFrame": 300,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "растянуть годы в памяти.",
+     "startFrame": 300,
+     "endFrame": 401,
+     "words": [
+      {
+       "text": "растянуть",
+       "startFrame": 300,
+       "endFrame": 344,
+       "status": "verified"
+      },
+      {
+       "text": "годы",
+       "startFrame": 344,
+       "endFrame": 364,
+       "status": "verified"
+      },
+      {
+       "text": "в",
+       "startFrame": 364,
+       "endFrame": 368,
+       "status": "verified"
+      },
+      {
+       "text": "памяти.",
+       "startFrame": 368,
+       "endFrame": 401,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-03",
+   "from": 743,
+   "durationInFrames": 560,
+   "audio": "audio/vo/scene-03.mp3",
+   "audioDurationInFrames": 560,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "people",
+     "word": "пятьсот",
+     "wordIndex": 7,
+     "frame": 196,
+     "status": "approximate"
+    },
+    {
+     "id": "month",
+     "word": "месяц",
+     "wordIndex": 13,
+     "frame": 415,
+     "status": "verified"
+    },
+    {
+     "id": "same",
+     "word": "ускорялись",
+     "wordIndex": 17,
+     "frame": 494,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Учёные проверили,",
+     "startFrame": 2,
+     "endFrame": 68,
+     "words": [
+      {
+       "text": "Учёные",
+       "startFrame": 2,
+       "endFrame": 25,
+       "status": "verified"
+      },
+      {
+       "text": "проверили,",
+       "startFrame": 25,
+       "endFrame": 68,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "летит ли время:",
+     "startFrame": 68,
+     "endFrame": 127,
+     "words": [
+      {
+       "text": "летит",
+       "startFrame": 68,
+       "endFrame": 92,
+       "status": "verified"
+      },
+      {
+       "text": "ли",
+       "startFrame": 92,
+       "endFrame": 97,
+       "status": "verified"
+      },
+      {
+       "text": "время:",
+       "startFrame": 97,
+       "endFrame": 127,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "опросили почти",
+     "startFrame": 127,
+     "endFrame": 196,
+     "words": [
+      {
+       "text": "опросили",
+       "startFrame": 127,
+       "endFrame": 169,
+       "status": "verified"
+      },
+      {
+       "text": "почти",
+       "startFrame": 169,
+       "endFrame": 196,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "пятьсот человек.",
+     "startFrame": 196,
+     "endFrame": 268,
+     "words": [
+      {
+       "text": "пятьсот",
+       "startFrame": 196,
+       "endFrame": 220,
+       "status": "approximate"
+      },
+      {
+       "text": "человек.",
+       "startFrame": 220,
+       "endFrame": 268,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Час, неделя,",
+     "startFrame": 268,
+     "endFrame": 361,
+     "words": [
+      {
+       "text": "Час,",
+       "startFrame": 268,
+       "endFrame": 301,
+       "status": "verified"
+      },
+      {
+       "text": "неделя,",
+       "startFrame": 301,
+       "endFrame": 361,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "даже целый месяц",
+     "startFrame": 361,
+     "endFrame": 449,
+     "words": [
+      {
+       "text": "даже",
+       "startFrame": 361,
+       "endFrame": 385,
+       "status": "verified"
+      },
+      {
+       "text": "целый",
+       "startFrame": 385,
+       "endFrame": 415,
+       "status": "verified"
+      },
+      {
+       "text": "месяц",
+       "startFrame": 415,
+       "endFrame": 449,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "с возрастом",
+     "startFrame": 449,
+     "endFrame": 487,
+     "words": [
+      {
+       "text": "с",
+       "startFrame": 449,
+       "endFrame": 451,
+       "status": "verified"
+      },
+      {
+       "text": "возрастом",
+       "startFrame": 451,
+       "endFrame": 487,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "не ускорялись.",
+     "startFrame": 487,
+     "endFrame": 545,
+     "words": [
+      {
+       "text": "не",
+       "startFrame": 487,
+       "endFrame": 494,
+       "status": "verified"
+      },
+      {
+       "text": "ускорялись.",
+       "startFrame": 494,
+       "endFrame": 545,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-04",
+   "from": 1303,
+   "durationInFrames": 674,
+   "audio": "audio/vo/scene-04.mp3",
+   "audioDurationInFrames": 674,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "decade",
+     "word": "десятилетие",
+     "wordIndex": 4,
+     "frame": 94,
+     "status": "verified"
+    },
+    {
+     "id": "faster",
+     "word": "быстрее",
+     "wordIndex": 10,
+     "frame": 276,
+     "status": "verified"
+    },
+    {
+     "id": "peak",
+     "word": "пятидесяти",
+     "wordIndex": 13,
+     "frame": 388,
+     "status": "approximate"
+    },
+    {
+     "id": "small",
+     "word": "небольшой",
+     "wordIndex": 17,
+     "frame": 557,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Но спросите",
+     "startFrame": 2,
+     "endFrame": 43,
+     "words": [
+      {
+       "text": "Но",
+       "startFrame": 2,
+       "endFrame": 8,
+       "status": "verified"
+      },
+      {
+       "text": "спросите",
+       "startFrame": 8,
+       "endFrame": 43,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "про последнее десятилетие.",
+     "startFrame": 43,
+     "endFrame": 150,
+     "words": [
+      {
+       "text": "про",
+       "startFrame": 43,
+       "endFrame": 55,
+       "status": "verified"
+      },
+      {
+       "text": "последнее",
+       "startFrame": 55,
+       "endFrame": 94,
+       "status": "verified"
+      },
+      {
+       "text": "десятилетие.",
+       "startFrame": 94,
+       "endFrame": 150,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "С возрастом оно",
+     "startFrame": 150,
+     "endFrame": 217,
+     "words": [
+      {
+       "text": "С",
+       "startFrame": 150,
+       "endFrame": 155,
+       "status": "verified"
+      },
+      {
+       "text": "возрастом",
+       "startFrame": 155,
+       "endFrame": 200,
+       "status": "verified"
+      },
+      {
+       "text": "оно",
+       "startFrame": 200,
+       "endFrame": 217,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "пролетает всё быстрее.",
+     "startFrame": 217,
+     "endFrame": 324,
+     "words": [
+      {
+       "text": "пролетает",
+       "startFrame": 217,
+       "endFrame": 261,
+       "status": "verified"
+      },
+      {
+       "text": "всё",
+       "startFrame": 261,
+       "endFrame": 276,
+       "status": "verified"
+      },
+      {
+       "text": "быстрее.",
+       "startFrame": 276,
+       "endFrame": 324,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Пик — около пятидесяти,",
+     "startFrame": 324,
+     "endFrame": 419,
+     "words": [
+      {
+       "text": "Пик",
+       "startFrame": 324,
+       "endFrame": 352,
+       "status": "verified"
+      },
+      {
+       "text": "около",
+       "startFrame": 352,
+       "endFrame": 388,
+       "status": "verified"
+      },
+      {
+       "text": "пятидесяти,",
+       "startFrame": 388,
+       "endFrame": 419,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "дальше ровно.",
+     "startFrame": 419,
+     "endFrame": 522,
+     "words": [
+      {
+       "text": "дальше",
+       "startFrame": 419,
+       "endFrame": 467,
+       "status": "verified"
+      },
+      {
+       "text": "ровно.",
+       "startFrame": 467,
+       "endFrame": 522,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Эффект небольшой,",
+     "startFrame": 522,
+     "endFrame": 604,
+     "words": [
+      {
+       "text": "Эффект",
+       "startFrame": 522,
+       "endFrame": 557,
+       "status": "verified"
+      },
+      {
+       "text": "небольшой,",
+       "startFrame": 557,
+       "endFrame": 604,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "но он есть.",
+     "startFrame": 604,
+     "endFrame": 656,
+     "words": [
+      {
+       "text": "но",
+       "startFrame": 604,
+       "endFrame": 614,
+       "status": "verified"
+      },
+      {
+       "text": "он",
+       "startFrame": 614,
+       "endFrame": 625,
+       "status": "verified"
+      },
+      {
+       "text": "есть.",
+       "startFrame": 625,
+       "endFrame": 656,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-05",
+   "from": 1977,
+   "durationInFrames": 416,
+   "audio": "audio/vo/scene-05.mp3",
+   "audioDurationInFrames": 416,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "day",
+     "word": "дни",
+     "wordIndex": 4,
+     "frame": 116,
+     "status": "verified"
+    },
+    {
+     "id": "years",
+     "word": "годы",
+     "wordIndex": 6,
+     "frame": 241,
+     "status": "verified"
+    },
+    {
+     "id": "back",
+     "word": "назад",
+     "wordIndex": 10,
+     "frame": 369,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Значит, ускоряются",
+     "startFrame": 1,
+     "endFrame": 86,
+     "words": [
+      {
+       "text": "Значит,",
+       "startFrame": 1,
+       "endFrame": 35,
+       "status": "verified"
+      },
+      {
+       "text": "ускоряются",
+       "startFrame": 35,
+       "endFrame": 86,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "не сами дни.",
+     "startFrame": 86,
+     "endFrame": 139,
+     "words": [
+      {
+       "text": "не",
+       "startFrame": 86,
+       "endFrame": 96,
+       "status": "verified"
+      },
+      {
+       "text": "сами",
+       "startFrame": 96,
+       "endFrame": 116,
+       "status": "verified"
+      },
+      {
+       "text": "дни.",
+       "startFrame": 116,
+       "endFrame": 139,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Ускоряются годы,",
+     "startFrame": 139,
+     "endFrame": 310,
+     "words": [
+      {
+       "text": "Ускоряются",
+       "startFrame": 139,
+       "endFrame": 241,
+       "status": "verified"
+      },
+      {
+       "text": "годы,",
+       "startFrame": 241,
+       "endFrame": 310,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "когда мы оглядываемся назад.",
+     "startFrame": 310,
+     "endFrame": 392,
+     "words": [
+      {
+       "text": "когда",
+       "startFrame": 310,
+       "endFrame": 323,
+       "status": "verified"
+      },
+      {
+       "text": "мы",
+       "startFrame": 323,
+       "endFrame": 329,
+       "status": "verified"
+      },
+      {
+       "text": "оглядываемся",
+       "startFrame": 329,
+       "endFrame": 369,
+       "status": "verified"
+      },
+      {
+       "text": "назад.",
+       "startFrame": 369,
+       "endFrame": 392,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-06",
+   "from": 2393,
+   "durationInFrames": 469,
+   "audio": "audio/vo/scene-06.mp3",
+   "audioDurationInFrames": 469,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "past",
+     "word": "прошлое",
+     "wordIndex": 2,
+     "frame": 62,
+     "status": "verified"
+    },
+    {
+     "id": "two",
+     "word": "двумя",
+     "wordIndex": 6,
+     "frame": 189,
+     "status": "verified"
+    },
+    {
+     "id": "now",
+     "word": "идёт",
+     "wordIndex": 10,
+     "frame": 315,
+     "status": "verified"
+    },
+    {
+     "id": "later",
+     "word": "назад",
+     "wordIndex": 14,
+     "frame": 436,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Почему именно прошлое?",
+     "startFrame": 6,
+     "endFrame": 108,
+     "words": [
+      {
+       "text": "Почему",
+       "startFrame": 6,
+       "endFrame": 31,
+       "status": "verified"
+      },
+      {
+       "text": "именно",
+       "startFrame": 31,
+       "endFrame": 62,
+       "status": "verified"
+      },
+      {
+       "text": "прошлое?",
+       "startFrame": 62,
+       "endFrame": 108,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Время мы оцениваем",
+     "startFrame": 108,
+     "endFrame": 189,
+     "words": [
+      {
+       "text": "Время",
+       "startFrame": 108,
+       "endFrame": 133,
+       "status": "verified"
+      },
+      {
+       "text": "мы",
+       "startFrame": 133,
+       "endFrame": 143,
+       "status": "verified"
+      },
+      {
+       "text": "оцениваем",
+       "startFrame": 143,
+       "endFrame": 189,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "двумя способами:",
+     "startFrame": 189,
+     "endFrame": 270,
+     "words": [
+      {
+       "text": "двумя",
+       "startFrame": 189,
+       "endFrame": 214,
+       "status": "verified"
+      },
+      {
+       "text": "способами:",
+       "startFrame": 214,
+       "endFrame": 270,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "пока оно идёт",
+     "startFrame": 270,
+     "endFrame": 347,
+     "words": [
+      {
+       "text": "пока",
+       "startFrame": 270,
+       "endFrame": 296,
+       "status": "verified"
+      },
+      {
+       "text": "оно",
+       "startFrame": 296,
+       "endFrame": 315,
+       "status": "verified"
+      },
+      {
+       "text": "идёт",
+       "startFrame": 315,
+       "endFrame": 347,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "и когда оглядываемся назад.",
+     "startFrame": 347,
+     "endFrame": 467,
+     "words": [
+      {
+       "text": "и",
+       "startFrame": 347,
+       "endFrame": 347,
+       "status": "verified"
+      },
+      {
+       "text": "когда",
+       "startFrame": 347,
+       "endFrame": 373,
+       "status": "verified"
+      },
+      {
+       "text": "оглядываемся",
+       "startFrame": 373,
+       "endFrame": 436,
+       "status": "verified"
+      },
+      {
+       "text": "назад.",
+       "startFrame": 436,
+       "endFrame": 467,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-07",
+   "from": 2862,
+   "durationInFrames": 474,
+   "audio": "audio/vo/scene-07.mp3",
+   "audioDurationInFrames": 474,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "fast",
+     "word": "пролетают",
+     "wordIndex": 7,
+     "frame": 167,
+     "status": "verified"
+    },
+    {
+     "id": "long",
+     "word": "надолго",
+     "wordIndex": 14,
+     "frame": 355,
+     "status": "verified"
+    },
+    {
+     "id": "how",
+     "word": "Как",
+     "wordIndex": 15,
+     "frame": 390,
+     "status": "approximate"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Но вот странность.",
+     "startFrame": 2,
+     "endFrame": 76,
+     "words": [
+      {
+       "text": "Но",
+       "startFrame": 2,
+       "endFrame": 13,
+       "status": "verified"
+      },
+      {
+       "text": "вот",
+       "startFrame": 13,
+       "endFrame": 25,
+       "status": "verified"
+      },
+      {
+       "text": "странность.",
+       "startFrame": 25,
+       "endFrame": 76,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "В отпуске",
+     "startFrame": 76,
+     "endFrame": 120,
+     "words": [
+      {
+       "text": "В",
+       "startFrame": 76,
+       "endFrame": 80,
+       "status": "verified"
+      },
+      {
+       "text": "отпуске",
+       "startFrame": 80,
+       "endFrame": 120,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "дни быстро пролетают.",
+     "startFrame": 120,
+     "endFrame": 223,
+     "words": [
+      {
+       "text": "дни",
+       "startFrame": 120,
+       "endFrame": 135,
+       "status": "verified"
+      },
+      {
+       "text": "быстро",
+       "startFrame": 135,
+       "endFrame": 167,
+       "status": "verified"
+      },
+      {
+       "text": "пролетают.",
+       "startFrame": 167,
+       "endFrame": 223,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "А дома кажется,",
+     "startFrame": 223,
+     "endFrame": 301,
+     "words": [
+      {
+       "text": "А",
+       "startFrame": 223,
+       "endFrame": 248,
+       "status": "verified"
+      },
+      {
+       "text": "дома",
+       "startFrame": 248,
+       "endFrame": 253,
+       "status": "verified"
+      },
+      {
+       "text": "кажется,",
+       "startFrame": 253,
+       "endFrame": 301,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "что вы уехали надолго.",
+     "startFrame": 301,
+     "endFrame": 390,
+     "words": [
+      {
+       "text": "что",
+       "startFrame": 301,
+       "endFrame": 316,
+       "status": "verified"
+      },
+      {
+       "text": "вы",
+       "startFrame": 316,
+       "endFrame": 325,
+       "status": "verified"
+      },
+      {
+       "text": "уехали",
+       "startFrame": 325,
+       "endFrame": 355,
+       "status": "verified"
+      },
+      {
+       "text": "надолго.",
+       "startFrame": 355,
+       "endFrame": 390,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Как так?",
+     "startFrame": 390,
+     "endFrame": 464,
+     "words": [
+      {
+       "text": "Как",
+       "startFrame": 390,
+       "endFrame": 427,
+       "status": "approximate"
+      },
+      {
+       "text": "так?",
+       "startFrame": 427,
+       "endFrame": 464,
+       "status": "approximate"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-08",
+   "from": 3336,
+   "durationInFrames": 761,
+   "audio": "audio/vo/scene-08.mp3",
+   "audioDurationInFrames": 761,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "novelty",
+     "word": "новизне",
+     "wordIndex": 4,
+     "frame": 85,
+     "status": "verified"
+    },
+    {
+     "id": "streets",
+     "word": "улицы",
+     "wordIndex": 7,
+     "frame": 190,
+     "status": "verified"
+    },
+    {
+     "id": "brain",
+     "word": "мозг",
+     "wordIndex": 14,
+     "frame": 390,
+     "status": "verified"
+    },
+    {
+     "id": "memories",
+     "word": "воспоминаниями",
+     "wordIndex": 18,
+     "frame": 494,
+     "status": "verified"
+    },
+    {
+     "id": "long",
+     "word": "длинным",
+     "wordIndex": 23,
+     "frame": 692,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Учёные ищут разгадку",
+     "startFrame": 2,
+     "endFrame": 81,
+     "words": [
+      {
+       "text": "Учёные",
+       "startFrame": 2,
+       "endFrame": 26,
+       "status": "verified"
+      },
+      {
+       "text": "ищут",
+       "startFrame": 26,
+       "endFrame": 44,
+       "status": "verified"
+      },
+      {
+       "text": "разгадку",
+       "startFrame": 44,
+       "endFrame": 81,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "в новизне.",
+     "startFrame": 81,
+     "endFrame": 128,
+     "words": [
+      {
+       "text": "в",
+       "startFrame": 81,
+       "endFrame": 85,
+       "status": "verified"
+      },
+      {
+       "text": "новизне.",
+       "startFrame": 85,
+       "endFrame": 128,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Вокруг новые улицы",
+     "startFrame": 128,
+     "endFrame": 217,
+     "words": [
+      {
+       "text": "Вокруг",
+       "startFrame": 128,
+       "endFrame": 161,
+       "status": "verified"
+      },
+      {
+       "text": "новые",
+       "startFrame": 161,
+       "endFrame": 190,
+       "status": "verified"
+      },
+      {
+       "text": "улицы",
+       "startFrame": 190,
+       "endFrame": 217,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "и впечатления.",
+     "startFrame": 217,
+     "endFrame": 296,
+     "words": [
+      {
+       "text": "и",
+       "startFrame": 217,
+       "endFrame": 223,
+       "status": "verified"
+      },
+      {
+       "text": "впечатления.",
+       "startFrame": 223,
+       "endFrame": 296,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "По одной из версий,",
+     "startFrame": 296,
+     "endFrame": 390,
+     "words": [
+      {
+       "text": "По",
+       "startFrame": 296,
+       "endFrame": 332,
+       "status": "verified"
+      },
+      {
+       "text": "одной",
+       "startFrame": 332,
+       "endFrame": 337,
+       "status": "verified"
+      },
+      {
+       "text": "из",
+       "startFrame": 337,
+       "endFrame": 348,
+       "status": "verified"
+      },
+      {
+       "text": "версий,",
+       "startFrame": 348,
+       "endFrame": 390,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "мозг меряет прошлое",
+     "startFrame": 390,
+     "endFrame": 472,
+     "words": [
+      {
+       "text": "мозг",
+       "startFrame": 390,
+       "endFrame": 409,
+       "status": "verified"
+      },
+      {
+       "text": "меряет",
+       "startFrame": 409,
+       "endFrame": 437,
+       "status": "verified"
+      },
+      {
+       "text": "прошлое",
+       "startFrame": 437,
+       "endFrame": 472,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "новыми воспоминаниями.",
+     "startFrame": 472,
+     "endFrame": 554,
+     "words": [
+      {
+       "text": "новыми",
+       "startFrame": 472,
+       "endFrame": 494,
+       "status": "verified"
+      },
+      {
+       "text": "воспоминаниями.",
+       "startFrame": 494,
+       "endFrame": 554,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Много нового —",
+     "startFrame": 554,
+     "endFrame": 620,
+     "words": [
+      {
+       "text": "Много",
+       "startFrame": 554,
+       "endFrame": 582,
+       "status": "verified"
+      },
+      {
+       "text": "нового",
+       "startFrame": 582,
+       "endFrame": 620,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "период кажется длинным.",
+     "startFrame": 620,
+     "endFrame": 742,
+     "words": [
+      {
+       "text": "период",
+       "startFrame": 620,
+       "endFrame": 654,
+       "status": "verified"
+      },
+      {
+       "text": "кажется",
+       "startFrame": 654,
+       "endFrame": 692,
+       "status": "verified"
+      },
+      {
+       "text": "длинным.",
+       "startFrame": 692,
+       "endFrame": 742,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-09",
+   "from": 4097,
+   "durationInFrames": 646,
+   "audio": "audio/vo/scene-09.mp3",
+   "audioDurationInFrames": 646,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "routine",
+     "word": "работа",
+     "wordIndex": 6,
+     "frame": 231,
+     "status": "verified"
+    },
+    {
+     "id": "traces",
+     "word": "следов",
+     "wordIndex": 12,
+     "frame": 475,
+     "status": "verified"
+    },
+    {
+     "id": "shrink",
+     "word": "сжимаются",
+     "wordIndex": 17,
+     "frame": 584,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Поэтому взрослые годы",
+     "startFrame": 3,
+     "endFrame": 115,
+     "words": [
+      {
+       "text": "Поэтому",
+       "startFrame": 3,
+       "endFrame": 43,
+       "status": "verified"
+      },
+      {
+       "text": "взрослые",
+       "startFrame": 43,
+       "endFrame": 91,
+       "status": "verified"
+      },
+      {
+       "text": "годы",
+       "startFrame": 91,
+       "endFrame": 115,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "и летят.",
+     "startFrame": 115,
+     "endFrame": 170,
+     "words": [
+      {
+       "text": "и",
+       "startFrame": 115,
+       "endFrame": 120,
+       "status": "verified"
+      },
+      {
+       "text": "летят.",
+       "startFrame": 120,
+       "endFrame": 170,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Дом, работа, дом.",
+     "startFrame": 170,
+     "endFrame": 319,
+     "words": [
+      {
+       "text": "Дом,",
+       "startFrame": 170,
+       "endFrame": 231,
+       "status": "verified"
+      },
+      {
+       "text": "работа,",
+       "startFrame": 231,
+       "endFrame": 319,
+       "status": "verified"
+      },
+      {
+       "text": "дом.",
+       "startFrame": 319,
+       "endFrame": 319,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Одинаковые дни",
+     "startFrame": 319,
+     "endFrame": 397,
+     "words": [
+      {
+       "text": "Одинаковые",
+       "startFrame": 319,
+       "endFrame": 379,
+       "status": "verified"
+      },
+      {
+       "text": "дни",
+       "startFrame": 379,
+       "endFrame": 397,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "оставляют мало следов.",
+     "startFrame": 397,
+     "endFrame": 523,
+     "words": [
+      {
+       "text": "оставляют",
+       "startFrame": 397,
+       "endFrame": 451,
+       "status": "verified"
+      },
+      {
+       "text": "мало",
+       "startFrame": 451,
+       "endFrame": 475,
+       "status": "verified"
+      },
+      {
+       "text": "следов.",
+       "startFrame": 475,
+       "endFrame": 523,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "И годы в памяти",
+     "startFrame": 523,
+     "endFrame": 584,
+     "words": [
+      {
+       "text": "И",
+       "startFrame": 523,
+       "endFrame": 528,
+       "status": "verified"
+      },
+      {
+       "text": "годы",
+       "startFrame": 528,
+       "endFrame": 548,
+       "status": "verified"
+      },
+      {
+       "text": "в",
+       "startFrame": 548,
+       "endFrame": 553,
+       "status": "verified"
+      },
+      {
+       "text": "памяти",
+       "startFrame": 553,
+       "endFrame": 584,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "сжимаются.",
+     "startFrame": 584,
+     "endFrame": 643,
+     "words": [
+      {
+       "text": "сжимаются.",
+       "startFrame": 584,
+       "endFrame": 643,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-10",
+   "from": 4743,
+   "durationInFrames": 805,
+   "audio": "audio/vo/scene-10.mp3",
+   "audioDurationInFrames": 805,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "second",
+     "word": "Вторая",
+     "wordIndex": 5,
+     "frame": 124,
+     "status": "verified"
+    },
+    {
+     "id": "tenth",
+     "word": "десятая",
+     "wordIndex": 10,
+     "frame": 272,
+     "status": "verified"
+    },
+    {
+     "id": "tiny",
+     "word": "меньше",
+     "wordIndex": 18,
+     "frame": 484,
+     "status": "verified"
+    },
+    {
+     "id": "third",
+     "word": "Третья",
+     "wordIndex": 19,
+     "frame": 529,
+     "status": "verified"
+    },
+    {
+     "id": "images",
+     "word": "картинок",
+     "wordIndex": 26,
+     "frame": 733,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Но это не единственная версия.",
+     "startFrame": 1,
+     "endFrame": 124,
+     "words": [
+      {
+       "text": "Но",
+       "startFrame": 1,
+       "endFrame": 9,
+       "status": "verified"
+      },
+      {
+       "text": "это",
+       "startFrame": 9,
+       "endFrame": 25,
+       "status": "verified"
+      },
+      {
+       "text": "не",
+       "startFrame": 25,
+       "endFrame": 35,
+       "status": "verified"
+      },
+      {
+       "text": "единственная",
+       "startFrame": 35,
+       "endFrame": 87,
+       "status": "verified"
+      },
+      {
+       "text": "версия.",
+       "startFrame": 87,
+       "endFrame": 124,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Вторая: в десять лет год —",
+     "startFrame": 124,
+     "endFrame": 255,
+     "words": [
+      {
+       "text": "Вторая:",
+       "startFrame": 124,
+       "endFrame": 187,
+       "status": "verified"
+      },
+      {
+       "text": "в",
+       "startFrame": 187,
+       "endFrame": 213,
+       "status": "verified"
+      },
+      {
+       "text": "десять",
+       "startFrame": 213,
+       "endFrame": 216,
+       "status": "verified"
+      },
+      {
+       "text": "лет",
+       "startFrame": 216,
+       "endFrame": 235,
+       "status": "verified"
+      },
+      {
+       "text": "год",
+       "startFrame": 235,
+       "endFrame": 255,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "десятая часть жизни.",
+     "startFrame": 272,
+     "endFrame": 392,
+     "words": [
+      {
+       "text": "десятая",
+       "startFrame": 272,
+       "endFrame": 312,
+       "status": "verified"
+      },
+      {
+       "text": "часть",
+       "startFrame": 312,
+       "endFrame": 346,
+       "status": "verified"
+      },
+      {
+       "text": "жизни.",
+       "startFrame": 346,
+       "endFrame": 392,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "С годами",
+     "startFrame": 392,
+     "endFrame": 432,
+     "words": [
+      {
+       "text": "С",
+       "startFrame": 392,
+       "endFrame": 397,
+       "status": "verified"
+      },
+      {
+       "text": "годами",
+       "startFrame": 397,
+       "endFrame": 432,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "эта доля всё меньше.",
+     "startFrame": 432,
+     "endFrame": 529,
+     "words": [
+      {
+       "text": "эта",
+       "startFrame": 432,
+       "endFrame": 446,
+       "status": "verified"
+      },
+      {
+       "text": "доля",
+       "startFrame": 446,
+       "endFrame": 468,
+       "status": "verified"
+      },
+      {
+       "text": "всё",
+       "startFrame": 468,
+       "endFrame": 484,
+       "status": "verified"
+      },
+      {
+       "text": "меньше.",
+       "startFrame": 484,
+       "endFrame": 529,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Третья: молодой мозг",
+     "startFrame": 529,
+     "endFrame": 625,
+     "words": [
+      {
+       "text": "Третья:",
+       "startFrame": 529,
+       "endFrame": 568,
+       "status": "verified"
+      },
+      {
+       "text": "молодой",
+       "startFrame": 568,
+       "endFrame": 620,
+       "status": "verified"
+      },
+      {
+       "text": "мозг",
+       "startFrame": 620,
+       "endFrame": 625,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "замечает за день",
+     "startFrame": 625,
+     "endFrame": 700,
+     "words": [
+      {
+       "text": "замечает",
+       "startFrame": 625,
+       "endFrame": 668,
+       "status": "verified"
+      },
+      {
+       "text": "за",
+       "startFrame": 668,
+       "endFrame": 679,
+       "status": "verified"
+      },
+      {
+       "text": "день",
+       "startFrame": 679,
+       "endFrame": 700,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "больше картинок.",
+     "startFrame": 700,
+     "endFrame": 788,
+     "words": [
+      {
+       "text": "больше",
+       "startFrame": 700,
+       "endFrame": 733,
+       "status": "verified"
+      },
+      {
+       "text": "картинок.",
+       "startFrame": 733,
+       "endFrame": 788,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-11",
+   "from": 5548,
+   "durationInFrames": 723,
+   "audio": "audio/vo/scene-11.mp3",
+   "audioDurationInFrames": 723,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "hypotheses",
+     "word": "гипотезы",
+     "wordIndex": 5,
+     "frame": 161,
+     "status": "verified"
+    },
+    {
+     "id": "argue",
+     "word": "спорят",
+     "wordIndex": 8,
+     "frame": 260,
+     "status": "verified"
+    },
+    {
+     "id": "attention",
+     "word": "внимание",
+     "wordIndex": 14,
+     "frame": 449,
+     "status": "verified"
+    },
+    {
+     "id": "stretch",
+     "word": "растянуть",
+     "wordIndex": 20,
+     "frame": 610,
+     "status": "verified"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Поэтому честно:",
+     "startFrame": 7,
+     "endFrame": 85,
+     "words": [
+      {
+       "text": "Поэтому",
+       "startFrame": 7,
+       "endFrame": 39,
+       "status": "verified"
+      },
+      {
+       "text": "честно:",
+       "startFrame": 39,
+       "endFrame": 85,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "все эти объяснения — гипотезы.",
+     "startFrame": 85,
+     "endFrame": 209,
+     "words": [
+      {
+       "text": "все",
+       "startFrame": 85,
+       "endFrame": 92,
+       "status": "verified"
+      },
+      {
+       "text": "эти",
+       "startFrame": 92,
+       "endFrame": 107,
+       "status": "verified"
+      },
+      {
+       "text": "объяснения",
+       "startFrame": 107,
+       "endFrame": 154,
+       "status": "verified"
+      },
+      {
+       "text": "гипотезы.",
+       "startFrame": 161,
+       "endFrame": 209,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Учёные ещё спорят.",
+     "startFrame": 209,
+     "endFrame": 305,
+     "words": [
+      {
+       "text": "Учёные",
+       "startFrame": 209,
+       "endFrame": 242,
+       "status": "verified"
+      },
+      {
+       "text": "ещё",
+       "startFrame": 242,
+       "endFrame": 260,
+       "status": "verified"
+      },
+      {
+       "text": "спорят.",
+       "startFrame": 260,
+       "endFrame": 305,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Новизна помогает не всегда,",
+     "startFrame": 305,
+     "endFrame": 414,
+     "words": [
+      {
+       "text": "Новизна",
+       "startFrame": 305,
+       "endFrame": 336,
+       "status": "verified"
+      },
+      {
+       "text": "помогает",
+       "startFrame": 336,
+       "endFrame": 371,
+       "status": "verified"
+      },
+      {
+       "text": "не",
+       "startFrame": 371,
+       "endFrame": 380,
+       "status": "verified"
+      },
+      {
+       "text": "всегда,",
+       "startFrame": 380,
+       "endFrame": 414,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "влияют внимание и эмоции.",
+     "startFrame": 414,
+     "endFrame": 546,
+     "words": [
+      {
+       "text": "влияют",
+       "startFrame": 414,
+       "endFrame": 449,
+       "status": "verified"
+      },
+      {
+       "text": "внимание",
+       "startFrame": 449,
+       "endFrame": 496,
+       "status": "verified"
+      },
+      {
+       "text": "и",
+       "startFrame": 496,
+       "endFrame": 501,
+       "status": "verified"
+      },
+      {
+       "text": "эмоции.",
+       "startFrame": 501,
+       "endFrame": 546,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "Так можно ли",
+     "startFrame": 546,
+     "endFrame": 610,
+     "words": [
+      {
+       "text": "Так",
+       "startFrame": 546,
+       "endFrame": 580,
+       "status": "verified"
+      },
+      {
+       "text": "можно",
+       "startFrame": 580,
+       "endFrame": 593,
+       "status": "verified"
+      },
+      {
+       "text": "ли",
+       "startFrame": 593,
+       "endFrame": 610,
+       "status": "verified"
+      }
+     ]
+    },
+    {
+     "text": "растянуть свои годы?",
+     "startFrame": 610,
+     "endFrame": 710,
+     "words": [
+      {
+       "text": "растянуть",
+       "startFrame": 610,
+       "endFrame": 656,
+       "status": "verified"
+      },
+      {
+       "text": "свои",
+       "startFrame": 656,
+       "endFrame": 677,
+       "status": "verified"
+      },
+      {
+       "text": "годы?",
+       "startFrame": 677,
+       "endFrame": 710,
+       "status": "verified"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  },
+  {
+   "id": "scene-12",
+   "from": 6271,
+   "durationInFrames": 653,
+   "audio": "audio/vo/scene-12.mp3",
+   "audioDurationInFrames": 623,
+   "voiceStartFrame": 0,
+   "beats": [
+    {
+     "id": "new",
+     "word": "новое",
+     "wordIndex": 5,
+     "frame": 153,
+     "status": "approximate"
+    },
+    {
+     "id": "memory",
+     "word": "памяти",
+     "wordIndex": 12,
+     "frame": 368,
+     "status": "approximate"
+    },
+    {
+     "id": "longer",
+     "word": "длиннее",
+     "wordIndex": 15,
+     "frame": 460,
+     "status": "approximate"
+    },
+    {
+     "id": "hour",
+     "word": "час",
+     "wordIndex": 17,
+     "frame": 521,
+     "status": "approximate"
+    }
+   ],
+   "pages": [
+    {
+     "text": "Можно попробовать:",
+     "startFrame": 0,
+     "endFrame": 61,
+     "words": [
+      {
+       "text": "Можно",
+       "startFrame": 0,
+       "endFrame": 31,
+       "status": "approximate"
+      },
+      {
+       "text": "попробовать:",
+       "startFrame": 31,
+       "endFrame": 61,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "меняйте маршрут,",
+     "startFrame": 61,
+     "endFrame": 123,
+     "words": [
+      {
+       "text": "меняйте",
+       "startFrame": 61,
+       "endFrame": 92,
+       "status": "approximate"
+      },
+      {
+       "text": "маршрут,",
+       "startFrame": 92,
+       "endFrame": 123,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "пробуйте новое",
+     "startFrame": 123,
+     "endFrame": 184,
+     "words": [
+      {
+       "text": "пробуйте",
+       "startFrame": 123,
+       "endFrame": 153,
+       "status": "approximate"
+      },
+      {
+       "text": "новое",
+       "startFrame": 153,
+       "endFrame": 184,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "и замечайте, что происходит.",
+     "startFrame": 184,
+     "endFrame": 307,
+     "words": [
+      {
+       "text": "и",
+       "startFrame": 184,
+       "endFrame": 215,
+       "status": "approximate"
+      },
+      {
+       "text": "замечайте,",
+       "startFrame": 215,
+       "endFrame": 245,
+       "status": "approximate"
+      },
+      {
+       "text": "что",
+       "startFrame": 245,
+       "endFrame": 276,
+       "status": "approximate"
+      },
+      {
+       "text": "происходит.",
+       "startFrame": 276,
+       "endFrame": 307,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "Годы в памяти",
+     "startFrame": 307,
+     "endFrame": 399,
+     "words": [
+      {
+       "text": "Годы",
+       "startFrame": 307,
+       "endFrame": 337,
+       "status": "approximate"
+      },
+      {
+       "text": "в",
+       "startFrame": 337,
+       "endFrame": 368,
+       "status": "approximate"
+      },
+      {
+       "text": "памяти",
+       "startFrame": 368,
+       "endFrame": 399,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "могут стать длиннее.",
+     "startFrame": 399,
+     "endFrame": 491,
+     "words": [
+      {
+       "text": "могут",
+       "startFrame": 399,
+       "endFrame": 429,
+       "status": "approximate"
+      },
+      {
+       "text": "стать",
+       "startFrame": 429,
+       "endFrame": 460,
+       "status": "approximate"
+      },
+      {
+       "text": "длиннее.",
+       "startFrame": 460,
+       "endFrame": 491,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "А час —",
+     "startFrame": 491,
+     "endFrame": 552,
+     "words": [
+      {
+       "text": "А",
+       "startFrame": 491,
+       "endFrame": 521,
+       "status": "approximate"
+      },
+      {
+       "text": "час",
+       "startFrame": 521,
+       "endFrame": 552,
+       "status": "approximate"
+      }
+     ]
+    },
+    {
+     "text": "останется часом.",
+     "startFrame": 552,
+     "endFrame": 613,
+     "words": [
+      {
+       "text": "останется",
+       "startFrame": 552,
+       "endFrame": 583,
+       "status": "approximate"
+      },
+      {
+       "text": "часом.",
+       "startFrame": 583,
+       "endFrame": 613,
+       "status": "approximate"
+      }
+     ]
+    }
+   ],
+   "sfx": []
+  }
+ ],
+ "totalFrames": 6924
+}

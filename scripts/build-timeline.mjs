@@ -21,13 +21,6 @@ const NUM = {'499': 'четыресталевяносто', '10': 'десять'
 const durationMs = (file) =>
   Math.round(parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', file]).toString()) * 1000);
 
-const speechSpans = (file) => {
-  // non-silent spans from ffmpeg silencedetect
-  const log = execFileSync('ffmpeg', ['-hide_banner', '-i', file, '-af', 'silencedetect=n=-40dB:d=0.12', '-f', 'null', '-'], {stdio: ['ignore', 'pipe', 'pipe']}).toString() +
-    '';
-  return log;
-};
-
 const mergeTokens = (captions) => {
   const words = [];
   for (const c of captions) {
@@ -107,8 +100,8 @@ const report = [];
 script.scenes.forEach((scene, si) => {
   const audio = `public/audio/vo/${scene.id}.mp3`;
   const audioMs = durationMs(audio);
-  const tr = JSON.parse(fs.readFileSync(`content/transcripts/${scene.id}.json`, 'utf8'));
-  const asr = mergeTokens(tr.captions);
+  const trPath = `content/transcripts/${scene.id}.json`;
+  const asr = fs.existsSync(trPath) ? mergeTokens(JSON.parse(fs.readFileSync(trPath, 'utf8')).captions) : [];
   // flatten script words with fragment index
   const words = [];
   scene.fragments.forEach((f, fi) => wordsOf(f.display).forEach((w) => words.push({text: w, fragment: fi})));
@@ -117,7 +110,7 @@ script.scenes.forEach((scene, si) => {
   const lastSpeechMs = audioMs - 150;
   for (let k = 0; k < words.length; k++) {
     if (al[k]) {
-      words[k] = {...words[k], ...al[k]};
+      words[k] = {...words[k], startMs: al[k].startMs, endMs: al[k].endMs, status: al[k].status};
       continue;
     }
     let p = k - 1;

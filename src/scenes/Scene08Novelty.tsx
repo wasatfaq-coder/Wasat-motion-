@@ -3,16 +3,16 @@ import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remoti
 import {COLORS} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE, mix} from '../lib/anim';
-import {Cam2D, FrontalSvg, lerpCam2D, LW, LW2, LW3, WallBackdrop} from '../illustrations/Board';
+import {Cam2D, FrontalSvg, lerpCam2D, LW, LW2, LW3, RoomWallBackdrop} from '../illustrations/Board';
 import {CARD_H, CARD_W, HEAD_PATH, MemoryCard} from '../illustrations/MemoryCards';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 const KINDS = ['street', 'ticket', 'wave'] as const;
 
 // World layout (frontal): a big head = memory cabinet with drawers; a suitcase on the floor; a tape measure.
-const HEAD = {x: 120, y: 330, s: 2.3}; // HEAD_PATH box ≈ 260 × 300 → ≈ 600 × 690
-const DRAWERS = {x: 250, y: 470, cols: 3, rows: 4, w: 120, h: 78, gap: 12};
-const SUITCASE = {x: 700, y: 900, w: 240, h: 170};
+const HEAD = {x: 70, y: 330, s: 2.2}; // HEAD_PATH box ≈ 260 × 300 → ≈ 600 × 690
+const DRAWERS = {x: 200, y: 460, cols: 3, rows: 4, w: 116, h: 76, gap: 12};
+const SUITCASE = {x: 740, y: 940, w: 230, h: 165};
 const drawerPos = (k: number): [number, number] => {
   const c = k % DRAWERS.cols;
   const r = Math.floor(k / DRAWERS.cols);
@@ -63,24 +63,25 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
   const filled = Array.from({length: drawerCount}, (_, k) => interpolate(frame, [flyStart(k) + flight - 4, flyStart(k) + flight + 6], [0, 1], cl));
   const tape = interpolate(frame, [brain - 10, brain + 0.8 * fps], [0, 1], {...cl, easing: EASE.out}) * (0.45 + 0.55 * interpolate(frame, [long - 1.0 * fps, long + 0.2 * fps], [0, 1], {...cl, easing: EASE.inOut}));
   const shots: [number, Cam2D][] = [
-    [0, {focus: [540, 760], zoom: 0.95, screen: [484, 740]}], // wide: head cabinet and suitcase
+    [0, {focus: [500, 760], zoom: 0.85, screen: [484, 720]}], // wide: room with the head cabinet, window, shelf and suitcase
     [novelty - 20, {focus: [SUITCASE.x + 60, SUITCASE.y - 40], zoom: 1.7, screen: [484, 780]}], // suitcase opens
     [streets - 16, {focus: [SUITCASE.x - 60, SUITCASE.y - 200], zoom: 1.35, screen: [484, 760]}], // the three big cards
     [brain - 20, {focus: [430, 640], zoom: 1.3, screen: [484, 740]}], // the head = memory cabinet
     [memories - 30, {focus: [400, 700], zoom: 1.55, screen: [484, 760]}], // drawers fill
-    [long - 1.1 * fps, {focus: [560, 640], zoom: 1.0, screen: [484, 740]}], // the tape measure grows: long period
+    [long - 1.1 * fps, {focus: [520, 720], zoom: 0.85, screen: [484, 720]}], // the tape measure grows: long period
   ];
   let cam = shots[0][1];
   for (let i = 1; i < shots.length; i++) cam = lerpCam2D(cam, shots[i][1], interpolate(frame, [shots[i][0], shots[i][0] + 0.55 * fps], [0, 1], cl));
-  const tapeX = 900;
-  const tapeBottom = 1100;
+  const tapeX = 680;
+  const tapeBottom = 1090;
   const tapeTop = tapeBottom - tape * 760;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
       <FrontalSvg cam={cam}>
-        <WallBackdrop />
+        <RoomWallBackdrop frame={frame} window={[700, 300]} shelf={-260} />
         {/* head = memory cabinet */}
         <g transform={`translate(${HEAD.x} ${HEAD.y}) scale(${HEAD.s})`}>
+          <path d="M40,420 L40,330 C40,300 80,288 120,288 L210,288 C250,288 290,300 290,330 L290,420 Z" fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW / HEAD.s} strokeLinejoin="round" />
           <path d={HEAD_PATH} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW / HEAD.s} strokeLinejoin="round" />
         </g>
         {Array.from({length: drawerCount}, (_, k) => {

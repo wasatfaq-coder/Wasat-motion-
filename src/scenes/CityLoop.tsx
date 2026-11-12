@@ -10,7 +10,7 @@ export const LOOP: {c: P3; rx: number; ry: number} = {c: [6.0, 5.0, 0.01], rx: 3
 export const loopPt = (a: number): P3 => [LOOP.c[0] + Math.cos(a) * LOOP.rx, LOOP.c[1] + Math.sin(a) * LOOP.ry, 0.02];
 
 /** City block: home (left) and office (right) on a ring road. `open` 0..1 opens the ring into new roads (scene 12). */
-export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; open?: number; grey?: number; cards?: number}> = ({t, frame, carSpeed, open = 0, grey = 0, cards = 0}) => {
+export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; open?: number; grey?: number; cards?: number; mystery?: number}> = ({t, frame, carSpeed, open = 0, grey = 0, cards = 0, mystery = 0}) => {
   const a = frame * carSpeed;
   const car = loopPt(a);
   const gap = open * 18;
@@ -71,6 +71,15 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
             );
           })
         : null}
+      {/* micro-intrigue: what will today leave in memory? a card with "?" hovers over the ring, then stays blank */}
+      {mystery > 0 ? (
+        <g opacity={Math.min(1, mystery * 2)}>
+          <g transform={planeMatrix(ROOM_S, 'wallX', [LOOP.c[0] - 0.6, LOOP.c[1], 3.2 + Math.sin(t * 2) * 0.1])}>
+            <rect x={0} y={0} width={1.2} height={0.85} rx={0.08} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.main} vectorEffect="non-scaling-stroke" />
+            <text x={0.6} y={0.68} textAnchor="middle" fontSize={0.62} fontWeight={700} fill={COLORS.accent} opacity={mystery}>?</text>
+          </g>
+        </g>
+      ) : null}
       <Car s={ROOM_S} at={[car[0] - 0.5, car[1] - 0.27, 0.02]} accent={open > 0.5} />
       <IsoPerson s={ROOM_S} at={[2.9, 5.6, 0]} h={1.0} bob={Math.sin(t * 3) * 0.02} />
     </g>

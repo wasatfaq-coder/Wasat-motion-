@@ -4,7 +4,8 @@ import {evolvePath, getLength, getPointAtLength} from '@remotion/paths';
 import {COLORS} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
-import {Cam2D, FrontalSvg, lerpCam2D, LW, LW2, LW3, Marker, WallBackdrop} from '../illustrations/Board';
+import {Cam2D, FrontalSvg, lerpCam2D, LW, LW2, LW3, Marker, RoomWallBackdrop, TableTop} from '../illustrations/Board';
+import {CARD_H, CARD_W, MemoryCard} from '../illustrations/MemoryCards';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 const QUESTION = 'M380,520 C380,400 600,400 600,520 C600,600 490,610 490,690 L490,730';
@@ -27,26 +28,25 @@ const Notebook: React.FC = () => (
   </g>
 );
 
+/** Scientist bust behind the desk (glasses, lab-coat collar). */
+const Scientist: React.FC<{x: number; y: number; flip?: boolean; nod: number}> = ({x, y, flip, nod}) => (
+  <g transform={`translate(${x} ${y}) scale(${flip ? -1 : 1} 1) rotate(${nod})`}>
+    <path d="M-120,200 L-120,90 C-120,40 -70,30 0,30 C70,30 120,40 120,90 L120,200 Z" fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
+    <path d="M-30,32 L0,90 L30,32" fill="none" stroke={COLORS.ink} strokeWidth={LW3} />
+    <circle cx={0} cy={-40} r={66} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
+    <circle cx={-24} cy={-40} r={16} fill="none" stroke={COLORS.ink} strokeWidth={LW3} />
+    <circle cx={24} cy={-40} r={16} fill="none" stroke={COLORS.ink} strokeWidth={LW3} />
+    <line x1={-8} y1={-40} x2={8} y2={-40} stroke={COLORS.ink} strokeWidth={LW3} />
+    <path d="M-60,-70 C-50,-120 50,-120 60,-70" fill="none" stroke={COLORS.ink} strokeWidth={LW2} />
+  </g>
+);
+
 const Bubble: React.FC<{x: number; y: number; flip?: boolean; p: number; jiggle: number}> = ({x, y, flip, p, jiggle}) => (
   <g transform={`translate(${x} ${y}) scale(${flip ? -p : p} ${p}) rotate(${jiggle})`}>
     <path d="M-110,-60 Q-110,-110 -50,-110 L60,-110 Q120,-110 120,-60 L120,-10 Q120,40 60,40 L-20,40 L-60,80 L-50,40 Q-110,40 -110,-10 Z" fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW2} strokeLinejoin="round" />
     {[-70, -10, 50].map((cx) => (
       <circle key={cx} cx={cx} cy={-35} r={12} fill={COLORS.ink} />
     ))}
-  </g>
-);
-
-const Icon: React.FC<{kind: 'spark' | 'eye' | 'heart'; x: number; y: number; p: number; lit: number; beat: number}> = ({kind, x, y, p, lit, beat}) => (
-  <g transform={`translate(${x} ${y}) scale(${p * (1 + 0.08 * beat)})`}>
-    <circle r={78} fill={lit > 0.5 ? COLORS.accentSoft : COLORS.fillMid} stroke={lit > 0.5 ? COLORS.accent : COLORS.ink} strokeWidth={LW} />
-    {kind === 'spark' ? <path d="M0,-44 L11,-11 L44,0 L11,11 L0,44 L-11,11 L-44,0 L-11,-11 Z" fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW2} strokeLinejoin="round" /> : null}
-    {kind === 'eye' ? (
-      <g>
-        <path d="M-48,0 Q0,-40 48,0 Q0,40 -48,0 Z" fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW2} />
-        <circle r={14} fill={COLORS.ink} />
-      </g>
-    ) : null}
-    {kind === 'heart' ? <path d="M0,36 C-52,0 -44,-40 -18,-40 C-5,-40 0,-27 0,-22 C0,-27 5,-40 18,-40 C44,-40 52,0 0,36 Z" fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW2} strokeLinejoin="round" /> : null}
   </g>
 );
 
@@ -66,7 +66,7 @@ export const Scene11Caveat: React.FC<{scene: SceneData}> = ({scene}) => {
   const argue = beat(scene, 'argue');
   const attention = beat(scene, 'attention');
   const stretch = beat(scene, 'stretch');
-  const q = interpolate(frame, [hyp - 30, hyp + 0.9 * fps], [0, 1], cl);
+  const q = interpolate(frame, [0, hyp + 0.9 * fps], [0, 1], cl);
   const evo = evolvePath(EASE.inOut(q), QUESTION);
   const pen = getPointAtLength(QUESTION, Math.max(0.01, QLEN * EASE.inOut(q)));
   const bub = interpolate(frame, [argue - 10, argue + 10], [0, 1], {...cl, easing: EASE.overshoot});
@@ -76,9 +76,9 @@ export const Scene11Caveat: React.FC<{scene: SceneData}> = ({scene}) => {
   const eyeLit = interpolate(frame, [attention - 4, attention + 4], [0, 1], cl);
   const heartLit = interpolate(frame, [attention + 50, attention + 58], [0, 1], cl);
   const shots: [number, Cam2D][] = [
-    [0, {focus: [490, 680], zoom: 1.0, screen: [484, 740]}],
-    [hyp - 34, {focus: [490, 580], zoom: 1.5, screen: [484, 720]}], // the question mark being written
-    [argue - 16, {focus: [490, 480], zoom: 1.2, screen: [484, 700]}], // bubbles argue
+    [0, {focus: [490, 600], zoom: 1.45, screen: [484, 720]}], // the marker is already writing the question
+    [hyp - 10, {focus: [490, 560], zoom: 0.85, screen: [484, 760]}], // pull back: scientists behind the desk
+    [argue - 16, {focus: [490, 120], zoom: 1.2, screen: [484, 720]}], // the scientists argue
     [attention - 50, {focus: [490, 920], zoom: 1.55, screen: [484, 760]}], // magnifier over icons
     [stretch - 30, {focus: [490, 700], zoom: 0.95, screen: [484, 740]}], // open question to the viewer
   ];
@@ -87,18 +87,31 @@ export const Scene11Caveat: React.FC<{scene: SceneData}> = ({scene}) => {
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
       <FrontalSvg cam={cam}>
-        <WallBackdrop />
-        <rect x={-400} y={200} width={1880} height={1000} fill={COLORS.fillMid} />
-        <Notebook />
-        <path d={QUESTION} fill="none" stroke={COLORS.ink} strokeWidth={LW * 3.2} strokeLinecap="round" strokeDasharray={evo.strokeDasharray} strokeDashoffset={evo.strokeDashoffset} />
-        {q >= 1 ? <circle cx={490} cy={800} r={22} fill={COLORS.accent} /> : null}
-        {q > 0 && q < 1 && pen ? <Marker x={pen.x} y={pen.y} /> : null}
-        <Bubble x={250} y={430} p={bub} jiggle={jig} />
-        <Bubble x={730} y={430} flip p={bub} jiggle={-jig} />
-        <Icon kind="spark" x={250} y={940} p={icons[0]} lit={0} beat={0} />
-        <Icon kind="eye" x={490} y={940} p={icons[1]} lit={eyeLit} beat={0} />
-        <Icon kind="heart" x={730} y={940} p={icons[2]} lit={heartLit} beat={Math.max(0, Math.sin(frame * 0.4)) * heartLit} />
-        {frame > attention - 45 ? <Magnifier x={magX} y={940} /> : null}
+        <RoomWallBackdrop frame={frame} window={[700, -260]} shelf={-200} />
+        <Scientist x={230} y={40} nod={jig * 0.6} />
+        <Scientist x={750} y={40} flip nod={-jig * 0.6} />
+        <g>
+          <clipPath id="deskClip">
+            <rect x={-600} y={250} width={2400} height={2200} />
+          </clipPath>
+          <g clipPath="url(#deskClip)">
+            <TableTop />
+            <line x1={-600} y1={250} x2={1800} y2={250} stroke={COLORS.ink} strokeWidth={LW} />
+            <Notebook />
+            <path d={QUESTION} fill="none" stroke={COLORS.ink} strokeWidth={LW * 3.2} strokeLinecap="round" strokeDasharray={evo.strokeDasharray} strokeDashoffset={evo.strokeDashoffset} />
+            {q >= 1 ? <circle cx={490} cy={800} r={22} fill={COLORS.accent} /> : null}
+            {q > 0 && q < 1 && pen ? <Marker x={pen.x} y={pen.y} /> : null}
+            {/* three memory cards: a new place, a bright event (attention), an emotion */}
+            {(['street', 'ticket', 'party'] as const).map((k, i) => (
+              <g key={k} transform={`translate(${250 + (i - 1) * 260 + 240} ${930}) scale(${icons[i] * 0.85}) rotate(${(i - 1) * 6}) translate(${-CARD_W / 2} ${-CARD_H / 2})`}>
+                <MemoryCard kind={k} novel={(i === 1 && eyeLit > 0.5) || (i === 2 && heartLit > 0.5)} />
+              </g>
+            ))}
+            {frame > attention - 45 ? <Magnifier x={magX} y={940} /> : null}
+          </g>
+        </g>
+        <Bubble x={380} y={-120} p={bub} jiggle={jig} />
+        <Bubble x={600} y={-120} flip p={bub} jiggle={-jig} />
       </FrontalSvg>
     </AbsoluteFill>
   );

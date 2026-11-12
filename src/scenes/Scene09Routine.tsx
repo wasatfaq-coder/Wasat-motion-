@@ -34,12 +34,12 @@ export const Scene09Routine: React.FC<{scene: SceneData}> = ({scene}) => {
     return (
       <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
         <RoomSvg cam={cam}>
-          <CityLoop t={t} frame={frame} carSpeed={(2 * Math.PI) / (2.6 * fps)} grey={interpolate(frame, [traces - 40, traces], [0, 1], cl)} />
+          <CityLoop t={t} frame={frame} carSpeed={(2 * Math.PI) / (2.6 * fps)} grey={interpolate(frame, [traces - 40, traces], [0, 1], cl)} mystery={interpolate(frame, [0, 20, traces - 10, traces + 10], [0, 1, 1, 0], cl)} />
         </RoomSvg>
       </AbsoluteFill>
     );
   }
-  const squash = interpolate(frame, [shrink - 5, shrink + 1.4 * fps], [1, 0.28], {...cl, easing: EASE.inOut});
+  const squash = interpolate(frame, [shrink - 5, shrink + 0.9 * fps], [1, 0.28], {...cl, easing: EASE.inOut});
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
       <RoomStage cam={{...CAM_TRAY, zoom: interpolate(frame, [backHome, shrink], [2.0, 2.5], cl), screen: [484, 880]}} t={t} cards={plainCards(n)} squash={squash} hideChair />

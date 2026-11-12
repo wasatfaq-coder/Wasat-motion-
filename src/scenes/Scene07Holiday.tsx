@@ -9,7 +9,7 @@ import {shotCam} from './shots';
 import {FlyingCard, Suitcase} from '../illustrations/Props';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {RoomSvg} from './RoomScene';
-import {Ground, IsoPerson, Sea, Tree, Umbrella} from '../illustrations/CityKit';
+import {Building, Ground, IsoPerson, Sea, Tree, Umbrella} from '../illustrations/CityKit';
 import {Box} from '../illustrations/primitives';
 import {Suitcase as Suitcase3D} from '../illustrations/Props';
 import {P3} from '../lib/iso';
@@ -49,7 +49,7 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const home = long - 75;
   const beachCam = shotCam(frame, [
     [0, {focus: roomPoint([5.0, 4.0, 0.8]), zoom: 1.7, screen: [484, 860]}],
-    [fast - 20, {focus: roomPoint([5.0, 4.0, 1.4]), zoom: 1.35, screen: [484, 900]}],
+    [fast - 20, {focus: roomPoint([5.8, 3.6, 1.6]), zoom: 1.6, screen: [484, 900]}],
     [fast + 1.2 * fps, {focus: roomPoint([6.2, 5.2, 0.4]), zoom: 2.6, screen: [484, 860]}], // suitcase and towel close
   ]);
   const sunP = interpolate(frame, [fast - 10, home], [0, 3], clamp);
@@ -62,7 +62,10 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
           <RoomSvg cam={beachCam}>
             <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.2} t={t} />
             <Ground s={ROOM_S} at={[0, 3.2, 0]} w={12} d={6} fill="#F3E3C3" />
+            <Building s={ROOM_S} at={[8.6, -2.2, 0]} size={[3.0, 2.0, 4.4]} floors={4} accent lit={0.3} />
+            <Box s={ROOM_S} at={[2.0, 1.0, 0.02]} size={[1.6, 0.6, 0.3]} stroke={2.5} left={COLORS.fillLight} right={COLORS.accentSoft} />
             <Umbrella s={ROOM_S} at={[5.4, 4.6, 0]} />
+            <Umbrella s={ROOM_S} at={[9.0, 5.6, 0]} />
             <Box s={ROOM_S} at={[5.6, 5.0, 0.01]} size={[1.8, 0.8, 0.03]} stroke={2.5} top={COLORS.accentSoft} />
             <IsoPerson s={ROOM_S} at={[4.2, 5.4, 0]} h={1.0} accent bob={Math.sin(t * 2) * 0.02} />
             <Suitcase3D s={ROOM_S} at={[7.6, 5.4, 0]} />

@@ -193,3 +193,54 @@ export const FrontCrowd: React.FC<{y: number; react: number; frame: number}> = (
     })}
   </g>
 );
+
+/** Frontal room backdrop: wall, window with a city skyline and blinds, bookshelf, floor. Covers the whole band. */
+export const RoomWallBackdrop: React.FC<{frame?: number; window?: [number, number]; shelf?: number}> = ({frame = 0, window = [640, 330], shelf = -60}) => {
+  const floorY = 1120;
+  const [wx, wy] = window;
+  return (
+    <g>
+      <rect x={-600} y={-400} width={2400} height={1520} fill={COLORS.wallRight} />
+      <line x1={-600} y1={floorY - 26} x2={1800} y2={floorY - 26} stroke={COLORS.inkSoft} strokeWidth={LW3} />
+      <rect x={-600} y={floorY} width={2400} height={900} fill={COLORS.floor} stroke={COLORS.ink} strokeWidth={LW} />
+      {Array.from({length: 10}, (_, i) => (
+        <line key={i} x1={-600 + i * 260} y1={floorY} x2={-700 + i * 260} y2={floorY + 400} stroke={COLORS.inkSoft} strokeWidth={1.5} />
+      ))}
+      {/* window with skyline */}
+      <rect x={wx} y={wy} width={300} height={360} rx={8} fill="#EEF2F0" stroke={COLORS.ink} strokeWidth={LW} />
+      {[[wx + 20, 140], [wx + 80, 210], [wx + 150, 110], [wx + 210, 180]].map(([x, h], i) => (
+        <rect key={i} x={x} y={wy + 360 - h} width={60} height={h} fill={COLORS.fillMid} stroke={COLORS.inkSoft} strokeWidth={2} />
+      ))}
+      {Array.from({length: 6}, (_, i) => (
+        <line key={i} x1={wx + 6} y1={wy + 20 + i * 22 + Math.sin(frame / 40 + i) * 1.5} x2={wx + 294} y2={wy + 20 + i * 22 + Math.sin(frame / 40 + i) * 1.5} stroke={COLORS.inkSoft} strokeWidth={2} />
+      ))}
+      <line x1={wx + 150} y1={wy} x2={wx + 150} y2={wy + 360} stroke={COLORS.ink} strokeWidth={LW3} />
+      <rect x={wx - 14} y={wy + 360} width={328} height={18} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW3} />
+      {/* bookshelf */}
+      <g transform={`translate(${shelf} 420)`}>
+        <rect x={0} y={0} width={190} height={700} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW} />
+        {[0, 1, 2, 3].map((r) => (
+          <g key={r}>
+            <line x1={0} y1={170 + r * 170} x2={190} y2={170 + r * 170} stroke={COLORS.ink} strokeWidth={LW3} />
+            {Array.from({length: 6}, (_, k) => (
+              <rect key={k} x={12 + k * 28} y={170 + r * 170 - 110 - (k % 3) * 12} width={22} height={110 + (k % 3) * 12} fill={k % 4 === 1 ? COLORS.fillDark : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={2} />
+            ))}
+          </g>
+        ))}
+      </g>
+    </g>
+  );
+};
+
+/** Top view of a wooden table surface with planks (for scenes seen from above). */
+export const TableTop: React.FC = () => (
+  <g>
+    <rect x={-600} y={-400} width={2400} height={2600} fill="#EADCC6" />
+    {Array.from({length: 16}, (_, i) => (
+      <line key={i} x1={-600} y1={-400 + i * 170} x2={1800} y2={-400 + i * 170} stroke={COLORS.inkSoft} strokeWidth={2} opacity={0.6} />
+    ))}
+    {Array.from({length: 40}, (_, i) => (
+      <path key={i} d={`M${-500 + random(`gx${i}`) * 2000},${-300 + random(`gy${i}`) * 2300} q60,-8 120,0`} stroke={COLORS.inkSoft} strokeWidth={1.5} fill="none" opacity={0.5} />
+    ))}
+  </g>
+);

@@ -8,6 +8,7 @@ import {CLOCK} from '../illustrations/Room';
 import {CAM_TRAY} from './Scene01Hook';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {RoomSvg, ROOM_S} from './RoomScene';
+import {Box} from '../illustrations/primitives';
 import {BusStop, Car, Ground, IsoPerson, LampPost, Paving, Road, Tree, Building} from '../illustrations/CityKit';
 
 /** Scene 6: two ways to judge time — the frame splits into the clock (while it passes) and the tray (looking back). */
@@ -24,12 +25,14 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
   const yMid = 720;
   const tilt = 120;
   const clipTop = `polygon(0 0, 1080px 0, 1080px ${yMid - tilt + (1 - split) * 900}px, 0 ${yMid + tilt + (1 - split) * 900}px)`;
-  const clipBottom = `polygon(0 ${yMid + tilt + (1 - split) * 900}px, 1080px ${yMid - tilt + (1 - split) * 900}px, 1080px 1920px, 0 1920px)`;
+  const clipBottom = `polygon(0 ${yMid + tilt + (1 - split) * 900}px, 1080px ${yMid - tilt + (1 - split) * 900}px, 1080px 1200px, 0 1200px)`;
   const nowHl = interpolate(frame, [now - 6, now + 8, later - 20, later], [0, 1, 1, 0.2], clamp);
   const laterHl = interpolate(frame, [later - 6, later + 8], [0, 1], clamp);
   void CLOCK;
-  const stopCam = {focus: roomPoint([5.4, 3.8, 1.6]), zoom: interpolate(frame, [0, scene.durationInFrames], [2.1, 2.5]), screen: [520, 560] as [number, number]};
-  const trayCam = {...CAM_TRAY, zoom: 2.4, screen: [460, 1000] as [number, number]};
+  const stopZoom = interpolate(frame, [0, now - 20, now + 10], [1.8, 2.2, 3.4], clamp);
+  const stopFocus = interpolate(frame, [now - 20, now + 10], [0, 1], {...clamp, easing: EASE.inOut});
+  const stopCam = {focus: roomPoint([5.4 + stopFocus * 0.8, 3.8 + stopFocus * 0.2, 1.6 + stopFocus * 1.3]), zoom: stopZoom, screen: [520, 560] as [number, number]};
+  const trayCam = {...CAM_TRAY, zoom: interpolate(frame, [later - 20, later + 20], [2.4, 3.0], clamp), screen: [460, 1000] as [number, number]};
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
       <AbsoluteFill style={{clipPath: clipBottom}}>
@@ -45,6 +48,16 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
           <Building s={ROOM_S} at={[4.2, -2.6, 0]} size={[2.6, 2.0, 3.2]} floors={3} accent lit={0.2} />
           <Building s={ROOM_S} at={[7.4, -2.6, 0]} size={[3.2, 2.0, 4.6]} floors={4} lit={0.3} />
           <Car s={ROOM_S} at={[interpolate(frame, [now - 60, now + 60], [-2, 13], clamp), 1.5, 0.01]} accent />
+          {/* a bus passes in the first seconds */}
+          {(() => {
+            const bx = interpolate(frame, [40, 130], [-6, 14], clamp);
+            return (
+              <g>
+                <Box s={ROOM_S} at={[bx, 1.3, 0.15]} size={[3.4, 0.9, 1.2]} stroke={2.5} left={COLORS.fillLight} right={COLORS.fillMid} top={COLORS.fillLight} />
+                <Box s={ROOM_S} at={[bx + 0.2, 2.21, 0.75]} size={[3.0, 0.01, 0.4]} stroke={2} left={COLORS.accentSoft} />
+              </g>
+            );
+          })()}
           <BusStop s={ROOM_S} at={[3.4, 3.6, 0]} t={t * (1 + nowHl)} />
           <Tree s={ROOM_S} at={[1.4, 4.2, 0]} t={t} seed="bs1" />
           <LampPost s={ROOM_S} at={[9.4, 3.4, 0]} />
@@ -53,7 +66,10 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
         </RoomSvg>
       </AbsoluteFill>
       <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
-        <line x1={0} y1={yMid + tilt + (1 - split) * 900} x2={1080} y2={yMid - tilt + (1 - split) * 900} stroke={COLORS.accent} strokeWidth={STROKE.main * 1.5} opacity={split} />
+        <clipPath id="splitBand">
+          <rect x={0} y={240} width={1080} height={960} />
+        </clipPath>
+        <line clipPath="url(#splitBand)" x1={0} y1={yMid + tilt + (1 - split) * 900} x2={1080} y2={yMid - tilt + (1 - split) * 900} stroke={COLORS.accent} strokeWidth={STROKE.main * 1.5} opacity={split} />
       </svg>
     </AbsoluteFill>
   );

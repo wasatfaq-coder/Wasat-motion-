@@ -6,7 +6,7 @@ import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
 import {Cam2D, FrontalSvg, FrontCrowd, lerpCam2D, StreetBackdrop} from '../illustrations/Board';
 import {Box2DPosts} from './SurveyBoard';
-import {BOARD, DECADE_PATH, PEAK, PX1, PY0, SurveyBoard} from './SurveyBoard';
+import {DECADE_PATH, PEAK, PX1, PY0, SurveyBoard} from './SurveyBoard';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 const LEN = getLength(DECADE_PATH);

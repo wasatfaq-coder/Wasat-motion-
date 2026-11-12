@@ -33,10 +33,19 @@ const Wave: React.FC = () => (
   </g>
 );
 
-export const MemoryCard: React.FC<{kind: 'street' | 'ticket' | 'wave' | 'blank'; novel?: boolean}> = ({kind, novel = true}) => (
+const Party: React.FC = () => (
+  <g fill="none" stroke={COLORS.ink} strokeWidth={STROKE.secondary} strokeLinejoin="round">
+    <path d="M120,140 C60,100 70,55 98,55 C110,55 118,66 120,72 C122,66 130,55 142,55 C170,55 180,100 120,140 Z" fill={COLORS.accentSoft} />
+    <circle cx={45} cy={60} r={6} fill={COLORS.accent} />
+    <circle cx={200} cy={70} r={6} fill="#F8C35A" />
+    <path d="M40,120 l14,-10 M195,125 l-12,-12" />
+  </g>
+);
+
+export const MemoryCard: React.FC<{kind: 'street' | 'ticket' | 'wave' | 'party' | 'blank'; novel?: boolean}> = ({kind, novel = true}) => (
   <g>
     <rect x={0} y={0} width={CARD_W} height={CARD_H} rx={12} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
-    {kind === 'street' ? <Street /> : kind === 'ticket' ? <Ticket /> : kind === 'wave' ? <Wave /> : null}
+    {kind === 'street' ? <Street /> : kind === 'ticket' ? <Ticket /> : kind === 'wave' ? <Wave /> : kind === 'party' ? <Party /> : null}
     {novel ? <rect x={14} y={14} width={46} height={16} rx={4} fill={COLORS.accent} /> : null}
   </g>
 );

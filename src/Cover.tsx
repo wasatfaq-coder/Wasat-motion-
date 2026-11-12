@@ -11,7 +11,7 @@ export type CoverProps = z.infer<typeof coverSchema>;
 // Cover art is drawn as standalone objects (not crops of the room), big and whole, centred in the 420–1210 px zone.
 const W = 7; // main line width at cover scale
 const W2 = 4.5;
-const TITLE_TOP = 420;
+const TITLE_TOP = 410;
 
 /** A calendar page in frontal view; header in coral; grid without numbers. */
 const Page: React.FC<{x: number; y: number; w: number; h: number; rot?: number; header?: string}> = ({x, y, w, h, rot = 0, header = COLORS.accent}) => (
@@ -52,6 +52,7 @@ export const CoverA: React.FC<{frame?: number}> = ({frame = 0}) => {
   const pages = Array.from({length: 9}, (_, i) => i);
   return (
     <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
+      <g transform={`translate(${cx + 40} ${cy + 10}) scale(1.15) translate(${-cx} ${-cy})`}>
       {pages.map((i) => {
         const a = -2.5 + i * 0.62 + drift * 0.35;
         const d = 230 + i * 24 + drift * (40 + i * 12);
@@ -63,6 +64,7 @@ export const CoverA: React.FC<{frame?: number}> = ({frame = 0}) => {
         <path key={i} d={`M${cx + 240},${cy - 150 + i * 36} q80,-20 140,-${40 + i * 8}`} fill="none" stroke={COLORS.inkSoft} strokeWidth={3} strokeLinecap="round" />
       ))}
       <Clock cx={cx} cy={cy} r={200} />
+      </g>
     </svg>
   );
 };

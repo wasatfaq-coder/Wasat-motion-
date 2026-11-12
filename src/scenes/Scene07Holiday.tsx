@@ -4,7 +4,8 @@ import {COLORS} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE, mix} from '../lib/anim';
 import {lerpCam, ROOM_S, roomPoint} from './RoomScene';
-import {Calendar, DESK, TRAY} from '../illustrations/Room';
+import {CAL, Calendar, DESK, TRAY} from '../illustrations/Room';
+import {shotCam} from './shots';
 import {FlyingCard, Suitcase} from '../illustrations/Props';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {P3} from '../lib/iso';
@@ -28,7 +29,16 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const cards = [...plainCards(HOOK_CARDS), ...Array.from({length: landed}, () => ({novel: true}))];
   const camStart = {focus: roomPoint([5.0, 1.8, 2.6]), zoom: 1.9, screen: [484, 780] as [number, number]};
   const camEnd = {focus: roomPoint([6.2, 1.6, 3.0]), zoom: 2.2, screen: [484, 760] as [number, number]};
-  const cam = lerpCam(camStart, camEnd, interpolate(frame, [long - 40, long + 30], [0, 1], {...clamp, easing: EASE.inOut}));
+  void lerpCam;
+  const calCam = {focus: roomPoint([CAL.u + 0.75, 0, CAL.z - 1.0]), zoom: 3.0, screen: [484, 760] as [number, number]};
+  const suitCam = {focus: roomPoint([SUITCASE[0] + 0.9, SUITCASE[1] + 0.35, 1.0]), zoom: 2.6, screen: [484, 860] as [number, number]};
+  const cam = shotCam(frame, [
+    [0, camStart],
+    [fast - 30, calCam], // the calendar flips fast: days fly
+    [long - 70, suitCam], // the suitcase opens
+    [long + 10, camEnd], // bright cards pile up in memory
+    [beat(scene, 'how') - 10, {...camEnd, zoom: 1.8}],
+  ]);
   const src: P3 = [SUITCASE[0] + 0.3, SUITCASE[1] + 0.1, 1.4];
   const pileTop = (n: number) => DESK.h + 0.06 + n * 0.09;
   return (

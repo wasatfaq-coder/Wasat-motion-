@@ -7,6 +7,7 @@ import {lerpCam, ROOM_S, roomPoint} from './RoomScene';
 import {Box} from '../illustrations/primitives';
 import {planeMatrix, P3} from '../lib/iso';
 import {CAM_TRAY} from './Scene01Hook';
+import {shotCam} from './shots';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {HOLIDAY_CARDS} from './Scene07Holiday';
 
@@ -47,7 +48,17 @@ export const Scene09Routine: React.FC<{scene: SceneData}> = ({scene}) => {
   const shrink = beat(scene, 'shrink');
   const loopCam = {focus: roomPoint([6.3, 4.2, 0.8]), zoom: 1.55, screen: [484, 720] as [number, number]};
   const toTray = interpolate(frame, [shrink - 1.0 * fps, shrink - 0.3 * fps], [0, 1], {...clamp, easing: EASE.inOut});
-  const cam = lerpCam(loopCam, {...CAM_TRAY, zoom: 2.4, screen: [484, 880]}, toTray);
+  void toTray;
+  void lerpCam;
+  const traces = beat(scene, 'traces');
+  const cam = shotCam(frame, [
+    [0, {focus: roomPoint([6.0, 3.0, 1.2]), zoom: 1.2, screen: [484, 740]}],
+    [routine - 40, loopCam],
+    [routine + 1.2 * fps, {focus: roomPoint([LOOP_C[0] - 1.6, LOOP_C[1], 0.3]), zoom: 2.4, screen: [484, 760]}], // "дом"
+    [routine + 2.4 * fps, {focus: roomPoint([LOOP_C[0] + 1.6, LOOP_C[1], 0.5]), zoom: 2.4, screen: [484, 760]}], // "работа"
+    [traces - 40, {...loopCam, zoom: 1.9}], // the same grey days run around
+    [shrink - 1.0 * fps, {...CAM_TRAY, zoom: 2.4, screen: [484, 880]}],
+  ]);
   const loopDraw = interpolate(frame, [routine - 40, routine + 20], [0, 1], {...clamp, easing: EASE.inOut});
   // the big transformation: the pile compresses (after the pause in the voice)
   const squash = interpolate(frame, [shrink - 5, shrink + 1.4 * fps], [1, 0.28], {...clamp, easing: EASE.inOut});

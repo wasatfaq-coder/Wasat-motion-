@@ -8,6 +8,7 @@ import {DESK, TRAY} from '../illustrations/Room';
 import {FlyingCard} from '../illustrations/Props';
 import {planeMatrix, P3} from '../lib/iso';
 import {CAM_COVER, CAM_TRAY} from './Scene01Hook';
+import {shotCam} from './shots';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {HOLIDAY_CARDS} from './Scene07Holiday';
 
@@ -32,7 +33,18 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
   const loopCam = {focus: roomPoint([6.4, 3.8, 1.0]), zoom: 1.55, screen: [484, 720] as [number, number]};
   const toTray = interpolate(frame, [nw + 40, nw + 100], [0, 1], {...clamp, easing: EASE.inOut});
   const toCover = interpolate(frame, [hour - 30, hour + 0.6 * fps], [0, 1], {...clamp, easing: EASE.inOut});
-  const cam = lerpCam(lerpCam(loopCam, {...CAM_TRAY, zoom: 2.2, screen: [484, 880]}, toTray), CAM_COVER, toCover);
+  void toTray;
+  void toCover;
+  void lerpCam;
+  const memory = beat(scene, 'memory');
+  const cam = shotCam(frame, [
+    [0, {...loopCam, zoom: 2.2, focus: roomPoint([LOOP_C[0] + 2.2, LOOP_C[1], 0.3])}], // the loop opens into a road
+    [nw - 30, loopCam],
+    [nw + 30, {...CAM_TRAY, zoom: 2.4, screen: [484, 880]}],
+    [memory - 20, {...CAM_TRAY, zoom: 2.9, screen: [484, 900]}],
+    [longer - 10, {...CAM_TRAY, zoom: 2.2, screen: [484, 980]}],
+    [hour - 30, CAM_COVER],
+  ]);
   // the loop opens: the ellipse gap widens and a road with branches grows out of it
   const gap = openLoop * 22;
   const road = (k: number) => interpolate(openLoop, [0.3 + k * 0.15, 0.8 + k * 0.1], [0, 1], clamp);

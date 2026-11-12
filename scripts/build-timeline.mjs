@@ -11,6 +11,8 @@ const LAST_TAIL_MS = 500; // ≤ 0.8 s after the last word
 
 const script = JSON.parse(fs.readFileSync('content/script.json', 'utf8'));
 const soundMap = fs.existsSync('content/sound-map.json') ? JSON.parse(fs.readFileSync('content/sound-map.json', 'utf8')) : {};
+// leading silence of each sfx file in frames (measured with silencedetect -40 dB): start that much earlier
+const LEAD = {'audio/sfx/mouse-click.wav': 7, 'audio/sfx/page-turn.wav': 3, 'audio/sfx/shutter-modern.wav': 8, 'audio/sfx/switch.wav': 6, 'audio/sfx/whip.wav': 4, 'audio/sfx/whoosh.wav': 2};
 
 const norm = (w) => w.toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]/g, '');
 const stripTags = (t) => t.replace(/\[[^\]]+\]/g, ' ');
@@ -157,7 +159,7 @@ script.scenes.forEach((scene, si) => {
     voiceStartFrame: voiceStart,
     beats,
     pages,
-    sfx: (soundMap[scene.id] ?? []).map((e) => ({file: e.file, frame: Math.max(0, beats.find((b) => b.id === e.beat).frame + e.offset), volume: e.volume, reason: e.reason})),
+    sfx: (soundMap[scene.id] ?? []).map((e) => ({file: e.file, frame: Math.max(0, beats.find((b) => b.id === e.beat).frame + e.offset - (LEAD[e.file] ?? 0)), volume: e.volume, reason: e.reason})),
   });
   cursor += dur;
 });

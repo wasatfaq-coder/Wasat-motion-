@@ -1,10 +1,79 @@
 {
+  "_doc": "event → sfx. frame = beat frame + offset (local to scene); build-timeline subtracts each file's leading silence (LEAD) so the audible hit lands on the frame. Music forbidden. Volumes 0.15–0.3; lower on speech.",
   "scene-01": [
-    {"beat": "decade", "offset": -4, "file": "audio/sfx/page-turn.wav", "volume": 0.35, "reason": "first calendar page tears off"},
-    {"beat": "why", "offset": -6, "file": "audio/sfx/whoosh.wav", "volume": 0.3, "reason": "camera pushes to the card tray"}
+    {"beat": "decade", "offset": -4, "file": "audio/sfx/whoosh.wav", "volume": 0.3, "reason": "cover clock flies into the room clock (match cut)"},
+    {"beat": "decade", "offset": 12, "file": "audio/sfx/page-turn.wav", "volume": 0.3, "reason": "first page tears off"},
+    {"beat": "why", "offset": -40, "file": "audio/sfx/page-turn.wav", "volume": 0.22, "reason": "pages tear faster"},
+    {"beat": "why", "offset": -6, "file": "audio/sfx/whoosh.wav", "volume": 0.28, "reason": "push into the memory tray"}
   ],
   "scene-02": [
-    {"beat": "answer", "offset": -3, "file": "audio/sfx/switch.wav", "volume": 0.25, "reason": "tray outline lights up"},
-    {"beat": "stretch", "offset": -5, "file": "audio/sfx/whoosh.wav", "volume": 0.25, "reason": "dashed taller pile rises"}
+    {"beat": "most", "offset": 33, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "cut to the racing clock"},
+    {"beat": "answer", "offset": -3, "file": "audio/sfx/switch.wav", "volume": 0.22, "reason": "tray lights up"},
+    {"beat": "stretch", "offset": -5, "file": "audio/sfx/whoosh.wav", "volume": 0.22, "reason": "dashed possible cards rise"}
+  ],
+  "scene-03": [
+    {"beat": "people", "offset": -150, "file": "audio/sfx/mouse-click.wav", "volume": 0.2, "reason": "questionnaire tick"},
+    {"beat": "people", "offset": -100, "file": "audio/sfx/mouse-click.wav", "volume": 0.2, "reason": "questionnaire tick"},
+    {"beat": "people", "offset": -50, "file": "audio/sfx/whip.wav", "volume": 0.25, "reason": "clipboard slides away, cut to the board"},
+    {"beat": "people", "offset": 0, "file": "audio/sfx/page-turn.wav", "volume": 0.22, "reason": "counter sticky lands, crowd appears"},
+    {"beat": "month", "offset": -84, "file": "audio/sfx/whoosh.wav", "volume": 0.18, "reason": "move to the flat lines"},
+    {"beat": "same", "offset": 18, "file": "audio/sfx/whoosh.wav", "volume": 0.18, "reason": "back to the whole board"}
+  ],
+  "scene-04": [
+    {"beat": "decade", "offset": -10, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "punch in where the pen starts"},
+    {"beat": "faster", "offset": -72, "file": "audio/sfx/page-turn.wav", "volume": 0.2, "reason": "marker starts drawing"},
+    {"beat": "peak", "offset": -8, "file": "audio/sfx/mouse-click.wav", "volume": 0.28, "reason": "pin pressed in at ≈50"},
+    {"beat": "small", "offset": -6, "file": "audio/sfx/switch.wav", "volume": 0.18, "reason": "bracket: modest rise"}
+  ],
+  "scene-05": [
+    {"beat": "day", "offset": -20, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "move to the clock"},
+    {"beat": "years", "offset": -4, "file": "audio/sfx/page-turn.wav", "volume": 0.26, "reason": "the pile in memory compresses"},
+    {"beat": "back", "offset": -10, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "arrow back from clock to memory"}
+  ],
+  "scene-06": [
+    {"beat": "two", "offset": -10, "file": "audio/sfx/whip.wav", "volume": 0.28, "reason": "frame splits in two"},
+    {"beat": "now", "offset": -6, "file": "audio/sfx/switch.wav", "volume": 0.18, "reason": "clock highlighted"},
+    {"beat": "later", "offset": -6, "file": "audio/sfx/switch.wav", "volume": 0.18, "reason": "tray highlighted"}
+  ],
+  "scene-07": [
+    {"beat": "fast", "offset": -30, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "cut to the calendar"},
+    {"beat": "fast", "offset": 0, "file": "audio/sfx/page-turn.wav", "volume": 0.26, "reason": "pages flip fast"},
+    {"beat": "long", "offset": -40, "file": "audio/sfx/mouse-click.wav", "volume": 0.25, "reason": "suitcase clicks open"},
+    {"beat": "long", "offset": -12, "file": "audio/sfx/whoosh.wav", "volume": 0.26, "reason": "bright cards fly into memory"},
+    {"beat": "how", "offset": -10, "file": "audio/sfx/switch.wav", "volume": 0.2, "reason": "re-hook question: tall pile"}
+  ],
+  "scene-08": [
+    {"beat": "novelty", "offset": -10, "file": "audio/sfx/mouse-click.wav", "volume": 0.25, "reason": "suitcase opens"},
+    {"beat": "streets", "offset": -10, "file": "audio/sfx/page-turn.wav", "volume": 0.24, "reason": "three new-impression cards pop up"},
+    {"beat": "brain", "offset": -20, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "cut to the head cabinet"},
+    {"beat": "memories", "offset": -40, "file": "audio/sfx/page-turn.wav", "volume": 0.2, "reason": "cards fly into drawers"},
+    {"beat": "memories", "offset": 20, "file": "audio/sfx/mouse-click.wav", "volume": 0.18, "reason": "drawers close"},
+    {"beat": "long", "offset": -60, "file": "audio/sfx/whip.wav", "volume": 0.24, "reason": "tape measure shoots up"}
+  ],
+  "scene-09": [
+    {"beat": "routine", "offset": -40, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "move to the rug loop"},
+    {"beat": "routine", "offset": 72, "file": "audio/sfx/mouse-click.wav", "volume": 0.16, "reason": "home"},
+    {"beat": "routine", "offset": 144, "file": "audio/sfx/mouse-click.wav", "volume": 0.16, "reason": "work"},
+    {"beat": "traces", "offset": -40, "file": "audio/sfx/whoosh.wav", "volume": 0.16, "reason": "same grey days loop"},
+    {"beat": "shrink", "offset": -2, "file": "audio/sfx/page-turn.wav", "volume": 0.3, "reason": "MAIN transformation after silence: years compress"}
+  ],
+  "scene-10": [
+    {"beat": "second", "offset": -6, "file": "audio/sfx/mouse-click.wav", "volume": 0.22, "reason": "sticky 2"},
+    {"beat": "tenth", "offset": -14, "file": "audio/sfx/whip.wav", "volume": 0.24, "reason": "slice pulled out of the cake"},
+    {"beat": "tiny", "offset": -72, "file": "audio/sfx/whoosh.wav", "volume": 0.22, "reason": "cake grows, candles multiply"},
+    {"beat": "third", "offset": -20, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "pan down to the films"},
+    {"beat": "images", "offset": -10, "file": "audio/sfx/shutter-modern.wav", "volume": 0.2, "reason": "frames: pictures per day"}
+  ],
+  "scene-11": [
+    {"beat": "hypotheses", "offset": -30, "file": "audio/sfx/page-turn.wav", "volume": 0.2, "reason": "marker writes the question mark"},
+    {"beat": "argue", "offset": -10, "file": "audio/sfx/mouse-click.wav", "volume": 0.22, "reason": "speech bubbles pop"},
+    {"beat": "attention", "offset": -4, "file": "audio/sfx/switch.wav", "volume": 0.2, "reason": "magnifier finds attention"},
+    {"beat": "stretch", "offset": -30, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "open question to the viewer"}
+  ],
+  "scene-12": [
+    {"beat": "new", "offset": -40, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "loop opens into a new road"},
+    {"beat": "new", "offset": 10, "file": "audio/sfx/page-turn.wav", "volume": 0.22, "reason": "bright cards fly into memory"},
+    {"beat": "longer", "offset": -10, "file": "audio/sfx/switch.wav", "volume": 0.18, "reason": "dashed: may get longer"},
+    {"beat": "hour", "offset": -30, "file": "audio/sfx/whoosh.wav", "volume": 0.2, "reason": "back to the cover composition (loop)"}
   ]
 }

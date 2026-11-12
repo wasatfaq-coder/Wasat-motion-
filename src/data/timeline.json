@@ -116,16 +116,28 @@
    ],
    "sfx": [
     {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 76,
+     "volume": 0.3,
+     "reason": "cover clock flies into the room clock (match cut)"
+    },
+    {
      "file": "audio/sfx/page-turn.wav",
-     "frame": 78,
-     "volume": 0.35,
-     "reason": "first calendar page tears off"
+     "frame": 91,
+     "volume": 0.3,
+     "reason": "first page tears off"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 215,
+     "volume": 0.22,
+     "reason": "pages tear faster"
     },
     {
      "file": "audio/sfx/whoosh.wav",
-     "frame": 252,
-     "volume": 0.3,
-     "reason": "camera pushes to the card tray"
+     "frame": 250,
+     "volume": 0.28,
+     "reason": "push into the memory tray"
     }
    ]
   },
@@ -276,16 +288,22 @@
    ],
    "sfx": [
     {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 33,
+     "volume": 0.2,
+     "reason": "cut to the racing clock"
+    },
+    {
      "file": "audio/sfx/switch.wav",
-     "frame": 172,
-     "volume": 0.25,
-     "reason": "tray outline lights up"
+     "frame": 166,
+     "volume": 0.22,
+     "reason": "tray lights up"
     },
     {
      "file": "audio/sfx/whoosh.wav",
-     "frame": 295,
-     "volume": 0.25,
-     "reason": "dashed taller pile rises"
+     "frame": 293,
+     "volume": 0.22,
+     "reason": "dashed possible cards rise"
     }
    ]
   },
@@ -485,7 +503,44 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 39,
+     "volume": 0.2,
+     "reason": "questionnaire tick"
+    },
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 89,
+     "volume": 0.2,
+     "reason": "questionnaire tick"
+    },
+    {
+     "file": "audio/sfx/whip.wav",
+     "frame": 142,
+     "volume": 0.25,
+     "reason": "clipboard slides away, cut to the board"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 193,
+     "volume": 0.22,
+     "reason": "counter sticky lands, crowd appears"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 329,
+     "volume": 0.18,
+     "reason": "move to the flat lines"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 510,
+     "volume": 0.18,
+     "reason": "back to the whole board"
+    }
+   ]
   },
   {
    "id": "scene-04",
@@ -708,7 +763,32 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 82,
+     "volume": 0.2,
+     "reason": "punch in where the pen starts"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 201,
+     "volume": 0.2,
+     "reason": "marker starts drawing"
+    },
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 373,
+     "volume": 0.28,
+     "reason": "pin pressed in at ≈50"
+    },
+    {
+     "file": "audio/sfx/switch.wav",
+     "frame": 545,
+     "volume": 0.18,
+     "reason": "bracket: modest rise"
+    }
+   ]
   },
   {
    "id": "scene-05",
@@ -836,7 +916,26 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 94,
+     "volume": 0.2,
+     "reason": "move to the clock"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 234,
+     "volume": 0.26,
+     "reason": "the pile in memory compresses"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 357,
+     "volume": 0.2,
+     "reason": "arrow back from clock to memory"
+    }
+   ]
   },
   {
    "id": "scene-06",
@@ -1002,7 +1101,26 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/whip.wav",
+     "frame": 175,
+     "volume": 0.28,
+     "reason": "frame splits in two"
+    },
+    {
+     "file": "audio/sfx/switch.wav",
+     "frame": 303,
+     "volume": 0.18,
+     "reason": "clock highlighted"
+    },
+    {
+     "file": "audio/sfx/switch.wav",
+     "frame": 424,
+     "volume": 0.18,
+     "reason": "tray highlighted"
+    }
+   ]
   },
   {
    "id": "scene-07",
@@ -1180,7 +1298,38 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 135,
+     "volume": 0.2,
+     "reason": "cut to the calendar"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 164,
+     "volume": 0.26,
+     "reason": "pages flip fast"
+    },
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 308,
+     "volume": 0.25,
+     "reason": "suitcase clicks open"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 341,
+     "volume": 0.26,
+     "reason": "bright cards fly into memory"
+    },
+    {
+     "file": "audio/sfx/switch.wav",
+     "frame": 374,
+     "volume": 0.2,
+     "reason": "re-hook question: tall pile"
+    }
+   ]
   },
   {
    "id": "scene-08",
@@ -1435,7 +1584,44 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 68,
+     "volume": 0.25,
+     "reason": "suitcase opens"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 177,
+     "volume": 0.24,
+     "reason": "three new-impression cards pop up"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 368,
+     "volume": 0.2,
+     "reason": "cut to the head cabinet"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 451,
+     "volume": 0.2,
+     "reason": "cards fly into drawers"
+    },
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 507,
+     "volume": 0.18,
+     "reason": "drawers close"
+    },
+    {
+     "file": "audio/sfx/whip.wav",
+     "frame": 628,
+     "volume": 0.24,
+     "reason": "tape measure shoots up"
+    }
+   ]
   },
   {
    "id": "scene-09",
@@ -1619,7 +1805,38 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 189,
+     "volume": 0.2,
+     "reason": "move to the rug loop"
+    },
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 296,
+     "volume": 0.16,
+     "reason": "home"
+    },
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 368,
+     "volume": 0.16,
+     "reason": "work"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 433,
+     "volume": 0.16,
+     "reason": "same grey days loop"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 579,
+     "volume": 0.3,
+     "reason": "MAIN transformation after silence: years compress"
+    }
+   ]
   },
   {
    "id": "scene-10",
@@ -1885,7 +2102,38 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 111,
+     "volume": 0.22,
+     "reason": "sticky 2"
+    },
+    {
+     "file": "audio/sfx/whip.wav",
+     "frame": 254,
+     "volume": 0.24,
+     "reason": "slice pulled out of the cake"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 410,
+     "volume": 0.22,
+     "reason": "cake grows, candles multiply"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 507,
+     "volume": 0.2,
+     "reason": "pan down to the films"
+    },
+    {
+     "file": "audio/sfx/shutter-modern.wav",
+     "frame": 715,
+     "volume": 0.2,
+     "reason": "frames: pictures per day"
+    }
+   ]
   },
   {
    "id": "scene-11",
@@ -2113,7 +2361,32 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 128,
+     "volume": 0.2,
+     "reason": "marker writes the question mark"
+    },
+    {
+     "file": "audio/sfx/mouse-click.wav",
+     "frame": 243,
+     "volume": 0.22,
+     "reason": "speech bubbles pop"
+    },
+    {
+     "file": "audio/sfx/switch.wav",
+     "frame": 439,
+     "volume": 0.2,
+     "reason": "magnifier finds attention"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 578,
+     "volume": 0.2,
+     "reason": "open question to the viewer"
+    }
+   ]
   },
   {
    "id": "scene-12",
@@ -2323,7 +2596,32 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 146,
+     "volume": 0.2,
+     "reason": "loop opens into a new road"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 195,
+     "volume": 0.22,
+     "reason": "bright cards fly into memory"
+    },
+    {
+     "file": "audio/sfx/switch.wav",
+     "frame": 423,
+     "volume": 0.18,
+     "reason": "dashed: may get longer"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 457,
+     "volume": 0.2,
+     "reason": "back to the cover composition (loop)"
+    }
+   ]
   }
  ],
  "totalFrames": 6924

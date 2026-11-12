@@ -12,7 +12,8 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
 1. Text in frame (§19.1): no headings or theses inside the video except the preview title (frame 0 … ~1.5 s);
    captions 64–72 px, legible, in their own band, graphics never under captions; no caption during the preview title.
 2. Illustration density (§19.2): no empty frontal sheets/white cards/slides; main object ≥ 35–40 % of the work area;
-   ≥ 3 depth planes and 2–3 reacting secondary details per frame; abstract dots replaced by recognisable figures.
+   ≥ 3 depth planes and 2–3 reacting secondary details per frame; abstract dots replaced by recognisable figures;
+   the video uses several detailed locations (not one set for everything), linked by the through-line image.
    Any frame that can be described as "a white rectangle with a chart" is a FAIL.
 3. Pacing and editing (§19.3): a new visual event every 1.5–3 s; no stretch > 3 s without an event;
    scenes > 6 s have ≥ 2 shot changes; cuts land on stressed words or pauses.

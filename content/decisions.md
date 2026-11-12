@@ -19,3 +19,4 @@
 | 2026-11-12 | PR: whole project + rules (master prompt §19, agent shorts-quality-gate) into main | user |
 | 2026-11-12 | Scenes must be reworked: no empty sheets, denser detail, event every 1.5–3 s, all 5 retention techniques | user |
 | 2026-11-12 | Cover A «Почему годы летят?» (clock + flying calendar pages) chosen; it is frame 0 and out/cover.png | user |
+| 2026-11-12 | Not one room: different detailed locations per explanation step (square, bus stop/sofa, beach, city block); shared style and through-line (calendar pages → memory cards) | user |

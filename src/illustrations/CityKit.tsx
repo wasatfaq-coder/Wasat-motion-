@@ -47,7 +47,7 @@ export const Building: React.FC<{s: number; at: P3; size: P3; floors?: number; a
             if (door && f === floors - 1 && c === Math.floor(cols / 2)) {
               return <rect key={`${f}${c}`} x={(c + 0.25) * (w / cols)} y={f * fh + fh * 0.3} width={(w / cols) * 0.5} height={fh * 0.7} fill={accent ? COLORS.accent : COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />;
             }
-            return <rect key={`${f}${c}`} x={(c + 0.2) * (w / cols)} y={f * fh + fh * 0.22} width={(w / cols) * 0.6} height={fh * 0.5} fill={on ? '#F8E7B5' : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />;
+            return <rect key={`${f}${c}`} x={(c + 0.2) * (w / cols)} y={f * fh + fh * 0.22} width={(w / cols) * 0.6} height={fh * 0.5} fill={on ? COLORS.fillLight : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />;
           }),
         )}
       </g>
@@ -55,7 +55,7 @@ export const Building: React.FC<{s: number; at: P3; size: P3; floors?: number; a
       <g transform={planeMatrix(s, 'wallY', [x + w, y, z + h])}>
         {Array.from({length: floors}, (_, f) =>
           Array.from({length: colsR}, (_, c) => (
-            <rect key={`${f}${c}`} x={(c + 0.2) * (d / colsR)} y={f * fh + fh * 0.22} width={(d / colsR) * 0.6} height={fh * 0.5} fill={lit > 0 && random(`r${x}${y}${f}${c}`) < lit ? '#F8E7B5' : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
+            <rect key={`${f}${c}`} x={(c + 0.2) * (d / colsR)} y={f * fh + fh * 0.22} width={(d / colsR) * 0.6} height={fh * 0.5} fill={lit > 0 && random(`r${x}${y}${f}${c}`) < lit ? COLORS.fillLight : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
           )),
         )}
       </g>
@@ -167,7 +167,7 @@ export const Umbrella: React.FC<{s: number; at: P3}> = ({s, at}) => {
 /** Sea: floor-plane band with moving wave lines. */
 export const Sea: React.FC<{s: number; at: P3; w: number; d: number; t: number}> = ({s, at, w, d, t}) => (
   <g transform={planeMatrix(s, 'floor', at)}>
-    <rect x={0} y={0} width={w} height={d} fill="#E3ECEA" stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
+    <rect x={0} y={0} width={w} height={d} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
     {Array.from({length: 6}, (_, i) => {
       const y0 = (i + 0.5) * (d / 6);
       const ph = t * 1.4 + i;
@@ -186,7 +186,7 @@ export const LampPost: React.FC<{s: number; at: P3}> = ({s, at}) => {
   return (
     <g>
       <Line3 s={s} points={[at, [x, y, z + 2.6], [x + 0.4, y, z + 2.7]]} width={STROKE.main} />
-      <circle cx={hx + 0.35 * s} cy={hy - 0.05 * s} r={0.16 * s} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
+      <circle cx={hx + 0.35 * s} cy={hy - 0.05 * s} r={0.16 * s} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
     </g>
   );
 };
@@ -199,7 +199,7 @@ export const FlowerBed: React.FC<{s: number; at: P3; w?: number; t?: number}> = 
       <Box s={s} at={at} size={[w, 0.6, 0.3]} stroke={STROKE.secondary} top={COLORS.fillDark} />
       {Array.from({length: 6}, (_, i) => {
         const [fx, fy] = iso(s)([x + 0.2 + (i * (w - 0.4)) / 5, y + 0.3, z + 0.45 + 0.03 * Math.sin(t * 2 + i)]);
-        return <circle key={i} cx={fx} cy={fy} r={0.11 * s} fill={i % 2 ? COLORS.accent : '#F8E7B5'} stroke={COLORS.ink} strokeWidth={STROKE.micro} />;
+        return <circle key={i} cx={fx} cy={fy} r={0.11 * s} fill={i % 2 ? COLORS.accent : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} />;
       })}
     </g>
   );

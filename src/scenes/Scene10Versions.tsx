@@ -21,7 +21,7 @@ const Cake: React.FC<{cx: number; cy: number; r: number; slices: number; candles
       <circle cx={cx} cy={cy} r={r + 60} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
       <circle cx={cx} cy={cy} r={r + 40} fill="none" stroke={COLORS.inkSoft} strokeWidth={LW3} />
       {/* cake body */}
-      <circle cx={cx} cy={cy} r={r} fill="#F6E1C8" stroke={COLORS.ink} strokeWidth={LW} />
+      <circle cx={cx} cy={cy} r={r} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW} />
       {/* cream dots on the rim */}
       {Array.from({length: 36}, (_, i) => {
         const t = (i / 36) * Math.PI * 2;
@@ -42,7 +42,7 @@ const Cake: React.FC<{cx: number; cy: number; r: number; slices: number; candles
         return (
           <g key={i}>
             <circle cx={x} cy={y} r={7} fill={i % 3 === 0 ? COLORS.accentSoft : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={2} />
-            <path d={`M${x},${y - 6} q-7,-10 0,-${20 * fl} q7,${10 * fl} 0,${20 * fl}`} fill="#F8C35A" stroke={COLORS.ink} strokeWidth={1.5} />
+            <path d={`M${x},${y - 6} q-7,-10 0,-${20 * fl} q7,${10 * fl} 0,${20 * fl}`} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={1.5} />
           </g>
         );
       })}
@@ -98,7 +98,7 @@ const Film: React.FC<{x: number; y: number; w: number; frames: number; scroll: n
                 </g>
               ) : i % 3 === 1 ? (
                 <g>
-                  <circle cx={fx + fw / 2} cy={y + 52} r={12} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={2} />
+                  <circle cx={fx + fw / 2} cy={y + 52} r={12} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={2} />
                   <path d={`M${fx + 10},${y + 88} Q${fx + fw / 2},${y + 66} ${fx + fw - 10},${y + 88}`} fill="none" stroke={COLORS.ink} strokeWidth={2} />
                 </g>
               ) : (
@@ -172,7 +172,7 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
             {[[300, 330], [700, 1180]].map(([x, y], i) => (
               <g key={i}>
                 <circle cx={x} cy={y} r={44} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW} />
-                <circle cx={x} cy={y} r={30} fill="#C9A27E" stroke={COLORS.ink} strokeWidth={LW3} />
+                <circle cx={x} cy={y} r={30} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={LW3} />
                 <path d={`M${x + 44},${y} q30,0 30,20`} fill="none" stroke={COLORS.ink} strokeWidth={LW2} />
               </g>
             ))}
@@ -182,7 +182,7 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
               <rect x={-70} y={-14} width={140} height={28} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={LW3} />
             </g>
             {Array.from({length: 40}, (_, i) => (
-              <rect key={i} x={-100 + random(`cf${i}`) * 1200} y={200 + random(`cg${i}`) * 1000} width={14} height={8} rx={2} transform={`rotate(${random(`cr${i}`) * 180} ${-100 + random(`cf${i}`) * 1200} ${200 + random(`cg${i}`) * 1000})`} fill={i % 3 === 0 ? COLORS.accent : i % 3 === 1 ? '#F8C35A' : COLORS.accentSoft} />
+              <rect key={i} x={-100 + random(`cf${i}`) * 1200} y={200 + random(`cg${i}`) * 1000} width={14} height={8} rx={2} transform={`rotate(${random(`cr${i}`) * 180} ${-100 + random(`cf${i}`) * 1200} ${200 + random(`cg${i}`) * 1000})`} fill={i % 3 === 0 ? COLORS.accent : i % 3 === 1 ? COLORS.accent : COLORS.accentSoft} />
             ))}
             <g opacity={cakeIn} transform={`translate(0 ${(1 - cakeIn) * 60})`}>
               <Cake cx={500} cy={780} r={r} slices={slices} candles={candles} pull={pull} frame={frame} />
@@ -196,9 +196,9 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
           <Film x={540} y={380} w={420} frames={4} scroll={scroll * 0.7} reveal={filmP} />
           <Bust x={230} y={850} s={1.0} kid />
           <Bust x={720} y={850} s={1.15} />
-          <rect x={-40} y={960} width={1100} height={60} rx={10} fill="#D9C3A0" stroke={COLORS.ink} strokeWidth={LW} />
-          <rect x={20} y={1020} width={40} height={100} fill="#C9A27E" stroke={COLORS.ink} strokeWidth={LW3} />
-          <rect x={960} y={1020} width={40} height={100} fill="#C9A27E" stroke={COLORS.ink} strokeWidth={LW3} />
+          <rect x={-40} y={960} width={1100} height={60} rx={10} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={LW} />
+          <rect x={20} y={1020} width={40} height={100} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={LW3} />
+          <rect x={960} y={1020} width={40} height={100} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={LW3} />
         </g>
       </FrontalSvg>
     </AbsoluteFill>

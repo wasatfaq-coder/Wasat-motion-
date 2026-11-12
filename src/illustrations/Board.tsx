@@ -13,7 +13,7 @@ export const Corkboard: React.FC<{x: number; y: number; w: number; h: number}> =
   <g>
     <rect x={x + 10} y={y + 14} width={w} height={h} rx={14} fill={COLORS.fillDark} />
     <rect x={x} y={y} width={w} height={h} rx={14} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW} />
-    <rect x={x + 22} y={y + 22} width={w - 44} height={h - 44} rx={6} fill="#EADFCD" stroke={COLORS.ink} strokeWidth={LW3} />
+    <rect x={x + 22} y={y + 22} width={w - 44} height={h - 44} rx={6} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW3} />
     {/* wood grain on the frame */}
     {[0.2, 0.5, 0.8].map((k) => (
       <line key={k} x1={x + w * k - 30} y1={y + 10} x2={x + w * k + 30} y2={y + 10} stroke={COLORS.inkSoft} strokeWidth={1.5} />
@@ -34,7 +34,7 @@ export const Pin: React.FC<{x: number; y: number; color?: string}> = ({x, y, col
 );
 
 /** Sticky note with a curled corner. */
-export const Sticky: React.FC<{x: number; y: number; w?: number; rot?: number; children?: React.ReactNode; fill?: string}> = ({x, y, w = 170, rot = 0, children, fill = '#F8E7B5'}) => (
+export const Sticky: React.FC<{x: number; y: number; w?: number; rot?: number; children?: React.ReactNode; fill?: string}> = ({x, y, w = 170, rot = 0, children, fill = COLORS.fillLight}) => (
   <g transform={`translate(${x} ${y}) rotate(${rot})`}>
     <path d={`M0,0 L${w},0 L${w},${w - 26} L${w - 26},${w} L0,${w} Z`} fill={fill} stroke={COLORS.ink} strokeWidth={LW3} strokeLinejoin="round" />
     <path d={`M${w},${w - 26} L${w - 22},${w - 22} L${w - 26},${w}`} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={LW3} strokeLinejoin="round" />
@@ -56,7 +56,7 @@ export const Clipboard: React.FC<{x: number; y: number; tick: number; rot?: numb
   return (
     <g transform={`translate(${x} ${y}) rotate(${rot})`}>
       <rect x={8} y={10} width={300} height={400} rx={18} fill={COLORS.fillDark} />
-      <rect x={0} y={0} width={300} height={400} rx={18} fill="#D9C3A0" stroke={COLORS.ink} strokeWidth={LW} />
+      <rect x={0} y={0} width={300} height={400} rx={18} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={LW} />
       <rect x={24} y={44} width={252} height={334} rx={6} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3} />
       <rect x={100} y={-12} width={100} height={46} rx={10} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW2} />
       {Array.from({length: rows}, (_, i) => {
@@ -153,7 +153,7 @@ export const StreetBackdrop: React.FC<{frame?: number}> = ({frame = 0}) => {
           <rect x={f.x - 6} y={ground - f.h - 14} width={f.w + 12} height={14} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3} />
           {Array.from({length: Math.floor((f.h - 60) / 90)}, (_, r) =>
             Array.from({length: Math.floor(f.w / 70)}, (_, c) => (
-              <rect key={`${r}${c}`} x={f.x + 18 + c * 70} y={ground - f.h + 30 + r * 90} width={40} height={52} rx={4} fill={random(`fw${i}${r}${c}`) < 0.25 ? '#F8E7B5' : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3 - 0.5} />
+              <rect key={`${r}${c}`} x={f.x + 18 + c * 70} y={ground - f.h + 30 + r * 90} width={40} height={52} rx={4} fill={random(`fw${i}${r}${c}`) < 0.25 ? COLORS.fillLight : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3 - 0.5} />
             )),
           )}
         </g>
@@ -207,8 +207,8 @@ export const RoomWallBackdrop: React.FC<{frame?: number; window?: [number, numbe
         <line key={i} x1={-600 + i * 260} y1={floorY} x2={-700 + i * 260} y2={floorY + 400} stroke={COLORS.inkSoft} strokeWidth={1.5} />
       ))}
       {/* window with skyline */}
-      <rect x={wx} y={wy} width={300} height={360} rx={8} fill="#EEF2F0" stroke={COLORS.ink} strokeWidth={LW} />
-      <circle cx={wx + 230} cy={wy + 90} r={30} fill="#F8E7B5" stroke={COLORS.inkSoft} strokeWidth={2} />
+      <rect x={wx} y={wy} width={300} height={360} rx={8} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
+      <circle cx={wx + 230} cy={wy + 90} r={30} fill={COLORS.fillLight} stroke={COLORS.inkSoft} strokeWidth={2} />
       {[[wx + 20, 90], [wx + 110, 120], [wx + 200, 80]].map(([x, h], i) => (
         <path key={i} d={`M${x},${wy + 360} L${x},${wy + 360 - h} L${x + 40},${wy + 360 - h - 40} L${x + 80},${wy + 360 - h} L${x + 80},${wy + 360} Z`} fill={COLORS.fillMid} stroke={COLORS.inkSoft} strokeWidth={2} strokeLinejoin="round" />
       ))}
@@ -238,7 +238,7 @@ export const RoomWallBackdrop: React.FC<{frame?: number; window?: [number, numbe
 /** Top view of a wooden table surface with planks (for scenes seen from above). */
 export const TableTop: React.FC = () => (
   <g>
-    <rect x={-600} y={-400} width={2400} height={2600} fill="#EADCC6" />
+    <rect x={-600} y={-400} width={2400} height={2600} fill={COLORS.fillMid} />
     {Array.from({length: 16}, (_, i) => (
       <line key={i} x1={-600} y1={-400 + i * 170} x2={1800} y2={-400 + i * 170} stroke={COLORS.inkSoft} strokeWidth={2} opacity={0.6} />
     ))}

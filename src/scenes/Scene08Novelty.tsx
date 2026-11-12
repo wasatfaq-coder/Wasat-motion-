@@ -120,7 +120,7 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
         {tape > 0 ? (
           <g>
             <rect x={tapeX - 40} y={tapeBottom - 10} width={80} height={70} rx={14} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={LW} />
-            <rect x={tapeX - 14} y={tapeTop} width={28} height={tapeBottom - tapeTop} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={LW3} />
+            <rect x={tapeX - 14} y={tapeTop} width={28} height={tapeBottom - tapeTop} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3} />
             {Array.from({length: Math.floor((tapeBottom - tapeTop) / 30)}, (_, i) => (
               <line key={i} x1={tapeX - 14} y1={tapeBottom - i * 30} x2={tapeX + (i % 2 ? 0 : 6)} y2={tapeBottom - i * 30} stroke={COLORS.ink} strokeWidth={LW3} />
             ))}

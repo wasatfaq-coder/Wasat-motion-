@@ -28,9 +28,9 @@ const InfoStand: React.FC<{s: number}> = ({s}) => {
     <g>
       <Box s={s} at={[x, y, 0]} size={[0.15, 0.15, 3.0]} stroke={STROKE.secondary} />
       <Box s={s} at={[x + 2.85, y, 0]} size={[0.15, 0.15, 3.0]} stroke={STROKE.secondary} />
-      <Box s={s} at={[x - 0.1, y - 0.05, 1.0]} size={[3.2, 0.2, 2.3]} top={COLORS.fillMid} left="#EADFCD" right={COLORS.fillMid} />
+      <Box s={s} at={[x - 0.1, y - 0.05, 1.0]} size={[3.2, 0.2, 2.3]} top={COLORS.fillMid} left={COLORS.fillMid} right={COLORS.fillMid} />
       <g transform={planeMatrix(s, 'wallX', [x + 0.1, y + 0.15, 3.15])}>
-        <rect x={0.2} y={0.25} width={1.0} height={0.75} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={STROKE.micro} vectorEffect="non-scaling-stroke" />
+        <rect x={0.2} y={0.25} width={1.0} height={0.75} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} vectorEffect="non-scaling-stroke" />
         <polyline points="1.5,1.6 1.9,1.4 2.3,1.0 2.7,1.0" fill="none" stroke={COLORS.accent} strokeWidth={STROKE.main} vectorEffect="non-scaling-stroke" />
         <line x1={1.4} y1={1.7} x2={2.8} y2={1.7} stroke={COLORS.ink} strokeWidth={STROKE.micro} vectorEffect="non-scaling-stroke" />
       </g>
@@ -116,7 +116,7 @@ export const Scene03Survey: React.FC<{scene: SceneData}> = ({scene}) => {
           {/* interviewer with a clipboard */}
           <IsoPerson s={ROOM_S} at={[interviewerX, interviewerY, 0]} h={1.1} accent />
           {frame < people ? <IsoPerson s={ROOM_S} at={[interviewerX + 0.9, interviewerY - 0.3, 0]} h={0.95} /> : null}
-          <Box s={ROOM_S} at={[interviewerX + 0.3, interviewerY + 0.3, 0.6]} size={[0.35, 0.05, 0.45]} stroke={STROKE.secondary} left={tick ? COLORS.fillLight : '#F8E7B5'} />
+          <Box s={ROOM_S} at={[interviewerX + 0.3, interviewerY + 0.3, 0.6]} size={[0.35, 0.05, 0.45]} stroke={STROKE.secondary} left={tick ? COLORS.fillLight : COLORS.fillLight} />
         </RoomSvg>
       ) : null}
       {/* 499 counter floats over the crowd */}

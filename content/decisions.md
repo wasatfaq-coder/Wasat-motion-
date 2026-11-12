@@ -23,3 +23,5 @@
 | 2026-11-12 | Future topics: one repository, a folder per topic projects/<slug>/; shared rules, agents and code in the root (restructure after this video is delivered) | user |
 | 2026-11-12 | Merge PR #1 into main after the video is delivered | user |
 | 2026-11-12 | User asked to merge PR #1 now (before the master render) so new topics can start from main | user |
+| 2026-11-12 | Visual rework after user review: isometric vector everywhere (survey chart too, labels stay frontal on plates), detailed objects (3 levels), motion physics (anticipation, arcs, rotation, landing squash/bounce, follow-through, shadows), living components where meaningful, one accent colour only (coral) + neutrals, no object collisions | user |
+| 2026-11-12 | Order: first a 10–15 s sample (desk, head cabinet, city block) for approval, then the rest | user |

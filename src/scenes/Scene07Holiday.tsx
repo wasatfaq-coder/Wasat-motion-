@@ -61,7 +61,7 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
         <AbsoluteFill>
           <RoomSvg cam={beachCam}>
             <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.2} t={t} />
-            <Ground s={ROOM_S} at={[0, 3.2, 0]} w={12} d={6} fill="#F3E3C3" />
+            <Ground s={ROOM_S} at={[0, 3.2, 0]} w={12} d={6} fill={COLORS.floor} />
             <Building s={ROOM_S} at={[8.6, -2.2, 0]} size={[3.0, 2.0, 4.4]} floors={4} accent lit={0.3} />
             <Box s={ROOM_S} at={[2.0, 1.0, 0.02]} size={[1.6, 0.6, 0.3]} stroke={2.5} left={COLORS.fillLight} right={COLORS.accentSoft} />
             <Umbrella s={ROOM_S} at={[5.4, 4.6, 0]} />
@@ -79,7 +79,7 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
         <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
           {sunP > 0 && sunP < 3 ? (
             <g>
-              <circle cx={scx} cy={scy} r={56} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={5} />
+              <circle cx={scx} cy={scy} r={56} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={5} />
               {Array.from({length: 8}, (_, k) => {
                 const a = (k / 8) * Math.PI * 2 + frame * 0.05;
                 return <line key={k} x1={scx + Math.cos(a) * 70} y1={scy + Math.sin(a) * 70} x2={scx + Math.cos(a) * 92} y2={scy + Math.sin(a) * 92} stroke={COLORS.ink} strokeWidth={4} strokeLinecap="round" />;

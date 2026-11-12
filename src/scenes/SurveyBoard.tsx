@@ -136,7 +136,7 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
           <g transform={`translate(${PEAK[0]} ${PEAK[1] - (1 - s.peak) * 60})`}>
             <Pin x={0} y={0} />
           </g>
-          <Sticky x={PEAK[0] + 20} y={PEAK[1] + 30} w={180} rot={4} fill="#F9D2C8">
+          <Sticky x={PEAK[0] + 20} y={PEAK[1] + 30} w={180} rot={4} fill={COLORS.accentSoft}>
             <text x={22} y={88} {...t(52, TYPE.weightBold, COLORS.ink)}>≈50</text>
             <text x={24} y={134} {...t(34, TYPE.weightMedium)}>лет</text>
           </Sticky>

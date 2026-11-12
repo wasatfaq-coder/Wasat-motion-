@@ -11,6 +11,7 @@ export type SceneData = {
   audio: string;
   audioDurationInFrames: number;
   voiceStartFrame: number;
+  audioSegments: {trimBefore: number; trimAfter: number | null; startFrame: number}[];
   beats: Beat[];
   pages: Page[];
   sfx: SfxEvent[];

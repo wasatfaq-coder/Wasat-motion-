@@ -7,7 +7,12 @@ import {execFileSync} from 'node:child_process';
 const FPS = 60;
 const toFrames = (ms) => Math.ceil((ms / 1000) * FPS); // round up so clips are never cut
 const FIRST_VOICE_START = 6; // frame 0 is the cover pose; voice starts 0.1 s later
-const LAST_TAIL_MS = 500; // ≤ 0.8 s after the last word
+const LAST_TAIL_MS = 300; // ≤ 0.8 s after the last word
+// Silence inserted inside a voice file after a given word (the audio is split into two segments, nothing is regenerated).
+// Used for the 0.3 s "pause of expectation" before main answers (MASTER_PROMPT_FINAL §19.4).
+const PAUSES = {'scene-08': {afterWord: 'версий,', frames: 18}, 'scene-09': {afterWord: 'следов.', frames: 18}};
+// Extra hold after the voice (frames), e.g. to let the main transformation settle.
+const EXTRA_TAIL = {'scene-09': 24};
 
 const script = JSON.parse(fs.readFileSync('content/script.json', 'utf8'));
 const soundMap = fs.existsSync('content/sound-map.json') ? JSON.parse(fs.readFileSync('content/sound-map.json', 'utf8')) : {};
@@ -128,8 +133,22 @@ script.scenes.forEach((scene, si) => {
   }
   const voiceStart = si === 0 ? FIRST_VOICE_START : 0;
   const tail = si === script.scenes.length - 1 ? LAST_TAIL_MS : 0;
-  const dur = voiceStart + toFrames(audioMs + tail);
-  const wf = (ms) => voiceStart + Math.round((ms / 1000) * FPS);
+  const pause = PAUSES[scene.id];
+  let cutMs = null;
+  if (pause) {
+    const w = words.find((x) => x.text === pause.afterWord);
+    if (!w) throw new Error(`pause word ${pause.afterWord} not found in ${scene.id}`);
+    cutMs = w.endMs + 40;
+  }
+  const pauseFrames = pause ? pause.frames : 0;
+  const dur = voiceStart + toFrames(audioMs + tail) + pauseFrames + (EXTRA_TAIL[scene.id] ?? 0);
+  const wf = (ms) => voiceStart + Math.round((ms / 1000) * FPS) + (cutMs !== null && ms >= cutMs ? pauseFrames : 0);
+  const audioSegments = cutMs === null
+    ? [{trimBefore: 0, trimAfter: null, startFrame: voiceStart}]
+    : [
+        {trimBefore: 0, trimAfter: Math.round((cutMs / 1000) * FPS), startFrame: voiceStart},
+        {trimBefore: Math.round((cutMs / 1000) * FPS), trimAfter: null, startFrame: voiceStart + Math.round((cutMs / 1000) * FPS) + pauseFrames},
+      ];
   const used = {};
   const beats = scene.beats.map((b) => {
     const target = norm(b.word);
@@ -157,6 +176,7 @@ script.scenes.forEach((scene, si) => {
     audio: `audio/vo/${scene.id}.mp3`,
     audioDurationInFrames: toFrames(audioMs),
     voiceStartFrame: voiceStart,
+    audioSegments,
     beats,
     pages,
     sfx: (soundMap[scene.id] ?? []).map((e) => ({file: e.file, frame: Math.max(0, beats.find((b) => b.id === e.beat).frame + e.offset - (LEAD[e.file] ?? 0)), volume: e.volume, reason: e.reason})),

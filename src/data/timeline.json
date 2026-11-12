@@ -8,6 +8,13 @@
    "audio": "audio/vo/scene-01.mp3",
    "audioDurationInFrames": 316,
    "voiceStartFrame": 6,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 6
+    }
+   ],
    "beats": [
     {
      "id": "hour",
@@ -148,6 +155,13 @@
    "audio": "audio/vo/scene-02.mp3",
    "audioDurationInFrames": 421,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "most",
@@ -314,6 +328,13 @@
    "audio": "audio/vo/scene-03.mp3",
    "audioDurationInFrames": 560,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "people",
@@ -505,6 +526,12 @@
    ],
    "sfx": [
     {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
+    {
      "file": "audio/sfx/mouse-click.wav",
      "frame": 39,
      "volume": 0.2,
@@ -549,6 +576,13 @@
    "audio": "audio/vo/scene-04.mp3",
    "audioDurationInFrames": 674,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "decade",
@@ -797,6 +831,13 @@
    "audio": "audio/vo/scene-05.mp3",
    "audioDurationInFrames": 416,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "day",
@@ -919,6 +960,12 @@
    "sfx": [
     {
      "file": "audio/sfx/whoosh.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
      "frame": 94,
      "volume": 0.2,
      "reason": "move to the clock"
@@ -944,6 +991,13 @@
    "audio": "audio/vo/scene-06.mp3",
    "audioDurationInFrames": 469,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "past",
@@ -1104,6 +1158,12 @@
    "sfx": [
     {
      "file": "audio/sfx/whip.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
+    {
+     "file": "audio/sfx/whip.wav",
      "frame": 171,
      "volume": 0.28,
      "reason": "frame splits in two"
@@ -1129,6 +1189,13 @@
    "audio": "audio/vo/scene-07.mp3",
    "audioDurationInFrames": 474,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "fast",
@@ -1301,15 +1368,21 @@
    "sfx": [
     {
      "file": "audio/sfx/whoosh.wav",
-     "frame": 135,
+     "frame": 0,
      "volume": 0.2,
-     "reason": "cut to the calendar"
+     "reason": "scene cut (sound on every transition)"
     },
     {
-     "file": "audio/sfx/page-turn.wav",
-     "frame": 164,
-     "volume": 0.26,
-     "reason": "pages flip fast"
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 155,
+     "volume": 0.24,
+     "reason": "the sun races across the sky: days fly"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 195,
+     "volume": 0.2,
+     "reason": "second day"
     },
     {
      "file": "audio/sfx/mouse-click.wav",
@@ -1334,10 +1407,22 @@
   {
    "id": "scene-08",
    "from": 3336,
-   "durationInFrames": 761,
+   "durationInFrames": 779,
    "audio": "audio/vo/scene-08.mp3",
    "audioDurationInFrames": 761,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": 392,
+     "startFrame": 0
+    },
+    {
+     "trimBefore": 392,
+     "trimAfter": null,
+     "startFrame": 410
+    }
+   ],
    "beats": [
     {
      "id": "novelty",
@@ -1364,14 +1449,14 @@
      "id": "memories",
      "word": "воспоминаниями",
      "wordIndex": 18,
-     "frame": 494,
+     "frame": 512,
      "status": "verified"
     },
     {
      "id": "long",
      "word": "длинным",
      "wordIndex": 23,
-     "frame": 692,
+     "frame": 710,
      "status": "verified"
     }
    ],
@@ -1498,93 +1583,99 @@
     {
      "text": "мозг меряет прошлое",
      "startFrame": 390,
-     "endFrame": 472,
+     "endFrame": 490,
      "words": [
       {
        "text": "мозг",
        "startFrame": 390,
-       "endFrame": 409,
+       "endFrame": 427,
        "status": "verified"
       },
       {
        "text": "меряет",
-       "startFrame": 409,
-       "endFrame": 437,
+       "startFrame": 427,
+       "endFrame": 455,
        "status": "verified"
       },
       {
        "text": "прошлое",
-       "startFrame": 437,
-       "endFrame": 472,
+       "startFrame": 455,
+       "endFrame": 490,
        "status": "verified"
       }
      ]
     },
     {
      "text": "новыми воспоминаниями.",
-     "startFrame": 472,
-     "endFrame": 554,
+     "startFrame": 490,
+     "endFrame": 572,
      "words": [
       {
        "text": "новыми",
-       "startFrame": 472,
-       "endFrame": 494,
+       "startFrame": 490,
+       "endFrame": 512,
        "status": "verified"
       },
       {
        "text": "воспоминаниями.",
-       "startFrame": 494,
-       "endFrame": 554,
+       "startFrame": 512,
+       "endFrame": 572,
        "status": "verified"
       }
      ]
     },
     {
      "text": "Много нового —",
-     "startFrame": 554,
-     "endFrame": 620,
+     "startFrame": 572,
+     "endFrame": 638,
      "words": [
       {
        "text": "Много",
-       "startFrame": 554,
-       "endFrame": 582,
+       "startFrame": 572,
+       "endFrame": 600,
        "status": "verified"
       },
       {
        "text": "нового",
-       "startFrame": 582,
-       "endFrame": 620,
+       "startFrame": 600,
+       "endFrame": 638,
        "status": "verified"
       }
      ]
     },
     {
      "text": "период кажется длинным.",
-     "startFrame": 620,
-     "endFrame": 742,
+     "startFrame": 638,
+     "endFrame": 760,
      "words": [
       {
        "text": "период",
-       "startFrame": 620,
-       "endFrame": 654,
+       "startFrame": 638,
+       "endFrame": 672,
        "status": "verified"
       },
       {
        "text": "кажется",
-       "startFrame": 654,
-       "endFrame": 692,
+       "startFrame": 672,
+       "endFrame": 710,
        "status": "verified"
       },
       {
        "text": "длинным.",
-       "startFrame": 692,
-       "endFrame": 742,
+       "startFrame": 710,
+       "endFrame": 760,
        "status": "verified"
       }
      ]
     }
    ],
    "sfx": [
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
     {
      "file": "audio/sfx/mouse-click.wav",
      "frame": 68,
@@ -1599,25 +1690,25 @@
     },
     {
      "file": "audio/sfx/whoosh.wav",
-     "frame": 368,
+     "frame": 404,
      "volume": 0.2,
      "reason": "cut to the head cabinet"
     },
     {
      "file": "audio/sfx/page-turn.wav",
-     "frame": 451,
+     "frame": 469,
      "volume": 0.2,
      "reason": "cards fly into drawers"
     },
     {
      "file": "audio/sfx/mouse-click.wav",
-     "frame": 507,
+     "frame": 525,
      "volume": 0.18,
      "reason": "drawers close"
     },
     {
      "file": "audio/sfx/whip.wav",
-     "frame": 624,
+     "frame": 642,
      "volume": 0.24,
      "reason": "tape measure shoots up"
     }
@@ -1625,11 +1716,23 @@
   },
   {
    "id": "scene-09",
-   "from": 4097,
-   "durationInFrames": 646,
+   "from": 4115,
+   "durationInFrames": 688,
    "audio": "audio/vo/scene-09.mp3",
    "audioDurationInFrames": 646,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": 526,
+     "startFrame": 0
+    },
+    {
+     "trimBefore": 526,
+     "trimAfter": null,
+     "startFrame": 544
+    }
+   ],
    "beats": [
     {
      "id": "routine",
@@ -1649,7 +1752,7 @@
      "id": "shrink",
      "word": "сжимаются",
      "wordIndex": 17,
-     "frame": 584,
+     "frame": 602,
      "status": "verified"
     }
    ],
@@ -1770,42 +1873,48 @@
     {
      "text": "И годы в памяти сжимаются.",
      "startFrame": 523,
-     "endFrame": 643,
+     "endFrame": 661,
      "words": [
       {
        "text": "И",
        "startFrame": 523,
-       "endFrame": 528,
+       "endFrame": 546,
        "status": "verified"
       },
       {
        "text": "годы",
-       "startFrame": 528,
-       "endFrame": 548,
+       "startFrame": 546,
+       "endFrame": 566,
        "status": "verified"
       },
       {
        "text": "в",
-       "startFrame": 548,
-       "endFrame": 553,
+       "startFrame": 566,
+       "endFrame": 571,
        "status": "verified"
       },
       {
        "text": "памяти",
-       "startFrame": 553,
-       "endFrame": 584,
+       "startFrame": 571,
+       "endFrame": 602,
        "status": "verified"
       },
       {
        "text": "сжимаются.",
-       "startFrame": 584,
-       "endFrame": 643,
+       "startFrame": 602,
+       "endFrame": 661,
        "status": "verified"
       }
      ]
     }
    ],
    "sfx": [
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
     {
      "file": "audio/sfx/whoosh.wav",
      "frame": 189,
@@ -1832,7 +1941,7 @@
     },
     {
      "file": "audio/sfx/page-turn.wav",
-     "frame": 579,
+     "frame": 597,
      "volume": 0.3,
      "reason": "MAIN transformation after silence: years compress"
     }
@@ -1840,11 +1949,18 @@
   },
   {
    "id": "scene-10",
-   "from": 4743,
+   "from": 4803,
    "durationInFrames": 805,
    "audio": "audio/vo/scene-10.mp3",
    "audioDurationInFrames": 805,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "second",
@@ -2104,6 +2220,12 @@
    ],
    "sfx": [
     {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
+    {
      "file": "audio/sfx/mouse-click.wav",
      "frame": 111,
      "volume": 0.22,
@@ -2137,11 +2259,18 @@
   },
   {
    "id": "scene-11",
-   "from": 5548,
+   "from": 5608,
    "durationInFrames": 723,
    "audio": "audio/vo/scene-11.mp3",
    "audioDurationInFrames": 723,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "hypotheses",
@@ -2364,6 +2493,12 @@
    "sfx": [
     {
      "file": "audio/sfx/page-turn.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
+    {
+     "file": "audio/sfx/page-turn.wav",
      "frame": 128,
      "volume": 0.2,
      "reason": "marker writes the question mark"
@@ -2390,11 +2525,18 @@
   },
   {
    "id": "scene-12",
-   "from": 6271,
-   "durationInFrames": 653,
+   "from": 6331,
+   "durationInFrames": 641,
    "audio": "audio/vo/scene-12.mp3",
    "audioDurationInFrames": 623,
    "voiceStartFrame": 0,
+   "audioSegments": [
+    {
+     "trimBefore": 0,
+     "trimAfter": null,
+     "startFrame": 0
+    }
+   ],
    "beats": [
     {
      "id": "new",
@@ -2599,6 +2741,12 @@
    "sfx": [
     {
      "file": "audio/sfx/whoosh.wav",
+     "frame": 0,
+     "volume": 0.2,
+     "reason": "scene cut (sound on every transition)"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
      "frame": 146,
      "volume": 0.2,
      "reason": "loop opens into a new road"
@@ -2624,5 +2772,5 @@
    ]
   }
  ],
- "totalFrames": 6924
+ "totalFrames": 6972
 }

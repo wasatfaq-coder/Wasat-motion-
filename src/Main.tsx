@@ -58,11 +58,13 @@ export const Main: React.FC<MainProps> = ({muteVoice, hideCaptions, onlyScenes})
           <Sequence key={scene.id} from={from} durationInFrames={scene.durationInFrames} name={scene.id}>
             <C scene={scene} />
             {hideCaptions ? null : <Captions scene={scene} hideBefore={scene.id === 'scene-01' ? previewTitleOut(scene) : 0} />}
-            {muteVoice ? null : (
-              <Sequence from={scene.voiceStartFrame} layout="none" name={`voice ${scene.id}`}>
-                <Audio src={staticFile(scene.audio)} />
-              </Sequence>
-            )}
+            {muteVoice
+              ? null
+              : scene.audioSegments.map((seg, i) => (
+                  <Sequence key={i} from={seg.startFrame} layout="none" name={`voice ${scene.id} ${i}`}>
+                    <Audio src={staticFile(scene.audio)} trimBefore={seg.trimBefore} trimAfter={seg.trimAfter ?? undefined} />
+                  </Sequence>
+                ))}
             <Sfx scene={scene} />
           </Sequence>
         );

@@ -132,3 +132,64 @@ export const FrontalSvg: React.FC<{cam: Cam2D; children: React.ReactNode; top?: 
     </g>
   </svg>
 );
+
+/** Frontal street backdrop: facades with windows behind, ground, trees. Fills the whole band (no empty wall). */
+export const StreetBackdrop: React.FC<{frame?: number}> = ({frame = 0}) => {
+  const facades = [
+    {x: -260, w: 260, h: 520},
+    {x: 10, w: 220, h: 640},
+    {x: 240, w: 300, h: 460},
+    {x: 550, w: 240, h: 700},
+    {x: 800, w: 280, h: 540},
+    {x: 1090, w: 260, h: 620},
+  ];
+  const ground = 1120;
+  return (
+    <g>
+      <rect x={-600} y={-400} width={2400} height={2400} fill={COLORS.bg} />
+      {facades.map((f, i) => (
+        <g key={i}>
+          <rect x={f.x} y={ground - f.h} width={f.w} height={f.h} fill={i % 2 ? COLORS.fillLight : COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW2} />
+          <rect x={f.x - 6} y={ground - f.h - 14} width={f.w + 12} height={14} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3} />
+          {Array.from({length: Math.floor((f.h - 60) / 90)}, (_, r) =>
+            Array.from({length: Math.floor(f.w / 70)}, (_, c) => (
+              <rect key={`${r}${c}`} x={f.x + 18 + c * 70} y={ground - f.h + 30 + r * 90} width={40} height={52} rx={4} fill={random(`fw${i}${r}${c}`) < 0.25 ? '#F8E7B5' : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3 - 0.5} />
+            )),
+          )}
+        </g>
+      ))}
+      <rect x={-600} y={ground} width={2400} height={900} fill={COLORS.floor} stroke={COLORS.ink} strokeWidth={LW} />
+      {Array.from({length: 14}, (_, i) => (
+        <line key={i} x1={-600 + i * 180} y1={ground} x2={-700 + i * 180} y2={ground + 300} stroke={COLORS.inkSoft} strokeWidth={1.5} />
+      ))}
+      {[-120, 980].map((x, i) => (
+        <g key={x} transform={`rotate(${Math.sin(frame / 50 + i) * 1.5} ${x} ${ground})`}>
+          <line x1={x} y1={ground} x2={x} y2={ground - 260} stroke={COLORS.ink} strokeWidth={LW} />
+          {[[-50, -300, 70], [50, -310, 70], [0, -370, 80], [0, -310, 72]].map(([dx, dy, r], k) => (
+            <circle key={k} cx={x + dx} cy={ground + dy} r={r} fill={k === 3 ? COLORS.fillLight : COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW2} />
+          ))}
+        </g>
+      ))}
+    </g>
+  );
+};
+
+/** Foreground crowd seen from behind (heads + shoulders); some raise an arm when `react` grows. */
+export const FrontCrowd: React.FC<{y: number; react: number; frame: number}> = ({y, react, frame}) => (
+  <g>
+    {Array.from({length: 9}, (_, i) => {
+      const x = 40 + i * 112 + (i % 2) * 20;
+      const h = 1 + (random(`fc${i}`) - 0.5) * 0.2;
+      const bob = Math.sin(frame / 20 + i) * 2;
+      const arm = (i === 2 || i === 6) && react > 0;
+      return (
+        <g key={i} transform={`translate(${x} ${y + (i % 2) * 26 + bob}) scale(${h})`}>
+          {arm ? <path d={`M18,-20 L${40},${-80 - 70 * react} `} stroke={COLORS.ink} strokeWidth={LW * 2.2} strokeLinecap="round" /> : null}
+          {arm ? <path d={`M18,-20 L${40},${-80 - 70 * react} `} stroke={i === 2 ? COLORS.accentSoft : COLORS.fillMid} strokeWidth={LW * 1.2} strokeLinecap="round" /> : null}
+          <path d="M-60,80 L-60,10 C-60,-30 -30,-40 0,-40 C30,-40 60,-30 60,10 L60,80 Z" fill={i % 4 === 1 ? COLORS.accentSoft : COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
+          <circle cx={0} cy={-78} r={38} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
+        </g>
+      );
+    })}
+  </g>
+);

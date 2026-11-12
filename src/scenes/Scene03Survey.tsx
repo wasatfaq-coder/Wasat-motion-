@@ -9,7 +9,8 @@ import {shotCam} from './shots';
 import {Building, FlowerBed, Ground, IsoPerson, LampPost, Paving, Road, Tree} from '../illustrations/CityKit';
 import {Box, Line3} from '../illustrations/primitives';
 import {planeMatrix, P3} from '../lib/iso';
-import {Cam2D, FrontalSvg, lerpCam2D, WallBackdrop} from '../illustrations/Board';
+import {Cam2D, FrontalSvg, FrontCrowd, lerpCam2D, StreetBackdrop} from '../illustrations/Board';
+import {Box2DPosts} from './SurveyBoard';
 import {BOARD, PX0, PX1, PY0, SurveyBoard} from './SurveyBoard';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
@@ -62,9 +63,9 @@ export const Scene03Survey: React.FC<{scene: SceneData}> = ({scene}) => {
   const cam = shotCam(frame, isoShots, 28);
   const toBoard = interpolate(frame, [dive, dive + 14], [0, 1], cl);
   const boardShots: [number, Cam2D][] = [
-    [dive, {focus: [BOARD.x + BOARD.w / 2, 620], zoom: 1.35, screen: [484, 700]}],
+    [dive, {focus: [BOARD.x + BOARD.w / 2, 640], zoom: 1.2, screen: [484, 700]}],
     [dive + 20, {focus: [(PX0 + PX1) / 2, PY0 - 160], zoom: 1.25, screen: [484, 740]}],
-    [same + 0.3 * fps, {focus: [BOARD.x + BOARD.w / 2, 700], zoom: 1.05, screen: [484, 720]}],
+    [same + 0.3 * fps, {focus: [490, 780], zoom: 0.82, screen: [484, 720]}],
   ];
   let bcam = boardShots[0][1];
   for (let i = 1; i < boardShots.length; i++) bcam = lerpCam2D(bcam, boardShots[i][1], interpolate(frame, [boardShots[i][0], boardShots[i][0] + 0.6 * fps], [0, 1], cl));
@@ -122,18 +123,19 @@ export const Scene03Survey: React.FC<{scene: SceneData}> = ({scene}) => {
       {frame >= people - 20 && frame < dive ? (
         <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
           <g transform={`translate(${484} ${cam.zoom < 1.6 ? 430 : 400})`} opacity={interpolate(frame, [people - 20, people], [0, 1], cl)}>
-            <rect x={-230} y={-90} width={460} height={150} rx={30} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={5} />
+            <rect x={-250} y={-90} width={530} height={150} rx={30} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={5} />
             <text x={-200} y={40} fontFamily={fontFamily} fontWeight={TYPE.weightBold} fontSize={110} fill={COLORS.ink} style={{fontVariantNumeric: 'tabular-nums'}}>
               {count}
             </text>
-            <text x={60} y={30} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={44} fill={COLORS.ink}>человек</text>
+            <text x={70} y={30} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={40} fill={COLORS.ink}>человек</text>
           </g>
         </svg>
       ) : null}
       {toBoard > 0 ? (
         <AbsoluteFill style={{opacity: toBoard}}>
           <FrontalSvg cam={bcam}>
-            <WallBackdrop />
+            <StreetBackdrop frame={frame} />
+            <Box2DPosts />
             <SurveyBoard
               s={{
                 frame,
@@ -148,6 +150,7 @@ export const Scene03Survey: React.FC<{scene: SceneData}> = ({scene}) => {
                 small: 0,
               }}
             />
+        <FrontCrowd y={1215} react={0} frame={frame} />
           </FrontalSvg>
         </AbsoluteFill>
       ) : null}

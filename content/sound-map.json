@@ -1,1 +1,10 @@
-{}
+{
+  "scene-01": [
+    {"beat": "decade", "offset": -4, "file": "audio/sfx/page-turn.wav", "volume": 0.35, "reason": "first calendar page tears off"},
+    {"beat": "why", "offset": -6, "file": "audio/sfx/whoosh.wav", "volume": 0.3, "reason": "camera pushes to the card tray"}
+  ],
+  "scene-02": [
+    {"beat": "answer", "offset": -3, "file": "audio/sfx/switch.wav", "volume": 0.25, "reason": "tray outline lights up"},
+    {"beat": "stretch", "offset": -5, "file": "audio/sfx/whoosh.wav", "volume": 0.25, "reason": "dashed taller pile rises"}
+  ]
+}

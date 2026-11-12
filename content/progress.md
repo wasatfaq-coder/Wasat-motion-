@@ -9,7 +9,10 @@ Preparation (§8) nearly done:
 - Reviews: content/reviews/{facts,speech,retention}.md; fact-checker round 3 running.
 - Concept and storyboard rewritten to the approved line-art room style (content/concept.md, content/storyboard.md).
 Fact-checker round 4: принято. TODO before final: verify S3.3, S4.1–S4.2, S6.1 against primary sources.
-STOP 1 passed (script, storyboard, voice budget ≤ 3200 credits). Next: style sheet + 6–10 s test fragment (scene 01 with voice).
+STOP 1 passed. Voice for all 12 scenes generated. Transcripts + timeline: 236/239 words verified, total 6924 frames = 115.4 s.
+Test fragment (scenes 01–02, 12.4 s, with voice and sfx) rendered: out/test_fragment.mp4 (not in git). Shown to user at STOP 2.
+Next: wait for user feedback on fragment + voice, then build scenes 03–12, full draft (STOP 3).
+Render speed: 743 frames in 48 s at full size, png frames (~0.065 s/frame) → full video ≈ 8–15 min.
 
 ## Environment
 - 4 cores, 15 GB RAM. Node 22, ffmpeg 6.1, uv. Remotion 4.0.542 pinned (prototype used 4.0.543; not required).

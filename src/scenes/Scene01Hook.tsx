@@ -72,10 +72,11 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const landed = starts.filter((st) => frame >= st + flight).length;
   const flutter = starts.reduce((acc, st) => acc + Math.max(0, 1 - Math.abs(frame - st) / 6), 0);
   // camera: slow drift in, then a motivated push toward the tray on "Почему"
-  const drift = interpolate(frame, [0, why], [0, 0.06], {extrapolateRight: 'clamp'});
+  // wide room on the cover frame, then a move toward the desk while pages tear, then into the tray on "Почему"
+  const toDesk = interpolate(frame, [decade - 12, decade + 0.9 * fps], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const push = interpolate(frame, [why - 6, scene.durationInFrames], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
-  const wide: Cam = {...CAM_WIDE, zoom: 1 + drift};
-  const cam = lerpCam(wide, CAM_TRAY, push);
+  const deskCam: Cam = {focus: roomPoint([5.6, 0.6, 3.6]), zoom: 1.4, screen: [540, 900]};
+  const cam = lerpCam(lerpCam(CAM_WIDE, deskCam, toDesk), CAM_TRAY, push);
   const thick = 0.09;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>

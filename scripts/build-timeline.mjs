@@ -157,7 +157,7 @@ script.scenes.forEach((scene, si) => {
     voiceStartFrame: voiceStart,
     beats,
     pages,
-    sfx: soundMap[scene.id] ?? [],
+    sfx: (soundMap[scene.id] ?? []).map((e) => ({file: e.file, frame: Math.max(0, beats.find((b) => b.id === e.beat).frame + e.offset), volume: e.volume, reason: e.reason})),
   });
   cursor += dur;
 });

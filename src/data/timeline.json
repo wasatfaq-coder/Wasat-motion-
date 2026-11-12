@@ -121,7 +121,20 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/page-turn.wav",
+     "frame": 78,
+     "volume": 0.35,
+     "reason": "first calendar page tears off"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 252,
+     "volume": 0.3,
+     "reason": "camera pushes to the card tray"
+    }
+   ]
   },
   {
    "id": "scene-02",
@@ -268,7 +281,20 @@
      ]
     }
    ],
-   "sfx": []
+   "sfx": [
+    {
+     "file": "audio/sfx/switch.wav",
+     "frame": 172,
+     "volume": 0.25,
+     "reason": "tray outline lights up"
+    },
+    {
+     "file": "audio/sfx/whoosh.wav",
+     "frame": 295,
+     "volume": 0.25,
+     "reason": "dashed taller pile rises"
+    }
+   ]
   },
   {
    "id": "scene-03",

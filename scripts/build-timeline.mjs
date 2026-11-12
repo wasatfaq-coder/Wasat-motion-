@@ -16,7 +16,7 @@ const norm = (w) => w.toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]
 const stripTags = (t) => t.replace(/\[[^\]]+\]/g, ' ');
 const wordsOf = (t) => stripTags(t).split(/\s+/).filter((w) => norm(w).length > 0);
 
-const NUM = {'499': 'четыресталевяносто', '10': 'десять', '50': 'пятьдесят'};
+const NUM = {'499': 'четыреставосемьдесятдевять', '500': 'пятьсот', '10': 'десять', '50': 'пятидесяти'};
 
 const durationMs = (file) =>
   Math.round(parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', file]).toString()) * 1000);

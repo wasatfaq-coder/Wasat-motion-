@@ -283,7 +283,7 @@
      "word": "пятьсот",
      "wordIndex": 7,
      "frame": 196,
-     "status": "approximate"
+     "status": "verified"
     },
     {
      "id": "month",
@@ -373,7 +373,7 @@
        "text": "пятьсот",
        "startFrame": 196,
        "endFrame": 220,
-       "status": "approximate"
+       "status": "verified"
       },
       {
        "text": "человек.",
@@ -495,7 +495,7 @@
      "word": "пятидесяти",
      "wordIndex": 13,
      "frame": 388,
-     "status": "approximate"
+     "status": "verified"
     },
     {
      "id": "small",
@@ -621,7 +621,7 @@
        "text": "пятидесяти,",
        "startFrame": 388,
        "endFrame": 419,
-       "status": "approximate"
+       "status": "verified"
       }
      ]
     },

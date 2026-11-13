@@ -90,7 +90,7 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
     [tiny - 2.0 * fps, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.0, screen: [500, 760]}], // pull back first («С годами»), then the cake grows in frame
     [third - 20, {focus: roomPoint([4.4, 8.9, 2.9]), zoom: 2.7, screen: [520, 740]}], // the sofa: child and grandparent
     [third + 60, {focus: roomPoint([4.4, 8.9, 3.0]), zoom: 3.0, screen: [520, 740]}], // the films: 8 frames vs 4 frames
-    [images - 6, {focus: roomPoint([3.1, 8.9, 3.9]), zoom: 3.1, screen: [520, 720]}], // «больше картинок»: punch in on the child's long film,
+    [images - 6, {focus: roomPoint([4.3, 8.9, 3.4]), zoom: 3.2, screen: [520, 700]}], // «больше картинок»: punch in on the child's long film,
   ]);
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -129,14 +129,14 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
         ) : null}
         {/* (3) sofa: the child (left) and the grandparent (right) film the same day */}
         <Sofa s={s} at={[2.8, 8.0, 0]} w={4.2} />
-        <IsoPerson s={s} at={[3.6, 8.6, 1.2]} h={1.2} sit bob={Math.abs(Math.sin(t * 5)) * 0.05} />
-        <Box s={s} at={[3.95, 8.8, 1.75]} size={[0.38, 0.14, 0.26]} stroke={STROKE.secondary} />
-        <IsoPerson s={s} at={[5.6, 8.6, 1.2]} h={1.6} sit />
+        <IsoPerson s={s} at={[3.6, 8.6, 1.2]} h={0.95} sit bob={Math.abs(Math.sin(t * 5)) * 0.05} />
+        <Box s={s} at={[3.9, 8.8, 1.58]} size={[0.38, 0.14, 0.26]} stroke={STROKE.secondary} />
+        <IsoPerson s={s} at={[5.6, 8.6, 1.2]} h={1.6} sit elder />
         <Box s={s} at={[5.95, 8.8, 2.05]} size={[0.38, 0.14, 0.26]} stroke={STROKE.secondary} />
         <Line3 s={s} width={STROKE.main} points={[[6.7, 9.6, 0], [6.55, 9.4, 1.6], [6.3, 9.4, 1.75]]} />
         {/* each camera "prints" its film: a strip above the head, linked to the lens by a dashed beam */}
         {[
-          {x: 1.8, z: 4.2, n: 8, cam: [4.14, 8.94, 1.88] as P3},
+          {x: 1.8, z: 4.2, n: 8, cam: [4.09, 8.94, 1.71] as P3},
           {x: 4.7, z: 4.6, n: 4, cam: [6.14, 8.94, 2.18] as P3},
         ].map(({x, z, n, cam}, i) => (
           <g key={`f${i}`} opacity={filmP > 0 ? 1 : 0}>

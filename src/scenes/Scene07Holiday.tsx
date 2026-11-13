@@ -54,15 +54,15 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const beachCam = shotCam(frame, [
     [0, {focus: roomPoint([4.4, 5.0, 1.3]), zoom: 2.7, screen: [500, 760]}], // the beach: the suitcase, the person, the umbrella (main group large)
     [vac, {focus: roomPoint([3.8, 5.4, 1.6]), zoom: 2.9, screen: [500, 760]}], // «В отпуске»: the person under the umbrella, the sun starts
-    [fast - 20, {focus: roomPoint([3.6, 2.6, 1.8]), zoom: 1.9, screen: [500, 800]}], // the sun races over the sea, shadows turn
+    [fast - 20, {focus: roomPoint([3.8, 3.6, 1.5]), zoom: 2.5, screen: [500, 800]}], // the sun races over the sea, shadows turn
     [fast + 0.7 * fps, {focus: roomPoint([5.2, 4.4, 1.0]), zoom: 3.0, screen: [500, 760]}], // the suitcase, big
   ]);
   // the sun crosses the sky above the sea three times (days fly); drawn first, behind everything
   const sunP = interpolate(frame, [vac, home], [0, 3], clamp);
   const sf = sunP % 1;
   // rises from behind the sea and sets into it (no jump across the screen)
-  const [sx, sy] = iso(ROOM_S)([-1.0 + sf * 8, -1.0, -0.6 + Math.sin(Math.PI * sf) * 2.4]);
-  const sunZ = -0.6 + Math.sin(Math.PI * sf) * 2.4;
+  const [sx, sy] = iso(ROOM_S)([1.0 + sf * 5, 0.6, -0.4 + Math.sin(Math.PI * sf) * 1.6]);
+  const sunZ = -0.4 + Math.sin(Math.PI * sf) * 1.6;
   const sunO = Math.max(0, Math.min(1, sunZ / 0.6)); // sinks below the horizon instead of vanishing
   const shadowA = Math.PI * sf; // umbrella shadows turn with the sun
   const bob = Math.sin(t * 2.2) * 0.05;
@@ -70,6 +70,7 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
     return (
       <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
         <RoomSvg cam={beachCam}>
+          <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.6} t={t} />
           {sunP > 0 && sunP < 3 ? (
             <g opacity={sunO}>
               <circle cx={sx} cy={sy} r={0.6 * ROOM_S} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
@@ -79,18 +80,6 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
               })}
             </g>
           ) : null}
-          {/* clouds drifting over the sea */}
-          {[[1.0, 2.2, 0], [4.6, 2.6, 1], [8.0, 2.0, 2]].map(([cx, cz, k]) => {
-            const [px, py] = iso(ROOM_S)([cx + ((t * 0.25 + k * 1.3) % 3), -1.8, cz]);
-            return (
-              <g key={`cl${k}`}>
-                {[[-0.5, 0.1, 0.42], [0, -0.15, 0.55], [0.5, 0.1, 0.4]].map(([dx, dy, r], j) => (
-                  <circle key={j} cx={px + dx * ROOM_S} cy={py + dy * ROOM_S} r={r * ROOM_S} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
-                ))}
-              </g>
-            );
-          })}
-          <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.6} t={t} />
           {/* foam line at the shore */}
           <Line3 s={ROOM_S} width={STROKE.main} color={COLORS.fillLight} points={Array.from({length: 25}, (_, k) => [k * 0.5, 3.6 - 0.08 - Math.abs(Math.sin(t * 1.5 + k * 0.7)) * 0.12, 0.01] as P3)} />
           {/* sailing boat bobbing on the sea */}

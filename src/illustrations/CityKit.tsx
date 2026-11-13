@@ -139,7 +139,7 @@ export const Tree: React.FC<{s: number; at: P3; h?: number; t: number; seed?: st
 };
 
 /** Faceless isometric person: body box + round head. `h` = height in units (kids lower, adults taller). */
-export const IsoPerson: React.FC<{s: number; at: P3; h?: number; accent?: boolean; bob?: number; p?: number; walk?: number; sit?: boolean}> = ({s, at, h = 1.0, accent, bob = 0, p = 1, walk = 0, sit = false}) => {
+export const IsoPerson: React.FC<{s: number; at: P3; h?: number; accent?: boolean; bob?: number; p?: number; walk?: number; sit?: boolean; elder?: boolean}> = ({s, at, h = 1.0, accent, bob = 0, p = 1, walk = 0, sit = false, elder = false}) => {
   if (p <= 0) return null;
   const [x, y, z0] = at;
   const leg = h * 0.32;
@@ -163,6 +163,14 @@ export const IsoPerson: React.FC<{s: number; at: P3; h?: number; accent?: boolea
       {/* arm on the visible side */}
       <Line3 s={s} width={STROKE.secondary} points={[[x + 0.3, y + 0.12, z + leg + body * 0.9 + bob], [x + 0.36 - swing, y + 0.12, z + leg + body * 0.2 + bob]]} />
       <circle cx={hx} cy={hy} r={h * 0.14 * s} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
+      {elder ? (
+        <g>
+          {/* grey hair and glasses */}
+          <path d={`M${hx - h * 0.14 * s},${hy} A${h * 0.14 * s},${h * 0.14 * s} 0 0 1 ${hx + h * 0.14 * s},${hy} Q${hx},${hy - h * 0.05 * s} ${hx - h * 0.14 * s},${hy} Z`} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.micro} />
+          <circle cx={hx - h * 0.04 * s} cy={hy + h * 0.03 * s} r={h * 0.035 * s} fill="none" stroke={COLORS.ink} strokeWidth={STROKE.micro} />
+          <circle cx={hx + h * 0.06 * s} cy={hy + h * 0.03 * s} r={h * 0.035 * s} fill="none" stroke={COLORS.ink} strokeWidth={STROKE.micro} />
+        </g>
+      ) : null}
     </g>
   );
 };

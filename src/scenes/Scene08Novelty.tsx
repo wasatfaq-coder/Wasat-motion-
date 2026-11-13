@@ -9,7 +9,7 @@ import {ArchiveShell, Dust, PendantLamp} from '../illustrations/Archive';
 import {CardCatalog, CATALOG, CATALOG_TOP, DRAWER, drawerCell, drawerSlide, ImpressionCard} from '../illustrations/CardCatalog';
 import {Suitcase} from '../illustrations/Props';
 import {Box, Line3} from '../illustrations/primitives';
-import {COS30, iso, P3, SIN30} from '../lib/iso';
+import {COS30, iso, P3, pts, SIN30} from '../lib/iso';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 const s = ROOM_S;
@@ -99,7 +99,7 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
   const show = interpolate(frame, [brain - 12, brain + 6], [0, 1], cl);
   const blade =
     show * (0.5 + (filled / N) * (CATALOG_TOP - 0.8) * interpolate(frame, [brain - 12, brain + 20], [0, 1], cl)) +
-    interpolate(frame, [long - 0.9 * fps, long + 0.25 * fps], [0, 2.4], {...cl, easing: EASE.overshoot});
+    interpolate(frame, [long - 0.9 * fps, long + 0.25 * fps], [0, 4.2], {...cl, easing: EASE.overshoot});
   const src: P3 = [SUIT[0] + 0.9, SUIT[1] + 0.35, 1.3];
   const cam = shotCam(frame, [
     [0, {focus: roomPoint([5.0, 5.4, 2.6]), zoom: 1.25, screen: [520, 740]}], // the archive: racks, ladder, catalogue
@@ -122,7 +122,9 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
         <Box s={s} at={TAPE} size={[0.5, 0.5, 0.42]} left={show > 0.5 ? COLORS.accent : COLORS.fillMid} right={show > 0.5 ? COLORS.accent : COLORS.fillDark} />
         {blade > 0.05 ? (
           <g>
-            <Box s={s} at={[TAPE[0] + 0.08, TAPE[1] + 0.2, 0.42]} size={[0.38, 0.08, blade]} stroke={STROKE.main} left={COLORS.fillLight} right={COLORS.fillMid} detail="none" />
+            {/* soft halo behind the blade mutes the busy racks */}
+            <polygon points={pts(s, [[TAPE[0] - 0.3, TAPE[1] + 0.2, 0.42], [TAPE[0] + 0.9, TAPE[1] + 0.2, 0.42], [TAPE[0] + 0.9, TAPE[1] + 0.2, 0.42 + blade + 0.4], [TAPE[0] - 0.3, TAPE[1] + 0.2, 0.42 + blade + 0.4]])} fill={COLORS.bg} opacity={0.75} />
+            <Box s={s} at={[TAPE[0] + 0.02, TAPE[1] + 0.2, 0.42]} size={[0.5, 0.08, blade]} stroke={STROKE.main} left={COLORS.fillLight} right={COLORS.fillMid} detail="none" />
             {Array.from({length: Math.floor(blade / 0.25)}, (_, i) => (
               <Line3 key={i} s={s} width={i % 4 === 3 ? STROKE.main : STROKE.secondary} points={[[TAPE[0] + 0.08, TAPE[1] + 0.28, 0.42 + (i + 1) * 0.25], [TAPE[0] + (i % 4 === 3 ? 0.36 : i % 2 ? 0.2 : 0.28), TAPE[1] + 0.28, 0.42 + (i + 1) * 0.25]]} />
             ))}

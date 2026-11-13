@@ -18,7 +18,8 @@ If contact sheets are not 2 fps or a scene in scope has no frames, mark pacing/p
    Also check on frames that no scene re-uses another scene's location as its main set (only the registered bridge).
 0b. Meaning and accuracy (§20): every scene's picture matches its mode in visual-register.json; a metaphor scene shows the
    registered mapping and nothing that contradicts its «guard»; measured data is readable as data (no slope that reads as a
-   decline, no values on a skewed plane unless the register records a waiver); a picture never claims more than the voice.
+   decline, no values on a skewed plane unless the register records a waiver); a picture never claims more than the voice and never contradicts it
+   at its anchor (§20.5: opposite image, wrong unit, decor that looks like data).
 
 Check, in this order, and give each item PASS or FAIL with concrete evidence (scene, second, frame file):
 

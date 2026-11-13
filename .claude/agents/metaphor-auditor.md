@@ -19,7 +19,10 @@ For every scene:
 4. Consistency. One concept = one metaphor in the whole video; one metaphor = one concept. No mixed metaphors in one shot.
 5. Data. Compared values sit on a frontal plate with a readable scale; no isometric slant that changes how a line reads.
    A waiver is accepted only if decisions.md records the user's decision.
-6. Status. Only «approved» metaphors may be rendered; «proposed» ones go to the user at STOP 1 with the alternatives.
+6. Voice vs picture. For every beat in the timeline write: what the voice says | what the frame shows. Any frame that says the
+   opposite (fast image under «не ускорился»), uses another unit (months under «годы»), gives one image two meanings or one
+   meaning two images, shows countable decor that looks like data, or states a hypothesis as fact = FAIL. Check the list in §20.5.
+7. Status. Only «approved» metaphors may be rendered; «proposed» ones go to the user at STOP 1 with the alternatives.
 
 Write content/reviews/metaphors.md in Russian: verdict «принято» / «нужны правки», a table scene | mode | metaphor | mapping |
 risk | guard | verdict, and exact fixes (including a literal alternative where a metaphor fails). Return the report.

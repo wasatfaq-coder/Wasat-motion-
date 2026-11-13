@@ -2,7 +2,8 @@
 // Scaffold a new topic (CLAUDE.md «one folder per topic», MASTER_PROMPT_FINAL §13, §20):
 //   node scripts/new-topic.mjs <slug> "<Тема>"
 // Creates projects/<slug>/content (brief, register, templates), public/<slug>/audio/vo, src/projects/<slug> (Main, data)
-// and registers the composition <Pascal>Main in src/Root.tsx. Refuses to overwrite an existing topic.
+// and registers the compositions <Pascal>Main and <Pascal>Cover (three cover variants, §19.5) in src/Root.tsx.
+// Refuses to overwrite an existing topic.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -56,6 +57,34 @@ write(path.join(content, 'reviews', '.gitkeep'), '');
 write(path.join('public', slug, 'audio', 'vo', '.gitkeep'), '');
 write(path.join(srcDir, 'data', 'timeline.json'), json({fps: 60, scenes: [], totalFrames: 0}));
 write(path.join(srcDir, 'scenes', '.gitkeep'), '');
+// covers (§19.5, §22): three variants with different techniques; placeholders until the topic's image and titles
+write(path.join(content, 'cover.json'), json({variant: 'a', chosen: false, _doc: 'The variant the user chose at the cover stop; master.mjs renders it to out/<slug>/cover.png.'}));
+write(path.join(srcDir, 'covers.ts'), `import * as K from '../../vendor/anatomy/iso-kit';
+import {anatomyProjection} from '../../lib/anatomy';
+import {CoverSpec} from '../../lib/coverLayout';
+import {P3} from '../../lib/iso';
+
+// Covers of «${title}» (MASTER_PROMPT_FINAL §19.5): three variants, each with a different technique
+// (gap, violation, incomplete, contrast, specific); title 2–4 words with one coral word; the image is the topic's
+// hero object drawn in the house style (§22), framed by \`frame\` (room points). Checked by scripts/cover-check.mjs.
+// PLACEHOLDERS: replace \`art\`, \`frame\` and \`lines\` and drop \`placeholder\` before the gate.
+const U = 10;
+const P = anatomyProjection(U);
+const PLACEHOLDER = K.solidSvg(K.slabOf({x: 0, y: 0, w: 40, d: 40, r: 3}, 0, 40, P, 8, 1), {tone: 'hi', lit: true});
+const FRAME: P3[] = [[0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0], [0, 0, 4], [4, 4, 4]];
+
+export const COVERS: Record<'a' | 'b' | 'c', CoverSpec> = {
+  a: {technique: 'gap', lines: ['Вопрос', 'темы?'], accent: [1, 0], layout: 'top', art: PLACEHOLDER, frame: FRAME, placeholder: true},
+  b: {technique: 'contrast', lines: ['Было', 'и стало'], accent: [1, 1], layout: 'bottom', art: PLACEHOLDER, frame: FRAME, placeholder: true},
+  c: {technique: 'incomplete', lines: ['Что', 'внутри?'], accent: [1, 0], layout: 'top', art: PLACEHOLDER, frame: FRAME, placeholder: true},
+};
+`);
+write(path.join(srcDir, 'Cover.tsx'), `import React from 'react';
+import {AnatomyCover, AnatomyCoverProps} from '../../components/AnatomyCover';
+import {COVERS} from './covers';
+
+export const ${pascal}Cover: React.FC<AnatomyCoverProps> = ({variant}) => <AnatomyCover spec={COVERS[variant]} />;
+`);
 write(path.join(srcDir, 'Main.tsx'), `import React from 'react';
 import timelineJson from './data/timeline.json';
 import {Timeline} from '../../lib/timeline';
@@ -75,8 +104,9 @@ let r = fs.readFileSync(root, 'utf8');
 const marker = '  {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}';
 if (!r.includes(marker)) throw new Error('Root.tsx marker not found');
 // import the topic's Main once; episodeSchema only if Root does not import it yet (a second topic used to duplicate it)
-let imports = `import {${pascal}Main, ${pascal}Selected} from './projects/${slug}/Main';`;
+let imports = `import {${pascal}Main, ${pascal}Selected} from './projects/${slug}/Main';\nimport {${pascal}Cover} from './projects/${slug}/Cover';`;
 if (!/import \{episodeSchema\} from '\.\/components\/Episode';/.test(r)) imports += "\nimport {episodeSchema} from './components/Episode';";
+if (!/import \{anatomyCoverSchema\} from '\.\/components\/AnatomyCover';/.test(r)) imports += "\nimport {anatomyCoverSchema} from './components/AnatomyCover';";
 r = r.replace("import {Cover, coverSchema} from './Cover';", `import {Cover, coverSchema} from './Cover';\n${imports}`);
 r = r.replace(marker, `  <Composition
     id="${pascal}Main"
@@ -89,6 +119,7 @@ r = r.replace(marker, `  <Composition
     defaultProps={{muteVoice: false, hideCaptions: false, onlyScenes: []}}
     calculateMetadata={({props}) => ({durationInFrames: Math.max(1, ${pascal}Selected(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0))})}
   />
+  <Composition id="${pascal}Cover" component={${pascal}Cover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
 ${marker}`);
 fs.writeFileSync(root, r);
 
@@ -96,4 +127,5 @@ console.log(`Topic ${slug} created:
   ${content}/        brief.yaml, storyboard.md, visual-register.json, timing.json, sound-map.json, progress.md, decisions.md
   public/${slug}/audio/vo/
   ${srcDir}/Main.tsx  composition ${pascal}Main registered in src/Root.tsx
+  ${srcDir}/covers.ts, Cover.tsx  composition ${pascal}Cover (variants a/b/c: placeholders to replace)
 Next: fill brief.yaml and sources.md, run topic-analyst. Timeline: node scripts/build-timeline.mjs --content ${content} --public-prefix ${slug} --out ${srcDir}/data/timeline.json`);

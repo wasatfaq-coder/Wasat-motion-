@@ -17,9 +17,13 @@ const arg = (name, def) => {
   return i > 0 ? process.argv[i + 1] : def;
 };
 const COMP = arg('comp', 'Main');
-const COVER = arg('cover', 'Cover');
-const COVER_PROPS = arg('cover-props', '{"variant":"a"}');
+// a topic's cover is <Slug>Cover next to <Slug>Main; its variant is the one the user chose (projects/<slug>/content/cover.json)
+const COVER = arg('cover', COMP === 'Main' ? 'Cover' : COMP.replace(/Main$/, 'Cover'));
 const TIMELINE = arg('timeline', 'src/data/timeline.json');
+const topicSlug = (TIMELINE.match(/src\/projects\/([^/]+)\//) ?? [])[1];
+const coverFile = topicSlug ? path.join('projects', topicSlug, 'content', 'cover.json') : null;
+const coverChoice = coverFile && fs.existsSync(coverFile) ? JSON.parse(fs.readFileSync(coverFile, 'utf8')) : null;
+const COVER_PROPS = arg('cover-props', JSON.stringify({variant: coverChoice?.variant ?? 'a'}));
 const OUT = arg('out', 'out');
 const CONC = arg('concurrency', String(Math.max(1, os.cpus().length - 1)));
 const SKIP = process.argv.includes('--skip-render');
@@ -96,6 +100,10 @@ log('render cover');
 sh('npx', ['remotion', 'still', 'src/index.ts', COVER, cover, `--props=${COVER_PROPS}`, '--image-format=png', '--log=error']);
 report.files.cover = {path: cover, bytes: fs.statSync(cover).size};
 check('cover', fs.existsSync(cover), cover);
+if (coverChoice && !coverChoice.chosen) {
+  report.warnings = [...(report.warnings ?? []), `cover variant ${coverChoice.variant} rendered, but ${coverFile} says the user has not chosen it yet (§19.5)`];
+  log(`WARN cover: the user has not chosen a variant yet (${coverFile})`);
+}
 
 fs.writeFileSync(path.join(OUT, 'master-report.json'), JSON.stringify(report, null, 2) + '\n');
 const failed = Object.entries(report.checks).filter(([, c]) => !c.ok).map(([k]) => k);

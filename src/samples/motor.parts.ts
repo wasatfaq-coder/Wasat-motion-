@@ -87,4 +87,7 @@ export const MOTOR_CORNERS: Point3[] = [
   [0, 50, 0],
   [82, 50, 0],
   [40, 25, top + 8],
+  [29.5, 17.5, top + 8], // terminal box lid corners and the gland
+  [44.5, 32.5, top + 8],
+  [37, 36, top + 5],
 ];

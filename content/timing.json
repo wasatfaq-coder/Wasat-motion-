@@ -1,0 +1,24 @@
+{
+ "_doc": "Topic-specific timing for scripts/build-timeline.mjs (MASTER_PROMPT_FINAL §10, §19.4).",
+ "firstVoiceStartFrames": 6,
+ "lastTailMs": 300,
+ "pauses": {
+  "scene-08": {
+   "afterWord": "версий,",
+   "frames": 36
+  },
+  "scene-09": {
+   "afterWord": "следов.",
+   "frames": 24
+  }
+ },
+ "extraTailFrames": {
+  "scene-09": 54
+ },
+ "spokenNumbers": {
+  "499": "четыреставосемьдесятдевять",
+  "500": "пятьсот",
+  "10": "десять",
+  "50": "пятидесяти"
+ }
+}

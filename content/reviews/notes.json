@@ -1,0 +1,60 @@
+{
+  "_doc": "Review notes tracker (shorts-quality-gate): {id, round, scene, frame, severity, rule, text, fix, status}. Status: open | fixed | verified | wontfix | escalate.",
+  "notes": [
+    {
+      "id": "G5-N1",
+      "round": 5,
+      "scene": "scene-12",
+      "frame": 6895,
+      "severity": "MINOR",
+      "rule": "§19.2",
+      "text": "Final cover clock: empty band above the clock, clock bottom close to the caption",
+      "fix": "Raise the clock ~30 px or fill the top",
+      "status": "open"
+    },
+    {
+      "id": "G5-N2",
+      "round": 5,
+      "scene": "scene-10",
+      "frame": 5547,
+      "severity": "MAJOR",
+      "rule": "§19.2",
+      "text": "Child and grandparent too small to read age",
+      "fix": "Close-up of the pair, height ratio, grey hair, glasses, cane",
+      "status": "fixed"
+    },
+    {
+      "id": "G5-N3",
+      "round": 5,
+      "scene": "scene-07",
+      "frame": 3042,
+      "severity": "MAJOR",
+      "rule": "§19.7",
+      "text": "Flat sun in an empty sky, no horizon",
+      "fix": "Sky backdrop with a horizon; the sun rises and sets behind it",
+      "status": "fixed"
+    },
+    {
+      "id": "A-DATA-1",
+      "round": 5,
+      "scene": "scene-03/04",
+      "frame": 1783,
+      "severity": "MAJOR",
+      "rule": "§20.4",
+      "text": "Survey chart on an isometric plane: the flat part after ≈50 reads as a decline (measured data on a skewed plane)",
+      "fix": "Draw the chart on a frontal plate attached to the billboard, or keep the waiver by the user's decision",
+      "status": "escalate"
+    },
+    {
+      "id": "G-PHYS",
+      "round": 5,
+      "scene": "all",
+      "frame": 0,
+      "severity": "MAJOR",
+      "rule": "§19.7",
+      "text": "Physics (anticipation, squash, bounce) never checked: only 2 fps sheets were used",
+      "fix": "Per-frame strips with scripts/frame-strip.mjs on landings and cuts; watch final.mp4",
+      "status": "open"
+    }
+  ]
+}

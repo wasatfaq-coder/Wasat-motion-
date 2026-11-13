@@ -1,29 +1,45 @@
-// Builds src/data/timeline.json from content/script.json, public/audio/vo/*.mp3 and content/transcripts/*.json.
+// Builds the timeline JSON from <content>/script.json, public/<prefix>/audio/vo/*.mp3 and <content>/transcripts/*.json.
 // Alignment: dynamic programming over normalized words (tolerates insertions, deletions, substitutions).
 // Each word gets a status: verified (matched Whisper word), approximate (interpolated), missing.
 import fs from 'node:fs';
+import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+
+// Topic-agnostic: paths come from flags, topic-specific timing from <content>/timing.json.
+//   node scripts/build-timeline.mjs                       (root topic: content/, public/, src/data/timeline.json)
+//   node scripts/build-timeline.mjs --content projects/<slug>/content --public-prefix <slug> --out src/projects/<slug>/data/timeline.json
+const arg = (name, def) => {
+  const i = process.argv.indexOf(`--${name}`);
+  return i > 0 ? process.argv[i + 1] : def;
+};
+const CONTENT = arg('content', 'content');
+const PREFIX = arg('public-prefix', ''); // sub-folder of public/ that holds audio/vo for this topic
+const OUT = arg('out', 'src/data/timeline.json');
+const pub = (rel) => (PREFIX ? `${PREFIX}/${rel}` : rel); // path as Remotion staticFile() sees it
 
 const FPS = 60;
 const toFrames = (ms) => Math.ceil((ms / 1000) * FPS); // round up so clips are never cut
-const FIRST_VOICE_START = 6; // frame 0 is the cover pose; voice starts 0.1 s later
-const LAST_TAIL_MS = 300; // ≤ 0.8 s after the last word
+const timingFile = path.join(CONTENT, 'timing.json');
+const timing = fs.existsSync(timingFile) ? JSON.parse(fs.readFileSync(timingFile, 'utf8')) : {};
+const FIRST_VOICE_START = timing.firstVoiceStartFrames ?? 6; // frame 0 is the cover pose; voice starts a little later
+const LAST_TAIL_MS = timing.lastTailMs ?? 300; // ≤ 0.8 s after the last word
 // Silence inserted inside a voice file after a given word (the audio is split into two segments, nothing is regenerated).
-// Used for the 0.3 s "pause of expectation" before main answers (MASTER_PROMPT_FINAL §19.4).
-const PAUSES = {'scene-08': {afterWord: 'версий,', frames: 36}, 'scene-09': {afterWord: 'следов.', frames: 24}};
+const PAUSES = timing.pauses ?? {};
 // Extra hold after the voice (frames), e.g. to let the main transformation settle.
-const EXTRA_TAIL = {'scene-09': 54};
+const EXTRA_TAIL = timing.extraTailFrames ?? {};
+// Spoken forms of digits used in the script, for alignment with the recognised speech.
+const NUM = timing.spokenNumbers ?? {};
 
-const script = JSON.parse(fs.readFileSync('content/script.json', 'utf8'));
-const soundMap = fs.existsSync('content/sound-map.json') ? JSON.parse(fs.readFileSync('content/sound-map.json', 'utf8')) : {};
-// leading silence of each sfx file in frames (measured with silencedetect -40 dB): start that much earlier
-const LEAD = {'audio/sfx/mouse-click.wav': 7, 'audio/sfx/page-turn.wav': 3, 'audio/sfx/shutter-modern.wav': 8, 'audio/sfx/switch.wav': 6, 'audio/sfx/whip.wav': 8, 'audio/sfx/whoosh.wav': 2};
+const script = JSON.parse(fs.readFileSync(path.join(CONTENT, 'script.json'), 'utf8'));
+const smFile = path.join(CONTENT, 'sound-map.json');
+const soundMap = fs.existsSync(smFile) ? JSON.parse(fs.readFileSync(smFile, 'utf8')) : {};
+// Leading silence of each shared sfx file in frames (a property of the file, shared by all topics).
+const LEAD = JSON.parse(fs.readFileSync('scripts/sfx-lead.json', 'utf8'));
 
 const norm = (w) => w.toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]/g, '');
 const stripTags = (t) => t.replace(/\[[^\]]+\]/g, ' ');
 const wordsOf = (t) => stripTags(t).split(/\s+/).filter((w) => norm(w).length > 0);
 
-const NUM = {'499': 'четыреставосемьдесятдевять', '500': 'пятьсот', '10': 'десять', '50': 'пятидесяти'};
 
 const durationMs = (file) =>
   Math.round(parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=nw=1:nk=1', file]).toString()) * 1000);
@@ -105,9 +121,9 @@ const timeline = {fps: FPS, scenes: [], totalFrames: 0};
 let cursor = 0;
 const report = [];
 script.scenes.forEach((scene, si) => {
-  const audio = `public/audio/vo/${scene.id}.mp3`;
+  const audio = path.join('public', pub(`audio/vo/${scene.id}.mp3`));
   const audioMs = durationMs(audio);
-  const trPath = `content/transcripts/${scene.id}.json`;
+  const trPath = path.join(CONTENT, 'transcripts', `${scene.id}.json`);
   const asr = fs.existsSync(trPath) ? mergeTokens(JSON.parse(fs.readFileSync(trPath, 'utf8')).captions) : [];
   // flatten script words with fragment index
   const words = [];
@@ -174,17 +190,22 @@ script.scenes.forEach((scene, si) => {
     id: scene.id,
     from: cursor,
     durationInFrames: dur,
-    audio: `audio/vo/${scene.id}.mp3`,
+    audio: pub(`audio/vo/${scene.id}.mp3`),
     audioDurationInFrames: toFrames(audioMs),
     voiceStartFrame: voiceStart,
     audioSegments,
     beats,
     pages,
-    sfx: (soundMap[scene.id] ?? []).map((e) => ({file: e.file, frame: Math.max(0, beats.find((b) => b.id === e.beat).frame + e.offset - (LEAD[e.file] ?? 0)), volume: e.volume, reason: e.reason})),
+    sfx: (soundMap[scene.id] ?? []).map((e) => {
+      const b = beats.find((x) => x.id === e.beat);
+      if (!b) throw new Error(`sound-map: ${scene.id} refers to unknown beat «${e.beat}»`);
+      return {file: e.file, frame: Math.max(0, b.frame + e.offset - (LEAD[e.file] ?? 0)), volume: e.volume, reason: e.reason};
+    }),
   });
   cursor += dur;
 });
 timeline.totalFrames = cursor;
-fs.writeFileSync('src/data/timeline.json', JSON.stringify(timeline, null, 1) + '\n');
+fs.mkdirSync(path.dirname(OUT), {recursive: true});
+fs.writeFileSync(OUT, JSON.stringify(timeline, null, 1) + '\n');
 console.log(report.join('\n'));
 console.log('total', cursor, 'frames =', (cursor / FPS).toFixed(2), 's');

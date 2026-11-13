@@ -139,18 +139,25 @@ export const Tree: React.FC<{s: number; at: P3; h?: number; t: number; seed?: st
 };
 
 /** Faceless isometric person: body box + round head. `h` = height in units (kids lower, adults taller). */
-export const IsoPerson: React.FC<{s: number; at: P3; h?: number; accent?: boolean; bob?: number; p?: number; walk?: number}> = ({s, at, h = 1.0, accent, bob = 0, p = 1, walk = 0}) => {
+export const IsoPerson: React.FC<{s: number; at: P3; h?: number; accent?: boolean; bob?: number; p?: number; walk?: number; sit?: boolean}> = ({s, at, h = 1.0, accent, bob = 0, p = 1, walk = 0, sit = false}) => {
   if (p <= 0) return null;
-  const [x, y, z] = at;
+  const [x, y, z0] = at;
   const leg = h * 0.32;
+  const z = sit ? z0 - leg : z0; // sitting: hips on the seat (at z0), thighs forward, shins down
   const body = h * 0.38;
   const swing = Math.sin(walk) * 0.08;
   const [hx, hy] = iso(s)([x + 0.15, y + 0.12, z + leg + body + h * 0.18 + bob]);
   return (
     <g opacity={Math.min(1, p * 2)} transform={`translate(0 ${(1 - p) * 30})`}>
       {/* legs */}
-      <Line3 s={s} width={STROKE.main} points={[[x + 0.08 + swing, y + 0.12, z], [x + 0.1, y + 0.12, z + leg + bob]]} />
-      <Line3 s={s} width={STROKE.main} points={[[x + 0.22 - swing, y + 0.12, z], [x + 0.2, y + 0.12, z + leg + bob]]} />
+      {sit ? (
+        [0.1, 0.2].map((lx) => <Line3 key={lx} s={s} width={STROKE.main} points={[[x + lx, y + 0.12, z0 + 0.04], [x + lx, y + 0.12 + leg * 1.1, z0 + 0.04], [x + lx, y + 0.12 + leg * 1.1, z0 - leg * 1.2]]} />)
+      ) : (
+        <>
+          <Line3 s={s} width={STROKE.main} points={[[x + 0.08 + swing, y + 0.12, z], [x + 0.1, y + 0.12, z + leg + bob]]} />
+          <Line3 s={s} width={STROKE.main} points={[[x + 0.22 - swing, y + 0.12, z], [x + 0.2, y + 0.12, z + leg + bob]]} />
+        </>
+      )}
       {/* torso */}
       <Box s={s} at={[x, y, z + leg + bob]} size={[0.3, 0.24, body]} stroke={STROKE.secondary} top={COLORS.fillMid} left={accent ? COLORS.accent : COLORS.fillLight} right={COLORS.fillMid} detail="none" />
       {/* arm on the visible side */}

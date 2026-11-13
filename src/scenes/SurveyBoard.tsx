@@ -58,7 +58,8 @@ const LaneIcon: React.FC<{kind: string; x: number; y: number; p: number}> = ({ki
   </g>
 );
 
-export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
+/** iso = drawn on the isometric billboard: no cork, pins, crowd, clipboard or text (labels go on frontal plates). */
+export const SurveyBoard: React.FC<{s: SurveyState; iso?: boolean}> = ({s, iso = false}) => {
   const count = Math.round(interpolate(s.count, [0, 1], [0, 499]));
   const evo = evolvePath(EASE.inOut(s.decade), DECADE_PATH);
   const pen = getPointAtLength(DECADE_PATH, Math.max(0.01, DECADE_LEN * EASE.inOut(s.decade)));
@@ -70,6 +71,8 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
   const crowd = Array.from({length: 26}, (_, i) => i);
   return (
     <g>
+      {iso ? null : (
+        <>
       <Corkboard {...BOARD} />
       {[BOARD.x + 50, BOARD.x + BOARD.w - 50].map((x) => (
         <Pin key={x} x={x} y={BOARD.y + 50} />
@@ -86,6 +89,8 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
         </Sticky>
         <Pin x={BOARD.x + 410} y={BOARD.y + 50} color={COLORS.ink} />
       </g>
+        </>
+      )}
       {/* axes drawn like marker on paper */}
       <line x1={PX0} y1={PY0} x2={PX1} y2={PY0} stroke={COLORS.ink} strokeWidth={LW} strokeLinecap="round" />
       <g opacity={s.decade > 0 ? Math.min(1, s.decade * 4) : 0}>
@@ -98,10 +103,14 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
           <line key={k} x1={PX0 - 92 - k * 4} y1={PY0 - 330 + k * 10} x2={PX0 - 72 - k * 4} y2={PY0 - 330 + k * 10} stroke={COLORS.inkSoft} strokeWidth={LW3} strokeLinecap="round" />
         ))}
       </g>
-      <text x={PX0} y={PY0 + 48} {...t(40)} textAnchor="middle">14</text>
-      <text x={PX1} y={PY0 + 48} {...t(40)} textAnchor="middle">94</text>
+      {iso ? null : (
+        <>
+          <text x={PX0} y={PY0 + 48} {...t(40)} textAnchor="middle">14</text>
+          <text x={PX1} y={PY0 + 48} {...t(40)} textAnchor="middle">94</text>
+        </>
+      )}
       {/* respondents: a crowd of faceless figures standing along the age axis */}
-      {crowd.map((i) => {
+      {iso ? null : crowd.map((i) => {
         const delay = (i / crowd.length) * 0.7;
         const p = interpolate(s.people, [delay, delay + 0.3], [0, 1], {...cl, easing: EASE.overshoot});
         const bob = Math.sin((s.frame / 60) * Math.PI * 2 * 0.5 + i) * 2;
@@ -124,7 +133,7 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
       {s.decade > 0 ? (
         <g>
           <path d={DECADE_PATH} fill="none" stroke={COLORS.accent} strokeWidth={LW * 2} strokeLinecap="round" strokeDasharray={evo.strokeDasharray} strokeDashoffset={evo.strokeDashoffset} />
-          <text x={PX1 - 6} y={PY0 - 300} {...t(44, TYPE.weightBold, COLORS.accent)} textAnchor="end" opacity={s.decade > 0.97 ? 1 : 0}>
+          <text x={PX1 - 6} y={PY0 - 300} {...t(44, TYPE.weightBold, COLORS.accent)} textAnchor="end" opacity={s.decade > 0.97 && !iso ? 1 : 0}>
             10 лет
           </text>
           {s.decade < 1 && pen ? <Marker x={pen.x} y={pen.y} /> : null}
@@ -136,10 +145,12 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
           <g transform={`translate(${PEAK[0]} ${PEAK[1] - (1 - s.peak) * 60})`}>
             <Pin x={0} y={0} />
           </g>
+          {iso ? null : (
           <Sticky x={PEAK[0] + 20} y={PEAK[1] + 30} w={180} rot={4} fill={COLORS.accentSoft}>
             <text x={22} y={88} {...t(52, TYPE.weightBold, COLORS.ink)}>≈50</text>
             <text x={24} y={134} {...t(34, TYPE.weightMedium)}>лет</text>
           </Sticky>
+          )}
         </g>
       ) : null}
       {s.small > 0 ? (
@@ -148,7 +159,7 @@ export const SurveyBoard: React.FC<{s: SurveyState}> = ({s}) => {
         </g>
       ) : null}
       {/* clipboard with the questionnaire, slides away when the crowd appears */}
-      <g transform={`translate(${s.clipboardOut * 700} ${s.clipboardOut * 120})`} opacity={1 - s.clipboardOut}>
+      <g transform={`translate(${s.clipboardOut * 700} ${s.clipboardOut * 120})`} opacity={iso ? 0 : 1 - s.clipboardOut}>
         <Clipboard x={560} y={560} tick={s.tick} rot={6} />
       </g>
     </g>

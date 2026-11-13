@@ -28,7 +28,7 @@ goal: understand_main_idea
 duration_sec: 60
 duration_tolerance: 0.10
 language: ru
-style: detailed_isometric_line_art
+style: anatomy_toned_solids    # §22: toned solids in our palette, thick contour, one coral part
 accent_colors: 1            # coral; a second accent only by the user's decision
 metaphor_policy: accuracy_first   # §20: literal > schematic > metaphor
 voice_provider: elevenlabs
@@ -60,6 +60,7 @@ write(path.join(srcDir, 'Main.tsx'), `import React from 'react';
 import timelineJson from './data/timeline.json';
 import {Timeline} from '../../lib/timeline';
 import {Episode, EpisodeProps, SceneMap, selectScenes} from '../../components/Episode';
+// Scenes of this topic are drawn with the Anatomy core: AnatomyStage + anatomyProjection from '../../lib/anatomy' (MASTER_PROMPT_FINAL §22).
 
 // Topic «${title}». Add scenes to SCENES as they are built (scene ids from the timeline).
 export const ${pascal}Timeline = timelineJson as Timeline;

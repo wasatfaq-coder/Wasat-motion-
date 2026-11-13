@@ -39,7 +39,7 @@ run('captions', 'node scripts/check-text.mjs');
 
 // 2) palette: only theme tokens in components; no second (pink) accent
 const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
-const srcFiles = walk('src').filter((f) => /\.tsx?$/.test(f));
+const srcFiles = walk('src').filter((f) => /\.tsx?$/.test(f) && !f.includes(`${path.sep}vendor${path.sep}`)); // vendored code keeps its defaults; our theme overrides them
 for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`))) {
   fs.readFileSync(f, 'utf8').split('\n').forEach((l, i) => {
     if (/^\s*(\/\/|\*)/.test(l)) return;
@@ -53,6 +53,14 @@ const TEXT_OK = /(components[\\/](Captions|Thesis)|Cover\.tsx)$/;
 for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) {
   const n = (fs.readFileSync(f, 'utf8').match(/<text\b/g) ?? []).length;
   if (n) add('warn', `text in frame: ${f} draws ${n} <text> node(s); allowed only as labels on frontal plates or data values (§19.1, §20.4)`);
+}
+
+// 3b) house style for new topics (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits
+const OLD_KITS = /from ['"][./]*illustrations\/(Room|CityKit|Interiors|Archive|CardCatalog|primitives|Props|MemoryCards|Board)['"]/;
+for (const f of srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && f.endsWith('.tsx'))) {
+  const src = fs.readFileSync(f, 'utf8');
+  if (OLD_KITS.test(src)) add('error', `style: ${f} uses an old line-art kit; new topics are drawn with the Anatomy core via src/lib/anatomy.tsx (§22)`);
+  if (/scenes[\\/]Scene\d+/.test(f) && !/lib\/anatomy['"]/.test(src)) add('warn', `style: ${f} does not use src/lib/anatomy.tsx (AnatomyStage, anatomyProjection) (§22)`);
 }
 
 // 4) projection per scene (§19.7)

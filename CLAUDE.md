@@ -1,6 +1,6 @@
 # Project instructions
 
-This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.2, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
+This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.3, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
 
 ## Topics: one folder per topic
 - Finished / current topic «Почему нам кажется, что время течёт быстро» lives in the root layout (`content/`, `public/audio/`, `src/scenes/`). Its state: `content/progress.md`, `content/decisions.md`.
@@ -13,6 +13,7 @@ This repository produces vertical motion-explainer videos (YouTube Shorts) with 
 - Each topic gets its own working branch and PR.
 
 ## Always
+- House style for every new topic: Anatomy toned solids in our palette (MASTER_PROMPT_FINAL §22): draw with `src/lib/anatomy.tsx` (AnatomyStage, anatomyProjection, Kit, paint) and `src/lib/physics.ts`; the old line-art kits are only for the finished «время» topic. Reference look: composition `AnatomyStyle`.
 - Metaphors only for accuracy (MASTER_PROMPT_FINAL §20): every scene has a mode and location in `visual-register.json`; every metaphor is justified, checked by `metaphor-auditor` and approved by the user at STOP 1. Interfaces, schemes and data are shown literally. Avoid the typical errors of §20.5 (picture contradicts the voice, wrong unit, one image two meanings, decor that looks like data, hypothesis stated as fact); the storyboard has a «voice | frame» column per scene.
 - Before the gate and before committing visual work, run `node scripts/audit.mjs` (no rendering) and fix every ERROR.
 - For the gate, make 2 fps sheets and beat key frames with `node scripts/contact-sheet.mjs <outDir>`, and per-frame strips with `node scripts/frame-strip.mjs <from> <to>` for physics and anchors (stills only, no video render). Keep review notes in `content/reviews/notes.json` (id, severity, status); escalate a note open for 3 rounds to the user.

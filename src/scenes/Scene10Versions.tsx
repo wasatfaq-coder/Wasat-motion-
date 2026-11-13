@@ -75,7 +75,7 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
   const images = beat(scene, 'images');
   const grow = interpolate(frame, [tiny - 1.2 * fps, tiny + 0.2 * fps], [0, 1], {...cl, easing: EASE.inOut});
   const slices = Math.round(10 + grow * 40);
-  const candles = Math.round(10 + grow * 40);
+  const candles = Math.round(10 + grow * 6); // the slices show the 1/50; candles stay readable
   const r = 1.0 + grow * 0.35;
   const pull = interpolate(frame, [tenth - 14, tenth + 10], [0, 0.55], {...cl, easing: EASE.overshoot}) * (1 - grow * 0.3);
   const cakeIn = interpolate(frame, [0, 18], [0, 1], {...cl, easing: EASE.out});
@@ -128,9 +128,16 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
         <IsoPerson s={s} at={[5.6, 8.6, 1.2]} h={1.6} sit />
         <Box s={s} at={[5.95, 8.8, 2.05]} size={[0.38, 0.14, 0.26]} stroke={STROKE.secondary} />
         <Line3 s={s} width={STROKE.main} points={[[6.7, 9.6, 0], [6.55, 9.4, 1.6], [6.3, 9.4, 1.75]]} />
-        {[[2.9, 8], [5.0, 4]].map(([x, n], i) => (
-          <g key={`f${i}`} transform={`${planeMatrix(s, 'wallX', [x, 8.9, 4.3])} scale(${k}) translate(${-40} ${-380})`}>
-            <Film id={`s10-${i}`} x={40} y={380} w={420} frames={n} scroll={scroll * (i ? 0.7 : 1.6)} reveal={filmP} />
+        {/* each camera "prints" its film: a strip above the head, linked to the lens by a dashed beam */}
+        {[
+          {x: 3.0, z: 3.6, n: 8, cam: [4.14, 8.94, 1.88] as P3},
+          {x: 5.1, z: 4.0, n: 4, cam: [6.14, 8.94, 2.18] as P3},
+        ].map(({x, z, n, cam}, i) => (
+          <g key={`f${i}`} opacity={filmP > 0 ? 1 : 0}>
+            <Line3 s={s} width={STROKE.micro} color={COLORS.inkSoft} dash="4 5" points={[cam, [x + 0.97, 8.9, z - 0.56]]} />
+            <g transform={`${planeMatrix(s, 'wallX', [x, 8.9, z])} scale(${k}) translate(${-40} ${-380})`}>
+              <Film id={`s10-${i}`} x={40} y={380} w={420} frames={n} scroll={scroll * (i ? 0.7 : 1.6)} reveal={filmP} />
+            </g>
           </g>
         ))}
       </RoomSvg>

@@ -50,7 +50,7 @@ export const Scene04Decade: React.FC<{scene: SceneData}> = ({scene}) => {
             people: 1,
             count: 1,
             lines: 1,
-            dimShort: interpolate(frame, [decade - 20, decade + 10], [0, 1], cl),
+            dimShort: interpolate(frame, [faster - 1.6 * fps, faster - 1.25 * fps], [0, 1], cl), // lanes stay until just before the pen starts (fully faded first)
             decade: drawP,
             peak: peakP,
             small: interpolate(frame, [small - 6, small + 18], [0, 1], cl),

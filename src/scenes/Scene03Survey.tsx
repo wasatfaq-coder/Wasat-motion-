@@ -57,7 +57,7 @@ export const Scene03Survey: React.FC<{scene: SceneData}> = ({scene}) => {
             <text x={-200} y={40} fontFamily={fontFamily} fontWeight={TYPE.weightBold} fontSize={110} fill={COLORS.ink} style={{fontVariantNumeric: 'tabular-nums'}}>
               {count}
             </text>
-            <text x={70} y={30} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={40} fill={COLORS.ink}>человек</text>
+            <text x={70} y={30} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={56} fill={COLORS.ink}>человек</text>
           </g>
         </svg>
       ) : null}

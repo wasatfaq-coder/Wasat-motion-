@@ -10,7 +10,7 @@ export const LOOP: {c: P3; rx: number; ry: number} = {c: [6.0, 5.0, 0.01], rx: 3
 /** New roads out of the opened ring (scene 12), in ring-centre floor coordinates. */
 const NEW_ROADS: [[number, number], [number, number]][] = [
   [[LOOP.rx, 0], [LOOP.rx + 1.8, 1.2]],
-  [[LOOP.rx + 1.8, 1.2], [LOOP.rx + 4.2, 0.6]],
+  [[LOOP.rx + 1.8, 1.2], [LOOP.rx + 4.3, 1.6]],
   [[LOOP.rx + 1.8, 1.2], [LOOP.rx + 2.7, 3.0]],
 ];
 export const loopPt = (a: number): P3 => [LOOP.c[0] + Math.cos(a) * LOOP.rx, LOOP.c[1] + Math.sin(a) * LOOP.ry, 0.02];
@@ -27,7 +27,7 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
       {[[-0.6, 2.6], [0.6, 3.8], [1.9, 2.2], [3.0, 4.4], [4.4, 3.0], [5.6, 2.4], [6.8, 3.6], [8.2, 2.8], [9.4, 4.0], [10.8, 2.6], [12.0, 3.4], [13.4, 2.2], [14.6, 3.0]].map(([bx, bh], i) => (
         <Box key={`sky${i}`} s={ROOM_S} at={[bx, -2.6, 0]} size={[1.1, 0.9, bh * 0.6]} stroke={STROKE.secondary} top={COLORS.fillMid} left={COLORS.fillMid} right={COLORS.fillDark} detail="none" />
       ))}
-      <Ground s={ROOM_S} at={[-1, -1, 0]} w={17} d={12} fill={COLORS.floor} />
+      <Ground s={ROOM_S} at={[-1.6, -1, 0]} w={17.6} d={12} fill={COLORS.floor} />
       <Paving s={ROOM_S} at={[-1, -1, 0.004]} w={17} d={12} step={1} />
       {/* driveways: home and office connect to the ring (buildings stand outside it) */}
       <g transform={planeMatrix(ROOM_S, 'floor', [1.3, 4.0, 0.008])}>
@@ -62,14 +62,14 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
       <FlowerBed s={ROOM_S} at={[4.8, 5.4, 0]} w={1.4} t={t} />
       <Tree s={ROOM_S} at={[6.9, 4.1, 0]} t={t} seed="c1" />
       {/* home and office */}
-      <House s={ROOM_S} at={[-0.5, 3.6, 0]} size={[1.8, 1.6, 1.4]} smoke={t} />
+      <House s={ROOM_S} at={[-0.1, 3.4, 0]} size={[1.8, 1.6, 1.4]} smoke={t} />
       <Building s={ROOM_S} at={[10.7, 2.3, 0]} size={[2.4, 2.0, 4.2]} floors={5} lit={0.4} t={t} />
       <LampPost s={ROOM_S} at={[2.0, 1.4, 0]} />
       <LampPost s={ROOM_S} at={[10.2, 8.6, 0]} />
       {/* new places revealed by the open roads */}
       {open > 0.45 ? (
         <g opacity={Math.min(1, (open - 0.45) * 3)}>
-          <Building s={ROOM_S} at={[13.9, 5.0, 0]} size={[1.6, 1.4, 2.0]} floors={2} accent />
+          <Building s={ROOM_S} at={[14.4, 6.4, 0]} size={[1.6, 1.4, 2.0]} floors={2} accent />
           <Tree s={ROOM_S} at={[11.6, 9.4, 0]} t={t} seed="n1" />
           <Tree s={ROOM_S} at={[12.6, 9.8, 0]} t={t} seed="n2" />
           <House s={ROOM_S} at={[12.9, 8.2, 0]} size={[1.4, 1.2, 1.1]} accent />
@@ -112,7 +112,7 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
         </g>
       ) : null}
       <Car s={ROOM_S} at={[car[0] - 0.5, car[1] - 0.27, 0.02]} t={t} />
-      <IsoPerson s={ROOM_S} at={[1.7, 5.7, 0]} h={1.0} bob={Math.sin(t * 3) * 0.02} />
+      <IsoPerson s={ROOM_S} at={[2.2, 6.3, 0]} h={1.0} bob={Math.sin(t * 3) * 0.02} />
       <IsoPerson s={ROOM_S} at={[4.0 + ((t * 0.4) % 4), 8.6, 0]} h={1.0} walk={t * 7} />
       <IsoPerson s={ROOM_S} at={[10.4 - ((t * 0.3) % 3), 8.0, 0]} h={0.95} walk={t * 7 + 1} />
       {/* near plane: hedge and trees along the front edge */}

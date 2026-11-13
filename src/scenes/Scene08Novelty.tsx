@@ -15,7 +15,7 @@ const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as cons
 const s = ROOM_S;
 const CAT_AT: P3 = [3.4, 5.8, 0];
 const SUIT: P3 = [4.4, 8.3, 0];
-const TAPE: P3 = [CAT_AT[0] + CATALOG.W + 0.4, CAT_AT[1] + 0.55, 0];
+const TAPE: P3 = [CAT_AT[0] + CATALOG.W + 0.25, CAT_AT[1] - 1.0, 0]; // against the side panel: it measures the cabinet
 const N = DRAWER.cols * DRAWER.rows;
 /** Fill order: bottom row first, so the column of filled drawers grows upwards next to the tape. */
 const slot = (k: number) => {

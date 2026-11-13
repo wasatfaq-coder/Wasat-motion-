@@ -54,23 +54,21 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const beachCam = shotCam(frame, [
     [0, {focus: roomPoint([4.4, 5.0, 1.3]), zoom: 2.7, screen: [500, 760]}], // the beach: the suitcase, the person, the umbrella (main group large)
     [vac, {focus: roomPoint([3.8, 5.4, 1.6]), zoom: 2.9, screen: [500, 760]}], // «В отпуске»: the person under the umbrella, the sun starts
-    [fast - 20, {focus: roomPoint([3.8, 3.6, 1.5]), zoom: 2.5, screen: [500, 800]}], // the sun races over the sea, shadows turn
+    [fast - 20, {focus: roomPoint([4.4, 2.2, 1.6]), zoom: 2.1, screen: [500, 820]}], // the sun races over the sea, shadows turn
     [fast + 0.7 * fps, {focus: roomPoint([5.2, 4.4, 1.0]), zoom: 3.0, screen: [500, 760]}], // the suitcase, big
   ]);
   // the sun crosses the sky above the sea three times (days fly); drawn first, behind everything
   const sunP = interpolate(frame, [vac, home], [0, 3], clamp);
   const sf = sunP % 1;
   // rises from behind the sea and sets into it (no jump across the screen)
-  const [sx, sy] = iso(ROOM_S)([1.0 + sf * 5, 0.6, -0.4 + Math.sin(Math.PI * sf) * 1.6]);
-  const sunZ = -0.4 + Math.sin(Math.PI * sf) * 1.6;
-  const sunO = Math.max(0, Math.min(1, sunZ / 0.6)); // sinks below the horizon instead of vanishing
+  const [sx, sy] = iso(ROOM_S)([-2.0 + sf * 7, -3.0, -1.7 + Math.sin(Math.PI * sf) * 4.2]);
+  const sunO = 1;
   const shadowA = Math.PI * sf; // umbrella shadows turn with the sun
   const bob = Math.sin(t * 2.2) * 0.05;
   if (frame < home) {
     return (
       <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
         <RoomSvg cam={beachCam}>
-          <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.6} t={t} />
           {sunP > 0 && sunP < 3 ? (
             <g opacity={sunO}>
               <circle cx={sx} cy={sy} r={0.6 * ROOM_S} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
@@ -80,6 +78,8 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
               })}
             </g>
           ) : null}
+          {/* the sea plane is drawn after the sun: the sun rises out of it and sinks into it (horizon = far shore edge) */}
+          <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.6} t={t} />
           {/* foam line at the shore */}
           <Line3 s={ROOM_S} width={STROKE.main} color={COLORS.fillLight} points={Array.from({length: 25}, (_, k) => [k * 0.5, 3.6 - 0.08 - Math.abs(Math.sin(t * 1.5 + k * 0.7)) * 0.12, 0.01] as P3)} />
           {/* sailing boat bobbing on the sea */}

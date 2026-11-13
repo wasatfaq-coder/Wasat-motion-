@@ -37,7 +37,7 @@ export const pageStarts = (start: number, fps: number, firstGapSec = 0.42) => {
 
 /** Cover pose (frame 0): close on the wall calendar, clock and tray with the first page already in the air. */
 // end pose of scene 12: the room clock sits exactly where the cover clock is (match cut), and large
-export const CAM_COVER: Cam = {focus: roomPoint([CLOCK.u, 0, CLOCK.z]), zoom: 3.6, screen: [490, 980]};
+export const CAM_COVER: Cam = {focus: roomPoint([CLOCK.u, 0, CLOCK.z]), zoom: 5.2, screen: [490, 980]};
 
 type M = [number, number, number, number, number, number];
 const lerpM = (a: M, b: M, t: number): M => a.map((v, i) => v + (b[i] - v) * t) as M;

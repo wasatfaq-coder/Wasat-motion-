@@ -79,7 +79,7 @@ export type SquareState = {
 
 /** The square: road and buildings behind, billboard, benches, trees, crowd on the painted age line, interviewer. */
 export const SurveySquare: React.FC<SquareState> = ({t, chart, crowdP, react, interviewer}) => {
-  const labels = chart.lines > 0.4 || chart.decade > 0 ? 1 : 0;
+  const labels = Math.max(chart.laneP ? chart.laneP[0] : chart.lines > 0.4 ? 1 : 0, chart.decade > 0 ? 1 : 0);
   return (
     <g>
       <Ground s={s} at={[0, 0, 0]} w={12} d={10} fill={COLORS.floor} />
@@ -92,7 +92,7 @@ export const SurveySquare: React.FC<SquareState> = ({t, chart, crowdP, react, in
       <Billboard chart={chart} />
       <Plate at={boardPt(PX0 + 40, PY0 + 42)} text="14" opacity={labels} />
       <Plate at={boardPt(PX1 - 40, PY0 + 42)} text="94" opacity={labels} />
-      <Plate at={boardPt(PX1 - 20, PY0 - 190)} text="10 лет" color={COLORS.accent} opacity={chart.decade > 0.97 ? 1 : 0} />
+      <Plate at={boardPt(PX1 - 170, PY0 - 175)} text="10 лет" color={COLORS.accent} opacity={Math.max(0, Math.min(1, (chart.decade - 0.9) * 10))} />
       <Plate at={boardPt(PEAK[0] - 110, PEAK[1] + 110)} text="≈50 лет" color={COLORS.accent} opacity={Math.min(1, chart.peak * 2)} />
       {[[1.0, 3.6], [10.6, 3.8], [0.6, 8.6], [11.2, 8.4]].map(([x, y], i) => (
         <Tree key={i} s={s} at={[x, y, 0]} t={t} seed={`sq${i}`} />

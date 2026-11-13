@@ -113,8 +113,8 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const clockRoom = roomPoint([CLOCK.u, 0, CLOCK.z]);
   const clockScreen: [number, number] = [deskCam.screen![0] + (clockRoom[0] - deskCam.focus[0]) * deskCam.zoom, deskCam.screen![1] + (clockRoom[1] - deskCam.focus[1]) * deskCam.zoom];
   const coverScale = 1 + ((CLOCK.r * ROOM_S * deskCam.zoom) / 218 - 1) * handover;
-  const coverX = (clockScreen[0] - 470) * handover;
-  const coverY = (clockScreen[1] - 960) * handover;
+  const coverX = (clockScreen[0] - 490) * handover;
+  const coverY = (clockScreen[1] - 980) * handover;
   const thick = 0.09;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -135,7 +135,7 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
       {/* opening preview = cover A; it hands over to the room by flying into the wall clock */}
       {handover < 1 ? (
         <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: 1 - Math.max(0, (handover - 0.55) / 0.45)}}>
-          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '470px 960px'}}>
+          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '490px 980px'}}>
             <CoverA frame={frame} />
           </div>
         </AbsoluteFill>

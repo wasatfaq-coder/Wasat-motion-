@@ -57,13 +57,13 @@ export const Scene11Caveat: React.FC<{scene: SceneData}> = ({scene}) => {
   const argue = beat(scene, 'argue');
   const attention = beat(scene, 'attention');
   const stretch = beat(scene, 'stretch');
-  const q = interpolate(frame, [0, hyp + 0.9 * fps], [0, 1], cl);
+  const q = interpolate(frame, [hyp - 1.5 * fps, hyp], [0, 1], cl); // the dot lands on «гипотезы»
   const evo = evolvePath(EASE.inOut(q), QUESTION);
   const pen = getPointAtLength(QUESTION, Math.max(0.01, QLEN * EASE.inOut(q)));
   const bub = interpolate(frame, [argue - 10, argue + 10], [0, 1], {...cl, easing: EASE.overshoot});
   const jig = Math.sin(frame * 0.6) * 6 * interpolate(frame, [argue, argue + 60, argue + 80], [1, 1, 0], cl);
   const icons = [0, 1, 2].map((i) => interpolate(frame, [argue + 40 + i * 8, argue + 60 + i * 8], [0, 1], {...cl, easing: EASE.overshoot}));
-  const magX = interpolate(frame, [attention - 40, attention, attention + 40, attention + 70], [2.4, 4.6, 4.6, 6.2], {...cl, easing: EASE.inOut});
+  const magX = interpolate(frame, [attention - 40, attention, attention + 20, attention + 48], [2.4, 4.6, 4.6, 6.2], {...cl, easing: EASE.inOut});
   const eyeLit = interpolate(frame, [attention - 4, attention + 4], [0, 1], cl);
   const heartLit = interpolate(frame, [attention + 50, attention + 58], [0, 1], cl);
   const boardFocus = roomPoint([BOARD.x + BOARD.w / 2, 0, BOARD.z - BOARD.h / 2]);
@@ -111,7 +111,11 @@ export const Scene11Caveat: React.FC<{scene: SceneData}> = ({scene}) => {
             <MemoryCard kind={k} novel={(i === 1 && eyeLit > 0.5) || (i === 2 && heartLit > 0.5)} />
           </g>
         ))}
-        {frame > attention - 45 ? <Magnifier x={magX + 0.55} y={5.85} z={BENCH_Z + 0.75 + Math.sin(t * 3) * 0.04} /> : null}
+        {frame > attention - 45 ? (
+          <g opacity={interpolate(frame, [attention - 45, attention - 35], [0, 1], cl)}>
+            <Magnifier x={magX + 0.55} y={5.85} z={BENCH_Z + 0.75 + Math.sin(t * 3) * 0.04} />
+          </g>
+        ) : null}
         {/* speech bubbles above the scientists (frontal plates) */}
         {SCI.map((p, i) => {
           const [hx, hy] = head(p, 1.75);

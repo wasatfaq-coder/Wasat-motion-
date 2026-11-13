@@ -67,7 +67,7 @@ const IsoPage: React.FC<{x: number; y: number; w: number; h: number; from: 'wall
 };
 
 /** Wall clock in the isometric projection (plane y = const, like the room clock): extruded disc with a rim. */
-const IsoClock: React.FC<{cx: number; cy: number; r: number}> = ({cx, cy, r}) => {
+const IsoClock: React.FC<{cx: number; cy: number; r: number; sec?: number}> = ({cx, cy, r, sec = 0}) => {
   const R = r + 18;
   const [a, b, c, d] = PLANE.wallX;
   const v: [number, number] = [COS30 * 34, -SIN30 * 34]; // depth towards the wall
@@ -96,7 +96,7 @@ const IsoClock: React.FC<{cx: number; cy: number; r: number}> = ({cx, cy, r}) =>
         })}
         <line x1={0} y1={0} x2={r * 0.32} y2={-r * 0.42} stroke={COLORS.ink} strokeWidth={W + 2} strokeLinecap="round" {...ns} />
         <line x1={0} y1={0} x2={0} y2={-r * 0.72} stroke={COLORS.ink} strokeWidth={W} strokeLinecap="round" {...ns} />
-        <line x1={0} y1={r * 0.2} x2={0} y2={-r * 0.8} stroke={COLORS.accent} strokeWidth={W2 - 1} strokeLinecap="round" {...ns} />
+        <line x1={0} y1={r * 0.2} x2={0} y2={-r * 0.8} transform={`rotate(${sec})`} stroke={COLORS.accent} strokeWidth={W2 - 1} strokeLinecap="round" {...ns} />
         <circle r={12} fill={COLORS.ink} />
       </g>
     </g>
@@ -107,7 +107,7 @@ const IsoClock: React.FC<{cx: number; cy: number; r: number}> = ({cx, cy, r}) =>
 export const CoverA: React.FC<{frame?: number}> = ({frame = 0}) => {
   const cx = 470;
   const cy = 960;
-  const drift = frame / 60; // pages keep flying outward from frame 1 (the cover is not a frozen still)
+  const drift = frame / 30; // pages fly outward and turn from frame 1 (the cover is not a frozen still)
   const pages = Array.from({length: 9}, (_, i) => i);
   return (
     <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
@@ -119,13 +119,13 @@ export const CoverA: React.FC<{frame?: number}> = ({frame = 0}) => {
         // keep every page whole inside the frame (no page cut by the edge)
         const px = Math.max(110, Math.min(900, cx + Math.cos(a) * d));
         const py = cy + Math.sin(a) * d * 0.55 - 6;
-        return <IsoPage key={i} x={px} y={py} w={110 * size} h={140 * size} from={i % 2 ? 'wallY' : 'wallX'} tumble={0.15 + 0.6 * random(`tb${i}`)} rot={a * 40 + random(`r${i}`) * 30} />;
+        return <IsoPage key={i} x={px} y={py} w={110 * size} h={140 * size} from={i % 2 ? 'wallY' : 'wallX'} tumble={Math.min(1, Math.max(0, 0.15 + 0.6 * random(`tb${i}`) + 0.2 * Math.sin(drift * 1.4 + i)))} rot={a * 40 + random(`r${i}`) * 30} />;
       })}
       {/* speed lines behind the pages, along the iso x axis */}
       {[0, 1, 2].map((i) => (
         <line key={i} x1={cx + 250} y1={cy - 150 + i * 36} x2={cx + 250 + 150 * COS30} y2={cy - 150 + i * 36 - 150 * SIN30} stroke={COLORS.inkSoft} strokeWidth={3} strokeLinecap="round" />
       ))}
-      <IsoClock cx={cx} cy={cy} r={200} />
+      <IsoClock cx={cx} cy={cy} r={200} sec={frame * 3} />
       </g>
     </svg>
   );

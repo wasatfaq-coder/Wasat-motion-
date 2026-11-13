@@ -15,7 +15,7 @@ import {Suitcase as Suitcase3D} from '../illustrations/Props';
 import {iso, P3, planeMatrix} from '../lib/iso';
 
 export const HOLIDAY_CARDS = 8;
-const SUITCASE: P3 = [4.2, 2.9, 0];
+const SUITCASE: P3 = [1.3, 3.7, 0]; // left of the desk front: no overlap with the desk legs
 
 /** Scene 7: holiday paradox. The calendar flips fast (days fly), but a thick pile of bright cards comes out of the suitcase into memory. */
 export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
@@ -27,7 +27,9 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const long = beat(scene, 'long');
   const flutter = interpolate(frame, [fast - 10, fast, fast + 0.9 * fps, fast + 1.1 * fps], [0, 1, 1, 0], clamp) * Math.abs(Math.sin(frame * 1.3));
   const open = interpolate(frame, [long - 40, long - 10], [0, 1], {...clamp, easing: EASE.out});
-  const starts = Array.from({length: HOLIDAY_CARDS}, (_, i) => long - 12 + i * 5);
+  // re-hook on «надолго»: a tower of bright cards shoots out of the suitcase higher than the clock, then the cards fly into memory
+  const towerP = interpolate(frame, [long - 14, long + 8], [0, 1], {...clamp, easing: EASE.overshoot});
+  const starts = Array.from({length: HOLIDAY_CARDS}, (_, i) => long + 22 + i * 5);
   const flight = Math.round(0.45 * fps);
   const landed = starts.filter((st) => frame >= st + flight).length;
   const cards = [...plainCards(HOOK_CARDS), ...Array.from({length: landed}, () => ({novel: true}))];
@@ -40,29 +42,35 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const cam = shotCam(frame, [
     [0, camStart],
     [long - 70, suitCam], // the suitcase opens
-    [long + 10, camEnd], // bright cards pile up in memory
+    [long - 14, {focus: roomPoint([SUITCASE[0] + 0.9, SUITCASE[1] + 0.3, 3.6]), zoom: 1.5, screen: [500, 740] as [number, number]}], // the tower of cards rises above the clock
+    [long + 30, camEnd], // bright cards pile up in memory
     [beat(scene, 'how') - 10, {...camEnd, zoom: 1.8}],
   ]);
   const src: P3 = [SUITCASE[0] + 0.3, SUITCASE[1] + 0.1, 1.4];
   const pileTop = (n: number) => DESK.h + 0.06 + n * 0.09;
   // part 1: the beach — the sun races across the sky three times (days fly)
-  const home = long - 75;
+  const home = long - 107; // cut to home on «дома»
+  const vac = 76; // «В отпуске»
   const beachCam = shotCam(frame, [
-    [0, {focus: roomPoint([6.0, 4.6, 1.6]), zoom: 1.45, screen: [500, 740]}], // the beach: sea, boat, umbrellas, the sun racing
-    [fast - 20, {focus: roomPoint([6.2, 4.0, 2.2]), zoom: 1.5, screen: [500, 760]}],
-    [fast + 1.2 * fps, {focus: roomPoint([6.3, 7.5, 1.0]), zoom: 2.4, screen: [500, 740]}], // the suitcase, big
+    [0, {focus: roomPoint([5.0, 6.0, 1.2]), zoom: 1.9, screen: [500, 760]}], // the beach: person, umbrella, suitcase
+    [vac, {focus: roomPoint([3.4, 5.2, 1.4]), zoom: 2.3, screen: [500, 760]}], // «В отпуске»: the person under the umbrella, the sun starts
+    [fast - 20, {focus: roomPoint([5.6, 3.6, 2.0]), zoom: 1.6, screen: [500, 760]}], // the sun races over the sea, shadows turn
+    [fast + 0.7 * fps, {focus: roomPoint([6.3, 7.5, 1.0]), zoom: 2.4, screen: [500, 740]}], // the suitcase, big
   ]);
   // the sun crosses the sky above the sea three times (days fly); drawn first, behind everything
-  const sunP = interpolate(frame, [fast - 10, home], [0, 3], clamp);
+  const sunP = interpolate(frame, [vac, home], [0, 3], clamp);
   const sf = sunP % 1;
-  const [sx, sy] = iso(ROOM_S)([1.0 + sf * 10, -1.6, 1.6 + Math.sin(Math.PI * sf) * 2.4]);
+  // rises from behind the sea and sets into it (no jump across the screen)
+  const [sx, sy] = iso(ROOM_S)([-1.0 + sf * 8, -1.6, -0.6 + Math.sin(Math.PI * sf) * 3.0]);
+  const sunO = sf < 0.06 || sf > 0.94 ? 0 : 1;
+  const shadowA = Math.PI * sf; // umbrella shadows turn with the sun
   const bob = Math.sin(t * 2.2) * 0.05;
   if (frame < home) {
     return (
       <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
         <RoomSvg cam={beachCam}>
           {sunP > 0 && sunP < 3 ? (
-            <g>
+            <g opacity={sunO}>
               <circle cx={sx} cy={sy} r={0.6 * ROOM_S} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
               {Array.from({length: 8}, (_, k) => {
                 const a = (k / 8) * Math.PI * 2 + frame * 0.05;
@@ -82,6 +90,12 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
           {Array.from({length: 5}, (_, i) => (
             <Line3 key={i} s={ROOM_S} width={STROKE.micro} color={COLORS.inkSoft} points={Array.from({length: 9}, (_, k) => [1 + k * 1.2, 4.6 + i * 1.1 + Math.sin(k + i) * 0.12, 0.005] as P3)} />
           ))}
+          {/* umbrella shadows on the sand turn with the sun: days pass */}
+          {[[3.0, 4.9], [9.0, 4.6]].map(([ux, uy], i) => (
+            <g key={`sh${i}`} transform={planeMatrix(ROOM_S, 'floor', [ux + Math.cos(shadowA) * 0.9, uy + 0.6 + Math.sin(shadowA) * 0.3, 0.006])}>
+              <ellipse rx={1.0} ry={0.55} fill={COLORS.fillDark} opacity={sunP > 0 ? 0.55 : 0.3} />
+            </g>
+          ))}
           <Umbrella s={ROOM_S} at={[3.0, 4.9, 0]} />
           {/* towel with stripes */}
           <g transform={planeMatrix(ROOM_S, 'floor', [2.3, 5.4, 0.01])}>
@@ -90,7 +104,7 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
               <line key={k} x1={0} y1={k} x2={0.9} y2={k} stroke={COLORS.inkSoft} strokeWidth={STROKE.micro} vectorEffect="non-scaling-stroke" />
             ))}
           </g>
-          <IsoPerson s={ROOM_S} at={[3.6, 5.3, 0]} h={1.1} walk={0} bob={Math.sin(t * 2) * 0.02} />
+          <IsoPerson s={ROOM_S} at={[3.6 + Math.min(1.2, Math.max(0, (frame - vac) / 200)), 5.3, 0]} h={1.1} walk={frame > vac ? t * 6 : 0} bob={Math.sin(t * 2) * 0.02} />
           <Umbrella s={ROOM_S} at={[9.0, 4.6, 0]} />
           {/* deck chair under the second umbrella */}
           <Line3 s={ROOM_S} close fill={COLORS.fillMid} width={STROKE.secondary} points={[[8.4, 5.3, 0.35], [9.6, 5.3, 0.35], [9.6, 5.9, 0.35], [8.4, 5.9, 0.35]]} />
@@ -119,10 +133,12 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
             <Suitcase s={ROOM_S} at={SUITCASE} open={open} />
             {starts.map((st, i) => {
               const p = (frame - st) / flight;
-              if (p <= 0 || p >= 1) return null;
+              if (p >= 1 || towerP <= 0) return null;
+              const tower: P3 = [src[0] + Math.sin(i * 1.7) * 0.06, src[1], src[2] + i * 0.68 * towerP];
+              if (p <= 0) return <FlyingCard key={i} s={ROOM_S} at={tower} novel />;
               const e = EASE.inOut(p);
               const to: P3 = [TRAY.x + 0.2, TRAY.y + 0.2, pileTop(HOOK_CARDS + i)];
-              const at: P3 = [mix(src[0], to[0], e), mix(src[1], to[1], e), mix(src[2], to[2], e) + Math.sin(Math.PI * p) * 1.4];
+              const at: P3 = [mix(tower[0], to[0], e), mix(tower[1], to[1], e), mix(tower[2], to[2], e) + Math.sin(Math.PI * p) * 1.0];
               return <FlyingCard key={i} s={ROOM_S} at={at} novel />;
             })}
           </>

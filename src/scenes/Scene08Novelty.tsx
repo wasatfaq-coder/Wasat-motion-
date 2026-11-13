@@ -51,13 +51,14 @@ const FlightCard: React.FC<{p: number; from: P3; to: P3}> = ({p, from, to}) => {
   const m = a.map((v, i) => v + (b[i] - v) * tilt) as M;
   const spin = (1 - e) * 220 + Math.sin(q * 12) * 6 * (1 - q);
   const squash = land > 0 ? 1 - Math.sin(land * Math.PI) * 0.18 : 1;
+  const size = mix(1.8, 1, e); // big in the air (readable), card size when it lands
   const [sx, sy] = iso(s)([pos[0], pos[1], 0]);
   const shadow = Math.max(0.25, 1 - pos[2] / 6);
   return (
     <g>
       <ellipse cx={sx} cy={sy} rx={0.42 * s * shadow} ry={0.2 * s * shadow} fill={COLORS.ink} opacity={0.12 * shadow} />
       <g transform={`matrix(${m.join(',')})`}>
-        <g transform={`rotate(${spin}) scale(1 ${squash})`}>
+        <g transform={`rotate(${spin}) scale(${size} ${size * squash})`}>
           <ImpressionCard />
         </g>
       </g>
@@ -87,11 +88,13 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
   for (let k = 0; k < N; k++) {
     const d = frame - start(k) - flight;
     const j = slot(k);
-    open[j] = interpolate(d, [-16, -3, 2, 16], [0, 1, 1, 0], {...cl, easing: EASE.inOut});
+    // opens with a small overshoot (bounce), closes smoothly
+    open[j] = d < -3 ? interpolate(d, [-16, -3], [0, 1], {...cl, easing: EASE.overshoot}) : interpolate(d, [2, 16], [1, 0], {...cl, easing: EASE.inOut});
     lit[j] = d > 8 ? 1 : 0;
     holding[j] = d >= 0 ? 1 : 0;
   }
-  const filled = lit.reduce((a, b) => a + b, 0);
+  // continuous fill (no steps): each landed card adds its share over 20 frames
+  const filled = Array.from({length: N}, (_, k) => interpolate(frame - start(k) - flight, [0, 20], [0, 1], cl)).reduce((a, b) => a + b, 0);
   // tape: appears on «мозг меряет», follows the filled column, overshoots above the catalogue on «длинным»
   const show = interpolate(frame, [brain - 12, brain + 6], [0, 1], cl);
   const blade =
@@ -102,9 +105,10 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
     [0, {focus: roomPoint([5.0, 5.4, 2.6]), zoom: 1.25, screen: [520, 740]}], // the archive: racks, ladder, catalogue
     [novelty - 20, {focus: roomPoint([4.8, 7.6, 2.0]), zoom: 1.75, screen: [520, 700]}], // suitcase opens, first card
     [streets - 10, {focus: roomPoint([4.8, 6.8, 2.6]), zoom: 1.6, screen: [520, 740]}], // cards arc into the catalogue
+    [streets + 50, {focus: roomPoint([4.9, 6.2, 3.0]), zoom: 2.2, screen: [520, 720]}], // «по одной из версий»: push in on the flying cards
     [brain - 20, {focus: roomPoint([5.4, 5.6, 3.2]), zoom: 1.9, screen: [520, 720]}], // the tape appears
     [memories - 30, {focus: roomPoint([4.9, 5.8, 2.9]), zoom: 2.4, screen: [520, 720]}], // drawers take the cards
-    [long - 1.2 * fps, {focus: roomPoint([5.6, 5.8, 3.8]), zoom: 1.45, screen: [520, 740]}], // the tape overshoots
+    [long - 1.2 * fps, {focus: roomPoint([TAPE[0], TAPE[1], CATALOG_TOP + 1.2]), zoom: 1.9, screen: [520, 760]}], // «длинным»: the tape overshoots above the catalogue
   ]);
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -115,14 +119,15 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
         <Dust s={s} at={[3.8, 3.6, 1.6]} t={t} />
         <CardCatalog s={s} at={CAT_AT} open={open} lit={lit} holding={holding} />
         {/* tape measure beside the catalogue: coral case, blade with ticks (no numbers) */}
-        <Box s={s} at={TAPE} size={[0.5, 0.5, 0.42]} left={COLORS.accent} right={COLORS.accent} />
+        <Box s={s} at={TAPE} size={[0.5, 0.5, 0.42]} left={show > 0.5 ? COLORS.accent : COLORS.fillMid} right={show > 0.5 ? COLORS.accent : COLORS.fillDark} />
         {blade > 0.05 ? (
           <g>
-            <Box s={s} at={[TAPE[0] + 0.12, TAPE[1] + 0.2, 0.42]} size={[0.3, 0.07, blade]} stroke={STROKE.secondary} left={COLORS.fillLight} right={COLORS.fillMid} detail="none" />
+            <Box s={s} at={[TAPE[0] + 0.08, TAPE[1] + 0.2, 0.42]} size={[0.38, 0.08, blade]} stroke={STROKE.main} left={COLORS.fillLight} right={COLORS.fillMid} detail="none" />
             {Array.from({length: Math.floor(blade / 0.25)}, (_, i) => (
-              <Line3 key={i} s={s} width={STROKE.micro} points={[[TAPE[0] + 0.12, TAPE[1] + 0.27, 0.42 + (i + 1) * 0.25], [TAPE[0] + (i % 2 ? 0.22 : 0.3), TAPE[1] + 0.27, 0.42 + (i + 1) * 0.25]]} />
+              <Line3 key={i} s={s} width={i % 4 === 3 ? STROKE.main : STROKE.secondary} points={[[TAPE[0] + 0.08, TAPE[1] + 0.28, 0.42 + (i + 1) * 0.25], [TAPE[0] + (i % 4 === 3 ? 0.36 : i % 2 ? 0.2 : 0.28), TAPE[1] + 0.28, 0.42 + (i + 1) * 0.25]]} />
             ))}
-            <Box s={s} at={[TAPE[0] + 0.08, TAPE[1] + 0.17, 0.42 + blade]} size={[0.38, 0.13, 0.08]} stroke={STROKE.micro} detail="none" />
+            {/* end hook: the meaningful accent at the top of the measured length */}
+            <Box s={s} at={[TAPE[0] + 0.04, TAPE[1] + 0.14, 0.42 + blade]} size={[0.46, 0.16, 0.12]} stroke={STROKE.secondary} left={COLORS.accent} right={COLORS.accent} top={COLORS.accent} detail="none" />
           </g>
         ) : null}
         <Suitcase s={s} at={SUIT} open={lid} />

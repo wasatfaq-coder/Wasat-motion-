@@ -30,6 +30,8 @@ export type SurveyState = {
   peak: number;
   small: number;
   frame: number;
+  laneP?: number[]; // per-lane progress (overrides `lines`)
+  marker?: number; // marker opacity after the line is drawn
 };
 
 /** Icons for the short-interval lanes: clock = hour, 7-cell strip = week, calendar sheet = month. */
@@ -61,6 +63,7 @@ const LaneIcon: React.FC<{kind: string; x: number; y: number; p: number}> = ({ki
 /** iso = drawn on the isometric billboard: no cork, pins, crowd, clipboard or text (labels go on frontal plates). */
 export const SurveyBoard: React.FC<{s: SurveyState; iso?: boolean}> = ({s, iso = false}) => {
   const count = Math.round(interpolate(s.count, [0, 1], [0, 499]));
+  const m = iso ? 2 : 1; // the iso billboard is seen small: double the chart strokes
   const evo = evolvePath(EASE.inOut(s.decade), DECADE_PATH);
   const pen = getPointAtLength(DECADE_PATH, Math.max(0.01, DECADE_LEN * EASE.inOut(s.decade)));
   const shortLines = [
@@ -92,9 +95,9 @@ export const SurveyBoard: React.FC<{s: SurveyState; iso?: boolean}> = ({s, iso =
         </>
       )}
       {/* axes drawn like marker on paper */}
-      <line x1={PX0} y1={PY0} x2={PX1} y2={PY0} stroke={COLORS.ink} strokeWidth={LW} strokeLinecap="round" />
-      <g opacity={s.decade > 0 ? Math.min(1, s.decade * 4) : 0}>
-        <line x1={PX0} y1={PY0} x2={PX0} y2={PY0 - 330} stroke={COLORS.ink} strokeWidth={LW} strokeLinecap="round" />
+      <line x1={PX0} y1={PY0} x2={PX1} y2={PY0} stroke={COLORS.ink} strokeWidth={LW * m} strokeLinecap="round" />
+      <g opacity={Math.max(s.decade > 0 ? Math.min(1, s.decade * 4) : 0, s.dimShort)}>
+        <line x1={PX0} y1={PY0} x2={PX0} y2={PY0 - 330} stroke={COLORS.ink} strokeWidth={LW * m} strokeLinecap="round" />
         <path d={`M${PX0 - 12},${PY0 - 314} L${PX0},${PY0 - 336} L${PX0 + 12},${PY0 - 314}`} fill="none" stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
         {/* speed icon instead of words: a small clock with motion lines at the top of the axis */}
         <circle cx={PX0 - 44} cy={PY0 - 320} r={20} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3} />
@@ -119,29 +122,37 @@ export const SurveyBoard: React.FC<{s: SurveyState; iso?: boolean}> = ({s, iso =
       })}
       {/* short intervals: three separate lanes (no shared speed axis), each flat across ages = no change with age */}
       {shortLines.map((l, i) => {
-        const p = interpolate(s.lines, [i * 0.2, i * 0.2 + 0.5], [0, 1], {...cl, easing: EASE.out});
+        const p = s.laneP ? s.laneP[i] : interpolate(s.lines, [i * 0.2, i * 0.2 + 0.5], [0, 1], {...cl, easing: EASE.out});
         const y = PY0 - 70 - i * 95;
         return (
           <g key={l.name} opacity={1 - s.dimShort}>
-            <rect x={PX0 - 10} y={y - 34} width={PX1 - PX0 + 20} height={68} rx={34} fill={COLORS.fillLight} stroke={COLORS.inkSoft} strokeWidth={LW3} opacity={p} />
-            <LaneIcon kind={l.name} x={PX0 + 30} y={y} p={p} />
-            <line x1={PX0 + 70} y1={y} x2={PX0 + 70 + (PX1 - PX0 - 90) * p} y2={y} stroke={COLORS.ink} strokeWidth={LW2} strokeLinecap="round" />
+            <rect x={PX0 - 10} y={y - 34} width={PX1 - PX0 + 20} height={68} rx={34} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3 * m} opacity={p} />
+            <LaneIcon kind={l.name} x={PX0 + 30} y={y} p={p * (iso ? 1.4 : 1)} />
+            <line x1={PX0 + 70} y1={y} x2={PX0 + 70 + (PX1 - PX0 - 90) * p} y2={y} stroke={COLORS.ink} strokeWidth={LW * 1.5 * m} strokeLinecap="round" />
           </g>
         );
       })}
       {/* last 10 years: drawn by a marker */}
       {s.decade > 0 ? (
         <g>
-          <path d={DECADE_PATH} fill="none" stroke={COLORS.accent} strokeWidth={LW * 2} strokeLinecap="round" strokeDasharray={evo.strokeDasharray} strokeDashoffset={evo.strokeDashoffset} />
+          <path d={DECADE_PATH} fill="none" stroke={COLORS.accent} strokeWidth={LW * 2 * m} strokeLinecap="round" strokeDasharray={evo.strokeDasharray} strokeDashoffset={evo.strokeDashoffset} />
           <text x={PX1 - 6} y={PY0 - 300} {...t(44, TYPE.weightBold, COLORS.accent)} textAnchor="end" opacity={s.decade > 0.97 && !iso ? 1 : 0}>
             10 лет
           </text>
-          {s.decade < 1 && pen ? <Marker x={pen.x} y={pen.y} /> : null}
+          {(s.marker ?? (s.decade < 1 ? 1 : 0)) > 0 && pen ? (
+            <g opacity={s.marker ?? 1}>
+              <Marker x={pen.x} y={pen.y} />
+            </g>
+          ) : null}
         </g>
       ) : null}
       {s.peak > 0 ? (
         <g opacity={Math.min(1, s.peak * 2)}>
-          <line x1={PEAK[0]} y1={PEAK[1]} x2={PEAK[0]} y2={PY0} stroke={COLORS.accent} strokeWidth={LW3} strokeDasharray="10 10" />
+          <line x1={PEAK[0]} y1={PEAK[1]} x2={PEAK[0]} y2={PY0} stroke={COLORS.accent} strokeWidth={LW3 * m} strokeDasharray="10 10" />
+          {/* equal drops under the flat part: the level stays the same after ≈50 */}
+          {[0.33, 0.66, 1].map((k) => (
+            <line key={k} x1={PEAK[0] + (PX1 - PEAK[0]) * k} y1={PEAK[1]} x2={PEAK[0] + (PX1 - PEAK[0]) * k} y2={PY0} stroke={COLORS.inkSoft} strokeWidth={LW3 * m} strokeDasharray="10 10" />
+          ))}
           <g transform={`translate(${PEAK[0]} ${PEAK[1] - (1 - s.peak) * 60})`}>
             <Pin x={0} y={0} />
           </g>
@@ -155,7 +166,7 @@ export const SurveyBoard: React.FC<{s: SurveyState; iso?: boolean}> = ({s, iso =
       ) : null}
       {s.small > 0 ? (
         <g opacity={s.small}>
-          <path d={`M${PX1 + 22},${PY0 - 150} l16,0 l0,-130 l-16,0`} fill="none" stroke={COLORS.ink} strokeWidth={LW2} strokeLinejoin="round" />
+          <path d={`M${PX1 + 22},${PY0 - 150} l16,0 l0,-130 l-16,0`} fill="none" stroke={COLORS.ink} strokeWidth={LW2 * m} strokeLinejoin="round" />
         </g>
       ) : null}
       {/* clipboard with the questionnaire, slides away when the crowd appears */}

@@ -17,6 +17,7 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
   const {fps} = useVideoConfig();
   const t = (frame + scene.from) / fps;
   const clamp = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
+  const past = beat(scene, 'past');
   const two = beat(scene, 'two');
   const now = beat(scene, 'now');
   const later = beat(scene, 'later');
@@ -29,9 +30,9 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
   const nowHl = interpolate(frame, [now - 6, now + 8, later - 20, later], [0, 1, 1, 0.2], clamp);
   const laterHl = interpolate(frame, [later - 6, later + 8], [0, 1], clamp);
   void CLOCK;
-  const stopZoom = interpolate(frame, [0, now - 20, now + 10], [1.8, 2.2, 3.4], clamp);
+  const stopZoom = interpolate(frame, [0, now - 20, now + 10], [2.7, 2.9, 3.4], clamp);
   const stopFocus = interpolate(frame, [now - 20, now + 10], [0, 1], {...clamp, easing: EASE.inOut});
-  const stopCam = {focus: roomPoint([5.4 + stopFocus * 0.8, 3.8 + stopFocus * 0.2, 1.6 + stopFocus * 1.3]), zoom: stopZoom, screen: [520, 560] as [number, number]};
+  const stopCam = {focus: roomPoint([4.5 + stopFocus * 0.8, 3.8 + stopFocus * 0.2, 1.6 + stopFocus * 1.3]), zoom: stopZoom, screen: [520, 560] as [number, number]};
   const trayCam = {...CAM_TRAY, zoom: interpolate(frame, [later - 20, later + 20], [2.4, 3.0], clamp), screen: [460, 1000] as [number, number]};
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -50,7 +51,7 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
           <Car s={ROOM_S} at={[interpolate(frame, [now - 60, now + 60], [-2, 13], clamp), 1.5, 0.01]} />
           {/* a bus passes in the first seconds */}
           {(() => {
-            const bx = interpolate(frame, [40, 130], [-6, 14], clamp);
+            const bx = interpolate(frame, [past - 30, past + 40, past + 80, past + 150], [-6, 2.4, 2.4, 14], {...clamp, easing: EASE.inOut}); // the bus arrives on «прошлое», stops, leaves
             return (
               <g>
                 <Box s={ROOM_S} at={[bx, 1.3, 0.15]} size={[3.4, 0.9, 1.2]} stroke={2.5} left={COLORS.fillLight} right={COLORS.fillMid} top={COLORS.fillLight} />
@@ -61,7 +62,8 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
           <BusStop s={ROOM_S} at={[3.4, 3.6, 0]} t={t * (1 + nowHl)} />
           <Tree s={ROOM_S} at={[1.4, 4.2, 0]} t={t} seed="bs1" />
           <LampPost s={ROOM_S} at={[9.4, 3.4, 0]} />
-          <IsoPerson s={ROOM_S} at={[4.6, 4.1, 0]} h={1.05} accent bob={Math.sin(t * 4) * 0.02} />
+          <IsoPerson s={ROOM_S} at={[4.6, 4.1, 0]} h={1.05} bob={Math.sin(t * 4) * 0.02} />
+          <Tree s={ROOM_S} at={[7.0, 5.6, 0]} t={t} seed="bs2" h={1.8} />
           <IsoPerson s={ROOM_S} at={[5.4, 4.3, 0]} h={0.95} />
         </RoomSvg>
       </AbsoluteFill>

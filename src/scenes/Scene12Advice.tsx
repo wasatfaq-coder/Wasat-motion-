@@ -62,8 +62,8 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
   const cs: [number, number] = [CAM_COVER.screen![0] + (clockRoom[0] - CAM_COVER.focus[0]) * CAM_COVER.zoom, CAM_COVER.screen![1] + (clockRoom[1] - CAM_COVER.focus[1]) * CAM_COVER.zoom];
   const startScale = (CLOCK.r * ROOM_S * CAM_COVER.zoom) / 218;
   const coverScale = startScale + (1 - startScale) * loopP;
-  const coverX = (cs[0] - 470) * (1 - loopP);
-  const coverY = (cs[1] - 960) * (1 - loopP);
+  const coverX = (cs[0] - 490) * (1 - loopP);
+  const coverY = (cs[1] - 980) * (1 - loopP);
   const pileTop = (i: number) => DESK.h + 0.06 + i * 0.09 * 0.28;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -92,7 +92,7 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
       </AbsoluteFill>
       {loopP > 0 ? (
         <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: Math.min(1, loopP * 1.6), clipPath: 'inset(240px 0 710px 0)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)', maskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)'}}>
-          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '470px 960px'}}>
+          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '490px 980px'}}>
             <CoverA frame={Math.round(loopP * 40) - 40} />
           </div>
         </AbsoluteFill>

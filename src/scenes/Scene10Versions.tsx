@@ -81,14 +81,16 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
   const cakeIn = interpolate(frame, [0, 18], [0, 1], {...cl, easing: EASE.out});
   const filmP = interpolate(frame, [third + 10, third + 50], [0, 1], cl);
   const scroll = frame * 6;
-  const k = 1.95 / 420; // film px → room units
+  const k = 2.6 / 420; // film px → room units
   const cam = shotCam(frame, [
     [0, {focus: roomPoint([5.0, 4.6, 2.4]), zoom: 1.45, screen: [500, 760]}], // the festive room
-    [second + 20, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.3, screen: [500, 760]}], // the cake
+    [60, {focus: roomPoint([5.0, 4.4, 2.8]), zoom: 1.8, screen: [500, 760]}], // «не единственная версия»: push in on the table
+    [second - 4, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.3, screen: [500, 760]}], // the cake
     [tenth - 20, {focus: roomPoint([CAKE[0] + 0.5, CAKE[1] + 0.5, 3.0]), zoom: 3.2, screen: [500, 760]}], // the slice comes out
-    [tiny - 1.3 * fps, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.0, screen: [500, 760]}], // the cake grows: 50 candles
-    [third - 20, {focus: roomPoint([4.9, 8.6, 2.8]), zoom: 1.9, screen: [500, 760]}], // the sofa: child and grandparent
-    [images - 30, {focus: roomPoint([4.9, 8.6, 3.5]), zoom: 2.2, screen: [500, 760]}],
+    [tiny - 2.0 * fps, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.0, screen: [500, 760]}], // pull back first («С годами»), then the cake grows in frame
+    [third - 20, {focus: roomPoint([4.0, 8.9, 3.0]), zoom: 2.4, screen: [520, 780]}], // the sofa: child and grandparent
+    [third + 60, {focus: roomPoint([4.2, 8.9, 3.4]), zoom: 2.6, screen: [520, 740]}], // the films: 8 frames vs 4 frames
+    [images - 6, {focus: roomPoint([3.1, 8.9, 3.9]), zoom: 3.1, screen: [520, 720]}], // «больше картинок»: punch in on the child's long film,
   ]);
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -130,11 +132,11 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
         <Line3 s={s} width={STROKE.main} points={[[6.7, 9.6, 0], [6.55, 9.4, 1.6], [6.3, 9.4, 1.75]]} />
         {/* each camera "prints" its film: a strip above the head, linked to the lens by a dashed beam */}
         {[
-          {x: 3.0, z: 3.6, n: 8, cam: [4.14, 8.94, 1.88] as P3},
-          {x: 5.1, z: 4.0, n: 4, cam: [6.14, 8.94, 2.18] as P3},
+          {x: 1.8, z: 4.2, n: 8, cam: [4.14, 8.94, 1.88] as P3},
+          {x: 4.7, z: 4.6, n: 4, cam: [6.14, 8.94, 2.18] as P3},
         ].map(({x, z, n, cam}, i) => (
           <g key={`f${i}`} opacity={filmP > 0 ? 1 : 0}>
-            <Line3 s={s} width={STROKE.micro} color={COLORS.inkSoft} dash="4 5" points={[cam, [x + 0.97, 8.9, z - 0.56]]} />
+            <Line3 s={s} width={STROKE.micro} color={COLORS.inkSoft} dash="4 5" points={[cam, [x + 1.3, 8.9, z - 0.74]]} />
             <g transform={`${planeMatrix(s, 'wallX', [x, 8.9, z])} scale(${k}) translate(${-40} ${-380})`}>
               <Film id={`s10-${i}`} x={40} y={380} w={420} frames={n} scroll={scroll * (i ? 0.7 : 1.6)} reveal={filmP} />
             </g>

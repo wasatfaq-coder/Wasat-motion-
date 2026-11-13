@@ -58,15 +58,33 @@ export const FlyingPage: React.FC<{p: number; landingZ: number}> = ({p, landingZ
   const fx = COS30 * (cx - cy) * s;
   const fy = SIN30 * (cx + cy) * s - landingZ * s;
   const floor: M = [COS30 * s * sx, SIN30 * s * sx, -COS30 * s * sy, SIN30 * s * sy, fx, fy];
-  const e = EASE.inOut(p);
+  // physics: A) peel-off anticipation, B) parabolic flight with spin and flutter, C) landing squash + damped bounce
+  const A = 0.14;
+  const C = 0.84;
+  const peel = Math.min(1, p / A);
+  const q = Math.max(0, Math.min(1, (p - A) / (C - A)));
+  const land = Math.max(0, (p - C) / (1 - C));
+  const e = EASE.inOut(q);
   const m = lerpM(wall, floor, e);
-  const lift = Math.sin(Math.PI * p) * 70; // arc
-  m[5] -= lift;
-  const spin = Math.sin(Math.PI * p) * 18;
+  const arc = 4 * Math.pow(q, 0.85) * (1 - q); // gravity-like: rises fast, falls a bit later
+  m[5] -= arc * 120 + (p < A ? Math.sin(peel * Math.PI) * 10 : 0);
+  m[4] += Math.sin(q * Math.PI) * 30; // slight drift sideways
+  const bounce = land > 0 ? Math.abs(Math.sin(land * Math.PI * 2)) * (1 - land) * 10 : 0;
+  m[5] -= bounce;
+  const spin = q > 0 ? Math.sin(q * Math.PI) * 32 + Math.sin(q * 18) * 6 * (1 - q) : -peel * 8;
+  const squash = land > 0 ? 1 - Math.sin(land * Math.PI) * 0.12 * (1 - land) : 1;
+  // shadow on the tray grows and darkens as the page comes down
+  const [shx, shy] = [fx + COS30 * s * (TRAY.w - 0.3) * 0.5 - COS30 * s * (TRAY.d - 0.3) * 0.5, fy + SIN30 * s * ((TRAY.w - 0.3) + (TRAY.d - 0.3)) * 0.5];
+  const shadow = q > 0.2 ? Math.min(1, (q - 0.2) / 0.8) : 0;
   return (
-    <g transform={`matrix(${m.join(',')})`}>
-      <g transform={`rotate(${spin} ${pw / 2} ${ph / 2})`}>
-        <CalendarPage w={pw} h={ph} accent={1 - Math.max(0, (p - 0.6) / 0.4)} />
+    <g>
+      {shadow > 0 && land < 1 ? (
+        <ellipse cx={shx} cy={shy} rx={30 + 20 * shadow} ry={10 + 7 * shadow} fill={COLORS.ink} opacity={0.08 + 0.1 * shadow} />
+      ) : null}
+      <g transform={`matrix(${m.join(',')})`}>
+        <g transform={`rotate(${spin} ${pw / 2} ${ph / 2}) translate(${pw / 2} ${ph / 2}) scale(1 ${squash}) skewX(${p < A ? peel * 10 : Math.sin(q * 14) * 4 * (1 - q)}) translate(${-pw / 2} ${-ph / 2})`}>
+          <CalendarPage w={pw} h={ph} accent={1 - Math.max(0, (p - 0.6) / 0.4)} />
+        </g>
       </g>
     </g>
   );

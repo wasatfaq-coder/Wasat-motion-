@@ -7,7 +7,7 @@ import {Box, Line3} from './primitives';
 // Room in isometric units. Back corner floor = (0,0,0).
 export const ROOM = {W: 10, D: 10, H: 7} as const;
 export const DESK = {x: 3.4, y: 0.5, w: 5.2, d: 2.1, h: 2.4} as const;
-export const TRAY = {x: 6.1, y: 0.75, w: 1.8, d: 1.4, h: 0.45} as const;
+export const TRAY = {x: 6.2, y: 0.65, w: 1.8, d: 1.4, h: 0.45} as const;
 export const CLOCK = {u: 7.0, z: 5.0, r: 0.85} as const;
 export const CAL = {u: 3.9, z: 5.9, w: 1.5, h: 2.1} as const;
 
@@ -189,21 +189,32 @@ export const Desk: React.FC<{s: number; t: number}> = React.memo(({s, t}) => {
       <Box s={s} at={[x, y, h - 0.15]} size={[w, d, 0.15]} />
       {/* lamp */}
       <DeskLamp s={s} base={[x + 0.7, y + 0.6, h]} />
-      {/* notebook */}
-      <Box s={s} at={[x + 1.5, y + 1.1, h]} size={[1.3, 0.85, 0.08]} stroke={STROKE.secondary} />
-      <Line3 s={s} points={[[x + 1.7, y + 1.3, h + 0.09], [x + 2.6, y + 1.3, h + 0.09]]} width={STROKE.micro} color={COLORS.inkSoft} />
-      <Line3 s={s} points={[[x + 1.7, y + 1.55, h + 0.09], [x + 2.4, y + 1.55, h + 0.09]]} width={STROKE.micro} color={COLORS.inkSoft} />
-      {/* pen cup with pencils */}
-      <Box s={s} at={[x + 4.6, y + 0.3, h]} size={[0.32, 0.32, 0.45]} stroke={STROKE.secondary} />
-      <Line3 s={s} points={[[x + 4.7, y + 0.42, h + 0.45], [x + 4.6, y + 0.35, h + 0.95]]} width={STROKE.secondary} />
-      <Line3 s={s} points={[[x + 4.8, y + 0.45, h + 0.45], [x + 4.95, y + 0.4, h + 0.9]]} width={STROKE.secondary} />
-      <Line3 s={s} points={[[x + 4.75, y + 0.5, h + 0.45], [x + 4.78, y + 0.6, h + 1.0]]} width={STROKE.secondary} />
-      {/* stack of papers */}
-      <Box s={s} at={[x + 0.9, y + 1.45, h]} size={[0.75, 0.55, 0.05]} stroke={STROKE.micro} />
-      <Box s={s} at={[x + 0.93, y + 1.42, h + 0.05]} size={[0.75, 0.55, 0.05]} stroke={STROKE.micro} />
-      {/* cup with a faint steam line */}
-      <Box s={s} at={[x + 3.2, y + 1.4, h]} size={[0.35, 0.35, 0.4]} stroke={STROKE.secondary} />
-      <Line3 s={s} points={[[x + 3.37, y + 1.57, h + 0.55], [x + 3.37 + 0.05 * Math.sin(t * 2), y + 1.57, h + 0.8], [x + 3.37, y + 1.57, h + 1.05]]} width={STROKE.micro} color={COLORS.inkSoft} />
+      {/* layout on the desk (no overlaps): lamp back-left · cup front-left · notebook · papers · memory tray · pen cup front-right */}
+      {/* coffee cup on a saucer, with a handle and steam */}
+      <g transform={planeMatrix(s, 'floor', [x + 0.4, y + 1.65, h + 0.005])}>
+        <ellipse cx={0} cy={0} rx={0.3} ry={0.3} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} vectorEffect="non-scaling-stroke" />
+      </g>
+      <Box s={s} at={[x + 0.25, y + 1.5, h + 0.02]} size={[0.3, 0.3, 0.36]} stroke={STROKE.secondary} />
+      <Line3 s={s} points={[[x + 0.55, y + 1.6, h + 0.3], [x + 0.68, y + 1.62, h + 0.27], [x + 0.68, y + 1.68, h + 0.12], [x + 0.55, y + 1.7, h + 0.1]]} width={STROKE.secondary} />
+      <Line3 s={s} points={[[x + 0.4, y + 1.65, h + 0.5], [x + 0.4 + 0.05 * Math.sin(t * 2), y + 1.65, h + 0.75], [x + 0.4, y + 1.65, h + 1.0]]} width={STROKE.micro} color={COLORS.inkSoft} />
+      {/* notebook: cover, spiral, a pen lying on it */}
+      <Box s={s} at={[x + 0.95, y + 1.1, h]} size={[1.25, 0.9, 0.09]} stroke={STROKE.secondary} top={COLORS.fillLight} />
+      {Array.from({length: 7}, (_, i) => (
+        <Line3 key={i} s={s} points={[[x + 1.0, y + 1.17 + i * 0.12, h + 0.09], [x + 1.08, y + 1.17 + i * 0.12, h + 0.14]]} width={STROKE.micro} />
+      ))}
+      <Line3 s={s} points={[[x + 1.25, y + 1.3, h + 0.095], [x + 2.0, y + 1.3, h + 0.095]]} width={STROKE.micro} color={COLORS.inkSoft} />
+      <Line3 s={s} points={[[x + 1.25, y + 1.5, h + 0.095], [x + 1.85, y + 1.5, h + 0.095]]} width={STROKE.micro} color={COLORS.inkSoft} />
+      <Box s={s} at={[x + 1.3, y + 1.72, h + 0.1]} size={[0.75, 0.06, 0.05]} stroke={STROKE.micro} top={COLORS.fillDark} />
+      {/* stack of papers with a binder clip */}
+      <Box s={s} at={[x + 2.35, y + 1.25, h]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
+      <Box s={s} at={[x + 2.38, y + 1.22, h + 0.04]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
+      <Box s={s} at={[x + 2.4, y + 1.2, h + 0.08]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
+      <Box s={s} at={[x + 2.6, y + 1.18, h + 0.12]} size={[0.25, 0.08, 0.06]} stroke={STROKE.micro} top={COLORS.ink} />
+      {/* pen cup with pencils, front-right corner */}
+      <Box s={s} at={[x + 4.7, y + 1.55, h]} size={[0.32, 0.32, 0.45]} stroke={STROKE.secondary} />
+      <Line3 s={s} points={[[x + 4.8, y + 1.67, h + 0.45], [x + 4.72, y + 1.6, h + 0.95]]} width={STROKE.secondary} />
+      <Line3 s={s} points={[[x + 4.9, y + 1.7, h + 0.45], [x + 5.02, y + 1.66, h + 0.9]]} width={STROKE.secondary} />
+      <Line3 s={s} points={[[x + 4.85, y + 1.75, h + 0.45], [x + 4.88, y + 1.85, h + 1.0]]} width={STROKE.secondary} />
     </g>
   );
 });
@@ -227,6 +238,12 @@ export const CardTray: React.FC<{
   const pileTop = z0 + 0.06 + cards.length * thickness * squash;
   return (
     <g>
+      {/* soft hatch shadow on the desk (light from the upper left → shadow to the lower right) */}
+      <g transform={planeMatrix(s, 'floor', [x + 0.15, y + 0.2, z0 + 0.003])}>
+        {Array.from({length: 9}, (_, i) => (
+          <line key={i} x1={w + 0.02} y1={0.1 + i * 0.16} x2={w + 0.18} y2={-0.02 + i * 0.16} stroke={COLORS.inkSoft} strokeWidth={1.2} vectorEffect="non-scaling-stroke" />
+        ))}
+      </g>
       {/* back walls */}
       <Box s={s} at={[x, y, z0]} size={[w, wall, h]} stroke={STROKE.secondary} />
       <Box s={s} at={[x, y, z0]} size={[wall, d, h]} stroke={STROKE.secondary} />

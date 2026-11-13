@@ -34,8 +34,8 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
     const open = interpolate(frame, [0.2 * fps, nw + 20], [0, 1], {...clamp, easing: EASE.inOut});
     const cam = shotCam(frame, [
       [0, {focus: roomPoint([LOOP.c[0] + LOOP.rx, LOOP.c[1], 0.4]), zoom: 2.3, screen: [484, 800]}], // the ring breaks open
-      [nw - 50, {focus: roomPoint([11.6, 4.4, 1.0]), zoom: 1.5, screen: [484, 800]}], // new roads to new places
-      [nw + 30, {focus: roomPoint([9.0, 3.6, 2.0]), zoom: 1.2, screen: [484, 760]}], // cards fly home
+      [nw - 50, {focus: roomPoint([12.0, 5.4, 1.2]), zoom: 1.4, screen: [484, 800]}], // new roads to new places
+      [nw + 30, {focus: roomPoint([7.6, 4.6, 2.0]), zoom: 1.1, screen: [484, 760]}], // cards fly home
     ]);
     return (
       <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -62,12 +62,12 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
   const cs: [number, number] = [CAM_COVER.screen![0] + (clockRoom[0] - CAM_COVER.focus[0]) * CAM_COVER.zoom, CAM_COVER.screen![1] + (clockRoom[1] - CAM_COVER.focus[1]) * CAM_COVER.zoom];
   const startScale = (CLOCK.r * ROOM_S * CAM_COVER.zoom) / 218;
   const coverScale = startScale + (1 - startScale) * loopP;
-  const coverX = (cs[0] - 470) * (1 - loopP);
-  const coverY = (cs[1] - 960) * (1 - loopP);
+  const coverX = (cs[0] - 490) * (1 - loopP);
+  const coverY = (cs[1] - 980) * (1 - loopP);
   const pileTop = (i: number) => DESK.h + 0.06 + i * 0.09 * 0.28;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
-      <AbsoluteFill style={{opacity: 1 - interpolate(loopP, [0.5, 0.95], [0, 1], clamp)}}>
+      <AbsoluteFill>
       <RoomStage
         cam={cam}
         t={t}
@@ -91,8 +91,8 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
       />
       </AbsoluteFill>
       {loopP > 0 ? (
-        <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: Math.min(1, loopP * 1.6), clipPath: 'inset(240px 0 710px 0)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)', maskImage: 'linear-gradient(to bottom, transparent 240px, black 330px, black 1120px, transparent 1210px)'}}>
-          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '470px 960px'}}>
+        <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
+          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '490px 980px'}}>
             <CoverA frame={Math.round(loopP * 40) - 40} />
           </div>
         </AbsoluteFill>

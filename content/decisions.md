@@ -23,3 +23,17 @@
 | 2026-11-12 | Future topics: one repository, a folder per topic projects/<slug>/; shared rules, agents and code in the root (restructure after this video is delivered) | user |
 | 2026-11-12 | Merge PR #1 into main after the video is delivered | user |
 | 2026-11-12 | User asked to merge PR #1 now (before the master render) so new topics can start from main | user |
+| 2026-11-12 | Visual rework after user review: isometric vector everywhere (survey chart too, labels stay frontal on plates), detailed objects (3 levels), motion physics (anticipation, arcs, rotation, landing squash/bounce, follow-through, shadows), living components where meaningful, one accent colour only (coral) + neutrals, no object collisions | user |
+| 2026-11-12 | Order: first a 10–15 s sample (desk, head cabinet, city block) for approval, then the rest | user |
+
+## Visual rework 2 (user audit)
+- Scene 8: own location «архив памяти». The head metaphor was rejected by the user («выглядит не красиво») and replaced by a card catalogue (user's choice).
+- Tray on the desk: no coral picture, only a neutral label holder (user).
+- Scenes 3, 4, 10, 11: isometric.
+  - Survey chart on a street billboard; labels «14», «94», «10 лет», «≈50 лет» on frontal plates.
+  - Scene 10: birthday room.
+  - Scene 11: lab.
+- Location reuse is allowed only per content/locations-allow.json; the room is the through-line bridge (scenes 1, 2, 5, 6, 7, 9, 12).
+- Tools:
+  - scripts/audit.mjs: static checks, no rendering.
+  - scripts/contact-sheet.mjs: 2 fps stills per scene for the gate, without rendering video.

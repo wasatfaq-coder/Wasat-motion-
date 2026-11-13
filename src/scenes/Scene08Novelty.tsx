@@ -1,133 +1,146 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {COLORS} from '../theme/tokens';
+import {COLORS, STROKE} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE, mix} from '../lib/anim';
-import {Cam2D, FrontalSvg, lerpCam2D, LW, LW2, LW3, RoomWallBackdrop} from '../illustrations/Board';
-import {CARD_H, CARD_W, HEAD_PATH, MemoryCard} from '../illustrations/MemoryCards';
+import {RoomSvg, ROOM_S, roomPoint} from './RoomScene';
+import {shotCam} from './shots';
+import {ArchiveShell, Dust, PendantLamp} from '../illustrations/Archive';
+import {CardCatalog, CATALOG, CATALOG_TOP, DRAWER, drawerCell, drawerSlide, ImpressionCard} from '../illustrations/CardCatalog';
+import {Suitcase} from '../illustrations/Props';
+import {Box, Line3} from '../illustrations/primitives';
+import {COS30, iso, P3, pts, SIN30} from '../lib/iso';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
-const KINDS = ['street', 'ticket', 'wave'] as const;
-
-// World layout (frontal): a big head = memory cabinet with drawers; a suitcase on the floor; a tape measure.
-const HEAD = {x: 70, y: 330, s: 2.2}; // HEAD_PATH box ≈ 260 × 300 → ≈ 600 × 690
-const DRAWERS = {x: 200, y: 460, cols: 3, rows: 4, w: 116, h: 76, gap: 12};
-const SUITCASE = {x: 740, y: 940, w: 230, h: 165};
-const drawerPos = (k: number): [number, number] => {
-  const c = k % DRAWERS.cols;
-  const r = Math.floor(k / DRAWERS.cols);
-  return [DRAWERS.x + c * (DRAWERS.w + DRAWERS.gap), DRAWERS.y + r * (DRAWERS.h + DRAWERS.gap)];
+const s = ROOM_S;
+const CAT_AT: P3 = [3.4, 5.8, 0];
+const SUIT: P3 = [4.4, 8.3, 0];
+const TAPE: P3 = [CAT_AT[0] + CATALOG.W + 0.25, CAT_AT[1] - 1.0, 0]; // against the side panel: it measures the cabinet
+const N = DRAWER.cols * DRAWER.rows;
+/** Fill order: bottom row first, so the column of filled drawers grows upwards next to the tape. */
+const slot = (k: number) => {
+  const r = DRAWER.rows - 1 - Math.floor(k / DRAWER.cols);
+  return r * DRAWER.cols + (k % DRAWER.cols);
 };
 
-const Drawer: React.FC<{x: number; y: number; open: number; lit: number}> = ({x, y, open, lit}) => (
-  <g transform={`translate(${x + open * 40} ${y})`}>
-    <rect x={0} y={0} width={DRAWERS.w} height={DRAWERS.h} rx={8} fill={lit > 0.5 ? COLORS.accentSoft : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3} />
-    <rect x={DRAWERS.w / 2 - 22} y={DRAWERS.h / 2 - 7} width={44} height={14} rx={7} fill={lit > 0.5 ? COLORS.accent : COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW3} />
-  </g>
-);
+type M = [number, number, number, number, number, number];
+const floorM = (p: P3): M => {
+  const [x, y] = iso(s)(p);
+  return [COS30 * s, SIN30 * s, -COS30 * s, SIN30 * s, x, y];
+};
+const wallM = (p: P3): M => {
+  const [x, y] = iso(s)(p);
+  return [COS30 * s, SIN30 * s, 0, s, x, y];
+};
 
-const Suitcase2D: React.FC<{open: number}> = ({open}) => {
-  const {x, y, w, h} = SUITCASE;
+/** Card flight with physics: A) pops out of the suitcase (anticipation dip), B) arc with spin and a tilt towards the
+ *  vertical, C) lands flat on the open drawer with a squash. The floor shadow shrinks as the card rises. */
+const FlightCard: React.FC<{p: number; from: P3; to: P3}> = ({p, from, to}) => {
+  const A = 0.15;
+  const C = 0.88;
+  const q = Math.max(0, Math.min(1, (p - A) / (C - A)));
+  const land = Math.max(0, (p - C) / (1 - C));
+  const e = EASE.inOut(q);
+  const dip = p < A ? -Math.sin((p / A) * Math.PI) * 0.12 : 0;
+  const pop = p < A ? (p / A) * 0.5 : 0.5 * (1 - e);
+  const h = 4 * q * (1 - q) * 1.8;
+  const pos: P3 = [mix(from[0], to[0], e), mix(from[1], to[1], e), mix(from[2] + pop, to[2], e) + h + dip + (land > 0 ? Math.abs(Math.sin(land * Math.PI * 2)) * (1 - land) * 0.08 : 0)];
+  const tilt = Math.sin(q * Math.PI) * 0.55;
+  const a = floorM(pos);
+  const b = wallM(pos);
+  const m = a.map((v, i) => v + (b[i] - v) * tilt) as M;
+  const spin = (1 - e) * 220 + Math.sin(q * 12) * 6 * (1 - q);
+  const squash = land > 0 ? 1 - Math.sin(land * Math.PI) * 0.18 : 1;
+  const size = mix(1.8, 1, e); // big in the air (readable), card size when it lands
+  const [sx, sy] = iso(s)([pos[0], pos[1], 0]);
+  const shadow = Math.max(0.25, 1 - pos[2] / 6);
   return (
     <g>
-      <rect x={x + 8} y={y + 10} width={w} height={h} rx={18} fill={COLORS.fillDark} />
-      <rect x={x} y={y} width={w} height={h} rx={18} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
-      <path d={`M${x + 80},${y} L${x + 80},${y - 30} L${x + 160},${y - 30} L${x + 160},${y}`} fill="none" stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
-      {[60, 180].map((u) => (
-        <line key={u} x1={x + u} y1={y} x2={x + u} y2={y + h} stroke={COLORS.ink} strokeWidth={LW3} />
-      ))}
-      <circle cx={x + 120} cy={y + 85} r={28} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={LW3} />
-      {/* lid flips open */}
-      <g transform={`translate(${x} ${y}) scale(1 ${1 - open * 1.6})`}>
-        <rect x={0} y={-20} width={w} height={20} rx={8} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW3} />
+      <ellipse cx={sx} cy={sy} rx={0.42 * s * shadow} ry={0.2 * s * shadow} fill={COLORS.ink} opacity={0.12 * shadow} />
+      <g transform={`matrix(${m.join(',')})`}>
+        <g transform={`rotate(${spin}) scale(${size} ${size * squash})`}>
+          <ImpressionCard />
+        </g>
       </g>
     </g>
   );
 };
 
-/** Scene 8: novelty. New impressions fly from a suitcase into the drawers of a head-shaped memory cabinet; a tape measure shows the period getting longer. */
+/** Scene 8 (memory archive): new impressions fly out of the suitcase as cards and land in the drawers of a
+ *  card catalogue (drawers slide out, take the card, close and light up); a tape measure beside the catalogue grows
+ *  with the filled column and overshoots on «длинным»: the period seems longer. */
 export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const t = (frame + scene.from) / fps;
   const novelty = beat(scene, 'novelty');
   const streets = beat(scene, 'streets');
   const brain = beat(scene, 'brain');
   const memories = beat(scene, 'memories');
   const long = beat(scene, 'long');
-  const open = interpolate(frame, [novelty - 10, novelty + 16], [0, 1], {...cl, easing: EASE.overshoot});
-  // cards: three shown big near the suitcase on "улицы", then 9 more fly into drawers until "длинным"
-  const big = KINDS.map((_, i) => interpolate(frame, [streets - 10 + i * 12, streets + 14 + i * 12], [0, 1], {...cl, easing: EASE.overshoot}));
-  const flyStart = (k: number) => memories - 50 + k * 7;
-  const flight = 0.5 * fps;
-  const drawerCount = DRAWERS.cols * DRAWERS.rows;
-  const filled = Array.from({length: drawerCount}, (_, k) => interpolate(frame, [flyStart(k) + flight - 4, flyStart(k) + flight + 6], [0, 1], cl));
-  const tape = interpolate(frame, [brain - 10, brain + 0.8 * fps], [0, 1], {...cl, easing: EASE.out}) * (0.45 + 0.55 * interpolate(frame, [long - 1.0 * fps, long + 0.2 * fps], [0, 1], {...cl, easing: EASE.inOut}));
-  const shots: [number, Cam2D][] = [
-    [0, {focus: [500, 760], zoom: 0.85, screen: [484, 720]}], // wide: room with the head cabinet, window, shelf and suitcase
-    [novelty - 20, {focus: [SUITCASE.x + 60, SUITCASE.y - 40], zoom: 1.7, screen: [484, 780]}], // suitcase opens
-    [streets - 16, {focus: [SUITCASE.x - 60, SUITCASE.y - 200], zoom: 1.35, screen: [484, 760]}], // the three big cards
-    [brain - 20, {focus: [430, 640], zoom: 1.3, screen: [484, 740]}], // the head = memory cabinet
-    [memories - 30, {focus: [400, 700], zoom: 1.55, screen: [484, 760]}], // drawers fill
-    [long - 1.1 * fps, {focus: [520, 720], zoom: 0.85, screen: [484, 720]}], // the tape measure grows: long period
-  ];
-  let cam = shots[0][1];
-  for (let i = 1; i < shots.length; i++) cam = lerpCam2D(cam, shots[i][1], interpolate(frame, [shots[i][0], shots[i][0] + 0.55 * fps], [0, 1], cl));
-  const tapeX = 680;
-  const tapeBottom = 1090;
-  const tapeTop = tapeBottom - tape * 760;
+  const lid = interpolate(frame, [novelty - 10, novelty + 14], [0, 1], {...cl, easing: EASE.overshoot});
+  const first = novelty + 8;
+  const start = (k: number) => first + k * ((memories + 20 - first) / N);
+  const flight = Math.round(0.75 * fps);
+  const open: number[] = Array(N).fill(0);
+  const lit: number[] = Array(N).fill(0);
+  const holding: number[] = Array(N).fill(0);
+  for (let k = 0; k < N; k++) {
+    const d = frame - start(k) - flight;
+    const j = slot(k);
+    // opens with a small overshoot (bounce), closes smoothly
+    open[j] = d < -3 ? interpolate(d, [-16, -3], [0, 1], {...cl, easing: EASE.overshoot}) : interpolate(d, [2, 16], [1, 0], {...cl, easing: EASE.inOut});
+    lit[j] = d > 8 ? 1 : 0;
+    holding[j] = d >= 0 ? 1 : 0;
+  }
+  // continuous fill (no steps): each landed card adds its share over 20 frames
+  const filled = Array.from({length: N}, (_, k) => interpolate(frame - start(k) - flight, [0, 20], [0, 1], cl)).reduce((a, b) => a + b, 0);
+  // tape: appears on «мозг меряет», follows the filled column, overshoots above the catalogue on «длинным»
+  const show = interpolate(frame, [brain - 12, brain + 6], [0, 1], cl);
+  const blade =
+    show * (0.5 + (filled / N) * (CATALOG_TOP - 0.8) * interpolate(frame, [brain - 12, brain + 20], [0, 1], cl)) +
+    interpolate(frame, [long - 0.9 * fps, long + 0.25 * fps], [0, 4.2], {...cl, easing: EASE.overshoot});
+  const src: P3 = [SUIT[0] + 0.9, SUIT[1] + 0.35, 1.3];
+  const cam = shotCam(frame, [
+    [0, {focus: roomPoint([5.0, 5.4, 2.6]), zoom: 1.25, screen: [520, 740]}], // the archive: racks, ladder, catalogue
+    [novelty - 20, {focus: roomPoint([4.8, 7.6, 2.0]), zoom: 1.75, screen: [520, 700]}], // suitcase opens, first card
+    [streets - 10, {focus: roomPoint([4.8, 6.8, 2.6]), zoom: 1.6, screen: [520, 740]}], // cards arc into the catalogue
+    [streets + 50, {focus: roomPoint([4.9, 6.2, 3.0]), zoom: 2.2, screen: [520, 720]}], // «по одной из версий»: push in on the flying cards
+    [brain - 20, {focus: roomPoint([5.4, 5.6, 3.2]), zoom: 1.9, screen: [520, 720]}], // the tape appears
+    [memories - 30, {focus: roomPoint([4.9, 5.8, 2.9]), zoom: 2.4, screen: [520, 720]}], // drawers take the cards
+    [long - 1.2 * fps, {focus: roomPoint([TAPE[0], TAPE[1], CATALOG_TOP + 1.0]), zoom: 2.6, screen: [520, 760]}], // «длинным»: the tape overshoots above the catalogue
+  ]);
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
-      <FrontalSvg cam={cam}>
-        <RoomWallBackdrop frame={frame} window={[700, 300]} shelf={-260} />
-        {/* head = memory cabinet */}
-        <g transform={`translate(${HEAD.x} ${HEAD.y}) scale(${HEAD.s})`}>
-          <path d="M40,420 L40,330 C40,300 80,288 120,288 L210,288 C250,288 290,300 290,330 L290,420 Z" fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW / HEAD.s} strokeLinejoin="round" />
-          <path d={HEAD_PATH} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW / HEAD.s} strokeLinejoin="round" />
-        </g>
-        {Array.from({length: drawerCount}, (_, k) => {
-          const [x, y] = drawerPos(k);
-          const pulse = interpolate(frame, [flyStart(k) + flight - 6, flyStart(k) + flight, flyStart(k) + flight + 12], [0, 1, 0], cl);
-          return <Drawer key={k} x={x} y={y} open={pulse} lit={filled[k]} />;
-        })}
-        <Suitcase2D open={open} />
-        {/* three big new-impression cards rise from the suitcase */}
-        {KINDS.map((k, i) => {
-          const p = big[i];
-          if (p <= 0 || frame > memories - 40) return null;
-          const x = SUITCASE.x - 260 + i * 120;
-          const y = SUITCASE.y - 300 - i * 40;
-          return (
-            <g key={k} transform={`translate(${x + CARD_W / 2} ${y + CARD_H / 2}) rotate(${(i - 1) * 8}) scale(${p}) translate(${-CARD_W / 2} ${-CARD_H / 2})`}>
-              <MemoryCard kind={k} />
-            </g>
-          );
-        })}
-        {/* small cards fly from the suitcase into drawers */}
-        {Array.from({length: drawerCount}, (_, k) => {
-          const p = (frame - flyStart(k)) / flight;
-          if (p <= 0 || p >= 1) return null;
-          const e = EASE.inOut(p);
-          const [dx, dy] = drawerPos(k);
-          const x = mix(SUITCASE.x + 80, dx + 20, e);
-          const y = mix(SUITCASE.y - 20, dy + 10, e) - Math.sin(Math.PI * p) * 160;
-          return (
-            <g key={k} transform={`translate(${x} ${y}) scale(0.35) rotate(${(1 - e) * 30})`}>
-              <MemoryCard kind={KINDS[k % 3]} />
-            </g>
-          );
-        })}
-        {/* tape measure: no numbers, only ticks — "the period seems longer", not a measurement */}
-        {tape > 0 ? (
+      <RoomSvg cam={cam}>
+        <ArchiveShell s={s} t={t} />
+        <PendantLamp s={s} at={[3.6, 3.2, 7.5]} t={t} />
+        <PendantLamp s={s} at={[8.0, 3.6, 7.5]} t={t} phase={1.7} />
+        <Dust s={s} at={[3.8, 3.6, 1.6]} t={t} />
+        <CardCatalog s={s} at={CAT_AT} open={open} lit={lit} holding={holding} />
+        {/* tape measure beside the catalogue: coral case, blade with ticks (no numbers) */}
+        <Box s={s} at={TAPE} size={[0.5, 0.5, 0.42]} left={show > 0.5 ? COLORS.accent : COLORS.fillMid} right={show > 0.5 ? COLORS.accent : COLORS.fillDark} />
+        {blade > 0.05 ? (
           <g>
-            <rect x={tapeX - 40} y={tapeBottom - 10} width={80} height={70} rx={14} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={LW} />
-            <rect x={tapeX - 14} y={tapeTop} width={28} height={tapeBottom - tapeTop} fill="#F8E7B5" stroke={COLORS.ink} strokeWidth={LW3} />
-            {Array.from({length: Math.floor((tapeBottom - tapeTop) / 30)}, (_, i) => (
-              <line key={i} x1={tapeX - 14} y1={tapeBottom - i * 30} x2={tapeX + (i % 2 ? 0 : 6)} y2={tapeBottom - i * 30} stroke={COLORS.ink} strokeWidth={LW3} />
+            {/* soft halo behind the blade mutes the busy racks */}
+            <polygon points={pts(s, [[TAPE[0] - 0.3, TAPE[1] + 0.2, 0.42], [TAPE[0] + 0.9, TAPE[1] + 0.2, 0.42], [TAPE[0] + 0.9, TAPE[1] + 0.2, 0.42 + blade + 0.4], [TAPE[0] - 0.3, TAPE[1] + 0.2, 0.42 + blade + 0.4]])} fill={COLORS.bg} opacity={0.75} />
+            <Box s={s} at={[TAPE[0] + 0.02, TAPE[1] + 0.2, 0.42]} size={[0.5, 0.08, blade]} stroke={STROKE.main} left={COLORS.fillLight} right={COLORS.fillMid} detail="none" />
+            {Array.from({length: Math.floor(blade / 0.25)}, (_, i) => (
+              <Line3 key={i} s={s} width={i % 4 === 3 ? STROKE.main : STROKE.secondary} points={[[TAPE[0] + 0.08, TAPE[1] + 0.28, 0.42 + (i + 1) * 0.25], [TAPE[0] + (i % 4 === 3 ? 0.36 : i % 2 ? 0.2 : 0.28), TAPE[1] + 0.28, 0.42 + (i + 1) * 0.25]]} />
             ))}
-            <path d={`M${tapeX - 24},${tapeTop + 4} L${tapeX},${tapeTop - 24} L${tapeX + 24},${tapeTop + 4}`} fill="none" stroke={COLORS.accent} strokeWidth={LW2} strokeLinejoin="round" />
+            {/* end hook: the meaningful accent at the top of the measured length */}
+            <Box s={s} at={[TAPE[0] + 0.04, TAPE[1] + 0.14, 0.42 + blade]} size={[0.46, 0.16, 0.12]} stroke={STROKE.secondary} left={COLORS.accent} right={COLORS.accent} top={COLORS.accent} detail="none" />
           </g>
         ) : null}
-      </FrontalSvg>
+        <Suitcase s={s} at={SUIT} open={lid} />
+        {Array.from({length: N}, (_, k) => {
+          const p = (frame - start(k)) / flight;
+          if (p <= 0 || p >= 1) return null;
+          const {u, zTop} = drawerCell(slot(k));
+          const to: P3 = [CAT_AT[0] + u + DRAWER.w / 2, CAT_AT[1] + drawerSlide(1) / 2, CAT_AT[2] + zTop + 0.01];
+          return <FlightCard key={k} p={p} from={src} to={to} />;
+        })}
+      </RoomSvg>
     </AbsoluteFill>
   );
 };

@@ -1,45 +1,26 @@
 import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import {evolvePath, getLength, getPointAtLength} from '@remotion/paths';
-import {COLORS} from '../theme/tokens';
+import {COLORS, STROKE} from '../theme/tokens';
 import {beat, SceneData} from '../lib/timeline';
 import {EASE} from '../lib/anim';
-import {Cam2D, FrontalSvg, lerpCam2D, LW, LW2, LW3, Marker, RoomWallBackdrop, TableTop} from '../illustrations/Board';
+import {LW, LW2, Marker} from '../illustrations/Board';
 import {CARD_H, CARD_W, MemoryCard} from '../illustrations/MemoryCards';
+import {RoomSvg, ROOM_S, roomPoint} from './RoomScene';
+import {shotCam} from './shots';
+import {Cylinder, Shell, SideWindow, Table, WallShelf} from '../illustrations/Interiors';
+import {IsoPerson} from '../illustrations/CityKit';
+import {Box, Line3} from '../illustrations/primitives';
+import {iso, P3, planeMatrix} from '../lib/iso';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
+const s = ROOM_S;
 const QUESTION = 'M380,520 C380,400 600,400 600,520 C600,600 490,610 490,690 L490,730';
 const QLEN = getLength(QUESTION);
-
-/** Open notebook seen from above: two pages, spiral, handwriting lines. */
-const Notebook: React.FC = () => (
-  <g>
-    <rect x={88} y={318} width={820} height={760} rx={20} fill={COLORS.fillDark} />
-    <rect x={80} y={300} width={820} height={760} rx={20} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
-    {Array.from({length: 13}, (_, i) => (
-      <g key={i}>
-        <ellipse cx={130 + i * 60} cy={300} rx={10} ry={22} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW3} />
-      </g>
-    ))}
-    <line x1={150} y1={330} x2={150} y2={1040} stroke={COLORS.accentSoft} strokeWidth={3} />
-    {Array.from({length: 12}, (_, i) => (
-      <line key={i} x1={110} y1={380 + i * 56} x2={870} y2={380 + i * 56} stroke={COLORS.accentSoft} strokeWidth={1.5} />
-    ))}
-  </g>
-);
-
-/** Scientist bust behind the desk (glasses, lab-coat collar). */
-const Scientist: React.FC<{x: number; y: number; flip?: boolean; nod: number}> = ({x, y, flip, nod}) => (
-  <g transform={`translate(${x} ${y}) scale(${flip ? -1 : 1} 1) rotate(${nod})`}>
-    <path d="M-120,200 L-120,90 C-120,40 -70,30 0,30 C70,30 120,40 120,90 L120,200 Z" fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
-    <path d="M-30,32 L0,90 L30,32" fill="none" stroke={COLORS.ink} strokeWidth={LW3} />
-    <circle cx={0} cy={-40} r={66} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
-    <circle cx={-24} cy={-40} r={16} fill="none" stroke={COLORS.ink} strokeWidth={LW3} />
-    <circle cx={24} cy={-40} r={16} fill="none" stroke={COLORS.ink} strokeWidth={LW3} />
-    <line x1={-8} y1={-40} x2={8} y2={-40} stroke={COLORS.ink} strokeWidth={LW3} />
-    <path d="M-60,-70 C-50,-120 50,-120 60,-70" fill="none" stroke={COLORS.ink} strokeWidth={LW2} />
-  </g>
-);
+const BOARD = {x: 1.6, z: 6.1, w: 6.8, h: 3.4} as const;
+const KQ = 0.0068; // question px → board units
+const BENCH_Z = 2.2;
+const SCI: P3[] = [[2.5, 2.3, 0], [7.2, 2.3, 0]];
 
 const Bubble: React.FC<{x: number; y: number; flip?: boolean; p: number; jiggle: number}> = ({x, y, flip, p, jiggle}) => (
   <g transform={`translate(${x} ${y}) scale(${flip ? -p : p} ${p}) rotate(${jiggle})`}>
@@ -50,69 +31,101 @@ const Bubble: React.FC<{x: number; y: number; flip?: boolean; p: number; jiggle:
   </g>
 );
 
-const Magnifier: React.FC<{x: number; y: number}> = ({x, y}) => (
-  <g transform={`translate(${x} ${y})`}>
-    <line x1={70} y1={70} x2={150} y2={150} stroke={COLORS.ink} strokeWidth={22} strokeLinecap="round" />
-    <line x1={70} y1={70} x2={150} y2={150} stroke={COLORS.accent} strokeWidth={14} strokeLinecap="round" />
-    <circle r={100} fill="rgba(255,255,255,0.25)" stroke={COLORS.ink} strokeWidth={LW * 1.6} />
-  </g>
-);
+/** Magnifier hovering over the bench: lens ring in the horizontal plane, handle, and a shadow on the bench top. */
+const Magnifier: React.FC<{x: number; y: number; z: number}> = ({x, y, z}) => {
+  const [sx, sy] = iso(s)([x, y, BENCH_Z + 0.01]);
+  return (
+    <g>
+      <ellipse cx={sx} cy={sy} rx={0.62 * 1.22 * s * 0.8} ry={0.62 * 0.71 * s * 0.8} fill={COLORS.ink} opacity={0.1} />
+      <Line3 s={s} width={STROKE.main * 2.4} points={[[x + 0.6, y, z], [x + 1.45, y, z + 0.12]]} />
+      <Line3 s={s} width={STROKE.main * 1.2} color={COLORS.fillDark} points={[[x + 0.68, y, z + 0.01], [x + 1.42, y, z + 0.12]]} />
+      <g transform={planeMatrix(s, 'floor', [x, y, z])}>
+        <circle r={0.62} fill={COLORS.fillLight} fillOpacity={0.3} stroke={COLORS.ink} strokeWidth={STROKE.main * 1.6} vectorEffect="non-scaling-stroke" />
+        <path d="M-0.35,-0.2 q0.15,-0.2 0.4,-0.25" fill="none" stroke={COLORS.fillLight} strokeWidth={STROKE.main} vectorEffect="non-scaling-stroke" />
+      </g>
+    </g>
+  );
+};
 
-/** Scene 11: honest caveat. A marker writes a big question mark in the notebook; two speech bubbles argue; a magnifier finds attention and emotions. */
+/** Scene 11 (lab, isometric): honest caveat. A marker writes a big question mark on the whiteboard; two scientists
+ *  argue in speech bubbles; a magnifier over three memory cards on the bench finds attention and emotions. */
 export const Scene11Caveat: React.FC<{scene: SceneData}> = ({scene}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const t = (frame + scene.from) / fps;
   const hyp = beat(scene, 'hypotheses');
   const argue = beat(scene, 'argue');
   const attention = beat(scene, 'attention');
   const stretch = beat(scene, 'stretch');
-  const q = interpolate(frame, [0, hyp + 0.9 * fps], [0, 1], cl);
+  const q = interpolate(frame, [hyp - 1.5 * fps, hyp], [0, 1], cl); // the dot lands on «гипотезы»
   const evo = evolvePath(EASE.inOut(q), QUESTION);
   const pen = getPointAtLength(QUESTION, Math.max(0.01, QLEN * EASE.inOut(q)));
   const bub = interpolate(frame, [argue - 10, argue + 10], [0, 1], {...cl, easing: EASE.overshoot});
   const jig = Math.sin(frame * 0.6) * 6 * interpolate(frame, [argue, argue + 60, argue + 80], [1, 1, 0], cl);
   const icons = [0, 1, 2].map((i) => interpolate(frame, [argue + 40 + i * 8, argue + 60 + i * 8], [0, 1], {...cl, easing: EASE.overshoot}));
-  const magX = interpolate(frame, [attention - 40, attention, attention + 40, attention + 70], [300, 490, 490, 700], {...cl, easing: EASE.inOut});
+  const magX = interpolate(frame, [attention - 40, attention, attention + 20, attention + 48], [2.4, 4.6, 4.6, 6.2], {...cl, easing: EASE.inOut});
   const eyeLit = interpolate(frame, [attention - 4, attention + 4], [0, 1], cl);
   const heartLit = interpolate(frame, [attention + 50, attention + 58], [0, 1], cl);
-  const shots: [number, Cam2D][] = [
-    [0, {focus: [490, 420], zoom: 0.95, screen: [484, 720]}], // scientists at the desk, the marker already writing
-    [hyp - 10, {focus: [490, 600], zoom: 1.15, screen: [484, 740]}], // the question mark
-    [argue - 16, {focus: [490, 120], zoom: 1.2, screen: [484, 720]}], // the scientists argue
-    [attention - 50, {focus: [490, 920], zoom: 1.55, screen: [484, 760]}], // magnifier over icons
-    [stretch - 30, {focus: [490, 700], zoom: 0.95, screen: [484, 740]}], // open question to the viewer
-  ];
-  let cam = shots[0][1];
-  for (let i = 1; i < shots.length; i++) cam = lerpCam2D(cam, shots[i][1], interpolate(frame, [shots[i][0], shots[i][0] + 0.55 * fps], [0, 1], cl));
+  const boardFocus = roomPoint([BOARD.x + BOARD.w / 2, 0, BOARD.z - BOARD.h / 2]);
+  const cam = shotCam(frame, [
+    [0, {focus: roomPoint([5.0, 3.6, 3.0]), zoom: 1.35, screen: [500, 760]}], // the lab: board, scientists, bench
+    [hyp - 10, {focus: boardFocus, zoom: 2.1, screen: [500, 720]}], // the question mark on the board
+    [argue - 16, {focus: roomPoint([4.9, 2.3, 2.4]), zoom: 1.9, screen: [500, 760]}], // the scientists argue
+    [attention - 50, {focus: roomPoint([4.9, 5.9, 2.4]), zoom: 2.6, screen: [500, 760]}], // magnifier over the cards
+    [stretch - 30, {focus: roomPoint([5.0, 3.8, 3.0]), zoom: 1.45, screen: [500, 760]}], // open question to the viewer
+  ]);
+  const head = (p: P3, h: number) => iso(s)([p[0] + 0.15, p[1] + 0.12, h + 1.0]);
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
-      <FrontalSvg cam={cam}>
-        <RoomWallBackdrop frame={frame} window={[700, -260]} shelf={-200} />
-        <Scientist x={230} y={40} nod={jig * 0.6} />
-        <Scientist x={750} y={40} flip nod={-jig * 0.6} />
-        <g>
-          <clipPath id="deskClip">
-            <rect x={-600} y={250} width={2400} height={2200} />
-          </clipPath>
-          <g clipPath="url(#deskClip)">
-            <TableTop />
-            <line x1={-600} y1={250} x2={1800} y2={250} stroke={COLORS.ink} strokeWidth={LW} />
-            <Notebook />
+      <RoomSvg cam={cam}>
+        <Shell s={s} floor="tiles" />
+        <SideWindow s={s} y={6.0} z={5.8} w={2.6} />
+        <WallShelf s={s} y={1.2} z={4.0} len={3.4} seed="lab1" />
+        <WallShelf s={s} y={1.2} z={2.6} len={3.4} seed="lab2" />
+        {/* whiteboard with frame and tray; the question mark is written on it */}
+        <g transform={planeMatrix(s, 'wallX', [BOARD.x, 0.03, BOARD.z])}>
+          <rect x={-0.12} y={-0.12} width={BOARD.w + 0.24} height={BOARD.h + 0.24} rx={0.05} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.main} vectorEffect="non-scaling-stroke" />
+          <rect x={0} y={0} width={BOARD.w} height={BOARD.h} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} vectorEffect="non-scaling-stroke" />
+          <g transform={`translate(${BOARD.w / 2} 0.25) scale(${KQ}) translate(-490 -400)`}>
             <path d={QUESTION} fill="none" stroke={COLORS.ink} strokeWidth={LW * 3.2} strokeLinecap="round" strokeDasharray={evo.strokeDasharray} strokeDashoffset={evo.strokeDashoffset} />
             {q >= 1 ? <circle cx={490} cy={800} r={22} fill={COLORS.accent} /> : null}
             {q > 0 && q < 1 && pen ? <Marker x={pen.x} y={pen.y} /> : null}
-            {/* three memory cards: a new place, a bright event (attention), an emotion */}
-            {(['street', 'ticket', 'party'] as const).map((k, i) => (
-              <g key={k} transform={`translate(${250 + (i - 1) * 260 + 240} ${930}) scale(${icons[i] * 0.85}) rotate(${(i - 1) * 6}) translate(${-CARD_W / 2} ${-CARD_H / 2})`}>
-                <MemoryCard kind={k} novel={(i === 1 && eyeLit > 0.5) || (i === 2 && heartLit > 0.5)} />
-              </g>
-            ))}
-            {frame > attention - 45 ? <Magnifier x={magX} y={940} /> : null}
           </g>
+          {/* faint earlier notes on the board: arrows and boxes, no text */}
+          {[[0.4, 0.5], [0.4, 1.7], [5.2, 0.6]].map(([x, y], i) => (
+            <rect key={i} x={x} y={y} width={1.2} height={0.6} rx={0.08} fill="none" stroke={COLORS.inkSoft} strokeWidth={STROKE.micro} vectorEffect="non-scaling-stroke" />
+          ))}
+          <path d="M1.7,0.8 L2.4,1.3 M1.7,2.0 L2.4,1.5 M5.0,0.9 L4.6,1.3" fill="none" stroke={COLORS.inkSoft} strokeWidth={STROKE.micro} vectorEffect="non-scaling-stroke" />
         </g>
-        <Bubble x={380} y={-120} p={bub} jiggle={jig} />
-        <Bubble x={600} y={-120} flip p={bub} jiggle={-jig} />
-      </FrontalSvg>
+        <Box s={s} at={[BOARD.x + 0.4, 0, BOARD.z - BOARD.h - 0.2]} size={[BOARD.w - 0.8, 0.3, 0.08]} stroke={STROKE.secondary} />
+        {/* scientists in lab coats, nodding while they argue */}
+        <IsoPerson s={s} at={SCI[0]} h={1.75} bob={Math.abs(jig) * 0.006} />
+        <IsoPerson s={s} at={SCI[1]} h={1.75} bob={Math.abs(jig) * 0.006} />
+        <Box s={s} at={[SCI[0][0] + 0.38, SCI[0][1] + 0.2, 0.9]} size={[0.32, 0.05, 0.42]} stroke={STROKE.secondary} />
+        {/* lab bench with three memory cards: a new place, a bright event (attention), an emotion */}
+        <Table s={s} at={[2.2, 5.0, 0]} size={[5.6, 1.9, BENCH_Z]} />
+        <Cylinder s={s} at={[7.3, 5.4, BENCH_Z]} r={0.18} h={0.5} stroke={STROKE.secondary} />
+        <Cylinder s={s} at={[7.3, 5.4, BENCH_Z + 0.5]} r={0.07} h={0.25} stroke={STROKE.micro} />
+        {(['street', 'ticket', 'party'] as const).map((k, i) => (
+          <g key={k} transform={`${planeMatrix(s, 'floor', [2.8 + i * 1.5, 5.45, BENCH_Z + 0.01])} scale(${(1.15 / CARD_W) * icons[i]}) rotate(${(i - 1) * 6} ${CARD_W / 2} ${CARD_H / 2})`}>
+            <MemoryCard kind={k} novel={(i === 1 && eyeLit > 0.5) || (i === 2 && heartLit > 0.5)} />
+          </g>
+        ))}
+        {frame > attention - 45 ? (
+          <g opacity={interpolate(frame, [attention - 45, attention - 35], [0, 1], cl)}>
+            <Magnifier x={magX + 0.55} y={5.85} z={BENCH_Z + 0.75 + Math.sin(t * 3) * 0.04} />
+          </g>
+        ) : null}
+        {/* speech bubbles above the scientists (frontal plates) */}
+        {SCI.map((p, i) => {
+          const [hx, hy] = head(p, 1.75);
+          return (
+            <g key={i} transform={`translate(${hx + (i ? -0.6 : 0.6) * s} ${hy - 1.2 * s}) scale(0.32)`}>
+              <Bubble x={0} y={0} flip={i === 1} p={bub} jiggle={i ? -jig : jig} />
+            </g>
+          );
+        })}
+      </RoomSvg>
     </AbsoluteFill>
   );
 };

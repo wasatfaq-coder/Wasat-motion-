@@ -26,9 +26,9 @@ export const Scene09Routine: React.FC<{scene: SceneData}> = ({scene}) => {
   if (frame < backHome) {
     const cam = shotCam(frame, [
       [0, {focus: roomPoint([6.0, 4.6, 1.0]), zoom: 1.4, screen: [484, 780]}], // the whole block
-      [routine - 30, {focus: roomPoint([1.9, 4.4, 0.8]), zoom: 2.6, screen: [484, 800]}], // "дом"
-      [routine + 0.9 * fps, {focus: roomPoint([10.4, 3.4, 1.6]), zoom: 2.1, screen: [484, 780]}], // "работа"
-      [routine + 1.9 * fps, {focus: roomPoint([1.9, 4.4, 0.8]), zoom: 2.6, screen: [484, 800]}], // "дом" again
+      [routine - 30, {focus: roomPoint([0.6, 4.4, 0.9]), zoom: 2.6, screen: [484, 800]}], // "дом"
+      [routine + 0.9 * fps, {focus: roomPoint([11.9, 3.3, 1.9]), zoom: 2.1, screen: [484, 780]}], // "работа"
+      [routine + 1.9 * fps, {focus: roomPoint([0.6, 4.4, 0.9]), zoom: 2.6, screen: [484, 800]}], // "дом" again
       [traces - 40, {focus: roomPoint([LOOP.c[0], LOOP.c[1], 0.4]), zoom: 1.5, screen: [484, 800]}], // the ring with faint traces
     ]);
     return (

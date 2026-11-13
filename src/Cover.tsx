@@ -4,6 +4,7 @@ import {z} from 'zod';
 import {COLORS, TYPE} from './theme/tokens';
 import {Thesis} from './components/Thesis';
 import {fontFamily} from './theme/font';
+import {COS30, SIN30} from './lib/iso';
 
 export const coverSchema = z.object({variant: z.enum(['a', 'b', 'c'])});
 export type CoverProps = z.infer<typeof coverSchema>;
@@ -44,26 +45,87 @@ const Clock: React.FC<{cx: number; cy: number; r: number; ring?: string}> = ({cx
   </g>
 );
 
+
+type M2 = [number, number, number, number];
+const PLANE: Record<'wallX' | 'wallY' | 'floor', M2> = {
+  wallX: [COS30, SIN30, 0, 1],
+  wallY: [-COS30, SIN30, 0, 1],
+  floor: [COS30, SIN30, -COS30, SIN30],
+};
+const mixM = (a: M2, b: M2, t: number): M2 => a.map((v, i) => v + (b[i] - v) * t) as M2;
+
+/** Calendar page in the isometric projection: lies in a mix of two iso planes (tumbling), centred at (x, y). */
+const IsoPage: React.FC<{x: number; y: number; w: number; h: number; from: 'wallX' | 'wallY'; tumble: number; rot: number}> = ({x, y, w, h, from, tumble, rot}) => {
+  const m = mixM(PLANE[from], PLANE.floor, tumble);
+  return (
+    <g transform={`matrix(${m.join(',')},${x},${y})`}>
+      <g transform={`rotate(${rot}) translate(${-w / 2} ${-h / 2})`}>
+        <Page x={0} y={0} w={w} h={h} />
+      </g>
+    </g>
+  );
+};
+
+/** Wall clock in the isometric projection (plane y = const, like the room clock): extruded disc with a rim. */
+const IsoClock: React.FC<{cx: number; cy: number; r: number; sec?: number}> = ({cx, cy, r, sec = 0}) => {
+  const R = r + 18;
+  const [a, b, c, d] = PLANE.wallX;
+  const v: [number, number] = [COS30 * 34, -SIN30 * 34]; // depth towards the wall
+  const th = Math.atan2(c * v[1] - d * v[0], a * v[1] - b * v[0]);
+  const pt = (t: number): [number, number] => [cx + R * (a * Math.cos(t) + c * Math.sin(t)), cy + R * (b * Math.cos(t) + d * Math.sin(t))];
+  const p1 = pt(th);
+  const p2 = pt(th + Math.PI);
+  const local = `matrix(${a},${b},${c},${d},${cx},${cy})`;
+  const ns = {vectorEffect: 'non-scaling-stroke' as const};
+  return (
+    <g>
+      {/* back rim, side band, front rim */}
+      <g transform={`translate(${v[0]} ${v[1]})`}>
+        <g transform={local}>
+          <circle r={R} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={W} {...ns} />
+        </g>
+      </g>
+      <polygon points={`${p1[0]},${p1[1]} ${p1[0] + v[0]},${p1[1] + v[1]} ${p2[0] + v[0]},${p2[1] + v[1]} ${p2[0]},${p2[1]}`} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={W} strokeLinejoin="round" />
+      <g transform={local}>
+        <circle r={R} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={W} {...ns} />
+        <circle r={r} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={W2} {...ns} />
+        {Array.from({length: 12}, (_, i) => {
+          const an = (i / 12) * Math.PI * 2;
+          const r1 = i % 3 === 0 ? r * 0.72 : r * 0.82;
+          return <line key={i} x1={Math.sin(an) * r1} y1={-Math.cos(an) * r1} x2={Math.sin(an) * r * 0.92} y2={-Math.cos(an) * r * 0.92} stroke={COLORS.ink} strokeWidth={i % 3 === 0 ? W : W2} strokeLinecap="round" {...ns} />;
+        })}
+        <line x1={0} y1={0} x2={r * 0.32} y2={-r * 0.42} stroke={COLORS.ink} strokeWidth={W + 2} strokeLinecap="round" {...ns} />
+        <line x1={0} y1={0} x2={0} y2={-r * 0.72} stroke={COLORS.ink} strokeWidth={W} strokeLinecap="round" {...ns} />
+        <line x1={0} y1={r * 0.2} x2={0} y2={-r * 0.8} transform={`rotate(${sec})`} stroke={COLORS.accent} strokeWidth={W2 - 1} strokeLinecap="round" {...ns} />
+        <circle r={12} fill={COLORS.ink} />
+      </g>
+    </g>
+  );
+};
+
 /** A — contrast: a big calm clock; calendar pages burst away from it in a widening, accelerating spiral. */
 export const CoverA: React.FC<{frame?: number}> = ({frame = 0}) => {
   const cx = 470;
   const cy = 960;
-  const drift = frame / 60; // pages keep flying outward from frame 1 (the cover is not a frozen still)
+  const drift = frame / 30; // pages fly outward and turn from frame 1 (the cover is not a frozen still)
   const pages = Array.from({length: 9}, (_, i) => i);
   return (
     <svg width={1080} height={1920} style={{position: 'absolute', inset: 0}}>
-      <g transform={`translate(${cx + 20} ${cy - 30}) scale(1.08) translate(${-cx} ${-cy})`}>
+      <g transform={`translate(${cx + 20} ${cy + 20}) scale(1.0) translate(${-cx} ${-cy})`}>
       {pages.map((i) => {
         const a = -2.5 + i * 0.62 + drift * 0.35;
         const d = 230 + i * 24 + drift * (40 + i * 12);
         const size = 1 - i * 0.07;
-        return <Page key={i} x={cx + Math.cos(a) * d - 55 * size} y={cy + Math.sin(a) * d * 0.55 - 70 * size - 6} w={110 * size} h={140 * size} rot={a * 40 + random(`r${i}`) * 30} />;
+        // keep every page whole inside the frame (no page cut by the edge)
+        const px = Math.max(110, Math.min(900, cx + Math.cos(a) * d));
+        const py = cy + Math.sin(a) * d * 0.55 - 6;
+        return <IsoPage key={i} x={px} y={py} w={110 * size} h={140 * size} from={i % 2 ? 'wallY' : 'wallX'} tumble={Math.min(1, Math.max(0, 0.15 + 0.6 * random(`tb${i}`) + 0.2 * Math.sin(drift * 1.4 + i)))} rot={a * 40 + random(`r${i}`) * 30} />;
       })}
-      {/* speed lines behind the pages */}
+      {/* speed lines behind the pages, along the iso x axis */}
       {[0, 1, 2].map((i) => (
-        <path key={i} d={`M${cx + 240},${cy - 150 + i * 36} q80,-20 140,-${40 + i * 8}`} fill="none" stroke={COLORS.inkSoft} strokeWidth={3} strokeLinecap="round" />
+        <line key={i} x1={cx + 250} y1={cy - 150 + i * 36} x2={cx + 250 + 150 * COS30} y2={cy - 150 + i * 36 - 150 * SIN30} stroke={COLORS.inkSoft} strokeWidth={3} strokeLinecap="round" />
       ))}
-      <Clock cx={cx} cy={cy} r={200} />
+      <IsoClock cx={cx} cy={cy} r={200} sec={frame * 3} />
       </g>
     </svg>
   );

@@ -35,9 +35,9 @@ const Wave: React.FC = () => (
 
 const Party: React.FC = () => (
   <g fill="none" stroke={COLORS.ink} strokeWidth={STROKE.secondary} strokeLinejoin="round">
-    <path d="M120,140 C60,100 70,55 98,55 C110,55 118,66 120,72 C122,66 130,55 142,55 C170,55 180,100 120,140 Z" fill={COLORS.accentSoft} />
+    <path d="M120,140 C60,100 70,55 98,55 C110,55 118,66 120,72 C122,66 130,55 142,55 C170,55 180,100 120,140 Z" fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
     <circle cx={45} cy={60} r={6} fill={COLORS.accent} />
-    <circle cx={200} cy={70} r={6} fill="#F8C35A" />
+    <circle cx={200} cy={70} r={6} fill={COLORS.accent} />
     <path d="M40,120 l14,-10 M195,125 l-12,-12" />
   </g>
 );

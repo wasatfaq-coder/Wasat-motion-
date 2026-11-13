@@ -5,7 +5,7 @@ import {Box, Line3} from './primitives';
 
 const ns = {vectorEffect: 'non-scaling-stroke' as const};
 
-/** Travel suitcase standing on the floor, with handle, straps and a coral travel sticker. */
+/** Travel suitcase standing on the floor, with handle, straps and a travel sticker (neutral). */
 export const Suitcase: React.FC<{s: number; at: P3; open?: number}> = ({s, at, open = 0}) => {
   const [x, y, z] = at;
   const w = 1.8;
@@ -26,7 +26,7 @@ export const Suitcase: React.FC<{s: number; at: P3; open?: number}> = ({s, at, o
       ))}
       {/* sticker */}
       <g transform={planeMatrix(s, 'wallX', [x + 0.65, y + d, z + h - 0.25])}>
-        <circle cx={0.25} cy={0.25} r={0.22} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
+        <circle cx={0.25} cy={0.25} r={0.22} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
         <path d="M0.1,0.3 L0.25,0.15 L0.4,0.3" fill="none" stroke={COLORS.fillLight} strokeWidth={STROKE.micro} {...ns} />
       </g>
     </g>

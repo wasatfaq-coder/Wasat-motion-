@@ -36,7 +36,8 @@ export const pageStarts = (start: number, fps: number, firstGapSec = 0.42) => {
 };
 
 /** Cover pose (frame 0): close on the wall calendar, clock and tray with the first page already in the air. */
-export const CAM_COVER: Cam = {focus: roomPoint([5.7, 0.2, 4.4]), zoom: 2.3, screen: [484, 1030]};
+// end pose of scene 12: the room clock sits exactly where the cover clock is (match cut), and large
+export const CAM_COVER: Cam = {focus: roomPoint([CLOCK.u, 0, CLOCK.z]), zoom: 5.2, screen: [490, 980]};
 
 type M = [number, number, number, number, number, number];
 const lerpM = (a: M, b: M, t: number): M => a.map((v, i) => v + (b[i] - v) * t) as M;
@@ -58,15 +59,33 @@ export const FlyingPage: React.FC<{p: number; landingZ: number}> = ({p, landingZ
   const fx = COS30 * (cx - cy) * s;
   const fy = SIN30 * (cx + cy) * s - landingZ * s;
   const floor: M = [COS30 * s * sx, SIN30 * s * sx, -COS30 * s * sy, SIN30 * s * sy, fx, fy];
-  const e = EASE.inOut(p);
+  // physics: A) peel-off anticipation, B) parabolic flight with spin and flutter, C) landing squash + damped bounce
+  const A = 0.14;
+  const C = 0.84;
+  const peel = Math.min(1, p / A);
+  const q = Math.max(0, Math.min(1, (p - A) / (C - A)));
+  const land = Math.max(0, (p - C) / (1 - C));
+  const e = EASE.inOut(q);
   const m = lerpM(wall, floor, e);
-  const lift = Math.sin(Math.PI * p) * 70; // arc
-  m[5] -= lift;
-  const spin = Math.sin(Math.PI * p) * 18;
+  const arc = 4 * Math.pow(q, 0.85) * (1 - q); // gravity-like: rises fast, falls a bit later
+  m[5] -= arc * 120 + (p < A ? Math.sin(peel * Math.PI) * 10 : 0);
+  m[4] += Math.sin(q * Math.PI) * 30; // slight drift sideways
+  const bounce = land > 0 ? Math.abs(Math.sin(land * Math.PI * 2)) * (1 - land) * 10 : 0;
+  m[5] -= bounce;
+  const spin = q > 0 ? Math.sin(q * Math.PI) * 32 + Math.sin(q * 18) * 6 * (1 - q) : -peel * 8;
+  const squash = land > 0 ? 1 - Math.sin(land * Math.PI) * 0.12 * (1 - land) : 1;
+  // shadow on the tray grows and darkens as the page comes down
+  const [shx, shy] = [fx + COS30 * s * (TRAY.w - 0.3) * 0.5 - COS30 * s * (TRAY.d - 0.3) * 0.5, fy + SIN30 * s * ((TRAY.w - 0.3) + (TRAY.d - 0.3)) * 0.5];
+  const shadow = q > 0.2 ? Math.min(1, (q - 0.2) / 0.8) : 0;
   return (
-    <g transform={`matrix(${m.join(',')})`}>
-      <g transform={`rotate(${spin} ${pw / 2} ${ph / 2})`}>
-        <CalendarPage w={pw} h={ph} accent={1 - Math.max(0, (p - 0.6) / 0.4)} />
+    <g>
+      {shadow > 0 && land < 1 ? (
+        <ellipse cx={shx} cy={shy} rx={30 + 20 * shadow} ry={10 + 7 * shadow} fill={COLORS.ink} opacity={0.08 + 0.1 * shadow} />
+      ) : null}
+      <g transform={`matrix(${m.join(',')})`}>
+        <g transform={`rotate(${spin} ${pw / 2} ${ph / 2}) translate(${pw / 2} ${ph / 2}) scale(1 ${squash}) skewX(${p < A ? peel * 10 : Math.sin(q * 14) * 4 * (1 - q)}) translate(${-pw / 2} ${-ph / 2})`}>
+          <CalendarPage w={pw} h={ph} accent={1 - Math.max(0, (p - 0.6) / 0.4)} />
+        </g>
       </g>
     </g>
   );
@@ -95,8 +114,8 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
   const clockRoom = roomPoint([CLOCK.u, 0, CLOCK.z]);
   const clockScreen: [number, number] = [deskCam.screen![0] + (clockRoom[0] - deskCam.focus[0]) * deskCam.zoom, deskCam.screen![1] + (clockRoom[1] - deskCam.focus[1]) * deskCam.zoom];
   const coverScale = 1 + ((CLOCK.r * ROOM_S * deskCam.zoom) / 218 - 1) * handover;
-  const coverX = (clockScreen[0] - 470) * handover;
-  const coverY = (clockScreen[1] - 960) * handover;
+  const coverX = (clockScreen[0] - 490) * handover;
+  const coverY = (clockScreen[1] - 980) * handover;
   const thick = 0.09;
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
@@ -116,8 +135,8 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
       </RoomSvg>
       {/* opening preview = cover A; it hands over to the room by flying into the wall clock */}
       {handover < 1 ? (
-        <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: 1 - Math.max(0, (handover - 0.55) / 0.45)}}>
-          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '470px 960px'}}>
+        <AbsoluteFill style={{backgroundColor: COLORS.bg}}>{/* no crossfade: the cover clock flies onto the wall clock, then a hard match cut */}
+          <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '490px 980px'}}>
             <CoverA frame={frame} />
           </div>
         </AbsoluteFill>

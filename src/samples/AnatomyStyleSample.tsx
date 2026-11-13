@@ -3,7 +3,7 @@ import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import * as K from '../vendor/anatomy/iso-kit';
 import {AnatomyStage, anatomyProjection, Kit, paint, Painted, toRoom} from '../lib/anatomy';
 import {anticipate, spring} from '../lib/physics';
-import {camOn, lerpCam, RoomSvg} from '../scenes/RoomScene';
+import {camOn, lerpCam, RoomSvg} from '../lib/camera';
 import {EASE} from '../lib/anim';
 import {P3} from '../lib/iso';
 

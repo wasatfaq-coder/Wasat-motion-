@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {depthOf, Point3, Projection} from '../vendor/anatomy/iso-kit';
 import {ANATOMY_CSS} from '../theme/anatomy';
-import {ROOM_S} from '../scenes/RoomScene';
+import {ROOM_S} from './camera';
 import {P3} from './iso';
 
 // Adapter between the Anatomy core (src/vendor/anatomy, MIT) and our Remotion scenes (MASTER_PROMPT_FINAL §22).

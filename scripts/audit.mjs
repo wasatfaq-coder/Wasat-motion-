@@ -49,10 +49,19 @@ for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`
 }
 
 // 3) on-screen text: everything except captions, the preview title and labelled plates must be reviewed (§19.1)
-const TEXT_OK = /(components[\\/](Captions|Thesis)|Cover\.tsx)$/;
+const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal)\.tsx|Cover\.tsx)$/;
 for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) {
   const n = (fs.readFileSync(f, 'utf8').match(/<text\b/g) ?? []).length;
   if (n) add('warn', `text in frame: ${f} draws ${n} <text> node(s); allowed only as labels on frontal plates or data values (§19.1, §20.4)`);
+}
+
+// 2b) house-style objects (§22): geometry audit of every Assembly in *.parts.ts (collisions, floating parts, paint
+// order, stand-in shapes) and the §22.2 part count. A topic run audits its own src/projects/<slug>/; the root run
+// audits the rest of src/.
+{
+  const topicDir = scenesDir.includes(`projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
+  const parts = srcFiles.filter((f) => f.endsWith('.parts.ts') && (topicDir ? f.startsWith(topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
+  if (parts.length) run(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`);
 }
 
 // 3b) house style for new topics (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits

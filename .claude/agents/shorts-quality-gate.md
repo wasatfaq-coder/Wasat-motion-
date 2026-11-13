@@ -40,9 +40,17 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    (e.g. items cutting through each other on a desk, a thrown item landing off target); motion with physics (anticipation, arcs,
    rotation, landing squash/bounce, follow-through, height-dependent shadow); living components where meaningful;
    palette = background, dark outline, 2–3 neutrals and ONE accent (coral) used only for meaning — any other hue is a FAIL.
-6. Covers (§19.5): 3 variants with different techniques; image 50–60 % of the central zone (420–1210 px) and readable at 270×480;
-   2–4 words, 96–120 px, inside 420–1210 px; bottom and right button column clear; survives a 4:5 centre crop;
-   honest (the video answers the question). Rank the variants and say which one wins and why.
+6. Covers (§19.5): 3 variants with different techniques; the caller passes the output of `node scripts/cover-check.mjs`.
+   New topics (§22): the image fills the free space (≥ 22 % of the frame), the hook is IN THE PICTURE on the hero itself, the
+   hook detail is whole and ≥ 350 px; ONE coral spot, on the answer to the title's question; dark neutral field with a vignette;
+   judge the 270×480 thumbnail in colour AND in greyscale; the 0.5-second test (name the object, what is wrong with it, where the
+   coral is); a character only if big and clear; 2–4 words, 96–120 px, inside 420–1210 px; bottom strip and right button column
+   clear; survives a 4:5 crop; honest (the video answers the question, every cover element appears in its first 2 s).
+   Rank the variants and say which one wins and why.
+7. House style of new topics (§22): toned solids in our palette (no line-art kits), dark contours, one coral part per frame;
+   detail norm (§22.2: hero 80–150 parts, secondary ≥ 40) — the caller passes `node scripts/object-audit.mjs` and
+   `node scripts/rig-check.mjs` output (any ERROR = FAIL); on key frames: nothing floats, no part cuts through another, cables end
+   on something, characters' feet do not slide (strips), hands touch what they press or hold.
 
 Severity for each defect: BLOCKER (wrong meaning, wrong fact, broken frame, text/rules violation), MAJOR (clearly visible
 quality problem), MINOR (polish). Verdict «брак — показывать нельзя» only if a BLOCKER or MAJOR is open; MINOR alone = «можно

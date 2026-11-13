@@ -177,19 +177,24 @@ export const Desk: React.FC<{s: number; t: number}> = React.memo(({s, t}) => {
   const leg = 0.18;
   return (
     <g>
-      {[[x + 0.1, y + 0.1], [x + w - 0.3, y + 0.1], [x + 0.1, y + d - 0.3], [x + w - 0.3, y + d - 0.3]].map(([lx, ly], i) => (
+      {/* left legs; the right side stands on a full-height drawer pedestal (no leg passes through it) */}
+      {[[x + 0.1, y + 0.1], [x + 0.1, y + d - 0.3]].map(([lx, ly], i) => (
         <Box key={i} s={s} at={[lx, ly, 0]} size={[leg, leg, h - 0.15]} stroke={STROKE.secondary} />
       ))}
-      <Box s={s} at={[x + w - 1.7, y + 0.1, 0.2]} size={[1.5, d - 0.3, 1.6]} />
-      {/* drawer handles */}
-      <Line3 s={s} points={[[x + w - 0.2, y + 0.7, 1.3], [x + w - 0.2, y + 1.3, 1.3]]} width={STROKE.secondary} />
-      <Line3 s={s} points={[[x + w - 0.2, y + 0.7, 0.7], [x + w - 0.2, y + 1.3, 0.7]]} width={STROKE.secondary} />
+      <Box s={s} at={[x + w - 1.6, y + 0.1, 0]} size={[1.5, d - 0.2, h - 0.15]} />
+      {/* drawer fronts and handles on the visible side of the pedestal */}
+      {[0.75, 1.5].map((dz) => (
+        <Line3 key={dz} s={s} points={[[x + w - 0.1, y + 0.15, dz], [x + w - 0.1, y + d - 0.15, dz]]} width={STROKE.secondary} />
+      ))}
+      {[0.45, 1.15, 1.85].map((dz) => (
+        <Line3 key={`hd${dz}`} s={s} points={[[x + w - 0.1, y + 0.7, dz], [x + w - 0.1, y + 1.3, dz]]} width={STROKE.main} />
+      ))}
       {/* lamp cable: drawn before the desk top so the top hides it (no lines showing through) */}
       <Line3 s={s} points={[[x + 0.3, y + 0.25, h - 0.15], [x + 0.15, y + 0.1, 1.2], [x + 0.2, 0.02, 0.6], [2.4, 0.02, 0.88]]} width={STROKE.micro} color={COLORS.inkSoft} />
       <Box s={s} at={[x, y, h - 0.15]} size={[w, d, 0.15]} />
       {/* lamp */}
       <DeskLamp s={s} base={[x + 0.7, y + 0.6, h]} />
-      {/* layout on the desk (no overlaps): lamp back-left · cup front-left · notebook · papers · memory tray · pen cup front-right */}
+      {/* layout on the desk (no overlaps): lamp back-left · papers back · cup front-left · notebook with pen · memory tray · pen cup front-right */}
       {/* coffee cup on a saucer, with a handle and steam */}
       <g transform={planeMatrix(s, 'floor', [x + 0.4, y + 1.65, h + 0.005])}>
         <ellipse cx={0} cy={0} rx={0.3} ry={0.3} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} vectorEffect="non-scaling-stroke" />
@@ -204,12 +209,12 @@ export const Desk: React.FC<{s: number; t: number}> = React.memo(({s, t}) => {
       ))}
       <Line3 s={s} points={[[x + 1.25, y + 1.3, h + 0.095], [x + 2.0, y + 1.3, h + 0.095]]} width={STROKE.micro} color={COLORS.inkSoft} />
       <Line3 s={s} points={[[x + 1.25, y + 1.5, h + 0.095], [x + 1.85, y + 1.5, h + 0.095]]} width={STROKE.micro} color={COLORS.inkSoft} />
-      <Box s={s} at={[x + 1.3, y + 1.72, h + 0.1]} size={[0.75, 0.06, 0.05]} stroke={STROKE.micro} top={COLORS.fillDark} />
+      <Box s={s} at={[x + 1.95, y + 1.2, h + 0.1]} size={[0.06, 0.7, 0.05]} stroke={STROKE.micro} top={COLORS.fillDark} />
       {/* stack of papers with a binder clip */}
-      <Box s={s} at={[x + 2.35, y + 1.25, h]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
-      <Box s={s} at={[x + 2.38, y + 1.22, h + 0.04]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
-      <Box s={s} at={[x + 2.4, y + 1.2, h + 0.08]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
-      <Box s={s} at={[x + 2.6, y + 1.18, h + 0.12]} size={[0.25, 0.08, 0.06]} stroke={STROKE.micro} top={COLORS.ink} />
+      <Box s={s} at={[x + 1.35, y + 0.2, h]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
+      <Box s={s} at={[x + 1.38, y + 0.17, h + 0.04]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
+      <Box s={s} at={[x + 1.4, y + 0.15, h + 0.08]} size={[0.7, 0.55, 0.04]} stroke={STROKE.micro} />
+      <Box s={s} at={[x + 1.6, y + 0.13, h + 0.12]} size={[0.25, 0.08, 0.06]} stroke={STROKE.micro} top={COLORS.ink} />
       {/* pen cup with pencils, front-right corner */}
       <Box s={s} at={[x + 4.7, y + 1.55, h]} size={[0.32, 0.32, 0.45]} stroke={STROKE.secondary} />
       <Line3 s={s} points={[[x + 4.8, y + 1.67, h + 0.45], [x + 4.72, y + 1.6, h + 0.95]]} width={STROKE.secondary} />

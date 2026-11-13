@@ -6,16 +6,16 @@ import {EASE, mix} from '../lib/anim';
 import {RoomSvg, ROOM_S, roomPoint} from './RoomScene';
 import {shotCam} from './shots';
 import {ArchiveShell, Dust, PendantLamp} from '../illustrations/Archive';
-import {DRAWER, drawerCell, drawerSlide, HEAD_H, HeadCabinet, headFacePoint, ImpressionCard, PLINTH_H} from '../illustrations/HeadCabinet';
+import {CardCatalog, CATALOG, CATALOG_TOP, DRAWER, drawerCell, drawerSlide, ImpressionCard} from '../illustrations/CardCatalog';
 import {Suitcase} from '../illustrations/Props';
 import {Box, Line3} from '../illustrations/primitives';
 import {COS30, iso, P3, SIN30} from '../lib/iso';
 
 const cl = {extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const};
 const s = ROOM_S;
-const HEAD_AT: P3 = [2.6, 5.6, PLINTH_H];
+const CAT_AT: P3 = [3.4, 5.8, 0];
 const SUIT: P3 = [4.4, 8.3, 0];
-const TAPE: P3 = [7.3, 6.15, 0];
+const TAPE: P3 = [CAT_AT[0] + CATALOG.W + 0.4, CAT_AT[1] + 0.55, 0];
 const N = DRAWER.cols * DRAWER.rows;
 /** Fill order: bottom row first, so the column of filled drawers grows upwards next to the tape. */
 const slot = (k: number) => {
@@ -66,7 +66,7 @@ const FlightCard: React.FC<{p: number; from: P3; to: P3}> = ({p, from, to}) => {
 };
 
 /** Scene 8 (memory archive): new impressions fly out of the suitcase as cards and land in the drawers of a
- *  head-shaped cabinet (drawers slide out, take the card, close and light up); a tape measure beside the head grows
+ *  card catalogue (drawers slide out, take the card, close and light up); a tape measure beside the catalogue grows
  *  with the filled column and overshoots on «длинным»: the period seems longer. */
 export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
   const frame = useCurrentFrame();
@@ -92,18 +92,18 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
     holding[j] = d >= 0 ? 1 : 0;
   }
   const filled = lit.reduce((a, b) => a + b, 0);
-  // tape: appears on «мозг меряет», follows the filled column, overshoots above the head on «длинным»
+  // tape: appears on «мозг меряет», follows the filled column, overshoots above the catalogue on «длинным»
   const show = interpolate(frame, [brain - 12, brain + 6], [0, 1], cl);
   const blade =
-    show * (0.5 + (filled / N) * (HEAD_H - 1.2) * interpolate(frame, [brain - 12, brain + 20], [0, 1], cl)) +
+    show * (0.5 + (filled / N) * (CATALOG_TOP - 0.8) * interpolate(frame, [brain - 12, brain + 20], [0, 1], cl)) +
     interpolate(frame, [long - 0.9 * fps, long + 0.25 * fps], [0, 2.4], {...cl, easing: EASE.overshoot});
   const src: P3 = [SUIT[0] + 0.9, SUIT[1] + 0.35, 1.3];
   const cam = shotCam(frame, [
-    [0, {focus: roomPoint([5.0, 5.4, 2.6]), zoom: 1.25, screen: [520, 740]}], // the archive: racks, ladder, head
+    [0, {focus: roomPoint([5.0, 5.4, 2.6]), zoom: 1.25, screen: [520, 740]}], // the archive: racks, ladder, catalogue
     [novelty - 20, {focus: roomPoint([4.8, 7.6, 2.0]), zoom: 1.75, screen: [520, 700]}], // suitcase opens, first card
-    [streets - 10, {focus: roomPoint([4.8, 6.8, 2.6]), zoom: 1.6, screen: [520, 740]}], // cards arc into the head
+    [streets - 10, {focus: roomPoint([4.8, 6.8, 2.6]), zoom: 1.6, screen: [520, 740]}], // cards arc into the catalogue
     [brain - 20, {focus: roomPoint([5.4, 5.6, 3.2]), zoom: 1.9, screen: [520, 720]}], // the tape appears
-    [memories - 30, {focus: roomPoint([4.6, 5.6, 3.4]), zoom: 2.4, screen: [520, 720]}], // drawers take the cards
+    [memories - 30, {focus: roomPoint([4.9, 5.8, 2.9]), zoom: 2.4, screen: [520, 720]}], // drawers take the cards
     [long - 1.2 * fps, {focus: roomPoint([5.6, 5.8, 3.8]), zoom: 1.45, screen: [520, 740]}], // the tape overshoots
   ]);
   return (
@@ -113,8 +113,8 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
         <PendantLamp s={s} at={[3.6, 3.2, 7.5]} t={t} />
         <PendantLamp s={s} at={[8.0, 3.6, 7.5]} t={t} phase={1.7} />
         <Dust s={s} at={[3.8, 3.6, 1.6]} t={t} />
-        <HeadCabinet s={s} at={HEAD_AT} open={open} lit={lit} holding={holding} t={t} />
-        {/* tape measure beside the head: coral case, blade with ticks (no numbers) */}
+        <CardCatalog s={s} at={CAT_AT} open={open} lit={lit} holding={holding} />
+        {/* tape measure beside the catalogue: coral case, blade with ticks (no numbers) */}
         <Box s={s} at={TAPE} size={[0.5, 0.5, 0.42]} left={COLORS.accent} right={COLORS.accentSoft} />
         {blade > 0.05 ? (
           <g>
@@ -129,9 +129,8 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
         {Array.from({length: N}, (_, k) => {
           const p = (frame - start(k)) / flight;
           if (p <= 0 || p >= 1) return null;
-          const {u, w} = drawerCell(slot(k));
-          const [x, , z] = headFacePoint(HEAD_AT, u + DRAWER.w / 2, w + DRAWER.h);
-          const to: P3 = [x, HEAD_AT[1] + drawerSlide(1) / 2, z + DRAWER.h + 0.01];
+          const {u, zTop} = drawerCell(slot(k));
+          const to: P3 = [CAT_AT[0] + u + DRAWER.w / 2, CAT_AT[1] + drawerSlide(1) / 2, CAT_AT[2] + zTop + 0.01];
           return <FlightCard key={k} p={p} from={src} to={to} />;
         })}
       </RoomSvg>

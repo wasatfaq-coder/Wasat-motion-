@@ -92,7 +92,7 @@ export const Building: React.FC<{s: number; at: P3; size: P3; floors?: number; a
 };
 
 /** Small house with a pitched roof. */
-export const House: React.FC<{s: number; at: P3; size?: P3; accent?: boolean}> = ({s, at, size = [1.6, 1.4, 1.2], accent}) => {
+export const House: React.FC<{s: number; at: P3; size?: P3; accent?: boolean; smoke?: number}> = ({s, at, size = [1.6, 1.4, 1.2], accent, smoke}) => {
   const [x, y, z] = at;
   const [w, d, h] = size;
   return (
@@ -101,6 +101,14 @@ export const House: React.FC<{s: number; at: P3; size?: P3; accent?: boolean}> =
       <Line3 s={s} close fill={accent ? COLORS.accent : COLORS.fillDark} width={STROKE.main} points={[[x - 0.1, y + d + 0.1, z + h], [x + w + 0.1, y + d + 0.1, z + h], [x + w + 0.1, y + d / 2, z + h + 0.8], [x - 0.1, y + d / 2, z + h + 0.8]]} />
       <Line3 s={s} close fill={COLORS.fillMid} width={STROKE.main} points={[[x + w + 0.1, y - 0.1, z + h], [x + w + 0.1, y + d + 0.1, z + h], [x + w + 0.1, y + d / 2, z + h + 0.8]]} />
       <Box s={s} at={[x + w * 0.65, y + d * 0.25, z + h + 0.3]} size={[0.25, 0.25, 0.7]} stroke={STROKE.secondary} />
+      {/* chimney smoke: puffs rise, grow and fade (living detail); smoke = time in seconds */}
+      {smoke !== undefined
+        ? Array.from({length: 4}, (_, i) => {
+            const k = (smoke * 0.45 + i / 4) % 1;
+            const [px, py] = iso(s)([x + w * 0.65 + 0.12 + k * 0.5, y + d * 0.25 + 0.12, z + h + 1.05 + k * 1.6]);
+            return <circle key={`sm${i}`} cx={px} cy={py} r={(0.1 + k * 0.22) * s} fill={COLORS.fillLight} stroke={COLORS.inkSoft} strokeWidth={STROKE.micro} opacity={1 - k} />;
+          })
+        : null}
       {Array.from({length: 4}, (_, i) => (
         <Line3 key={i} s={s} width={STROKE.micro} color={COLORS.inkSoft} points={[[x - 0.1 + (w + 0.2) * ((i + 1) / 5), y + d + 0.1, z + h], [x - 0.1 + (w + 0.2) * ((i + 1) / 5), y + d / 2, z + h + 0.8]]} />
       ))}
@@ -253,7 +261,7 @@ export const FlowerBed: React.FC<{s: number; at: P3; w?: number; t?: number}> = 
       <Box s={s} at={at} size={[w, 0.6, 0.3]} stroke={STROKE.secondary} top={COLORS.fillDark} />
       {Array.from({length: 6}, (_, i) => {
         const [fx, fy] = iso(s)([x + 0.2 + (i * (w - 0.4)) / 5, y + 0.3, z + 0.45 + 0.03 * Math.sin(t * 2 + i)]);
-        return <circle key={i} cx={fx} cy={fy} r={0.11 * s} fill={i % 2 ? COLORS.accent : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} />;
+        return <circle key={i} cx={fx} cy={fy} r={0.11 * s} fill={i % 2 ? COLORS.fillMid : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} />;
       })}
     </g>
   );

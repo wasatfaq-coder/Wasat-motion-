@@ -264,13 +264,9 @@ export const CardTray: React.FC<{
       {/* front walls */}
       <polygon points={pts(s, [[x, y + d, z0], [x + w, y + d, z0], [x + w, y + d, z0 + h], [x, y + d, z0 + h]])} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
       <polygon points={pts(s, [[x + w, y, z0], [x + w, y + d, z0], [x + w, y + d, z0 + h], [x + w, y, z0 + h]])} fill={COLORS.fillDark} stroke={highlight > 0 ? COLORS.accent : COLORS.ink} strokeWidth={STROKE.main + highlight * 1.5} strokeLinejoin="round" />
-      {/* label: a head profile = "memory", drawn on the front wall of the tray (plane y = y + d) */}
-      <g transform={planeMatrix(s, 'wallX', [x + 0.35, y + d, z0 + h - 0.04])}>
-        <rect x={0} y={0} width={1.1} height={0.38} rx={0.06} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
-        <path d="M0.42,0.33 L0.42,0.27 C0.33,0.26 0.3,0.2 0.32,0.16 L0.29,0.13 L0.33,0.11 C0.33,0.05 0.39,0.03 0.46,0.03 C0.56,0.03 0.62,0.1 0.6,0.19 C0.59,0.23 0.56,0.26 0.55,0.33" fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} strokeLinejoin="round" {...ns} />
-        <circle cx={0.48} cy={0.13} r={0.035} fill={COLORS.accent} />
-        <line x1={0.68} y1={0.13} x2={0.98} y2={0.13} stroke={COLORS.fillLight} strokeWidth={STROKE.micro} {...ns} />
-        <line x1={0.68} y1={0.23} x2={0.9} y2={0.23} stroke={COLORS.fillLight} strokeWidth={STROKE.micro} {...ns} />
+      {/* plain label holder on the front wall (no picture, no accent) */}
+      <g transform={planeMatrix(s, 'wallX', [x + 0.55, y + d, z0 + h - 0.08])}>
+        <rect x={0} y={0} width={0.7} height={0.24} rx={0.03} fill={COLORS.fillLight} stroke={COLORS.inkSoft} strokeWidth={STROKE.micro} {...ns} />
       </g>
       {dashedExtra > 0
         ? // "possible" extra cards: dashed coral outlines rising above the real pile

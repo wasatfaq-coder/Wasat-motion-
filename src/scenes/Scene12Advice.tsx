@@ -34,8 +34,8 @@ export const Scene12Advice: React.FC<{scene: SceneData}> = ({scene}) => {
     const open = interpolate(frame, [0.2 * fps, nw + 20], [0, 1], {...clamp, easing: EASE.inOut});
     const cam = shotCam(frame, [
       [0, {focus: roomPoint([LOOP.c[0] + LOOP.rx, LOOP.c[1], 0.4]), zoom: 2.3, screen: [484, 800]}], // the ring breaks open
-      [nw - 50, {focus: roomPoint([11.6, 4.4, 1.0]), zoom: 1.5, screen: [484, 800]}], // new roads to new places
-      [nw + 30, {focus: roomPoint([9.0, 3.6, 2.0]), zoom: 1.2, screen: [484, 760]}], // cards fly home
+      [nw - 50, {focus: roomPoint([12.0, 5.4, 1.2]), zoom: 1.4, screen: [484, 800]}], // new roads to new places
+      [nw + 30, {focus: roomPoint([7.6, 4.6, 2.0]), zoom: 1.1, screen: [484, 760]}], // cards fly home
     ]);
     return (
       <AbsoluteFill style={{backgroundColor: COLORS.bg}}>

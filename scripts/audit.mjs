@@ -64,6 +64,9 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   if (parts.length) run(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`);
 }
 
+// 2c) character rig (§22): no foot sliding, rigid bones, IK reaches, ≥ 40 parts per outfit
+run('rig-check', 'node scripts/rig-check.mjs --quiet');
+
 // 3b) house style for new topics (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits
 const OLD_KITS = /from ['"][./]*illustrations\/(Room|CityKit|Interiors|Archive|CardCatalog|primitives|Props|MemoryCards|Board)['"]/;
 for (const f of srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && f.endsWith('.tsx'))) {

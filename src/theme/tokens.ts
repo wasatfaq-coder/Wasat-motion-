@@ -32,5 +32,5 @@ export const DUR = {
   micro: 0.2,
   appear: 0.5,
   transform: 1.2,
-  transition: 0.5,
+  cut: 0.5,
 } as const;

@@ -54,7 +54,7 @@ const Magnifier: React.FC<{x: number; y: number}> = ({x, y}) => (
   <g transform={`translate(${x} ${y})`}>
     <line x1={70} y1={70} x2={150} y2={150} stroke={COLORS.ink} strokeWidth={22} strokeLinecap="round" />
     <line x1={70} y1={70} x2={150} y2={150} stroke={COLORS.accent} strokeWidth={14} strokeLinecap="round" />
-    <circle r={100} fill="rgba(255,255,255,0.25)" stroke={COLORS.ink} strokeWidth={LW * 1.6} />
+    <circle r={100} fill={COLORS.fillLight} fillOpacity={0.25} stroke={COLORS.ink} strokeWidth={LW * 1.6} />
   </g>
 );
 

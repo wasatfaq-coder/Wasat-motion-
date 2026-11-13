@@ -16,9 +16,9 @@ const up = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, 1
 
 /** The motor in two builds: `lit` picks its one coral part (the pulley, or the terminals inside the box); the box
  *  lid and its screws are a piece that can lift off (svg({lid: 1})). */
-const build = (name: string, lit: 'pulley' | 'terminals') => {
+const build = (name: string, lit: 'pulley' | 'terminals' | 'stator', withLid = true) => {
   const M = new Assembly(name, MOTOR_P, {
-    role: 'secondary',
+    role: 'hero',
     order: ['lid'],
     // the box base is seated 1.6 into the can's curve: the sliver where the can is "in front" is the buried base
     allow: [[`${name}.box`, `${name}.can*`]],
@@ -69,7 +69,7 @@ const build = (name: string, lit: 'pulley' | 'terminals') => {
           [f, R],
         ],
         MOTOR_AXIS,
-        {tone: 'hi', lathe: {rims: 'none'}, ...can},
+        {tone: 'hi', lathe: {rims: 'none'}, lit: lit === 'stator', ...can},
       );
     if (f < 50) M.disc(`fin${f}`, f, f + 1, R + 1.8, MOTOR_AXIS, {tone: 'mid', ...can});
     s0 = f + 1;
@@ -144,9 +144,18 @@ const build = (name: string, lit: 'pulley' | 'terminals') => {
   // terminal block and three terminals on the box top, hidden under the lid until it lifts
   M.slab('box.block', {x: 32, y: 21, w: 10, d: 8, r: 0.6}, top + 5.8, 0.6, {tone: 'mid', bevel: 0.2, ...can});
   for (const x of [34, 37, 40]) M.cyl(`box.terminal${x}`, x, 25, 1.4, top + 6.4, 0.6, {tone: 'hi', lit: lit === 'terminals', ...can});
+  // the box walls rise round the terminals (the lid rests on them); two screws hold the terminal block
+  for (const [nm, plan] of [
+    ['wall.n', {x: 30, y: 18, w: 14, d: 0.9, r: 0.2}],
+    ['wall.s', {x: 30, y: 31.1, w: 14, d: 0.9, r: 0.2}],
+    ['wall.w', {x: 30, y: 18.9, w: 0.9, d: 12.2, r: 0.2}],
+    ['wall.e', {x: 43.1, y: 18.9, w: 0.9, d: 12.2, r: 0.2}],
+  ] as const)
+    M.slab(`box.${nm}`, plan, top + 5.8, 2, {tone: 'hi', bevel: 0.1, ...can});
+  for (const x of [33, 41]) M.turned(`box.block.screw${x}`, [[0, 0.6], [0.3, 0.6], [0.45, 0]], up(x, 22.2, top + 6.4), {tone: 'mid', ...can});
   const lid = {piece: 'lid', move: [0, 0, 22] as Point3};
-  M.slab('box.lid', {x: 29.5, y: 17.5, w: 15, d: 15, r: 1.4}, top + 7.1, 1.4, {tone: 'hi', bevel: 0.4, ...can, ...lid});
-  for (const [x, y] of [
+  if (withLid) M.slab('box.lid', {x: 29.5, y: 17.5, w: 15, d: 15, r: 1.4}, top + 7.8, 1.4, {tone: 'hi', bevel: 0.4, ...can, ...lid});
+  if (withLid) for (const [x, y] of [
     [31.6, 19.6],
     [42.4, 19.6],
     [31.6, 30.4],
@@ -159,7 +168,7 @@ const build = (name: string, lit: 'pulley' | 'terminals') => {
         [0.5, 0.9, 1],
         [0.8, 0],
       ],
-      up(x, y, top + 8.5),
+      up(x, y, top + 9.2),
       {tone: 'hi', ...can, ...lid},
     );
   M.slab('nameplate', {x: 58, y: 39, w: 12, d: 8, r: 0.6}, 4, 0.4, {tone: 'mid', bevel: 0});
@@ -184,20 +193,39 @@ const build = (name: string, lit: 'pulley' | 'terminals') => {
       [37, 50, top + 2],
       [37, 62, 18],
       [37, 64, 1.6],
-      [37, 82, 1.6],
+      [37, 140, 1.6], // runs off the cover's frame instead of ending in the air
     ],
     1.6,
     {bend: 6, limp: true, ends: [true, false], tone: 'hi'},
   );
 
+  // detail (hero norm, §22.2): end-shield bolt circles, grease nipples, a lifting eye, nameplate rivets, terminal nuts
+  const onCap = (st: number, dir: 1 | -1, k: number) => {
+    const a = (k * Math.PI) / 3 + Math.PI / 6;
+    const o = MOTOR_AXIS;
+    const p = [0, 1, 2].map((i) => o.o[i] + o.a[i] * st + (o.u[i] * Math.cos(a) + o.v[i] * Math.sin(a)) * 6.6) as Point3;
+    return G.frameAlong(p, dir === 1 ? o.a : G.mul3(o.a, -1));
+  };
+  for (let k = 0; k < 6; k++) {
+    M.turned(`cap.front.bolt${k}`, [[0, 1.1], [0.8, 1.1], [1.2, 0.8, 1], [1.4, 0]], onCap(54, 1, k), {tone: 'hi', ...can});
+    M.turned(`cap.rear.bolt${k}`, [[0, 1.1], [0.8, 1.1], [1.2, 0.8, 1], [1.4, 0]], onCap(-4, -1, k), {tone: 'hi', ...can});
+  }
+  for (const x of [19, 58.5]) M.turned(`nipple${x}`, [[0, 0.9], [1.4, 0.9], [1.8, 0.6, 1], [2.4, 0]], up(x, 25, top), {tone: 'mid', ...can});
+  M.cyl('eye.stem', 24, 25, 1.1, top, 3, {tone: 'mid', ...can});
+  M.ring('eye', -0.8, 0.8, 1.6, 3.4, G.frameAlong([24, 25, top + 6.2], [0, 1, 0]), {tone: 'hi', ...can});
+  for (const [x, y] of [[59, 40], [69, 40], [59, 46], [69, 46]]) M.ball(`nameplate.rivet${x}${y}`, [x, y, 4.6], 0.4, {tone: 'hi'});
+  for (const x of [34, 37, 40]) M.turned(`box.terminal${x}.nut`, [[0, 0.9], [0.5, 0.9], [0.7, 0]], up(x, 25, top + 7), {tone: 'mid', ...can});
+
   return M;
 };
 
 export const MOTOR = build('motor', 'pulley');
-export const MOTOR_OPEN = build('motorOpen', 'terminals');
+export const MOTOR_OPEN = build('motorOpen', 'terminals', false);
+export const MOTOR_HUM = build('motorHum', 'stator');
 // paint order solved by `node scripts/object-audit.mjs --settle`
 MOTOR.applyKeys((KEYS as Record<string, Record<string, number>>).MOTOR);
 MOTOR_OPEN.applyKeys((KEYS as Record<string, Record<string, number>>).MOTOR_OPEN);
+MOTOR_HUM.applyKeys((KEYS as Record<string, Record<string, number>>).MOTOR_HUM);
 
 export const MOTOR_CORNERS: Point3[] = [
   [0, 0, 0],

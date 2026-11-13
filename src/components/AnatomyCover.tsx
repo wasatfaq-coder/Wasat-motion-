@@ -3,7 +3,8 @@ import {AbsoluteFill} from 'remotion';
 import {z} from 'zod';
 import {COLORS, TYPE} from '../theme/tokens';
 import {fontFamily} from '../theme/font';
-import {AnatomyStage, Kit} from '../lib/anatomy';
+import * as K from '../vendor/anatomy/iso-kit';
+import {AnatomyStage, anatomyProjection, Kit} from '../lib/anatomy';
 import {ROOM_ORIGIN} from '../lib/camera';
 import {coverLayout, CoverSpec} from '../lib/coverLayout';
 
@@ -12,7 +13,16 @@ import {coverLayout, CoverSpec} from '../lib/coverLayout';
 // A topic keeps its three variants in src/projects/<slug>/covers.ts (checked by scripts/cover-check.mjs).
 
 /** Covers are seen as thumbnails: contours keep 7 px and inner lines 4.5 px at any zoom (like the «время» cover). */
-const COVER_CSS = `.iso .cover .iso-line{stroke-width:4.5px}.iso .cover .iso-line.iso-edge{stroke-width:7px}.iso .cover .tb path{vector-effect:non-scaling-stroke}`;
+const COVER_CSS = `.iso .cover .iso-line{stroke-width:4.5px}.iso .cover .iso-line.iso-edge{stroke-width:7px;stroke:var(--anatomy-hi)}.iso .cover .tb path{vector-effect:non-scaling-stroke}
+.iso .cover .cover-sign .iso-line{stroke-width:10px;stroke:var(--anatomy-hi)}.iso .cover .cover-sign .iso-solid .iso-line.iso-edge{stroke-width:7px}`;
+/** Room-unit projection for the floor (1 kit unit = 1 room unit). */
+const ROOM_P = anatomyProjection(1);
+const floorSvg = (f: NonNullable<CoverSpec['floor']>) => {
+  const seams: string[] = [];
+  for (let x = Math.ceil(f.x); x < f.x + f.w; x += 2) seams.push(K.lineSvg(K.pathOf([K.iso([x, f.y, 0], ROOM_P), K.iso([x, f.y + f.d, 0], ROOM_P)]), {tone: 'faint'}));
+  for (let y = Math.ceil(f.y); y < f.y + f.d; y += 2) seams.push(K.lineSvg(K.pathOf([K.iso([f.x, y, 0], ROOM_P), K.iso([f.x + f.w, y, 0], ROOM_P)]), {tone: 'faint'}));
+  return K.solidSvg(K.slabOf({x: f.x, y: f.y, w: f.w, d: f.d, r: 0.2}, -0.6, 0.6, ROOM_P, 8, 0.05), {tone: 'mid', inner: ''}) + seams.join('');
+};
 
 export const anatomyCoverSchema = z.object({variant: z.enum(['a', 'b', 'c'])});
 export type AnatomyCoverProps = z.infer<typeof anatomyCoverSchema>;
@@ -45,7 +55,9 @@ export const AnatomyCover: React.FC<{spec: CoverSpec}> = ({spec}) => {
           <g mask="url(#coverArt)">
             <g className="ns cover" transform={`translate(${screen[0]} ${screen[1]}) scale(${zoom}) translate(${-focus[0]} ${-focus[1]})`}>
               <g transform={`translate(${ROOM_ORIGIN[0]} ${ROOM_ORIGIN[1]})`}>
+                {spec.floor ? <Kit svg={floorSvg(spec.floor)} /> : null}
                 <Kit svg={spec.art} />
+                {spec.signs ? <g className="cover-sign" dangerouslySetInnerHTML={{__html: spec.signs}} /> : null}
               </g>
             </g>
           </g>

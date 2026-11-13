@@ -1,99 +1,99 @@
 import * as K from '../vendor/anatomy/iso-kit';
 import * as LatheKit from '../vendor/anatomy/lathe.mjs';
 import {CoverSpec} from '../lib/coverLayout';
-import {anatomyProjection, toRoom} from '../lib/anatomy';
+import {toRoom} from '../lib/anatomy';
 import {Point3} from '../lib/assembly';
 import {P3} from '../lib/iso';
-import {add, bodyFrame, HAND_POSES, mul, Pose, reach, solve, stand} from '../lib/rig';
-import {drawCharacter, Outfit, OUTFITS} from '../lib/character';
-import {MOTOR, MOTOR_AXIS, MOTOR_CORNERS, MOTOR_OPEN, MOTOR_P, MOTOR_U} from './motor.parts';
+import {MOTOR, MOTOR_AXIS, MOTOR_CORNERS, MOTOR_HUM, MOTOR_OPEN, MOTOR_P, MOTOR_U} from './motor.parts';
 
-// Sample covers for the template v2 (the kit's motor and the mannequin; illustrative, not a topic). Each picture
-// carries its own hook; one coral spot each (the pulley or the terminals); three techniques (§19.5).
+// Sample covers for the template v2 (the kit's motor; illustrative, not a topic: numbers are not claims). Each
+// picture carries its own hook; one coral spot, on the answer to the title's question; three techniques (§19.5).
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const G: any = LatheKit;
-const CU = 14; // the character's kit units per room unit
-const CP = anatomyProjection(CU);
-const room = (pts: Point3[], u = MOTOR_U): P3[] => pts.map((p) => toRoom(p, u));
-/** Points round the motor axis at station s and radius r (for frames and hook boxes). */
+const room = (pts: Point3[]): P3[] => pts.map((p) => toRoom(p, MOTOR_U));
+/** Points round the motor axis at station s and radius r. */
 const ring = (s: number, r: number): Point3[] =>
   [0, 1, 2, 3].map((k) => {
     const a = (k * Math.PI) / 2;
     const o = MOTOR_AXIS;
     return [0, 1, 2].map((i) => o.o[i] + o.a[i] * s + (o.u[i] * Math.cos(a) + o.v[i] * Math.sin(a)) * r) as Point3;
   });
-/** A person standing at a room point facing a room point, posed by `pose`; returns markup and room extents. */
-const person = (at: P3, face: P3, pose: (p: Pose) => Pose, outfit: Outfit = OUTFITS.plain) => {
-  const yaw = Math.atan2(face[1] - at[1], face[0] - at[0]);
-  const p = pose(stand([at[0] * CU, at[1] * CU, 0], yaw));
-  const svg = drawCharacter(solve(p), CP, outfit).svg;
-  // all eight corners of the person's volume (two diagonal corners miss the leftmost point on screen)
-  const box: P3[] = [-1.4, 1.4].flatMap((dx) => [-1.4, 1.4].flatMap((dy) => [0, 6].map((z) => [at[0] + dx, at[1] + dy, z] as P3)));
-  return {svg, box};
+const FLOOR = {x: -3, y: -3, w: 16, d: 13};
+const arc = (s: number, r: number, from: number, to: number) => K.lineSvg(G.arcOf(MOTOR_AXIS, s, r, MOTOR_P, {least: -1, from, to}), {tone: 'hi'});
+
+// a) gap — the coral stator housing hums: thick vibration arcs round it (the hum comes from the stator, not the pulley)
+// vibration marks drawn in the screen plane, outside the housing's silhouette: ((( at the rear end, ))) at the
+// front end, and ≈ above the middle (rings round the housing would cross its visible front and top)
+const scr = (st: number) => K.iso(G.pointOf(MOTOR_AXIS, st, 0, 0), MOTOR_P) as [number, number];
+const sArc = ([cx, cy]: [number, number], r: number, a0: number, a1: number) => {
+  const p = (a: number) => [cx + r * Math.cos((a * Math.PI) / 180), cy + r * Math.sin((a * Math.PI) / 180)];
+  const [x0, y0] = p(a0);
+  const [x1, y1] = p(a1);
+  return `<path class="iso-line" data-tone="hi" d="M${x0.toFixed(1)} ${y0.toFixed(1)}A${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}"/>`;
 };
-// order by depth in room units (the viewer is towards +x +y +z)
-const depth = (p: P3) => p[0] + p[1] + p[2] * 0.8;
-const MOTOR_CENTRE: P3 = [4.1, 2.5, 2];
+const humArcs = [
+  ...[96, 120].map((r) => sArc(scr(-4), r, 140, 200)),
+  ...[96, 120].map((r) => sArc(scr(54), r, -40, 20)),
+  ...[110, 134].map((r) => sArc(scr(25), r, 240, 300)),
+].join('');
 
-// a) gap — the motor shakes: vibration rings round the coral pulley; a person recoils, a hand over the ear
-const A_AT: P3 = [6.0, 7.0, 0]; // front-left of the motor: near the viewer but clear of the pulley (the hook)
-const recoil = person(A_AT, MOTOR_CENTRE, (p) => {
-  const s = solve(p);
-  const {f} = bodyFrame(p.yaw);
-  const ear = add(add(s.head, mul(s.l, 6.5)), [0, 0, -1]);
-  const push = add(add(s.shoulder.R, mul(f, 17)), [0, 0, 3]);
-  const q = reach(reach(p, 'L', ear, 1, HAND_POSES.relaxed), 'R', push, 1, HAND_POSES.open, f);
-  return {...q, root: p.root, lean: -0.22, twist: 0.1, headPitch: -0.12, headYaw: 0.25};
-});
-const rings = [10.5, 14, 17.5].map((r) => K.lineSvg(G.arcOf(MOTOR_AXIS, 68, r, MOTOR_P, {least: -1}), {tone: 'mid'})).join('');
-const A_ART = depth(A_AT) < depth(MOTOR_CENTRE) ? recoil.svg + MOTOR.svg() + rings : MOTOR.svg() + rings + recoil.svg;
+// b) specific — the pulley spins: trails round it and a rotation arrow with a flat head in the pulley's plane
+const ARROW_R = 11.5;
+const A1 = 4.4;
+const trails = [8.2, 9.2].map((r, i) => arc(65, r, 0.2 + i * 0.4, 2.2 + i * 0.4)).join('');
+const arrowArc = arc(67.5, ARROW_R, 0.4, A1);
+const tip = G.pointOf(MOTOR_AXIS, 67.5, ARROW_R, A1 + 0.45);
+const tan = G.tangentOf(MOTOR_AXIS, A1 + 0.45);
+const rad = G.radialOf(MOTOR_AXIS, A1 + 0.45);
+const head = [tip, G.add3(G.add3(tip, G.mul3(tan, -4.5)), G.mul3(rad, 2.6)), G.add3(G.add3(tip, G.mul3(tan, -4.5)), G.mul3(rad, -2.6))];
+const arrowHead = `<path d="${K.pathOf(head.map((p: Point3) => K.iso(p, MOTOR_P)), true)}" style="fill:var(--anatomy-hi);stroke:var(--anatomy-hi);stroke-width:3px;stroke-linejoin:round"/>`;
 
-// b) specific — the pulley spun to a blur: spoke traces round it and a rotation arrow
-const blur = Array.from({length: 7}, (_, k) => K.lineSvg(G.spokesOf(MOTOR_AXIS, 67, 2.4, 6.8, 5, MOTOR_P, {phase: k * 0.18}), {tone: k === 0 ? 'hi' : 'faint'})).join('');
-const ARROW_R = 11;
-const arrowArc = K.lineSvg(G.arcOf(MOTOR_AXIS, 67.5, ARROW_R, MOTOR_P, {least: -1, from: 0.3, to: 4.6}), {tone: 'hi'});
-const tipAt = G.pointOf(MOTOR_AXIS, 67.5, ARROW_R, 4.6);
-const tipDir = G.tangentOf(MOTOR_AXIS, 4.6);
-const arrowHead = K.solidSvg(G.solidOf([[0, 1.8], [3.2, 0]], G.frameAlong(tipAt, tipDir), MOTOR_P), {tone: 'hi'});
-const B_ART = MOTOR.svg() + blur + arrowArc + arrowHead;
-
-// c) incomplete — the box lid hangs open above the box, the coral terminals inside; a person leans in to look
-const C_AT: P3 = [1.2, 6.2, 0];
-const peek = person(C_AT, [3.7, 2.5, 0], (p) => {
-  const {f} = bodyFrame(p.yaw);
-  const s = solve(p);
-  const up = add(add(s.shoulder.R, mul(f, 8)), [0, 0, 6]);
-  const q = reach(p, 'R', up, 1, HAND_POSES.open);
-  return {...q, root: add(p.root, mul(f, -1.5)), lean: 0.32, headPitch: 0.3, twist: 0};
-}, {hat: 'hardhat', accent: 'none'});
-const C_ART = depth(C_AT) < depth(MOTOR_CENTRE) ? peek.svg + MOTOR_OPEN.svg({lid: 1}) : MOTOR_OPEN.svg({lid: 1}) + peek.svg;
+// c) incomplete — the lid is ajar (hinged at its far edge, raised 20° on the near side); only a coral glint inside
+const TILT = (32 * Math.PI) / 180;
+const LID_O: Point3 = [29.5, 17.5, 47.8];
+const lidF = G.frameOf(LID_O, [-Math.sin(TILT), 0, Math.cos(TILT)], [Math.cos(TILT), 0, Math.sin(TILT)], [0, 1, 0]);
+const LID = K.solidSvg(G.prismOf(lidF, [[0, 0], [15, 0], [15, 15], [0, 15]], 0, 1.4, MOTOR_P), {tone: 'hi'});
+const screws = [[2.1, 2.1], [12.9, 2.1], [2.1, 12.9], [12.9, 12.9]]
+  .map(([u, v]) => {
+    const o = G.add3(G.add3(LID_O, G.mul3(lidF.u, u)), G.mul3(lidF.v, v));
+    return K.solidSvg(G.solidOf([[1.4, 0.9], [1.9, 0.9, 1], [2.2, 0]], G.frameAlong(o, lidF.a), MOTOR_P), {tone: 'hi'});
+  })
+  .join('');
 
 export const COVERS: Record<'a' | 'b' | 'c', CoverSpec> = {
   a: {
     technique: 'gap',
-    hook: 'мотор трясётся: дуги вибрации вокруг кораллового шкива, человек отпрянул и закрыл ухо',
-    lines: ['Почему он', 'гудит?'],
+    hook: 'коралловый корпус статора дрожит: вокруг него толстые дуги вибрации',
+    lines: ['Что в нём', 'гудит?'],
     layout: 'top',
-    art: A_ART,
-    frame: [...room(MOTOR_CORNERS), ...room(ring(68, 17.5)), ...recoil.box],
-    hero: room([...ring(60, 17.5), ...ring(70, 17.5)]),
+    art: MOTOR_HUM.svg(),
+    signs: humArcs,
+    frame: room([...MOTOR_CORNERS, ...ring(25, 24.5)]),
+    hero: room([...ring(2, 16.8), ...ring(48, 16.8)]),
+    floor: FLOOR,
+    crop: 1,
   },
   b: {
     technique: 'specific',
-    hook: 'шкив раскручен до размытия: следы спиц по кругу и стрелка вращения',
-    lines: ['3000', 'об/мин'],
+    hook: 'коралловый шкив крутится: следы вращения и толстая стрелка вокруг него',
+    lines: ['50 оборотов', 'в секунду'],
     layout: 'top',
-    art: B_ART,
-    frame: room([...ring(40, 19), ...ring(72, 13)]), // a close-up of the front of the motor
-    hero: room([...ring(62, 12), ...ring(70, 12)]),
+    art: MOTOR.svg(),
+    signs: trails + arrowArc + arrowHead,
+    frame: room([...ring(30, 18), ...ring(80, 16)]), // a close-up of the drive end
+    hero: room([...ring(60, 13), ...ring(70, 13)]),
+    floor: FLOOR,
+    crop: 1,
   },
   c: {
     technique: 'incomplete',
-    hook: 'крышка коробки висит в воздухе, внутри светятся коралловые клеммы, человек заглядывает',
-    lines: ['Что в', 'коробке?'],
+    hook: 'крышка коробки приоткрыта на треть, из щели виден коралловый отблеск клемм',
+    lines: ['Что под', 'крышкой?'],
     layout: 'top',
-    art: C_ART,
-    frame: [...room([...MOTOR_CORNERS, [37, 25, 72]]), ...peek.box],
-    hero: room([[29.5, 17.5, 44], [44.5, 32.5, 44], [29.5, 17.5, 72], [44.5, 32.5, 72]]),
+    art: MOTOR_OPEN.svg() + LID + screws,
+    frame: room([[22, 10, 30], [52, 40, 30], [22, 40, 30], [52, 10, 30], [37, 25, 60], [29.5, 17.5, 56], [44.5, 32.5, 56]]), // a close-up of the box
+    hero: room([29.5, 44.5].flatMap((x) => [17.5, 32.5].flatMap((y) => [44, 54].map((z) => [x, y, z] as Point3)))),
+    floor: FLOOR,
+    crop: 1,
   },
 };

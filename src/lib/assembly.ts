@@ -117,6 +117,13 @@ export class Assembly {
     return this.put(n, at, K.solidSvg(G.disc(s0, s1, r, F, this.P), c), [this.shape(A.disc(F, s0, s1, r), c, n)], c);
   }
 
+  /** A ring / collar with thickness on any axis (eye bolts, collars, flanges with a bore). */
+  ring(name: string, s0: number, s1: number, rIn: number, rOut: number, F: Frame, c: SolidOpts = {}) {
+    const n = this.full(name);
+    const at = G.add3(F.o, G.mul3(F.a, (s0 + s1) / 2)) as Point3;
+    return this.put(n, at, K.solidSvg(G.ringBand(s0, s1, rIn, rOut, F, this.P), c), [this.shape(A.ring(F, s0, s1, rIn, rOut), c, n)], c);
+  }
+
   /** A ball (knob, joint, bearing, terminal). */
   ball(name: string, centre: Point3, r: number, c: SolidOpts = {}) {
     const n = this.full(name);

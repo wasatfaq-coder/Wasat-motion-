@@ -28,6 +28,9 @@ export type CoverSpec = {
   frame: P3[]; // room points the image must show
   hero: P3[]; // room points of the key detail (the hook): must read at thumbnail size
   backdrop?: 'spot' | 'none'; // spot (default): a soft light spot behind the image and darker edges
+  floor?: {x: number; y: number; w: number; d: number}; // room units: a tiled floor under the image (context, §19.2)
+  crop?: number; // ≥ 1: zoom past the frame so the image is cut by the region's edge (default 1.2); the hook stays whole
+  signs?: string; // kit markup of motion/sound signs (vibration, rotation): drawn thick (10 px) over the image
   placeholder?: boolean; // scaffolded stand-in: must be replaced before the gate
 };
 
@@ -35,7 +38,7 @@ export const COVER_ZONE = {top: 420, bottom: 1210, left: 176, right: 904} as con
 export const IMAGE_ZONE = {top: 250, bottom: 1470, left: 24, right: 904} as const; // below the top UI, above the bottom strip
 export const TITLE = {min: 96, max: 120, em: 0.62, lead: 1.08} as const; // em: bold Rubik width per char (conservative)
 export const IMAGE_SHARE = {min: 0.22, aim: 0.26} as const; // image box / frame area (a wide iso object in a tall frame)
-export const HERO_MIN = 220; // px at full size (≈ 55 px in a 270×480 thumbnail)
+export const HERO_MIN = 350; // px at full size (≈ 90 px in a 270×480 thumbnail)
 const CROP45 = {top: (1920 - 1350) / 2, bottom: (1920 + 1350) / 2};
 
 export type Box = {left: number; right: number; top: number; bottom: number};
@@ -85,20 +88,23 @@ export const coverLayout = (spec: CoverSpec): CoverLayout => {
   const fb = bbox(spec.frame.map((p) => roomPoint(p)));
   const w = Math.max(1, fb.x1 - fb.x0);
   const h = Math.max(1, fb.y1 - fb.y0);
-  const zoom = Math.min((region.right - region.left - 20) / w, (region.bottom - region.top - 20) / h);
+  const zoom = Math.min((region.right - region.left - 20) / w, (region.bottom - region.top - 20) / h) * Math.max(1, spec.crop ?? 1.2);
   const screen: [number, number] = [(region.left + region.right) / 2, (region.top + region.bottom) / 2];
   const focus: [number, number] = [(fb.x0 + fb.x1) / 2, (fb.y0 + fb.y1) / 2];
   const to = ([x, y]: [number, number]): [number, number] => [screen[0] + (x - focus[0]) * zoom, screen[1] + (y - focus[1]) * zoom];
   const image: Box = {left: screen[0] - (w * zoom) / 2, right: screen[0] + (w * zoom) / 2, top: screen[1] - (h * zoom) / 2, bottom: screen[1] + (h * zoom) / 2};
-  const share = ((image.right - image.left) * (image.bottom - image.top)) / (1080 * 1920);
+  // what is visible: the image inside its region (a crop cuts the rest)
+  const vis = {left: Math.max(image.left, region.left), right: Math.min(image.right, region.right), top: Math.max(image.top, region.top), bottom: Math.min(image.bottom, region.bottom)};
+  const share = (Math.max(0, vis.right - vis.left) * Math.max(0, vis.bottom - vis.top)) / (1080 * 1920);
   if (share < IMAGE_SHARE.min) errors.push(`image takes ${(share * 100).toFixed(0)} % of the frame; at least ${IMAGE_SHARE.min * 100} % — frame a closer view or a squarer group`);
   else if (share < IMAGE_SHARE.aim) warns.push(`image takes ${(share * 100).toFixed(0)} % of the frame; aim for ≥ ${IMAGE_SHARE.aim * 100} %`);
-  if (image.right > IMAGE_ZONE.right + 2) errors.push('image runs into the right button column');
-  if (image.bottom > IMAGE_ZONE.bottom + 2) errors.push('image runs into the bottom strip');
+
   // the hook detail: big enough at thumbnail size, inside the 4:5 crop
   const hb = bbox(spec.hero.map((p) => to(roomPoint(p))));
   const hero: Box = {left: hb.x0, right: hb.x1, top: hb.y0, bottom: hb.y1};
   const heroSize = Math.max(hero.right - hero.left, hero.bottom - hero.top);
+  const m = 30;
+  if (hero.left < region.left + m || hero.right > region.right - m || hero.top < region.top + m || hero.bottom > region.bottom - m) errors.push('the hook detail is cut by the image edge: frame it whole (lower `crop` or move `frame`)');
   if (heroSize < HERO_MIN) errors.push(`the hook detail is ${heroSize.toFixed(0)} px (${(heroSize / 4).toFixed(0)} px in the thumbnail); at least ${HERO_MIN} px`);
   if (!spec.hook || spec.hook.trim().split(/\s+/).length < 3) errors.push('no hook in the picture: describe what in the image raises the question (`hook`)');
   if (title.top < CROP45.top || title.bottom > CROP45.bottom) errors.push('the title is cut by a 4:5 crop');
@@ -110,6 +116,7 @@ export const coverLayout = (spec: CoverSpec): CoverLayout => {
     if (!lines[li] || !lines[li].words[wi]) errors.push('accent points to no word');
     if (artCoral) errors.push('two coral spots: the image has a coral part and the title a coral word; keep one');
   } else if (!artCoral) warns.push('no coral spot: mark the hook detail (lit) or one title word');
+  if (!spec.floor) warns.push('no floor or ground under the image: add `floor` (context, §19.2)');
   if (spec.placeholder) warns.push('placeholder cover: replace the image, the hook and the title before the gate');
   return {fontSize, lines, title, region, cam: {focus, zoom, screen}, image, hero, share, errors, warns};
 };

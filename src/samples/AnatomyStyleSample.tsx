@@ -26,6 +26,14 @@ const BOARD = (() => {
     out.push(K.lineSvg(K.pathOf([at([34, t, 5]), at([22 - (i % 2) * 4, t, 5])]), {tone: 'mid'}));
   }
   out.push(K.lineSvg(K.planOutline({x: 30, y: 30, w: 80, d: 80, r: 2}, 5, P), {tone: 'lo'}));
+  // solder pads under every pin (flat), vias at the trace ends, silkscreen ticks for pin 1 and every 5th pin
+  for (let i = 0; i < 10; i++) {
+    const t = 41 + i * 5.6;
+    for (const plan of [{x: t - 1.6, y: 34, w: 3.2, d: 5, r: 0.4}, {x: t - 1.6, y: 101, w: 3.2, d: 5, r: 0.4}, {x: 34, y: t - 1.6, w: 5, d: 3.2, r: 0.4}, {x: 101, y: t - 1.6, w: 5, d: 3.2, r: 0.4}])
+      out.push(K.solidSvg(K.slabOf(plan, 5, 0.2, P, 6), {tone: 'lo', flat: true}));
+    out.push(K.dotsSvg([at([t - 8 + 42 - 42, 14 - (i % 3) * 3, 5]), at([126 + (i % 3) * 3, t + 6, 5])], {size: 1.3, tone: 'hi'}));
+  }
+  out.push(K.lineSvg(K.pathOf([at([30, 36, 5]), at([30, 30, 5]), at([36, 30, 5])]), {tone: 'hi'}));
   return out.join('');
 })();
 
@@ -46,13 +54,42 @@ const PARTS: Painted[] = (() => {
   for (const [x, y] of [[20, 50], [20, 62], [50, 122], [62, 122], [122, 88]]) items.push({at: [x, y, 3], svg: K.solidSvg(K.cylinder(x, y, 3.6, 5, 7, P, 32, 0.4), {tone: 'hi'}) + K.lineSvg(K.ring(x, y, 2.6, 12, P), {tone: 'lo'})});
   for (const [x, y, w, d] of [[118, 30, 8, 4], [118, 40, 8, 4], [14, 86, 4, 8], [24, 86, 4, 8]]) items.push({at: [x + w / 2, y + d / 2, 6], svg: slab({x, y, w, d, r: 0.4}, 5, 2.4, {tone: 'mid'}, 0.3)});
   items.push({at: [90, 128, 6], svg: slab({x: 80, y: 124, w: 20, d: 8, r: 3.5}, 5, 4, {tone: 'hi'}, 0.6)});
+  // crystal pads and a seam line on the can
+  for (const x of [78, 100]) items.push({at: [x + 1, 128, 5], svg: slab({x, y: 125, w: 2, d: 6, r: 0.3}, 5, 0.8, {tone: 'mid'}, 0)});
+  // 2×8 pin header: housing, pins with collars
+  items.push({at: [128, 70, 5], svg: slab({x: 124, y: 52, w: 10, d: 36, r: 0.8}, 5, 5, {tone: 'mid'}, 0.4)});
+  for (let r = 0; r < 2; r++)
+    for (let i = 0; i < 8; i++) {
+      const x = 126.5 + r * 5;
+      const y = 55 + i * 4.3;
+      items.push({at: [x, y, 10], svg: slab({x: x - 1.2, y: y - 1.2, w: 2.4, d: 2.4, r: 0.2}, 10, 0.6, {tone: 'hi'}, 0.1) + slab({x: x - 0.5, y: y - 0.5, w: 1, d: 1, r: 0}, 10.6, 6, {tone: 'hi'}, 0)});
+    }
+  // voltage regulator (SOT-223): body, tab, three legs
+  items.push({at: [20, 20, 6], svg: slab({x: 14, y: 14, w: 12, d: 7, r: 0.4}, 5, 2.6, {tone: 'hi'}, 0.3) + slab({x: 15, y: 22, w: 10, d: 3, r: 0.2}, 5, 0.6, {tone: 'mid'}, 0)});
+  for (const x of [15, 19, 23]) items.push({at: [x + 1, 12, 5], svg: slab({x, y: 10.5, w: 2, d: 3.5, r: 0.2}, 5, 0.6, {tone: 'mid'}, 0)});
+  // inductor (square body with a round winding cap) and an LED with its lens
+  items.push({at: [122, 118, 6], svg: slab({x: 116, y: 112, w: 12, d: 12, r: 1}, 5, 5, {tone: 'mid'}, 0.4) + K.solidSvg(K.cylinder(122, 118, 4.2, 10, 0.8, P, 32, 0.2), {tone: 'hi'})});
+  items.push({at: [44, 124, 6], svg: slab({x: 41, y: 122, w: 6, d: 4, r: 0.4}, 5, 1.6, {tone: 'hi'}, 0.2) + K.solidSvg(K.cylinder(44, 124, 1.4, 6.6, 1, P, 24, 0.3), {tone: 'hi'})});
+  // test points
+  for (const [x, y] of [[112, 18], [112, 24], [28, 112], [34, 112]]) items.push({at: [x, y, 5], svg: K.solidSvg(K.cylinder(x, y, 1.6, 5, 1.6, P, 20, 0.2), {tone: 'mid'}) + K.dotsSvg([at([x, y, 6.6])], {size: 0.8, tone: 'hi'})});
   return items;
 })();
 
 /** The die in the package cavity: cavity rim, coral die (the one lit part), functional blocks, bond wires. */
-const BLOCKS: [number, number, number, number][] = [[56, 56, 13, 13], [71, 56, 13, 13], [56, 71, 13, 7], [56, 79.5, 13, 4.5], [71, 71, 13, 13]];
-const DIE = K.lineSvg(K.planOutline({x: 44, y: 44, w: 52, d: 52, r: 1.5}, 9.5, P), {tone: 'mid'}) + slab({x: 54, y: 54, w: 32, d: 32, r: 0.6}, 9.5, 1.4, {tone: 'hi', lit: true}, 0.3);
-const block = (i: number) => slab({x: BLOCKS[i][0], y: BLOCKS[i][1], w: BLOCKS[i][2], d: BLOCKS[i][3], r: 0.3}, 10.9, 0.5, {tone: 'hi'}, 0.15);
+// floor plan of the die: 4 cores (each split into 4 units), 8 cache banks, a controller strip (illustrative, no dossier)
+const BLOCKS: [number, number, number, number][] = [
+  ...[[56, 56], [64, 56], [56, 64], [64, 64]].flatMap(([x, y]) => [[x, y, 3.6, 3.6], [x + 4, y, 3.6, 3.6], [x, y + 4, 3.6, 3.6], [x + 4, y + 4, 3.6, 3.6]] as [number, number, number, number][]),
+  ...Array.from({length: 8}, (_, i) => [73 + (i % 2) * 6, 56 + Math.floor(i / 2) * 4, 5.4, 3.4] as [number, number, number, number]),
+  [56, 73, 28, 4.5],
+  [56, 79, 13, 5],
+  [71, 79, 13, 5],
+];
+const DIE =
+  K.lineSvg(K.planOutline({x: 44, y: 44, w: 52, d: 52, r: 1.5}, 9.5, P), {tone: 'mid'}) +
+  slab({x: 54, y: 54, w: 32, d: 32, r: 0.6}, 9.5, 1.4, {tone: 'hi', lit: true}, 0.3) +
+  // bond-pad ring along the die edge
+  K.dotsSvg(Array.from({length: 14}, (_, i) => [at([55.2 + i * 2.2, 54.9, 10.9]), at([85.1, 55.2 + i * 2.2, 10.9])]).flat(), {size: 0.7, tone: 'hi'});
+const block = (i: number) => slab({x: BLOCKS[i][0], y: BLOCKS[i][1], w: BLOCKS[i][2], d: BLOCKS[i][3], r: 0.2}, 10.9, 0.5, {tone: 'hi'}, 0.1);
 const WIRES = Array.from({length: 8}, (_, i) => {
   const t = 56 + i * 4;
   return (
@@ -60,8 +97,12 @@ const WIRES = Array.from({length: 8}, (_, i) => {
     K.wireSvg(at([85.4, t, 10.9]), at([95, t + (t - 70) * 0.3, 9.6]), {via: [at([90, t + (t - 70) * 0.15, 15])], tone: 'hi', size: 0.9})
   );
 }).join('');
-const LID = slab({x: 38, y: 38, w: 64, d: 64, r: 2}, 9.5, 2.5, {tone: 'hi'}, 1.2) + K.dotsSvg([at([44, 44, 12])], {size: 2, tone: 'hi'});
-const LID_HALO = K.solidSvg(K.slabOf({x: 38, y: 38, w: 64, d: 64, r: 2}, 9.5, 2.5, P, 8, 1.2), {tone: 'hi', halo: true});
+const LID_MARKS = [0, 1, 2].map((i) => K.lineSvg(K.pathOf([at([52, 60 + i * 5, 12]), at([52 + [30, 22, 26][i], 60 + i * 5, 12])]), {tone: 'mid', free: true})).join('') + K.lineSvg(K.sideSeam({x: 38, y: 38, w: 64, d: 64, r: 2}, 10.8, P), {tone: 'lo'});
+const LID = slab({x: 38, y: 38, w: 64, d: 64, r: 2}, 9.5, 2.5, {tone: 'hi'}, 1.2) + K.dotsSvg([at([44, 44, 12])], {size: 2, tone: 'hi'}) + LID_MARKS;
+const LID_HALO = K.solidSvg(K.slabOf({x: 38, y: 38, w: 64, d: 64, r: 2}, 9.5, 2.5, P, 8, 1.2), {tone: 'hi', halo: true}) + K.dotsSvg([at([44, 44, 12])], {size: 2, tone: 'hi'}) + LID_MARKS;
+
+/** Parts count of the sample (§22.2): solids drawn by the kit. */
+export const SAMPLE_PARTS = {board: 1 + 4 + 40, onBoard: PARTS.length, die: 1 + BLOCKS.length, lid: 1};
 
 const corners = (x0: number, y0: number, x1: number, y1: number, z = 0): P3[] => [
   toRoom([x0, y0, z], U), toRoom([x1, y0, z], U), toRoom([x0, y1, z], U), toRoom([x1, y1, z], U), toRoom([(x0 + x1) / 2, (y0 + y1) / 2, z + 20], U),
@@ -78,7 +119,7 @@ export const AnatomyStyleSample: React.FC = () => {
   const lidShift = K.translateAlong(P, [0, 0, lift]);
   const push = interpolate(t, [2.0, 2.8], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: EASE.inOut});
   const cam = lerpCam(camOn(corners(0, 0, 140, 140), 0.92, [540, 700]), camOn(corners(46, 46, 94, 94, 10), 0.85, [540, 720]), push);
-  const shown = BLOCKS.map((_, i) => interpolate(t, [2.4 + i * 0.18, 2.6 + i * 0.18], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}));
+  const shown = BLOCKS.map((_, i) => interpolate(t, [2.4 + i * 0.045, 2.6 + i * 0.045], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}));
   // data pulses along the four trace fans (the traces are the routes; dots move at a constant speed)
   const pulses = Array.from({length: 10}, (_, i) => {
     const s = ((t * 0.9 + i * 0.137) % 1);

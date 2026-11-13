@@ -88,8 +88,8 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
     [second - 4, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.3, screen: [500, 760]}], // the cake
     [tenth - 20, {focus: roomPoint([CAKE[0] + 0.5, CAKE[1] + 0.5, 3.0]), zoom: 3.2, screen: [500, 760]}], // the slice comes out
     [tiny - 2.0 * fps, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.0, screen: [500, 760]}], // pull back first («С годами»), then the cake grows in frame
-    [third - 20, {focus: roomPoint([4.0, 8.9, 3.0]), zoom: 2.4, screen: [520, 780]}], // the sofa: child and grandparent
-    [third + 60, {focus: roomPoint([4.2, 8.9, 3.4]), zoom: 2.6, screen: [520, 740]}], // the films: 8 frames vs 4 frames
+    [third - 20, {focus: roomPoint([4.4, 8.9, 2.9]), zoom: 2.7, screen: [520, 740]}], // the sofa: child and grandparent
+    [third + 60, {focus: roomPoint([4.4, 8.9, 3.0]), zoom: 3.0, screen: [520, 740]}], // the films: 8 frames vs 4 frames
     [images - 6, {focus: roomPoint([3.1, 8.9, 3.9]), zoom: 3.1, screen: [520, 720]}], // «больше картинок»: punch in on the child's long film,
   ]);
   return (
@@ -98,6 +98,8 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
         <Shell s={s} floor="parquet" />
         <SideWindow s={s} y={1.8} z={5.8} />
         <Bunting s={s} x0={1.0} x1={9.2} z={6.4} t={t} />
+        {frame < third - 20 ? (
+          <>
         <Chair s={s} at={[3.1, 1.7, 0]} />
         <Chair s={s} at={[6.0, 1.7, 0]} />
         <Table s={s} at={[2.4, 2.8, 0]} size={[5.2, 3.0, 2.3]} cloth />
@@ -123,6 +125,8 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
         <Balloon s={s} at={[6.75, 1.73, 2.32]} len={2.2} t={t} seed="b1" />
         <Balloon s={s} at={[6.75, 1.73, 2.32]} len={2.8} t={t + 1} seed="b2" fill={COLORS.fillMid} />
         <Balloon s={s} at={[6.75, 1.73, 2.32]} len={2.5} t={t + 2} seed="b3" />
+          </>
+        ) : null}
         {/* (3) sofa: the child (left) and the grandparent (right) film the same day */}
         <Sofa s={s} at={[2.8, 8.0, 0]} w={4.2} />
         <IsoPerson s={s} at={[3.6, 8.6, 1.2]} h={1.2} sit bob={Math.abs(Math.sin(t * 5)) * 0.05} />

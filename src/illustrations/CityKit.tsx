@@ -216,7 +216,7 @@ export const BusStop: React.FC<{s: number; at: P3; t: number}> = ({s, at, t}) =>
 };
 
 /** Beach umbrella. */
-export const Umbrella: React.FC<{s: number; at: P3}> = ({s, at}) => {
+export const Umbrella: React.FC<{s: number; at: P3; t?: number}> = ({s, at, t = 0}) => {
   const [x, y, z] = at;
   const top: P3 = [x, y, z + 2.0];
   const [tx, ty] = iso(s)(top);
@@ -224,7 +224,7 @@ export const Umbrella: React.FC<{s: number; at: P3}> = ({s, at}) => {
   return (
     <g>
       <Line3 s={s} points={[at, top]} width={STROKE.main} />
-      <path d={`M${tx - r},${ty + r * 0.35} Q${tx},${ty - r * 0.55} ${tx + r},${ty + r * 0.35} Z`} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
+      <path d={`M${tx - r},${ty + r * 0.35 + Math.sin(t * 5) * 2} Q${tx},${ty - r * 0.55} ${tx + r},${ty + r * 0.35 + Math.sin(t * 5 + 1.5) * 2} Z`} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
       {[-0.5, 0, 0.5].map((k) => (
         <line key={k} x1={tx} y1={ty - r * 0.12} x2={tx + k * r * 1.6} y2={ty + r * 0.3} stroke={COLORS.ink} strokeWidth={STROKE.micro} />
       ))}

@@ -52,17 +52,18 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const home = long - 107; // cut to home on «дома»
   const vac = 76; // «В отпуске»
   const beachCam = shotCam(frame, [
-    [0, {focus: roomPoint([5.0, 6.0, 1.2]), zoom: 1.9, screen: [500, 760]}], // the beach: person, umbrella, suitcase
-    [vac, {focus: roomPoint([3.4, 5.2, 1.4]), zoom: 2.3, screen: [500, 760]}], // «В отпуске»: the person under the umbrella, the sun starts
-    [fast - 20, {focus: roomPoint([5.6, 3.6, 2.0]), zoom: 1.6, screen: [500, 760]}], // the sun races over the sea, shadows turn
-    [fast + 0.7 * fps, {focus: roomPoint([6.3, 7.5, 1.0]), zoom: 2.4, screen: [500, 740]}], // the suitcase, big
+    [0, {focus: roomPoint([4.4, 5.0, 1.3]), zoom: 2.7, screen: [500, 760]}], // the beach: the suitcase, the person, the umbrella (main group large)
+    [vac, {focus: roomPoint([3.8, 5.4, 1.6]), zoom: 2.9, screen: [500, 760]}], // «В отпуске»: the person under the umbrella, the sun starts
+    [fast - 20, {focus: roomPoint([3.6, 2.6, 1.8]), zoom: 1.9, screen: [500, 800]}], // the sun races over the sea, shadows turn
+    [fast + 0.7 * fps, {focus: roomPoint([5.2, 4.4, 1.0]), zoom: 3.0, screen: [500, 760]}], // the suitcase, big
   ]);
   // the sun crosses the sky above the sea three times (days fly); drawn first, behind everything
   const sunP = interpolate(frame, [vac, home], [0, 3], clamp);
   const sf = sunP % 1;
   // rises from behind the sea and sets into it (no jump across the screen)
-  const [sx, sy] = iso(ROOM_S)([-1.0 + sf * 8, -1.6, -0.6 + Math.sin(Math.PI * sf) * 3.0]);
-  const sunO = sf < 0.06 || sf > 0.94 ? 0 : 1;
+  const [sx, sy] = iso(ROOM_S)([-1.0 + sf * 8, -1.0, -0.6 + Math.sin(Math.PI * sf) * 2.4]);
+  const sunZ = -0.6 + Math.sin(Math.PI * sf) * 2.4;
+  const sunO = Math.max(0, Math.min(1, sunZ / 0.6)); // sinks below the horizon instead of vanishing
   const shadowA = Math.PI * sf; // umbrella shadows turn with the sun
   const bob = Math.sin(t * 2.2) * 0.05;
   if (frame < home) {
@@ -78,6 +79,17 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
               })}
             </g>
           ) : null}
+          {/* clouds drifting over the sea */}
+          {[[1.0, 2.2, 0], [4.6, 2.6, 1], [8.0, 2.0, 2]].map(([cx, cz, k]) => {
+            const [px, py] = iso(ROOM_S)([cx + ((t * 0.25 + k * 1.3) % 3), -1.8, cz]);
+            return (
+              <g key={`cl${k}`}>
+                {[[-0.5, 0.1, 0.42], [0, -0.15, 0.55], [0.5, 0.1, 0.4]].map(([dx, dy, r], j) => (
+                  <circle key={j} cx={px + dx * ROOM_S} cy={py + dy * ROOM_S} r={r * ROOM_S} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
+                ))}
+              </g>
+            );
+          })}
           <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.6} t={t} />
           {/* foam line at the shore */}
           <Line3 s={ROOM_S} width={STROKE.main} color={COLORS.fillLight} points={Array.from({length: 25}, (_, k) => [k * 0.5, 3.6 - 0.08 - Math.abs(Math.sin(t * 1.5 + k * 0.7)) * 0.12, 0.01] as P3)} />
@@ -96,7 +108,7 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
               <ellipse rx={1.0} ry={0.55} fill={COLORS.fillDark} opacity={sunP > 0 ? 0.55 : 0.3} />
             </g>
           ))}
-          <Umbrella s={ROOM_S} at={[3.0, 4.9, 0]} />
+          <Umbrella s={ROOM_S} at={[3.0, 4.9, 0]} t={t} />
           {/* towel with stripes */}
           <g transform={planeMatrix(ROOM_S, 'floor', [2.3, 5.4, 0.01])}>
             <rect x={0} y={0} width={0.9} height={1.8} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} vectorEffect="non-scaling-stroke" />
@@ -105,13 +117,13 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
             ))}
           </g>
           <IsoPerson s={ROOM_S} at={[3.6 + Math.min(1.2, Math.max(0, (frame - vac) / 200)), 5.3, 0]} h={1.1} walk={frame > vac ? t * 6 : 0} bob={Math.sin(t * 2) * 0.02} />
-          <Umbrella s={ROOM_S} at={[9.0, 4.6, 0]} />
+          <Umbrella s={ROOM_S} at={[9.0, 4.6, 0]} t={t + 0.7} />
           {/* deck chair under the second umbrella */}
           <Line3 s={ROOM_S} close fill={COLORS.fillMid} width={STROKE.secondary} points={[[8.4, 5.3, 0.35], [9.6, 5.3, 0.35], [9.6, 5.9, 0.35], [8.4, 5.9, 0.35]]} />
           <Line3 s={ROOM_S} close fill={COLORS.fillLight} width={STROKE.secondary} points={[[8.4, 5.3, 0.35], [8.4, 5.9, 0.35], [8.1, 5.9, 1.1], [8.1, 5.3, 1.1]]} />
           <Tree s={ROOM_S} at={[0.8, 8.8, 0]} t={t} seed="palm1" h={2.4} />
           {/* the suitcase: big, in the front */}
-          <Suitcase3D s={ROOM_S} at={[5.4, 7.2, 0]} />
+          <Suitcase3D s={ROOM_S} at={[4.4, 4.0, 0]} />
           {[[3.0, 8.2], [8.6, 8.6], [9.6, 7.0]].map(([x, y], i) => {
             const [cx, cy] = iso(ROOM_S)([x, y, 0]);
             return <ellipse key={i} cx={cx} cy={cy} rx={9} ry={5} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} />;

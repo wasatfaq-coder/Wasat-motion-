@@ -134,7 +134,7 @@ export const Scene01Hook: React.FC<{scene: SceneData}> = ({scene}) => {
       </RoomSvg>
       {/* opening preview = cover A; it hands over to the room by flying into the wall clock */}
       {handover < 1 ? (
-        <AbsoluteFill style={{backgroundColor: COLORS.bg, opacity: 1 - Math.max(0, (handover - 0.55) / 0.45)}}>
+        <AbsoluteFill style={{backgroundColor: COLORS.bg}}>{/* no crossfade: the cover clock flies onto the wall clock, then a hard match cut */}
           <div style={{position: 'absolute', inset: 0, transform: `translate(${coverX}px, ${coverY}px) scale(${coverScale})`, transformOrigin: '490px 980px'}}>
             <CoverA frame={frame} />
           </div>

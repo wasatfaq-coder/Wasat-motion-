@@ -4,7 +4,7 @@ import {evolvePath, getLength, getPointAtLength} from '@remotion/paths';
 import {COLORS, TYPE} from '../theme/tokens';
 import {fontFamily} from '../theme/font';
 import {EASE} from '../lib/anim';
-import {Clipboard, Corkboard, LW, LW2, LW3, Marker, Person, Pin, Sticky} from '../illustrations/Board';
+import {Clipboard, Corkboard, LW, LW3, Marker, Person, Pin, Sticky} from '../illustrations/Board';
 
 // World coordinates (frontal). Board 80..900 × 300..1100.
 export const BOARD = {x: 80, y: 300, w: 820, h: 800};
@@ -166,7 +166,7 @@ export const SurveyBoard: React.FC<{s: SurveyState; iso?: boolean}> = ({s, iso =
       ) : null}
       {s.small > 0 ? (
         <g opacity={s.small}>
-          <path d={`M${PX1 + 22},${PY0 - 150} l16,0 l0,-130 l-16,0`} fill="none" stroke={COLORS.ink} strokeWidth={LW2 * m} strokeLinejoin="round" />
+          <path d={`M${PX1 + 22},${PY0 - 150} l16,0 l0,-130 l-16,0`} fill="none" stroke={COLORS.accent} strokeWidth={LW * 1.4 * m} strokeLinejoin="round" />
         </g>
       ) : null}
       {/* clipboard with the questionnaire, slides away when the crowd appears */}

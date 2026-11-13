@@ -108,7 +108,7 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
     [streets + 50, {focus: roomPoint([4.9, 6.2, 3.0]), zoom: 2.2, screen: [520, 720]}], // «по одной из версий»: push in on the flying cards
     [brain - 20, {focus: roomPoint([5.4, 5.6, 3.2]), zoom: 1.9, screen: [520, 720]}], // the tape appears
     [memories - 30, {focus: roomPoint([4.9, 5.8, 2.9]), zoom: 2.4, screen: [520, 720]}], // drawers take the cards
-    [long - 1.2 * fps, {focus: roomPoint([TAPE[0], TAPE[1], CATALOG_TOP + 1.2]), zoom: 1.9, screen: [520, 760]}], // «длинным»: the tape overshoots above the catalogue
+    [long - 1.2 * fps, {focus: roomPoint([TAPE[0], TAPE[1], CATALOG_TOP + 1.0]), zoom: 2.6, screen: [520, 760]}], // «длинным»: the tape overshoots above the catalogue
   ]);
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>

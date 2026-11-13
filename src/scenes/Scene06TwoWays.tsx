@@ -9,6 +9,7 @@ import {CAM_TRAY} from './Scene01Hook';
 import {HOOK_CARDS, plainCards, RoomStage} from './stage';
 import {RoomSvg, ROOM_S} from './RoomScene';
 import {Box} from '../illustrations/primitives';
+import {Cylinder} from '../illustrations/Interiors';
 import {BusStop, Car, Ground, IsoPerson, LampPost, Paving, Road, Tree, Building} from '../illustrations/CityKit';
 
 /** Scene 6: two ways to judge time — the frame splits into the clock (while it passes) and the tray (looking back). */
@@ -63,7 +64,14 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
           <Tree s={ROOM_S} at={[1.4, 4.2, 0]} t={t} seed="bs1" />
           <LampPost s={ROOM_S} at={[9.4, 3.4, 0]} />
           <IsoPerson s={ROOM_S} at={[4.6, 4.1, 0]} h={1.05} bob={Math.sin(t * 4) * 0.02} />
-          <Tree s={ROOM_S} at={[7.0, 5.6, 0]} t={t} seed="bs2" h={1.8} />
+          {/* the free paving: a kiosk with an awning, a bin, a crosswalk */}
+          <Box s={ROOM_S} at={[7.4, 4.4, 0]} size={[1.5, 1.1, 1.8]} />
+          <Box s={ROOM_S} at={[7.3, 5.5, 1.5]} size={[1.7, 0.4, 0.1]} stroke={STROKE.secondary} top={COLORS.fillMid} />
+          <Box s={ROOM_S} at={[7.6, 5.5, 0.9]} size={[1.1, 0.05, 0.45]} stroke={STROKE.secondary} left={COLORS.fillLight} detail="none" />
+          <Cylinder s={ROOM_S} at={[6.3, 4.6, 0]} r={0.2} h={0.6} stroke={STROKE.secondary} />
+          {[0, 1, 2, 3, 4].map((k) => (
+            <Box key={`cw${k}`} s={ROOM_S} at={[8.4 + k * 0.32, 1.25, 0.012]} size={[0.18, 1.5, 0.004]} stroke={1} top={COLORS.fillLight} detail="none" />
+          ))}
           <IsoPerson s={ROOM_S} at={[5.4, 4.3, 0]} h={0.95} />
         </RoomSvg>
       </AbsoluteFill>

@@ -178,8 +178,9 @@ export class Assembly {
   keysApplied = false;
 
   /** The object as SVG markup, painted back to front. `shares` moves pieces (0 = home, 1 = at `move`). */
-  svg(shares: Record<string, number> = {}) {
-    const items = this.R.items as Item[];
+  svg(shares: Record<string, number> = {}, opts: {hide?: (name: string) => boolean} = {}) {
+    // `hide` leaves parts out of a picture (e.g. a cable that would read as a second shaft on a cover)
+    const items = (this.R.items as Item[]).filter((i) => !opts.hide?.(i.name));
     const keyed = items.map((item, index) => {
       const share = shares[item.piece] ?? 0;
       const off = G.mul3(item.move, share) as Point3;

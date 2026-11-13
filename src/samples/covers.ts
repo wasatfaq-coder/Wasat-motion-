@@ -4,7 +4,7 @@ import {CoverSpec} from '../lib/coverLayout';
 import {toRoom} from '../lib/anatomy';
 import {Point3} from '../lib/assembly';
 import {P3} from '../lib/iso';
-import {MOTOR, MOTOR_AXIS, MOTOR_CORNERS, MOTOR_HUM, MOTOR_OPEN, MOTOR_P, MOTOR_U} from './motor.parts';
+import {MOTOR, MOTOR_AXIS, MOTOR_HUM, MOTOR_OPEN, MOTOR_P, MOTOR_U} from './motor.parts';
 
 // Sample covers for the template v2 (the kit's motor; illustrative, not a topic: numbers are not claims). Each
 // picture carries its own hook; one coral spot, on the answer to the title's question; three techniques (§19.5).
@@ -34,7 +34,8 @@ const sArc = ([cx, cy]: [number, number], r: number, a0: number, a1: number) => 
 // marks on the housing itself: at its rear end and above its middle (none at the shaft end: the hum is not the shaft)
 const humArcs = [
   ...[96, 120].map((r) => sArc(scr(-4), r, 140, 200)),
-  ...[200, 226].map((r) => sArc(scr(25), r, 252, 288)),
+  ...[104, 128].map((r) => sArc(scr(8), r, 235, 285)),
+  ...[104, 128].map((r) => sArc(scr(46), r, 250, 300)),
 ].join('');
 
 // b) specific — the pulley spins: trails round it and a rotation arrow with a flat head in the pulley's plane
@@ -71,12 +72,12 @@ export const COVERS: Record<'a' | 'b' | 'c', CoverSpec> = {
     hook: 'коралловый корпус статора дрожит: вокруг него толстые дуги вибрации',
     lines: ['Что в нём', 'гудит?'],
     layout: 'top',
-    art: MOTOR_HUM.svg(),
+    art: MOTOR_HUM.svg({}, {hide: (n) => n.startsWith('motorHum.cable')}), // the straight cable read as a second shaft
     signs: humArcs,
-    frame: room([...MOTOR_CORNERS, ...ring(25, 24.5)]),
+    frame: room([...ring(-10, 26), ...ring(60, 26), [6, 25, 0], [62, 25, 0]]), // centred on the housing: the base runs off the edges
     hero: room([...ring(2, 16.8), ...ring(48, 16.8)]),
     floor: FLOOR,
-    crop: 1,
+    crop: 1.1,
   },
   b: {
     technique: 'specific',

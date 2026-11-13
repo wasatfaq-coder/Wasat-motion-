@@ -25,7 +25,7 @@ const build = (name: string, lit: 'pulley' | 'terminals' | 'stator', withLid = t
   });
 
   // base plate (stands on the floor) and its four corner bolts with washers
-  M.slab('base', {x: 0, y: 0, w: 82, d: 50, r: 3}, 0, 4, {tone: 'hi', halo: true, ground: true, bevel: 0.8});
+  M.slab('base', {x: 0, y: 0, w: 82, d: 50, r: 3}, 0, 4, {tone: 'hi', halo: true, ground: true, bevel: 0.8, className: 'cl-mid'}); // mid tone: the light parts stay the motor's
   const bolt = (name: string, x: number, y: number, z: number) => {
     M.disc(`${name}.washer`, 0, 0.6, 3.4, up(x, y, z), {tone: 'mid', meta: {owner: name}});
     M.turned(

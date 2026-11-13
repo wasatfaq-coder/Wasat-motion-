@@ -14,7 +14,7 @@ import {coverLayout, CoverSpec} from '../lib/coverLayout';
 
 /** Covers are seen as thumbnails: contours keep 7 px and inner lines 4.5 px at any zoom (like the «время» cover). */
 const COVER_CSS = `.iso .cover .iso-line{stroke-width:4.5px}.iso .cover .iso-line.iso-edge{stroke-width:7px;stroke:var(--anatomy-hi)}.iso .cover .tb path{vector-effect:non-scaling-stroke}
-.iso .cover .cover-sign .iso-line{stroke-width:10px;stroke:var(--anatomy-hi)}.iso .cover .cover-sign .iso-solid .iso-line.iso-edge{stroke-width:7px}`;
+.iso .cover .cover-sign .iso-line{stroke-width:12px;stroke:var(--anatomy-hi);stroke-linecap:round}.iso .cover .cover-sign .iso-solid .iso-line.iso-edge{stroke-width:7px}`;
 /** Room-unit projection for the floor (1 kit unit = 1 room unit). */
 const ROOM_P = anatomyProjection(1);
 const floorSvg = (f: NonNullable<CoverSpec['floor']>) => {
@@ -36,12 +36,8 @@ export const AnatomyCover: React.FC<{spec: CoverSpec}> = ({spec}) => {
       <AbsoluteFill style={{background: COLORS.bg}}>
         <svg width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0}}>
           <defs>
-            {/* backdrop (tonal contrast, also in greyscale): a darker neutral field, a light spot behind the image and
-                a dark vignette at the edges — the light object stands out in a feed */}
-            <radialGradient id="coverSpot" gradientUnits="userSpaceOnUse" cx={(L.image.left + L.image.right) / 2} cy={(L.image.top + L.image.bottom) / 2} r={620}>
-              <stop offset={0} stopColor={COLORS.fillLight} stopOpacity={0.9} />
-              <stop offset={1} stopColor={COLORS.fillLight} stopOpacity={0} />
-            </radialGradient>
+            {/* backdrop (tonal contrast, also in greyscale): a darker neutral field and a dark vignette at the edges —
+                the light object stands out in a feed (a light spot behind it made white on white) */}
             <radialGradient id="coverVignette" gradientUnits="userSpaceOnUse" cx={540} cy={960} r={1150}>
               <stop offset={0.45} stopColor={COLORS.ink} stopOpacity={0} />
               <stop offset={1} stopColor={COLORS.ink} stopOpacity={0.32} />
@@ -59,7 +55,6 @@ export const AnatomyCover: React.FC<{spec: CoverSpec}> = ({spec}) => {
           {spec.backdrop !== 'none' ? (
             <g>
               <rect x={0} y={0} width={1080} height={1920} fill={COLORS.fillDark} />
-              <rect x={0} y={0} width={1080} height={1920} fill="url(#coverSpot)" />
               <rect x={0} y={0} width={1080} height={1920} fill="url(#coverVignette)" />
             </g>
           ) : null}

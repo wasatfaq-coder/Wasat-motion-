@@ -1,0 +1,51 @@
+{
+  "_doc": "MASTER_PROMPT_FINAL §20: every scene declares location and mode; every metaphor is justified and approved at STOP 1; measured data sits on a frontal plate.",
+  "scenes": {
+    "scene-01": {
+      "location": "workbench",
+      "mode": "literal",
+      "metaphors": []
+    },
+    "scene-02": {
+      "location": "field-stand",
+      "mode": "schematic",
+      "metaphors": []
+    },
+    "scene-03": {
+      "location": "field-stand",
+      "mode": "schematic",
+      "metaphors": []
+    },
+    "scene-04": {
+      "location": "field-stand",
+      "mode": "schematic",
+      "metaphors": []
+    },
+    "scene-05": {
+      "location": "inside-motor",
+      "mode": "literal",
+      "metaphors": []
+    },
+    "scene-06": {
+      "location": "inside-motor",
+      "mode": "literal",
+      "metaphors": []
+    },
+    "scene-07": {
+      "location": "workbench",
+      "mode": "literal",
+      "metaphors": []
+    }
+  },
+  "locationReuse": [
+    {
+      "location": "workbench",
+      "scenes": [
+        1,
+        7
+      ],
+      "reason": "сквозной образ: тот же верстак и мотор в начале и в конце, ответ замыкает вопрос (СТОП 1)"
+    }
+  ],
+  "metaphors": {}
+}

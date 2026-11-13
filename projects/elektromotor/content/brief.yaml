@@ -1,0 +1,19 @@
+# MASTER_PROMPT_FINAL §3. Fill before the analysis; defaults are named, not assumed.
+topic: "Как работает электромотор"
+source: null                # file, text or URL (none supplied: web research)
+research_mode: web           # supplied | web
+audience: general_adults
+goal: understand_main_idea
+duration_sec: 60
+duration_tolerance: 0.10
+language: ru
+style: anatomy_toned_solids    # §22: toned solids in our palette, thick contour, one coral part
+accent_colors: 1            # coral; a second accent only by the user's decision
+metaphor_policy: accuracy_first   # §20: literal > schematic > metaphor
+voice_provider: elevenlabs
+voice_id: 3EuKHIEZbSzrHGNmdYsx
+voice_model: eleven_v4
+voice_budget: null
+captions: on
+music: forbidden
+cover: on

@@ -1,0 +1,5 @@
+{
+  "variant": "a",
+  "chosen": false,
+  "_doc": "The variant the user chose at the cover stop; master.mjs renders it to out/<slug>/cover.png."
+}

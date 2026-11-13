@@ -31,3 +31,4 @@ Rules: MASTER_PROMPT_FINAL.md v2.1 (§19: density, pacing, retention, covers, ag
 - Physics for the flying page.
 - Scene 8: isometric head-shaped memory cabinet, suitcase, cards flying into drawers, tape measure.
 - Next: sample (scenes 1, 8, 9) for approval → convert scenes 3–4, 10, 11 to detailed isometry → full draft → STOP 3 again.
+- Rework 2 done: all 12 scenes isometric, collisions fixed, single coral accent, archive/catalogue, cover in iso. Gate on 2 fps sheets is next, then frames to the user; video render only on request.

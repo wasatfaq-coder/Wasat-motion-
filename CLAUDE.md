@@ -14,6 +14,7 @@ This repository produces vertical motion-explainer videos (YouTube Shorts) with 
 
 ## Always
 - Before the gate and before committing visual work, run `node scripts/audit.mjs` (no rendering) and fix every ERROR.
+- For the gate, make 2 fps sheets with `node scripts/contact-sheet.mjs <outDir>` (stills only, no video render).
 - Before showing frames, covers or video to the user, run the `shorts-quality-gate` agent (§19) and fix every defect it finds; facts go through `fact-checker`.
 - Do not reuse illustrations or locations from another topic without the user's consent (§4); shared kits (room, city, board) are building blocks, the scenes are designed anew.
 - The user works from a phone: answer in Russian, keep messages short, send images and videos as files.

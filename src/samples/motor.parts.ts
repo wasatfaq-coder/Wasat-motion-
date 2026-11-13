@@ -10,76 +10,194 @@ export const MOTOR_P = anatomyProjection(MOTOR_U);
 
 const Z = 25; // motor axis height
 const R = 15; // can radius
+const top = Z + R; // 40: top of the can
 export const MOTOR_AXIS = G.frameAlong([12, 25, Z], [1, 0, 0]) as {o: Point3; a: Point3; u: Point3; v: Point3};
 const up = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, 1]);
 
-export const MOTOR = new Assembly('motor', MOTOR_P, {
-  role: 'secondary',
-  // the box base is seated 1.6 into the can's curve: the sliver where the can is "in front" is the buried base
-  allow: [['motor.box', 'motor.can*']],
-});
-const M = MOTOR;
+/** The motor in two builds: `lit` picks its one coral part (the pulley, or the terminals inside the box); the box
+ *  lid and its screws are a piece that can lift off (svg({lid: 1})). */
+const build = (name: string, lit: 'pulley' | 'terminals') => {
+  const M = new Assembly(name, MOTOR_P, {
+    role: 'secondary',
+    order: ['lid'],
+    // the box base is seated 1.6 into the can's curve: the sliver where the can is "in front" is the buried base
+    allow: [[`${name}.box`, `${name}.can*`]],
+  });
 
-// base plate (stands on the floor) and its four corner bolts with washers
-M.slab('base', {x: 0, y: 0, w: 82, d: 50, r: 3}, 0, 4, {tone: 'hi', halo: true, ground: true, bevel: 0.8});
-const bolt = (name: string, x: number, y: number, z: number) => {
-  M.disc(`${name}.washer`, 0, 0.6, 3.4, up(x, y, z), {tone: 'mid', meta: {owner: name}});
-  M.turned(`${name}.head`, [[0.6, 2.6], [2.2, 2.6], [2.8, 1.8, 1], [3.1, 0]], up(x, y, z), {tone: 'hi', meta: {owner: name}});
+  // base plate (stands on the floor) and its four corner bolts with washers
+  M.slab('base', {x: 0, y: 0, w: 82, d: 50, r: 3}, 0, 4, {tone: 'hi', halo: true, ground: true, bevel: 0.8});
+  const bolt = (name: string, x: number, y: number, z: number) => {
+    M.disc(`${name}.washer`, 0, 0.6, 3.4, up(x, y, z), {tone: 'mid', meta: {owner: name}});
+    M.turned(
+      `${name}.head`,
+      [
+        [0.6, 2.6],
+        [2.2, 2.6],
+        [2.8, 1.8, 1],
+        [3.1, 0],
+      ],
+      up(x, y, z),
+      {tone: 'hi', meta: {owner: name}},
+    );
+  };
+  for (const [x, y] of [
+    [5, 5],
+    [77, 5],
+    [5, 45],
+    [77, 45],
+  ])
+    bolt(`bolt${x}${y}`, x, y, 4);
+
+  // two saddle brackets: a flange plate and a block; the can rests on the blocks
+  for (const x0 of [18, 48]) {
+    M.slab(`bracket${x0}.flange`, {x: x0, y: 7, w: 8, d: 36, r: 1}, 4, 2, {tone: 'mid', bevel: 0.3});
+    M.slab(`bracket${x0}.block`, {x: x0 + 1, y: 15, w: 6, d: 20, r: 1}, 6, Z - R - 6, {tone: 'mid', bevel: 0.3});
+    for (const y of [10, 40]) bolt(`bracket${x0}.bolt${y}`, x0 + 4, y, 6);
+  }
+
+  // the can is cut into slices between the fins, so every slice and fin paints in order along the axis (a ring
+  // round a body can't be ordered against it); one owner joins the can, its caps, fins and terminal box
+  const can = {meta: {owner: 'can'}};
+  const FINS = [2, 4.5, 14.5, 16.5, 33, 35, 44.5, 47]; // free of the brackets (s 7–13, 37–43) and the box (s 18–32)
+  let s0 = 0;
+  for (const f of [...FINS, 50]) {
+    if (f > s0)
+      M.turned(
+        `can.${s0}`,
+        [
+          [s0, R],
+          [f, R],
+        ],
+        MOTOR_AXIS,
+        {tone: 'hi', lathe: {rims: 'none'}, ...can},
+      );
+    if (f < 50) M.disc(`fin${f}`, f, f + 1, R + 1.8, MOTOR_AXIS, {tone: 'mid', ...can});
+    s0 = f + 1;
+  }
+  M.turned(
+    'cap.rear',
+    [
+      [-4, 9],
+      [-2.6, 12.6, 1],
+      [-1, 14.6, 1],
+      [0, R],
+    ],
+    MOTOR_AXIS,
+    {tone: 'hi', ...can},
+  );
+  M.turned(
+    'cap.front',
+    [
+      [50, R],
+      [51, 14.6, 1],
+      [52.6, 12.6, 1],
+      [54, 9],
+    ],
+    MOTOR_AXIS,
+    {tone: 'hi', ...can},
+  );
+  // shaft, hub and pulley in axial order (the hub and the pulley are solid round the shaft)
+  const shaft = {meta: {owner: 'shaft'}};
+  M.turned(
+    'shaft',
+    [
+      [54, 2.2],
+      [60, 2.2],
+    ],
+    MOTOR_AXIS,
+    {tone: 'hi', ...shaft},
+  );
+  M.turned(
+    'pulley.hub',
+    [
+      [60, 3.6],
+      [62, 3.6],
+    ],
+    MOTOR_AXIS,
+    {tone: 'mid', ...shaft},
+  );
+  M.turned(
+    'pulley',
+    [
+      [62, 7],
+      [63, 7.6],
+      [66, 7.6],
+      [67, 7],
+    ],
+    MOTOR_AXIS,
+    {tone: 'hi', lit: lit === 'pulley', ...shaft},
+  );
+  M.turned(
+    'shaft.tip',
+    [
+      [67, 2.2],
+      [69.4, 2.2],
+      [70, 1.6],
+    ],
+    MOTOR_AXIS,
+    {tone: 'hi', ...shaft},
+  );
+
+  // terminal box on top of the can (sunk into its curve, same owner), lid and four lid screws; nameplate on the base
+  // the box bottom sits just above the can surface at its edges (y 18/32: z 38.27) and sinks 1.6 at the centre
+  M.slab('box', {x: 30, y: 18, w: 14, d: 14, r: 1.2}, top - 1.6, 7.4, {tone: 'hi', bevel: 0.4, ...can});
+  // terminal block and three terminals on the box top, hidden under the lid until it lifts
+  M.slab('box.block', {x: 32, y: 21, w: 10, d: 8, r: 0.6}, top + 5.8, 0.6, {tone: 'mid', bevel: 0.2, ...can});
+  for (const x of [34, 37, 40]) M.cyl(`box.terminal${x}`, x, 25, 1.4, top + 6.4, 0.6, {tone: 'hi', lit: lit === 'terminals', ...can});
+  const lid = {piece: 'lid', move: [0, 0, 22] as Point3};
+  M.slab('box.lid', {x: 29.5, y: 17.5, w: 15, d: 15, r: 1.4}, top + 7.1, 1.4, {tone: 'hi', bevel: 0.4, ...can, ...lid});
+  for (const [x, y] of [
+    [31.6, 19.6],
+    [42.4, 19.6],
+    [31.6, 30.4],
+    [42.4, 30.4],
+  ])
+    M.turned(
+      `box.screw${x}${y}`,
+      [
+        [0, 0.9],
+        [0.5, 0.9, 1],
+        [0.8, 0],
+      ],
+      up(x, y, top + 8.5),
+      {tone: 'hi', ...can, ...lid},
+    );
+  M.slab('nameplate', {x: 58, y: 39, w: 12, d: 8, r: 0.6}, 4, 0.4, {tone: 'mid', bevel: 0});
+
+  // cable gland on the box side (along +y) and the cable: out of the gland, over the base edge, down to the floor
+  const gland = G.frameAlong([37, 32, top + 2], [0, 1, 0]);
+  M.turned(
+    'gland',
+    [
+      [0, 3.2],
+      [2.6, 3.2],
+      [3.2, 2.4, 1],
+      [4, 2.2],
+    ],
+    gland,
+    {tone: 'mid', ...can},
+  );
+  M.pipe(
+    'cable',
+    [
+      [37, 36, top + 2],
+      [37, 50, top + 2],
+      [37, 62, 18],
+      [37, 64, 1.6],
+      [37, 82, 1.6],
+    ],
+    1.6,
+    {bend: 6, limp: true, ends: [true, false], tone: 'hi'},
+  );
+
+  return M;
 };
-for (const [x, y] of [[5, 5], [77, 5], [5, 45], [77, 45]]) bolt(`bolt${x}${y}`, x, y, 4);
 
-// two saddle brackets: a flange plate and a block; the can rests on the blocks
-for (const x0 of [18, 48]) {
-  M.slab(`bracket${x0}.flange`, {x: x0, y: 7, w: 8, d: 36, r: 1}, 4, 2, {tone: 'mid', bevel: 0.3});
-  M.slab(`bracket${x0}.block`, {x: x0 + 1, y: 15, w: 6, d: 20, r: 1}, 6, Z - R - 6, {tone: 'mid', bevel: 0.3});
-  for (const y of [10, 40]) bolt(`bracket${x0}.bolt${y}`, x0 + 4, y, 6);
-}
-
-// the can is cut into slices between the fins, so every slice and fin paints in order along the axis (a ring
-// round a body can't be ordered against it); one owner joins the can, its caps, fins and terminal box
-const can = {meta: {owner: 'can'}};
-const FINS = [2, 4.5, 14.5, 16.5, 33, 35, 44.5, 47]; // free of the brackets (s 7–13, 37–43) and the box (s 18–32)
-let s0 = 0;
-for (const f of [...FINS, 50]) {
-  if (f > s0) M.turned(`can.${s0}`, [[s0, R], [f, R]], MOTOR_AXIS, {tone: 'hi', lathe: {rims: 'none'}, ...can});
-  if (f < 50) M.disc(`fin${f}`, f, f + 1, R + 1.8, MOTOR_AXIS, {tone: 'mid', ...can});
-  s0 = f + 1;
-}
-M.turned('cap.rear', [[-4, 9], [-2.6, 12.6, 1], [-1, 14.6, 1], [0, R]], MOTOR_AXIS, {tone: 'hi', ...can});
-M.turned('cap.front', [[50, R], [51, 14.6, 1], [52.6, 12.6, 1], [54, 9]], MOTOR_AXIS, {tone: 'hi', ...can});
-// shaft, hub and pulley in axial order (the hub and the pulley are solid round the shaft)
-const shaft = {meta: {owner: 'shaft'}};
-M.turned('shaft', [[54, 2.2], [60, 2.2]], MOTOR_AXIS, {tone: 'hi', ...shaft});
-M.turned('pulley.hub', [[60, 3.6], [62, 3.6]], MOTOR_AXIS, {tone: 'mid', ...shaft});
-M.turned('pulley', [[62, 7], [63, 7.6], [66, 7.6], [67, 7]], MOTOR_AXIS, {tone: 'hi', lit: true, ...shaft});
-M.turned('shaft.tip', [[67, 2.2], [69.4, 2.2], [70, 1.6]], MOTOR_AXIS, {tone: 'hi', ...shaft});
-
-// terminal box on top of the can (sunk into its curve, same owner), lid and four lid screws; nameplate on the base
-const top = Z + R; // 40
-// the box bottom sits just above the can surface at its edges (y 18/32: z 38.27) and sinks 1.6 at the centre
-M.slab('box', {x: 30, y: 18, w: 14, d: 14, r: 1.2}, top - 1.6, 7.4, {tone: 'hi', bevel: 0.4, ...can});
-M.slab('box.lid', {x: 29.5, y: 17.5, w: 15, d: 15, r: 1.4}, top + 5.8, 1.4, {tone: 'hi', bevel: 0.4, ...can});
-for (const [x, y] of [[31.6, 19.6], [42.4, 19.6], [31.6, 30.4], [42.4, 30.4]]) M.turned(`box.screw${x}${y}`, [[0, 0.9], [0.5, 0.9, 1], [0.8, 0]], up(x, y, top + 7.2), {tone: 'hi', ...can});
-M.slab('nameplate', {x: 58, y: 39, w: 12, d: 8, r: 0.6}, 4, 0.4, {tone: 'mid', bevel: 0});
-
-// cable gland on the box side (along +y) and the cable: out of the gland, over the base edge, down to the floor
-const gland = G.frameAlong([37, 32, top + 2], [0, 1, 0]);
-M.turned('gland', [[0, 3.2], [2.6, 3.2], [3.2, 2.4, 1], [4, 2.2]], gland, {tone: 'mid', ...can});
-M.pipe(
-  'cable',
-  [
-    [37, 36, top + 2],
-    [37, 50, top + 2],
-    [37, 62, 18],
-    [37, 64, 1.6],
-    [37, 82, 1.6],
-  ],
-  1.6,
-  {bend: 6, limp: true, ends: [true, false], tone: 'hi'},
-);
-
+export const MOTOR = build('motor', 'pulley');
+export const MOTOR_OPEN = build('motorOpen', 'terminals');
 // paint order solved by `node scripts/object-audit.mjs --settle`
-MOTOR.applyKeys(KEYS.MOTOR);
+MOTOR.applyKeys((KEYS as Record<string, Record<string, number>>).MOTOR);
+MOTOR_OPEN.applyKeys((KEYS as Record<string, Record<string, number>>).MOTOR_OPEN);
 
 export const MOTOR_CORNERS: Point3[] = [
   [0, 0, 0],
@@ -87,7 +205,7 @@ export const MOTOR_CORNERS: Point3[] = [
   [0, 50, 0],
   [82, 50, 0],
   [40, 25, top + 8],
-  [29.5, 17.5, top + 8], // terminal box lid corners and the gland
-  [44.5, 32.5, top + 8],
+  [29.5, 17.5, top + 9.5], // terminal box lid corners and the gland
+  [44.5, 32.5, top + 9.5],
   [37, 36, top + 5],
 ];

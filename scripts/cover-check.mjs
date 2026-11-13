@@ -28,10 +28,10 @@ for (const file of files) {
   for (const e of checkCoverSet(COVERS)) (errors++, console.log(`ERROR ${rel}: ${e}`));
   for (const [v, spec] of Object.entries(COVERS)) {
     const L = coverLayout(spec);
-    const share = ((L.image.bottom - L.image.top) / (1210 - 420)) * 100;
+    const share = L.share * 100;
     for (const e of L.errors) (errors++, console.log(`ERROR ${rel} ${v}: ${e}`));
     for (const w of L.warns) console.log(`WARN  ${rel} ${v}: ${w}`);
-    if (!quiet) console.log(`ok    ${rel} ${v}: ${TECHNIQUES[spec.technique]}, «${spec.lines.join(' ')}», ${L.fontSize} px, image ${share.toFixed(0)} % of the zone`);
+    if (!quiet) console.log(`ok    ${rel} ${v}: ${TECHNIQUES[spec.technique]}, «${spec.lines.join(' ')}», ${L.fontSize} px, image ${share.toFixed(0)} % of the frame, hook detail ${Math.max(L.hero.right - L.hero.left, L.hero.bottom - L.hero.top).toFixed(0)} px`);
   }
 }
 if (!files.length) console.log('cover-check: no covers.ts found');

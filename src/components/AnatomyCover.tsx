@@ -25,6 +25,12 @@ export const AnatomyCover: React.FC<{spec: CoverSpec}> = ({spec}) => {
       <AbsoluteFill style={{background: COLORS.bg}}>
         <svg width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0}}>
           <defs>
+            {/* backdrop: a soft light spot behind the image, darker edges: the cover stands out in a feed */}
+            <radialGradient id="coverSpot" gradientUnits="userSpaceOnUse" cx={(L.image.left + L.image.right) / 2} cy={(L.image.top + L.image.bottom) / 2} r={1150}>
+              <stop offset={0} stopColor={COLORS.fillLight} />
+              <stop offset={0.45} stopColor={COLORS.bg} />
+              <stop offset={1} stopColor={COLORS.fillDark} />
+            </radialGradient>
             {/* the image never leaves its region: a close-up fades out at the region's edge (no hard card edge),
                 not spilled over the title or the buttons */}
             <filter id="coverFeather" x="-10%" y="-10%" width="120%" height="120%">
@@ -35,6 +41,7 @@ export const AnatomyCover: React.FC<{spec: CoverSpec}> = ({spec}) => {
             </mask>
           </defs>
           <style>{COVER_CSS}</style>
+          {spec.backdrop !== 'none' ? <rect x={0} y={0} width={1080} height={1920} fill="url(#coverSpot)" /> : null}
           <g mask="url(#coverArt)">
             <g className="ns cover" transform={`translate(${screen[0]} ${screen[1]}) scale(${zoom}) translate(${-focus[0]} ${-focus[1]})`}>
               <g transform={`translate(${ROOM_ORIGIN[0]} ${ROOM_ORIGIN[1]})`}>

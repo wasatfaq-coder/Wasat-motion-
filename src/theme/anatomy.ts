@@ -28,5 +28,8 @@ export const ANATOMY_CSS = `${ISO_CSS}
  --anatomy-hi:${COLORS.ink};--anatomy-mid:${COLORS.inkSoft};--anatomy-lo:${SHADE.lo};--anatomy-faint:${SHADE.faint};--anatomy-lit:${COLORS.ink};
  --anatomy-halo:${SHADE.halo};--anatomy-dot:${COLORS.ink};--anatomy-weight:${ANATOMY_STYLE.inner}px}
 .iso .iso-svg{overflow:visible}
+/* Remotion renders frame by frame: the kit's CSS animations (flow dashes, pulsing dots) are switched off (§12);
+   animate those with the frame number instead */
+.iso .iso-line[data-flow],.iso .iso-dots circle[data-pulse]{animation:none!important}
 .iso .iso-line.iso-edge{stroke-width:${ANATOMY_STYLE.outer}px}
 `;

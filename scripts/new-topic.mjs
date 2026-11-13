@@ -74,7 +74,10 @@ const root = 'src/Root.tsx';
 let r = fs.readFileSync(root, 'utf8');
 const marker = '  {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}';
 if (!r.includes(marker)) throw new Error('Root.tsx marker not found');
-r = r.replace("import {Cover, coverSchema} from './Cover';", `import {Cover, coverSchema} from './Cover';\nimport {${pascal}Main, ${pascal}Selected} from './projects/${slug}/Main';\nimport {episodeSchema} from './components/Episode';`.replace(/\nimport \{episodeSchema\} from '\.\/components\/Episode';(?=[\s\S]*import \{episodeSchema\})/, ''));
+// import the topic's Main once; episodeSchema only if Root does not import it yet (a second topic used to duplicate it)
+let imports = `import {${pascal}Main, ${pascal}Selected} from './projects/${slug}/Main';`;
+if (!/import \{episodeSchema\} from '\.\/components\/Episode';/.test(r)) imports += "\nimport {episodeSchema} from './components/Episode';";
+r = r.replace("import {Cover, coverSchema} from './Cover';", `import {Cover, coverSchema} from './Cover';\n${imports}`);
 r = r.replace(marker, `  <Composition
     id="${pascal}Main"
     component={${pascal}Main}

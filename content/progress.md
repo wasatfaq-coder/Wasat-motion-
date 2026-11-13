@@ -23,3 +23,11 @@ Rules: MASTER_PROMPT_FINAL.md v2.1 (§19: density, pacing, retention, covers, ag
 
 ## Paid
 - Voice (ElevenLabs flow 5guk5yVDQ8mSnxrLUeBU): all 12 scenes generated, 1 take each, 1577 credits of 3200 budget. Total speech ≈ 114.6 s. Records in content/assets.json. Not yet listened to by the user.
+
+## Visual rework (after STOP 3)
+- Palette: bg, ink, neutrals, one coral accent (tokens only).
+- System detail on every Box (bevel, hatching, base line); detailed city kit.
+- Desk layout without collisions.
+- Physics for the flying page.
+- Scene 8: isometric head-shaped memory cabinet, suitcase, cards flying into drawers, tape measure.
+- Next: sample (scenes 1, 8, 9) for approval → convert scenes 3–4, 10, 11 to detailed isometry → full draft → STOP 3 again.

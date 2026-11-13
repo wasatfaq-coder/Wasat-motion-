@@ -88,8 +88,8 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
     [second - 4, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.3, screen: [500, 760]}], // the cake
     [tenth - 20, {focus: roomPoint([CAKE[0] + 0.5, CAKE[1] + 0.5, 3.0]), zoom: 3.2, screen: [500, 760]}], // the slice comes out
     [tiny - 2.0 * fps, {focus: roomPoint([CAKE[0], CAKE[1], 3.0]), zoom: 2.0, screen: [500, 760]}], // pull back first («С годами»), then the cake grows in frame
-    [third - 20, {focus: roomPoint([4.6, 8.9, 2.9]), zoom: 3.1, screen: [520, 700]}], // the sofa: child and grandparent
-    [third + 60, {focus: roomPoint([4.6, 8.9, 3.0]), zoom: 3.2, screen: [520, 700]}], // the films: 8 frames vs 4 frames
+    [third - 20, {focus: roomPoint([4.6, 8.9, 1.9]), zoom: 4.6, screen: [520, 720]}], // the two: a child and a grandparent, large, // the sofa: child and grandparent
+    [third + 40, {focus: roomPoint([4.6, 8.9, 3.6]), zoom: 3.0, screen: [520, 700]}], // the films: 8 frames vs 4 frames
     [images - 6, {focus: roomPoint([3.6, 8.9, 3.0]), zoom: 3.5, screen: [520, 700]}], // «больше картинок»: punch in on the child's long film,
   ]);
   return (
@@ -129,9 +129,9 @@ export const Scene10Versions: React.FC<{scene: SceneData}> = ({scene}) => {
         ) : null}
         {/* (3) sofa: the child (left) and the grandparent (right) film the same day */}
         <Sofa s={s} at={[2.8, 8.0, 0]} w={4.2} />
-        <IsoPerson s={s} at={[3.6, 8.6, 1.2]} h={1.25} sit bob={Math.abs(Math.sin(t * 5)) * 0.05} />
+        <IsoPerson s={s} at={[3.6, 8.6, 1.2]} h={1.1} sit bob={Math.abs(Math.sin(t * 5)) * 0.05} />
         <Box s={s} at={[3.9, 8.8, 1.72]} size={[0.38, 0.14, 0.26]} stroke={STROKE.secondary} />
-        <IsoPerson s={s} at={[5.6, 8.6, 1.2]} h={1.85} sit elder />
+        <IsoPerson s={s} at={[5.6, 8.6, 1.2]} h={2.0} sit elder />
         <Line3 s={s} width={STROKE.main} points={[[6.55, 9.35, 0], [6.5, 9.3, 1.5]]} />
         <Box s={s} at={[5.95, 8.8, 2.3]} size={[0.38, 0.14, 0.26]} stroke={STROKE.secondary} />
         <Line3 s={s} width={STROKE.main} points={[[6.7, 9.6, 0], [6.55, 9.4, 1.6], [6.3, 9.4, 1.75]]} />

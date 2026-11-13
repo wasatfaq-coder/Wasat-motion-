@@ -12,7 +12,7 @@ import {RoomSvg} from './RoomScene';
 import {Ground, IsoPerson, Sea, Tree, Umbrella} from '../illustrations/CityKit';
 import {Box, Line3} from '../illustrations/primitives';
 import {Suitcase as Suitcase3D} from '../illustrations/Props';
-import {iso, P3, planeMatrix} from '../lib/iso';
+import {iso, P3, planeMatrix, pts} from '../lib/iso';
 
 export const HOLIDAY_CARDS = 8;
 const SUITCASE: P3 = [1.3, 3.7, 0]; // left of the desk front: no overlap with the desk legs
@@ -61,23 +61,38 @@ export const Scene07Holiday: React.FC<{scene: SceneData}> = ({scene}) => {
   const sunP = interpolate(frame, [vac, home], [0, 3], clamp);
   const sf = sunP % 1;
   // rises from behind the sea and sets into it (no jump across the screen)
-  const [sx, sy] = iso(ROOM_S)([-2.0 + sf * 7, -3.0, -1.7 + Math.sin(Math.PI * sf) * 4.2]);
-  const sunO = 1;
+  const [sx, sy] = iso(ROOM_S)([1.0 + sf * 10, 0, -0.7 + Math.sin(Math.PI * sf) * 5.2]);
   const shadowA = Math.PI * sf; // umbrella shadows turn with the sun
   const bob = Math.sin(t * 2.2) * 0.05;
   if (frame < home) {
     return (
       <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
         <RoomSvg cam={beachCam}>
-          {sunP > 0 && sunP < 3 ? (
-            <g opacity={sunO}>
-              <circle cx={sx} cy={sy} r={0.6 * ROOM_S} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
-              {Array.from({length: 8}, (_, k) => {
-                const a = (k / 8) * Math.PI * 2 + frame * 0.05;
-                return <line key={k} x1={sx + Math.cos(a) * 0.78 * ROOM_S} y1={sy + Math.sin(a) * 0.78 * ROOM_S} x2={sx + Math.cos(a) * 1.0 * ROOM_S} y2={sy + Math.sin(a) * 1.0 * ROOM_S} stroke={COLORS.ink} strokeWidth={STROKE.secondary} strokeLinecap="round" />;
-              })}
-            </g>
-          ) : null}
+          {/* sky backdrop behind the sea: its bottom edge is the horizon; the sun rises out of it and sets behind it */}
+          <defs>
+            <clipPath id="skyClip">
+              <polygon points={pts(ROOM_S, [[0, 0, 0], [12, 0, 0], [12, 0, 8], [0, 0, 8]])} />
+            </clipPath>
+          </defs>
+          <polygon points={pts(ROOM_S, [[0, 0, 0], [12, 0, 0], [12, 0, 8], [0, 0, 8]])} fill={COLORS.wallRight} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
+          <g clipPath="url(#skyClip)">
+            {sunP > 0 && sunP < 3 ? (
+              <g>
+                <circle cx={sx} cy={sy} r={0.6 * ROOM_S} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
+                {Array.from({length: 8}, (_, k) => {
+                  const a = (k / 8) * Math.PI * 2 + frame * 0.05;
+                  return <line key={k} x1={sx + Math.cos(a) * 0.78 * ROOM_S} y1={sy + Math.sin(a) * 0.78 * ROOM_S} x2={sx + Math.cos(a) * 1.0 * ROOM_S} y2={sy + Math.sin(a) * 1.0 * ROOM_S} stroke={COLORS.ink} strokeWidth={STROKE.secondary} strokeLinecap="round" />;
+                })}
+              </g>
+            ) : null}
+            {/* gulls gliding across the sky */}
+            {[0, 1, 2].map((k) => {
+              const gx = 1.5 + ((t * 0.7 + k * 3.4) % 10);
+              const gz = 4.6 + k * 0.7 + Math.sin(t * 2 + k) * 0.15;
+              const [gpx, gpy] = iso(ROOM_S)([gx, 0, gz]);
+              return <path key={k} d={`M${gpx - 12},${gpy + 3} Q${gpx - 6},${gpy - 6 + Math.sin(t * 8 + k) * 3} ${gpx},${gpy} Q${gpx + 6},${gpy - 6 + Math.sin(t * 8 + k) * 3} ${gpx + 12},${gpy + 3}`} fill="none" stroke={COLORS.ink} strokeWidth={STROKE.secondary} strokeLinecap="round" />;
+            })}
+          </g>
           {/* the sea plane is drawn after the sun: the sun rises out of it and sinks into it (horizon = far shore edge) */}
           <Sea s={ROOM_S} at={[0, 0, 0]} w={12} d={3.6} t={t} />
           {/* foam line at the shore */}

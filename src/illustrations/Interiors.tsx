@@ -204,7 +204,7 @@ export const IsoCake: React.FC<{s: number; at: P3; r: number; h: number; slices:
       {/* the pulled slice = one year (the only accent) */}
       {pull > 0.02 ? (
         <g>
-          <polygon points={hull([...topW, ...botW]).map((p) => p.join(',')).join(' ')} fill={COLORS.accentSoft} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
+          <polygon points={hull([...topW, ...botW]).map((p) => p.join(',')).join(' ')} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
           {/* cream layer across the slice */}
           <polyline points={wedge(px, py, zTop - h * 0.5).slice(1).map((p) => p.join(',')).join(' ')} fill="none" stroke={COLORS.fillLight} strokeWidth={STROKE.main * 1.6} />
           <polygon points={topW.map((p) => p.join(',')).join(' ')} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />

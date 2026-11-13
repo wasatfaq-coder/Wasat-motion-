@@ -81,7 +81,7 @@ export const Building: React.FC<{s: number; at: P3; size: P3; floors?: number; a
         )}
       </g>
       {/* roof: parapet, AC unit, antenna */}
-      <Box s={s} at={[x - 0.05, y - 0.05, z + h]} size={[w + 0.1, d + 0.1, 0.15]} stroke={STROKE.secondary} top={accent ? COLORS.accentSoft : COLORS.fillLight} detail="none" />
+      <Box s={s} at={[x - 0.05, y - 0.05, z + h]} size={[w + 0.1, d + 0.1, 0.15]} stroke={STROKE.secondary} top={COLORS.fillLight} detail="none" />
       <Box s={s} at={[x + w * 0.55, y + d * 0.2, z + h + 0.15]} size={[0.5, 0.4, 0.3]} stroke={STROKE.secondary} />
       <Line3 s={s} points={[[x + w * 0.25, y + d * 0.5, z + h + 0.15], [x + w * 0.25, y + d * 0.5, z + h + 0.9]]} width={STROKE.secondary} />
       <Line3 s={s} points={[[x + w * 0.25 - 0.15, y + d * 0.5, z + h + 0.75], [x + w * 0.25 + 0.15, y + d * 0.5, z + h + 0.75]]} width={STROKE.micro} />
@@ -224,7 +224,7 @@ export const Umbrella: React.FC<{s: number; at: P3}> = ({s, at}) => {
   return (
     <g>
       <Line3 s={s} points={[at, top]} width={STROKE.main} />
-      <path d={`M${tx - r},${ty + r * 0.35} Q${tx},${ty - r * 0.55} ${tx + r},${ty + r * 0.35} Z`} fill={COLORS.accent} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
+      <path d={`M${tx - r},${ty + r * 0.35} Q${tx},${ty - r * 0.55} ${tx + r},${ty + r * 0.35} Z`} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.main} strokeLinejoin="round" />
       {[-0.5, 0, 0.5].map((k) => (
         <line key={k} x1={tx} y1={ty - r * 0.12} x2={tx + k * r * 1.6} y2={ty + r * 0.3} stroke={COLORS.ink} strokeWidth={STROKE.micro} />
       ))}
@@ -235,7 +235,7 @@ export const Umbrella: React.FC<{s: number; at: P3}> = ({s, at}) => {
 /** Sea: floor-plane band with moving wave lines. */
 export const Sea: React.FC<{s: number; at: P3; w: number; d: number; t: number}> = ({s, at, w, d, t}) => (
   <g transform={planeMatrix(s, 'floor', at)}>
-    <rect x={0} y={0} width={w} height={d} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
+    <rect x={0} y={0} width={w} height={d} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
     {Array.from({length: 6}, (_, i) => {
       const y0 = (i + 0.5) * (d / 6);
       const ph = t * 1.4 + i;

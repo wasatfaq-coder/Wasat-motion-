@@ -73,7 +73,7 @@ export const CardCatalog: React.FC<{s: number; at: P3; open: number[]; lit: numb
         const card = (holding[k] ?? 0) > 0 && slide > 0.2;
         return (
           <g key={k}>
-            <Box s={s} at={[x, y0, z]} size={[DRAWER.w, slide, DRAWER.h]} stroke={STROKE.secondary} left={isLit ? COLORS.accentSoft : COLORS.fillLight} right={COLORS.fillMid} top={COLORS.fillLight} detail="none" />
+            <Box s={s} at={[x, y0, z]} size={[DRAWER.w, slide, DRAWER.h]} stroke={STROKE.secondary} left={COLORS.fillLight} right={COLORS.fillMid} top={COLORS.fillLight} detail="none" />
             {card ? (
               <g transform={planeMatrix(s, 'floor', [x + DRAWER.w / 2, y0 + slide / 2, z + DRAWER.h + 0.01])}>
                 <g transform={`scale(1 ${Math.min(1, (slide - 0.1) / 0.5)})`}>

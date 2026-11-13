@@ -31,7 +31,7 @@ const Film: React.FC<{id: string; x: number; y: number; w: number; frames: numbe
           const fx = x + ((i * fw + scroll) % (w + fw)) - fw;
           return (
             <g key={i}>
-              <rect x={fx + 6} y={y + 24} width={fw - 12} height={72} rx={4} fill={i % 3 === 0 ? COLORS.accentSoft : COLORS.fillLight} />
+              <rect x={fx + 6} y={y + 24} width={fw - 12} height={72} rx={4} fill={i % 3 === 0 ? COLORS.fillMid : COLORS.fillLight} />
               {i % 3 === 0 ? (
                 <g>
                   <path d={`M${fx + 14},${y + 88} L${fx + 14},${y + 62} L${fx + fw / 2},${y + 40} L${fx + fw - 14},${y + 62} L${fx + fw - 14},${y + 88} Z`} fill="none" stroke={COLORS.ink} strokeWidth={2} strokeLinejoin="round" />

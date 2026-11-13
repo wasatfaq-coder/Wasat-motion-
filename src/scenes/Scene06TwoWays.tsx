@@ -45,16 +45,16 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
           <Paving s={ROOM_S} at={[0, 3.0, 0.005]} w={12} d={5} step={0.8} />
           <Road s={ROOM_S} at={[0, 1.2, 0.01]} len={12} dir="x" width={1.6} />
           <Building s={ROOM_S} at={[0.5, -2.6, 0]} size={[3.0, 2.0, 4.0]} floors={4} lit={0.2} />
-          <Building s={ROOM_S} at={[4.2, -2.6, 0]} size={[2.6, 2.0, 3.2]} floors={3} accent lit={0.2} />
+          <Building s={ROOM_S} at={[4.2, -2.6, 0]} size={[2.6, 2.0, 3.2]} floors={3} lit={0.2} />
           <Building s={ROOM_S} at={[7.4, -2.6, 0]} size={[3.2, 2.0, 4.6]} floors={4} lit={0.3} />
-          <Car s={ROOM_S} at={[interpolate(frame, [now - 60, now + 60], [-2, 13], clamp), 1.5, 0.01]} accent />
+          <Car s={ROOM_S} at={[interpolate(frame, [now - 60, now + 60], [-2, 13], clamp), 1.5, 0.01]} />
           {/* a bus passes in the first seconds */}
           {(() => {
             const bx = interpolate(frame, [40, 130], [-6, 14], clamp);
             return (
               <g>
                 <Box s={ROOM_S} at={[bx, 1.3, 0.15]} size={[3.4, 0.9, 1.2]} stroke={2.5} left={COLORS.fillLight} right={COLORS.fillMid} top={COLORS.fillLight} />
-                <Box s={ROOM_S} at={[bx + 0.2, 2.21, 0.75]} size={[3.0, 0.01, 0.4]} stroke={2} left={COLORS.accentSoft} />
+                <Box s={ROOM_S} at={[bx + 0.2, 2.21, 0.75]} size={[3.0, 0.01, 0.4]} stroke={2} left={COLORS.fillMid} />
               </g>
             );
           })()}
@@ -69,7 +69,7 @@ export const Scene06TwoWays: React.FC<{scene: SceneData}> = ({scene}) => {
         <clipPath id="splitBand">
           <rect x={0} y={240} width={1080} height={960} />
         </clipPath>
-        <line clipPath="url(#splitBand)" x1={0} y1={yMid + tilt + (1 - split) * 900} x2={1080} y2={yMid - tilt + (1 - split) * 900} stroke={COLORS.accent} strokeWidth={STROKE.main * 1.5} opacity={split} />
+        <line clipPath="url(#splitBand)" x1={0} y1={yMid + tilt + (1 - split) * 900} x2={1080} y2={yMid - tilt + (1 - split) * 900} stroke={COLORS.ink} strokeWidth={STROKE.main * 1.5} opacity={split} />
       </svg>
     </AbsoluteFill>
   );

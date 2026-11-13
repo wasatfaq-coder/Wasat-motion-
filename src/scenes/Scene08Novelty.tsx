@@ -115,7 +115,7 @@ export const Scene08Novelty: React.FC<{scene: SceneData}> = ({scene}) => {
         <Dust s={s} at={[3.8, 3.6, 1.6]} t={t} />
         <CardCatalog s={s} at={CAT_AT} open={open} lit={lit} holding={holding} />
         {/* tape measure beside the catalogue: coral case, blade with ticks (no numbers) */}
-        <Box s={s} at={TAPE} size={[0.5, 0.5, 0.42]} left={COLORS.accent} right={COLORS.accentSoft} />
+        <Box s={s} at={TAPE} size={[0.5, 0.5, 0.42]} left={COLORS.accent} right={COLORS.accent} />
         {blade > 0.05 ? (
           <g>
             <Box s={s} at={[TAPE[0] + 0.12, TAPE[1] + 0.2, 0.42]} size={[0.3, 0.07, blade]} stroke={STROKE.secondary} left={COLORS.fillLight} right={COLORS.fillMid} detail="none" />

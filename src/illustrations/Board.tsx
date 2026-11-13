@@ -46,7 +46,7 @@ export const Sticky: React.FC<{x: number; y: number; w?: number; rot?: number; c
 export const Person: React.FC<{x: number; y: number; s?: number; accent?: boolean; p?: number}> = ({x, y, s = 1, accent = false, p = 1}) => (
   <g transform={`translate(${x} ${y + (1 - p) * 30}) scale(${s * p})`} opacity={Math.min(1, p * 2)}>
     <circle cx={0} cy={-46} r={14} fill={accent ? COLORS.accent : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW3 / s} />
-    <path d="M-20,0 L-20,-14 C-20,-28 -10,-30 0,-30 C10,-30 20,-28 20,-14 L20,0 Z" fill={accent ? COLORS.accentSoft : COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW3 / s} strokeLinejoin="round" />
+    <path d="M-20,0 L-20,-14 C-20,-28 -10,-30 0,-30 C10,-30 20,-28 20,-14 L20,0 Z" fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW3 / s} strokeLinejoin="round" />
   </g>
 );
 
@@ -185,8 +185,8 @@ export const FrontCrowd: React.FC<{y: number; react: number; frame: number}> = (
       return (
         <g key={i} transform={`translate(${x} ${y + (i % 2) * 26 + bob}) scale(${h})`}>
           {arm ? <path d={`M18,-20 L${40},${-80 - 70 * react} `} stroke={COLORS.ink} strokeWidth={LW * 2.2} strokeLinecap="round" /> : null}
-          {arm ? <path d={`M18,-20 L${40},${-80 - 70 * react} `} stroke={i === 2 ? COLORS.accentSoft : COLORS.fillMid} strokeWidth={LW * 1.2} strokeLinecap="round" /> : null}
-          <path d="M-60,80 L-60,10 C-60,-30 -30,-40 0,-40 C30,-40 60,-30 60,10 L60,80 Z" fill={i % 4 === 1 ? COLORS.accentSoft : COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
+          {arm ? <path d={`M18,-20 L${40},${-80 - 70 * react} `} stroke={COLORS.fillMid} strokeWidth={LW * 1.2} strokeLinecap="round" /> : null}
+          <path d="M-60,80 L-60,10 C-60,-30 -30,-40 0,-40 C30,-40 60,-30 60,10 L60,80 Z" fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={LW} strokeLinejoin="round" />
           <circle cx={0} cy={-78} r={38} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={LW} />
         </g>
       );

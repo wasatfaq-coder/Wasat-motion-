@@ -111,7 +111,7 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
           </g>
         </g>
       ) : null}
-      <Car s={ROOM_S} at={[car[0] - 0.5, car[1] - 0.27, 0.02]} accent={open > 0.5} t={t} />
+      <Car s={ROOM_S} at={[car[0] - 0.5, car[1] - 0.27, 0.02]} t={t} />
       <IsoPerson s={ROOM_S} at={[1.7, 5.7, 0]} h={1.0} bob={Math.sin(t * 3) * 0.02} />
       <IsoPerson s={ROOM_S} at={[4.0 + ((t * 0.4) % 4), 8.6, 0]} h={1.0} walk={t * 7} />
       <IsoPerson s={ROOM_S} at={[10.4 - ((t * 0.3) % 3), 8.0, 0]} h={0.95} walk={t * 7 + 1} />

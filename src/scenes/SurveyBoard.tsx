@@ -43,7 +43,7 @@ const LaneIcon: React.FC<{kind: string; x: number; y: number; p: number}> = ({ki
     ) : kind === 'неделя' ? (
       <g>
         {Array.from({length: 7}, (_, k) => (
-          <rect key={k} x={-30 + k * 9} y={-10} width={8} height={20} rx={2} fill={k === 6 ? COLORS.accentSoft : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={1.8} />
+          <rect key={k} x={-30 + k * 9} y={-10} width={8} height={20} rx={2} fill={k === 6 ? COLORS.fillMid : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={1.8} />
         ))}
       </g>
     ) : (
@@ -146,7 +146,7 @@ export const SurveyBoard: React.FC<{s: SurveyState; iso?: boolean}> = ({s, iso =
             <Pin x={0} y={0} />
           </g>
           {iso ? null : (
-          <Sticky x={PEAK[0] + 20} y={PEAK[1] + 30} w={180} rot={4} fill={COLORS.accentSoft}>
+          <Sticky x={PEAK[0] + 20} y={PEAK[1] + 30} w={180} rot={4}>
             <text x={22} y={88} {...t(52, TYPE.weightBold, COLORS.ink)}>≈50</text>
             <text x={24} y={134} {...t(34, TYPE.weightMedium)}>лет</text>
           </Sticky>

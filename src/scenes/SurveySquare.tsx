@@ -93,7 +93,7 @@ export const SurveySquare: React.FC<SquareState> = ({t, chart, crowdP, react, in
       <Plate at={boardPt(PX0, PY0 + 42)} text="14" opacity={labels} />
       <Plate at={boardPt(PX1, PY0 + 42)} text="94" opacity={labels} />
       <Plate at={boardPt(PX1 - 20, PY0 - 345)} text="10 лет" color={COLORS.accent} opacity={chart.decade > 0.97 ? 1 : 0} />
-      <Plate at={boardPt(PEAK[0] - 10, PEAK[1] + 130)} text="≈50 лет" fill={COLORS.accentSoft} opacity={Math.min(1, chart.peak * 2)} />
+      <Plate at={boardPt(PEAK[0] - 10, PEAK[1] + 130)} text="≈50 лет" color={COLORS.accent} opacity={Math.min(1, chart.peak * 2)} />
       {[[1.0, 3.6], [10.6, 3.8], [0.6, 8.6], [11.2, 8.4]].map(([x, y], i) => (
         <Tree key={i} s={s} at={[x, y, 0]} t={t} seed={`sq${i}`} />
       ))}

@@ -38,7 +38,7 @@ const Magnifier: React.FC<{x: number; y: number; z: number}> = ({x, y, z}) => {
     <g>
       <ellipse cx={sx} cy={sy} rx={0.62 * 1.22 * s * 0.8} ry={0.62 * 0.71 * s * 0.8} fill={COLORS.ink} opacity={0.1} />
       <Line3 s={s} width={STROKE.main * 2.4} points={[[x + 0.6, y, z], [x + 1.45, y, z + 0.12]]} />
-      <Line3 s={s} width={STROKE.main * 1.2} color={COLORS.accent} points={[[x + 0.68, y, z + 0.01], [x + 1.42, y, z + 0.12]]} />
+      <Line3 s={s} width={STROKE.main * 1.2} color={COLORS.fillDark} points={[[x + 0.68, y, z + 0.01], [x + 1.42, y, z + 0.12]]} />
       <g transform={planeMatrix(s, 'floor', [x, y, z])}>
         <circle r={0.62} fill={COLORS.fillLight} fillOpacity={0.3} stroke={COLORS.ink} strokeWidth={STROKE.main * 1.6} vectorEffect="non-scaling-stroke" />
         <path d="M-0.35,-0.2 q0.15,-0.2 0.4,-0.25" fill="none" stroke={COLORS.fillLight} strokeWidth={STROKE.main} vectorEffect="non-scaling-stroke" />

@@ -117,6 +117,13 @@ export class Assembly {
     return this.put(n, at, K.solidSvg(G.disc(s0, s1, r, F, this.P), c), [this.shape(A.disc(F, s0, s1, r), c, n)], c);
   }
 
+  /** A ring / collar with thickness on any axis (eye bolts, collars, flanges with a bore). */
+  ring(name: string, s0: number, s1: number, rIn: number, rOut: number, F: Frame, c: SolidOpts = {}) {
+    const n = this.full(name);
+    const at = G.add3(F.o, G.mul3(F.a, (s0 + s1) / 2)) as Point3;
+    return this.put(n, at, K.solidSvg(G.ringBand(s0, s1, rIn, rOut, F, this.P), c), [this.shape(A.ring(F, s0, s1, rIn, rOut), c, n)], c);
+  }
+
   /** A ball (knob, joint, bearing, terminal). */
   ball(name: string, centre: Point3, r: number, c: SolidOpts = {}) {
     const n = this.full(name);
@@ -171,8 +178,9 @@ export class Assembly {
   keysApplied = false;
 
   /** The object as SVG markup, painted back to front. `shares` moves pieces (0 = home, 1 = at `move`). */
-  svg(shares: Record<string, number> = {}) {
-    const items = this.R.items as Item[];
+  svg(shares: Record<string, number> = {}, opts: {hide?: (name: string) => boolean} = {}) {
+    // `hide` leaves parts out of a picture (e.g. a cable that would read as a second shaft on a cover)
+    const items = (this.R.items as Item[]).filter((i) => !opts.hide?.(i.name));
     const keyed = items.map((item, index) => {
       const share = shares[item.piece] ?? 0;
       const off = G.mul3(item.move, share) as Point3;

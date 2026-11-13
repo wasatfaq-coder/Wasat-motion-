@@ -64,6 +64,21 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   if (parts.length) run(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`);
 }
 
+// 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques
+{
+  const topicDir = scenesDir.includes(`projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
+  const covers = srcFiles.filter((f) => path.basename(f) === 'covers.ts' && (topicDir ? f.startsWith(topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
+  if (covers.length) {
+    run(`cover-check (${covers.length})`, `node scripts/cover-check.mjs --quiet ${covers.map((f) => JSON.stringify(f)).join(' ')}`);
+    try {
+      const outp = execSync(`node scripts/cover-check.mjs --quiet ${covers.map((f) => JSON.stringify(f)).join(' ')}`, {encoding: 'utf8'});
+      for (const l of outp.split('\n').filter((l) => l.startsWith('WARN'))) add('warn', `cover: ${l.slice(6)}`);
+    } catch {
+      /* errors are reported by run() above */
+    }
+  }
+}
+
 // 2c) character rig (§22): no foot sliding, rigid bones, IK reaches, ≥ 40 parts per outfit
 run('rig-check', 'node scripts/rig-check.mjs --quiet');
 

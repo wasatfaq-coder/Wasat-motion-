@@ -4,7 +4,7 @@ import * as K from '../vendor/anatomy/iso-kit';
 import * as LatheKit from '../vendor/anatomy/lathe.mjs';
 import {AnatomyStage, anatomyProjection, Kit, toRoom} from '../lib/anatomy';
 import {boxCorners, camOn, lerpCam, RoomSvg} from '../lib/camera';
-import {add, HAND_POSES, lerpFingers, lerpPose, mul, Pose, reach, sit, solve, stand, V3, walk} from '../lib/rig';
+import {add, HAND_POSES, holdInFront, lerpFingers, lerpPose, mul, Pose, reach, sit, solve, stand, V3, walk} from '../lib/rig';
 import {drawCharacter, OUTFITS} from '../lib/character';
 import {EASE} from '../lib/anim';
 import {spring} from '../lib/physics';
@@ -83,13 +83,13 @@ export const AnatomyCharacterSample: React.FC = () => {
 /** Three roles by clothing and props (clerk, worker, lab) and the sitting pose. */
 export const AnatomyCastSample: React.FC = () => {
   const people: [Pose, keyof typeof OUTFITS][] = [
-    [stand([0, 0, 0], Math.PI / 4), 'clerk'],
-    [stand([0, -34, 0], Math.PI / 4), 'worker'],
+    [holdInFront(stand([0, 0, 0], Math.PI / 4)), 'clerk'],
+    [holdInFront(stand([0, -34, 0], Math.PI / 4)), 'worker'],
     [sit([10, -78, 21], -Math.PI / 4), 'lab'], // side on, so the thighs and knees read
   ];
   const stool = K.solidSvg(K.cylinder(10, -78, 7, 18, 3, P, 32, 0.4), {tone: 'hi'}) + K.solidSvg(K.cylinder(10, -78, 1.6, 0, 18, P, 24, 0.2), {tone: 'mid'});
   const drawn = people.map(([p, o]) => {
-    const sk = solve(p);
+    const sk = solve({...p, fingersR: HAND_POSES.hold}); // the right hand closes round the role's tool
     return {
       key: K.depthOf(p.root, P),
       svg: drawCharacter(sk, P, OUTFITS[o]).svg,

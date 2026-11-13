@@ -248,10 +248,16 @@ export const drawCharacter = (s: Skel, P: K.Projection, outfit: Outfit = {}) => 
       const n = s.hand.L.n;
       disc(add(wr, mul(unit(sub(el, wr)), 0.8)), mul(n, -1), 1.3, 1.9, 1.05, lit('watch', 'shirt')); // watch face on the back of the wrist
     }
-    group(add(s.wrist[side], mul(s.hand[side].fwd, 4)), () => drawHand(s.hand[side], P, put, solid), true);
+    const held = side === 'R' && outfit.tool && outfit.tool !== 'none' ? outfit.tool : null;
+    group(
+      add(s.wrist[side], mul(s.hand[side].fwd, 4)),
+      () => {
+        drawHand(s.hand[side], P, put, solid);
+        if (held) drawTool(s.hand.R, P, held, put, solid, lit('tool', held === 'tablet' ? 'dark' : 'shirt'));
+      },
+      true,
+    );
   }
-  const tool = outfit.tool;
-  if (tool && tool !== 'none') group(add(s.wrist.R, mul(s.hand.R.fwd, 5)), () => drawTool(s.hand.R, P, tool, put, solid, lit('tool', tool === 'tablet' ? 'dark' : 'shirt')));
 
   // ── neck, head (no face), ears, hair, hat
   limb(s.neck, add(s.head, mul(s.headUp, -DIM.head * 0.6)), 2.0, 2.0, 'skin', false);
@@ -335,65 +341,27 @@ export const drawHand = (h: HandSkel, P: K.Projection, put: Put, solid: Solid, c
 };
 
 const drawTool = (h: HandSkel, P: K.Projection, tool: NonNullable<Outfit['tool']>, put: Put, solid: Solid, c: Cloth) => {
-  const grip = add(add(h.wrist, mul(h.fwd, 4.6)), mul(h.n, 1.6)); // inside the curled fingers
-  const along = h.side; // a tool held across the palm
+  // the grip axis runs across the palm through the curled fingers (HAND_POSES.hold); the part inside the fist is not
+  // drawn, the two ends that stick out are separate parts so each sorts against the fingers by its own depth
+  const grip = add(add(h.wrist, mul(h.fwd, 7.2)), mul(h.n, 1.5));
+  const along = h.side;
+  const HIDE = 3.4; // half the width of the fist
+  const rod = (s0: number, s1: number, r: number, tip = 0) => {
+    const F = G.frameAlong(add(grip, mul(along, s0)), along);
+    const L = s1 - s0;
+    const prof = tip > 0 ? [[0, r], [L - tip, r], [L, r * 0.25]] : tip < 0 ? [[0, r * 0.25], [-tip, r], [L, r]] : [[0, r], [L, r]];
+    put(add(grip, mul(along, (s0 + s1) / 2)), solid(G.solidOf(prof, F, P), c));
+  };
   if (tool === 'pen') {
-    const F = G.frameAlong(add(grip, mul(along, -5)), along);
-    put(
-      grip,
-      solid(
-        G.solidOf(
-          [
-            [0, 0],
-            [1.2, 0.7, 1],
-            [11, 0.75],
-            [11.6, 0.5],
-            [13, 0],
-          ],
-          F,
-          P,
-        ),
-        c,
-      ),
-    );
+    rod(-7, -HIDE, 0.75, -1.4); // cap end
+    rod(HIDE, 7.5, 0.75, 1.6); // writing tip
   } else if (tool === 'wrench') {
-    const F = G.frameOf(add(grip, mul(along, -4)), h.n, along, h.fwd);
-    put(
-      grip,
-      solid(
-        G.prismOf(
-          F,
-          [
-            [0, -0.8],
-            [0, 0.8],
-            [13, 0.9],
-            [13, -0.9],
-          ],
-          -0.4,
-          0.4,
-          P,
-        ),
-        c,
-      ),
-    );
-    put(
-      add(grip, mul(along, 10)),
-      solid(
-        G.prismOf(
-          F,
-          [
-            [12, -2.6],
-            [12, 2.6],
-            [15.4, 2.2],
-            [15.4, -2.2],
-          ],
-          -0.5,
-          0.5,
-          P,
-        ),
-        c,
-      ),
-    );
+    const F = G.frameOf(grip, h.n, along, h.fwd);
+    const plate = (x0: number, x1: number, w0: number, w1: number) =>
+      put(add(grip, mul(along, (x0 + x1) / 2)), solid(G.prismOf(F, [[x0, -w0], [x0, w0], [x1, w1], [x1, -w1]], -0.45, 0.45, P), c));
+    plate(-6, -HIDE, 0.8, 0.85); // handle tail
+    plate(HIDE, 10.5, 0.85, 0.95); // handle
+    plate(10.5, 13.6, 2.6, 2.4); // jaw
   } else if (tool === 'tablet') {
     const F = G.frameOf(add(grip, mul(h.fwd, -2)), h.n, h.fwd, along);
     put(

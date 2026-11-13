@@ -47,6 +47,7 @@ export const HAND_POSES = {
   point: {curl: [0.7, 0, 1, 1, 1], spread: 0.05},
   pinch: {curl: [0.55, 0.6, 0.15, 0.2, 0.25], spread: 0.1},
   press: {curl: [0.6, 0.05, 0.95, 1, 1], spread: 0},
+  hold: {curl: [0.55, 0.72, 0.74, 0.76, 0.78], spread: 0}, // fingers wrapped round a handle across the palm
 } satisfies Record<string, FingerPose>;
 export const lerpFingers = (a: FingerPose, b: FingerPose, k: number): FingerPose => ({
   curl: a.curl.map((c, i) => lerp(c, b.curl[i], k)) as FingerPose['curl'],
@@ -411,6 +412,16 @@ export const reach = (base: Pose, side: Side, target: V3, k = 1, fingers: Finger
     twist: lerp(base.twist, (side === 'L' ? 1 : -1) * 0.25, k),
     headPitch: lerp(base.headPitch, 0.18, k),
   };
+};
+
+/** Holding a tool in front: the elbow at the side, the forearm forward at waist height, the fist closed round the
+ *  tool's handle (which then runs across the screen and reads as the role's prop). */
+export const holdInFront = (base: Pose, side: Side = 'R', k = 1): Pose => {
+  const {f, l} = bodyFrame(base.yaw);
+  const sh = solve(base).shoulder[side];
+  const target = add(add(add(sh, [0, 0, -DIM.upper + 0.5]), mul(f, DIM.fore - 0.5)), mul(l, (side === 'L' ? -1 : 1) * 1.5));
+  // holding is not reaching: the body stays upright and the head level
+  return {...reach(base, side, target, k, HAND_POSES.hold, f), lean: base.lean, twist: base.twist, headPitch: base.headPitch};
 };
 
 /** Blend two poses (joint targets are lerped; IK keeps the bones rigid). */

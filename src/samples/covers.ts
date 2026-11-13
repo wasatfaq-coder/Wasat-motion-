@@ -31,16 +31,19 @@ const sArc = ([cx, cy]: [number, number], r: number, a0: number, a1: number) => 
   const [x1, y1] = p(a1);
   return `<path class="iso-line" data-tone="hi" d="M${x0.toFixed(1)} ${y0.toFixed(1)}A${r} ${r} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}"/>`;
 };
+// marks on the housing itself: at its rear end and above its middle (none at the shaft end: the hum is not the shaft)
 const humArcs = [
   ...[96, 120].map((r) => sArc(scr(-4), r, 140, 200)),
-  ...[96, 120].map((r) => sArc(scr(54), r, -40, 20)),
-  ...[110, 134].map((r) => sArc(scr(25), r, 240, 300)),
+  ...[200, 226].map((r) => sArc(scr(25), r, 252, 288)),
 ].join('');
 
 // b) specific — the pulley spins: trails round it and a rotation arrow with a flat head in the pulley's plane
 const ARROW_R = 11.5;
 const A1 = 4.4;
-const trails = [8.2, 9.2].map((r, i) => arc(65, r, 0.2 + i * 0.4, 2.2 + i * 0.4)).join('');
+// coral trails on the rim behind the rotation (the pulley is the coral spot: the trails continue it)
+const trails = [8.4, 9.6]
+  .map((r, i) => K.lineSvg(G.arcOf(MOTOR_AXIS, 64.5, r, MOTOR_P, {least: -1, from: A1 - 2.6 + i * 0.3, to: A1 - 0.4}), {tone: 'hi'}).replace('class="iso-line"', 'class="iso-line" style="stroke:var(--anatomy-lit-top)"'))
+  .join('');
 const arrowArc = arc(67.5, ARROW_R, 0.4, A1);
 const tip = G.pointOf(MOTOR_AXIS, 67.5, ARROW_R, A1 + 0.45);
 const tan = G.tangentOf(MOTOR_AXIS, A1 + 0.45);
@@ -49,9 +52,11 @@ const head = [tip, G.add3(G.add3(tip, G.mul3(tan, -4.5)), G.mul3(rad, 2.6)), G.a
 const arrowHead = `<path d="${K.pathOf(head.map((p: Point3) => K.iso(p, MOTOR_P)), true)}" style="fill:var(--anatomy-hi);stroke:var(--anatomy-hi);stroke-width:3px;stroke-linejoin:round"/>`;
 
 // c) incomplete — the lid is ajar (hinged at its far edge, raised 20° on the near side); only a coral glint inside
-const TILT = (32 * Math.PI) / 180;
+const TILT = (16 * Math.PI) / 180;
 const LID_O: Point3 = [29.5, 17.5, 47.8];
 const lidF = G.frameOf(LID_O, [-Math.sin(TILT), 0, Math.cos(TILT)], [Math.cos(TILT), 0, Math.sin(TILT)], [0, 1, 0]);
+// a coral glow plate inside the box: through the narrow gap it reads as one solid coral strip
+const GLOW = K.solidSvg(K.slabOf({x: 30.9, y: 18.9, w: 12.2, d: 12.2, r: 0.3}, 46, 1.4, MOTOR_P, 6, 0), {tone: 'hi', lit: true});
 const LID = K.solidSvg(G.prismOf(lidF, [[0, 0], [15, 0], [15, 15], [0, 15]], 0, 1.4, MOTOR_P), {tone: 'hi'});
 const screws = [[2.1, 2.1], [12.9, 2.1], [2.1, 12.9], [12.9, 12.9]]
   .map(([u, v]) => {
@@ -80,20 +85,20 @@ export const COVERS: Record<'a' | 'b' | 'c', CoverSpec> = {
     layout: 'top',
     art: MOTOR.svg(),
     signs: trails + arrowArc + arrowHead,
-    frame: room([...ring(30, 18), ...ring(80, 16)]), // a close-up of the drive end
+    frame: room([...ring(46, 17), ...ring(78, 14)]), // a close-up of the drive end: the pulley is the hero
     hero: room([...ring(60, 13), ...ring(70, 13)]),
     floor: FLOOR,
     crop: 1,
   },
   c: {
     technique: 'incomplete',
-    hook: 'крышка коробки приоткрыта на треть, из щели виден коралловый отблеск клемм',
+    hook: 'крышка коробки приоткрыта, в узкой щели светится сплошная коралловая полоса',
     lines: ['Что под', 'крышкой?'],
     layout: 'top',
-    art: MOTOR_OPEN.svg() + LID + screws,
-    frame: room([[22, 10, 30], [52, 40, 30], [22, 40, 30], [52, 10, 30], [37, 25, 60], [29.5, 17.5, 56], [44.5, 32.5, 56]]), // a close-up of the box
+    art: MOTOR_OPEN.svg() + GLOW + LID + screws,
+    frame: room([[7, 5, 30], [67, 45, 30], [7, 45, 30], [67, 5, 30], [37, 25, 72], [37, 25, 30]]), // centred on the box, with the motor round it
     hero: room([29.5, 44.5].flatMap((x) => [17.5, 32.5].flatMap((y) => [44, 54].map((z) => [x, y, z] as Point3)))),
     floor: FLOOR,
-    crop: 1,
+    crop: 1.5,
   },
 };

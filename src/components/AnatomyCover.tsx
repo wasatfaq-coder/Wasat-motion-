@@ -21,7 +21,8 @@ const floorSvg = (f: NonNullable<CoverSpec['floor']>) => {
   const seams: string[] = [];
   for (let x = Math.ceil(f.x); x < f.x + f.w; x += 2) seams.push(K.lineSvg(K.pathOf([K.iso([x, f.y, 0], ROOM_P), K.iso([x, f.y + f.d, 0], ROOM_P)]), {tone: 'faint'}));
   for (let y = Math.ceil(f.y); y < f.y + f.d; y += 2) seams.push(K.lineSvg(K.pathOf([K.iso([f.x, y, 0], ROOM_P), K.iso([f.x + f.w, y, 0], ROOM_P)]), {tone: 'faint'}));
-  return K.solidSvg(K.slabOf({x: f.x, y: f.y, w: f.w, d: f.d, r: 0.2}, -0.6, 0.6, ROOM_P, 8, 0.05), {tone: 'mid', inner: ''}) + seams.join('');
+  // seams only on the dark field (a light floor slab read as a pale card behind the image)
+  return seams.join('');
 };
 
 export const anatomyCoverSchema = z.object({variant: z.enum(['a', 'b', 'c'])});
@@ -35,11 +36,15 @@ export const AnatomyCover: React.FC<{spec: CoverSpec}> = ({spec}) => {
       <AbsoluteFill style={{background: COLORS.bg}}>
         <svg width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0}}>
           <defs>
-            {/* backdrop: a soft light spot behind the image, darker edges: the cover stands out in a feed */}
-            <radialGradient id="coverSpot" gradientUnits="userSpaceOnUse" cx={(L.image.left + L.image.right) / 2} cy={(L.image.top + L.image.bottom) / 2} r={1150}>
-              <stop offset={0} stopColor={COLORS.fillLight} />
-              <stop offset={0.45} stopColor={COLORS.bg} />
-              <stop offset={1} stopColor={COLORS.fillDark} />
+            {/* backdrop (tonal contrast, also in greyscale): a darker neutral field, a light spot behind the image and
+                a dark vignette at the edges — the light object stands out in a feed */}
+            <radialGradient id="coverSpot" gradientUnits="userSpaceOnUse" cx={(L.image.left + L.image.right) / 2} cy={(L.image.top + L.image.bottom) / 2} r={620}>
+              <stop offset={0} stopColor={COLORS.fillLight} stopOpacity={0.9} />
+              <stop offset={1} stopColor={COLORS.fillLight} stopOpacity={0} />
+            </radialGradient>
+            <radialGradient id="coverVignette" gradientUnits="userSpaceOnUse" cx={540} cy={960} r={1150}>
+              <stop offset={0.45} stopColor={COLORS.ink} stopOpacity={0} />
+              <stop offset={1} stopColor={COLORS.ink} stopOpacity={0.32} />
             </radialGradient>
             {/* the image never leaves its region: a close-up fades out at the region's edge (no hard card edge),
                 not spilled over the title or the buttons */}
@@ -51,7 +56,13 @@ export const AnatomyCover: React.FC<{spec: CoverSpec}> = ({spec}) => {
             </mask>
           </defs>
           <style>{COVER_CSS}</style>
-          {spec.backdrop !== 'none' ? <rect x={0} y={0} width={1080} height={1920} fill="url(#coverSpot)" /> : null}
+          {spec.backdrop !== 'none' ? (
+            <g>
+              <rect x={0} y={0} width={1080} height={1920} fill={COLORS.fillDark} />
+              <rect x={0} y={0} width={1080} height={1920} fill="url(#coverSpot)" />
+              <rect x={0} y={0} width={1080} height={1920} fill="url(#coverVignette)" />
+            </g>
+          ) : null}
           <g mask="url(#coverArt)">
             <g className="ns cover" transform={`translate(${screen[0]} ${screen[1]}) scale(${zoom}) translate(${-focus[0]} ${-focus[1]})`}>
               <g transform={`translate(${ROOM_ORIGIN[0]} ${ROOM_ORIGIN[1]})`}>

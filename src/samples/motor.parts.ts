@@ -173,8 +173,9 @@ const build = (name: string, lit: 'pulley' | 'terminals' | 'stator', withLid = t
     );
   M.slab('nameplate', {x: 58, y: 39, w: 12, d: 8, r: 0.6}, 4, 0.4, {tone: 'mid', bevel: 0});
 
-  // cable gland on the box side (along +y) and the cable: out of the gland, over the base edge, down to the floor
-  const gland = G.frameAlong([37, 32, top + 2], [0, 1, 0]);
+  // cable gland on the box's back side (along −y) and the cable: out of the gland, behind the motor, over the base
+  // edge, down to the floor and away (it never crosses the housing's visible front)
+  const gland = G.frameAlong([37, 18, top + 2], [0, -1, 0]);
   M.turned(
     'gland',
     [
@@ -189,11 +190,12 @@ const build = (name: string, lit: 'pulley' | 'terminals' | 'stator', withLid = t
   M.pipe(
     'cable',
     [
-      [37, 36, top + 2],
-      [37, 50, top + 2],
-      [37, 62, 18],
-      [37, 64, 1.6],
-      [37, 140, 1.6], // runs off the cover's frame instead of ending in the air
+      [37, 14, top + 2],
+      [37, 8, top + 2], // a straight leg out of the gland, so the cable's end sits square on it
+      [37, 2, top - 4],
+      [37, -4, 20],
+      [37, -6, 1.6],
+      [37, -90, 1.6], // runs off the cover's frame instead of ending in the air
     ],
     1.6,
     {bend: 6, limp: true, ends: [true, false], tone: 'hi'},
@@ -235,5 +237,4 @@ export const MOTOR_CORNERS: Point3[] = [
   [40, 25, top + 8],
   [29.5, 17.5, top + 9.5], // terminal box lid corners and the gland
   [44.5, 32.5, top + 9.5],
-  [37, 36, top + 5],
 ];

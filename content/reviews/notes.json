@@ -1,0 +1,115 @@
+{
+  "_doc": "Review notes tracker (shorts-quality-gate): {id, round, scene, frame, severity, rule, text, fix, status}. Status: open | fixed | verified | wontfix | escalate.",
+  "notes": [
+    {
+      "id": "G5-N1",
+      "round": 5,
+      "scene": "scene-12",
+      "frame": 6895,
+      "severity": "MINOR",
+      "rule": "§19.2",
+      "text": "Final cover clock: empty band above the clock, clock bottom close to the caption",
+      "fix": "Raise the clock ~30 px or fill the top",
+      "status": "open"
+    },
+    {
+      "id": "G5-N2",
+      "round": 5,
+      "scene": "scene-10",
+      "frame": 5547,
+      "severity": "MAJOR",
+      "rule": "§19.2",
+      "text": "Child and grandparent too small to read age",
+      "fix": "Close-up of the pair, height ratio, grey hair, glasses, cane",
+      "status": "fixed"
+    },
+    {
+      "id": "G5-N3",
+      "round": 5,
+      "scene": "scene-07",
+      "frame": 3042,
+      "severity": "MAJOR",
+      "rule": "§19.7",
+      "text": "Flat sun in an empty sky, no horizon",
+      "fix": "Sky backdrop with a horizon; the sun rises and sets behind it",
+      "status": "fixed"
+    },
+    {
+      "id": "G-PHYS",
+      "round": 5,
+      "scene": "all",
+      "frame": 0,
+      "severity": "MAJOR",
+      "rule": "§19.7",
+      "text": "Physics (anticipation, squash, bounce) never checked: only 2 fps sheets were used",
+      "fix": "Per-frame strips with scripts/frame-strip.mjs on landings and cuts; watch final.mp4",
+      "status": "open"
+    },
+    {
+      "id": "M-1",
+      "round": "metaphor-audit",
+      "scene": "scene-03/04",
+      "frame": 0,
+      "severity": "MAJOR",
+      "rule": "§20.4",
+      "text": "Survey lines on the skewed billboard plane: «не ускорялись» reads as slowing, the plateau as a decline; the waiver covers the billboard, not slanted lines",
+      "fix": "Frontal plate on the billboard with horizontal axes; register plane frontal",
+      "status": "escalate"
+    },
+    {
+      "id": "M-2",
+      "round": "metaphor-audit",
+      "scene": "scene-01/12",
+      "frame": 0,
+      "severity": "MAJOR",
+      "rule": "§20.2",
+      "text": "Racing clock with speed lines under «Час не ускорился» / «А час останется часом»: the picture says the opposite of the voice",
+      "fix": "Real-speed hand, no speed lines there; racing clock only for «время летит» and the cover (register it)",
+      "status": "open"
+    },
+    {
+      "id": "M-3",
+      "round": "metaphor-audit",
+      "scene": "scene-01",
+      "frame": 0,
+      "severity": "MAJOR",
+      "rule": "§20.2",
+      "text": "Monthly calendar pages say «months fly» (contradicts S1); falling into the tray grows the memory pile",
+      "fix": "Yearly pages; pages do not land in the tray",
+      "status": "open"
+    },
+    {
+      "id": "M-4",
+      "round": "metaphor-audit",
+      "scene": "scene-08",
+      "frame": 0,
+      "severity": "MAJOR",
+      "rule": "§20.2",
+      "text": "Second images for known concepts: catalogue duplicates the tray, tape duplicates pile height and suggests a literal measurement",
+      "fix": "Remove the tape; end with cards going to the tray; register the catalogue as a close-up of the tray",
+      "status": "escalate"
+    },
+    {
+      "id": "M-5",
+      "round": "metaphor-audit",
+      "scene": "scene-09",
+      "frame": 0,
+      "severity": "MAJOR",
+      "rule": "§7",
+      "text": "«Поэтому взрослые годы и летят» states hypothesis S4 as fact; grey cards from the register are not on screen",
+      "fix": "«Возможно, поэтому…» (one voice regeneration, ~3 words); add or drop grey cards",
+      "status": "escalate"
+    },
+    {
+      "id": "M-6",
+      "round": "metaphor-audit",
+      "scene": "scene-10",
+      "frame": 0,
+      "severity": "MINOR",
+      "rule": "§20.2",
+      "text": "16 candles at «50 лет» can be read as the age",
+      "fix": "Keep the candle count constant or remove candles",
+      "status": "open"
+    }
+  ]
+}

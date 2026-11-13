@@ -499,5 +499,19 @@
       "volume": 0.22,
       "reason": "bright cards fly into memory"
     }
-  ]
+  ],
+  "_reviewed": {
+    "scene-01": "ef6a3acbfb26c0ba",
+    "scene-02": "3ba6dc444dcef076",
+    "scene-03": "22ccb22a931d8d51",
+    "scene-04": "56e1f9f1d35d3549",
+    "scene-05": "f598e36efc43ccba",
+    "scene-06": "bb8a8b9ce621900b",
+    "scene-07": "b081c0122153b144",
+    "scene-08": "6247de02e05d5484",
+    "scene-09": "2ccbd60d1952cbb8",
+    "scene-10": "4d2d349c54e35eed",
+    "scene-11": "cf56df77dc4982d5",
+    "scene-12": "f956a5b0286d5228"
+  }
 }

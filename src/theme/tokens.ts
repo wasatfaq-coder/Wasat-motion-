@@ -10,7 +10,6 @@ export const COLORS = {
   ink: '#25242B',         // dark outline + text (contrast ≈ 14:1 on bg)
   inkSoft: '#6B6770',     // secondary lines and captions (≈ 5:1 on bg)
   accent: '#E8604C',      // coral: novelty and the key meaning
-  accentSoft: '#F7C9BF',
   captionBg: 'rgba(37,36,43,0.82)',
   captionText: '#FCFAF6',
 } as const;

@@ -1,0 +1,224 @@
+{
+  "_doc": "Visual register (MASTER_PROMPT_FINAL §20). Every scene declares its location and mode: literal (real objects, data, interfaces as they are), schematic (simplified but faithful diagram) or metaphor (a stand-in image). Every metaphor is justified against a source claim, its misreadings are listed with a guard, and its status is set by the user at STOP 1. Measured data must sit on a frontal plate; a recorded user decision can waive this. Checked by scripts/audit.mjs and the metaphor-auditor agent.",
+  "scenes": {
+    "scene-01": {
+      "location": "room",
+      "mode": "metaphor",
+      "metaphors": [
+        "calendar-pages",
+        "memory-tray"
+      ]
+    },
+    "scene-02": {
+      "location": "room",
+      "mode": "metaphor",
+      "metaphors": [
+        "memory-tray"
+      ]
+    },
+    "scene-03": {
+      "location": "square",
+      "mode": "literal",
+      "metaphors": [],
+      "data": {
+        "plane": "iso",
+        "claim": "S1: hour, week, month estimates do not speed up with age",
+        "waiver": "user decision (decisions.md): survey chart on an isometric billboard, labels on frontal plates; re-confirm under §20.4"
+      }
+    },
+    "scene-04": {
+      "location": "square",
+      "mode": "literal",
+      "metaphors": [],
+      "data": {
+        "plane": "iso",
+        "claim": "S1: the last decade feels faster with age, peak around 50, modest effect",
+        "waiver": "user decision (decisions.md): survey chart on an isometric billboard, labels on frontal plates; re-confirm under §20.4"
+      }
+    },
+    "scene-05": {
+      "location": "room",
+      "mode": "metaphor",
+      "metaphors": [
+        "memory-tray"
+      ]
+    },
+    "scene-06": {
+      "location": "bus-stop",
+      "mode": "metaphor",
+      "metaphors": [
+        "memory-tray"
+      ]
+    },
+    "scene-07": {
+      "location": "beach",
+      "mode": "metaphor",
+      "metaphors": [
+        "memory-tray"
+      ]
+    },
+    "scene-08": {
+      "location": "archive",
+      "mode": "metaphor",
+      "metaphors": [
+        "memory-catalogue",
+        "tape-measure"
+      ]
+    },
+    "scene-09": {
+      "location": "city",
+      "mode": "metaphor",
+      "metaphors": [
+        "routine-loop",
+        "memory-tray"
+      ]
+    },
+    "scene-10": {
+      "location": "party-room",
+      "mode": "metaphor",
+      "metaphors": [
+        "life-cake",
+        "film-frames"
+      ]
+    },
+    "scene-11": {
+      "location": "lab",
+      "mode": "literal",
+      "metaphors": []
+    },
+    "scene-12": {
+      "location": "city",
+      "mode": "metaphor",
+      "metaphors": [
+        "routine-loop",
+        "memory-tray"
+      ]
+    }
+  },
+  "locationReuse": [
+    {
+      "location": "room",
+      "scenes": [
+        1,
+        2,
+        5,
+        6,
+        7,
+        9,
+        12
+      ],
+      "reason": "through-line: the memory tray in the room returns as a short bridge between locations (STOP 1)"
+    },
+    {
+      "location": "city",
+      "scenes": [
+        9,
+        12
+      ],
+      "reason": "the routine loop of scene 9 opens into new roads in scene 12 (callback, STOP 1)"
+    }
+  ],
+  "metaphors": {
+    "memory-tray": {
+      "keyIdea": "Looking back, we judge how long a period was by how many distinct memories it left.",
+      "sourceClaim": "S2 (Bradburn, clarity of memory), S3 (Hammond, holiday paradox: retrospective judgement by memories)",
+      "mapping": [
+        "a card in the tray = one distinct memory",
+        "pile height = how long the period feels in hindsight",
+        "bright card = a new impression",
+        "grey card = a routine day"
+      ],
+      "whyNotLiteral": "Memories have no visible form; a brain scan would claim a mechanism the sources do not state.",
+      "misreadRisk": "Viewers may read the tray as a literal storage place or think memories are counted one by one.",
+      "guard": "The tray is an office object in an everyday room, never inside a head. The voice says «по одной из версий» only in scene 8; scenes 1–7 are covered by scene 11 («все эти объяснения — гипотезы»).",
+      "status": "approved"
+    },
+    "calendar-pages": {
+      "keyIdea": "Years pass faster and faster in the feeling of the viewer.",
+      "sourceClaim": "S1: perceived speed of the last decade rises with age",
+      "mapping": [
+        "a torn page = a year that passed",
+        "faster tearing = years feel faster"
+      ],
+      "whyNotLiteral": "A felt speed has no direct image; a calendar is the common sign of passing time.",
+      "misreadRisk": "Tearing speed could be read as a measured rate.",
+      "guard": "No numbers on the pages; the measured values appear only on the survey chart in scenes 3–4.",
+      "status": "approved"
+    },
+    "memory-catalogue": {
+      "keyIdea": "New impressions leave more memories, so the period seems longer.",
+      "sourceClaim": "S2, S3 (one of the versions)",
+      "mapping": [
+        "card = new impression",
+        "drawer filled = memory stored",
+        "filled column = amount of memories"
+      ],
+      "whyNotLiteral": "Same as memory-tray; a catalogue makes «more memories» countable at a glance.",
+      "misreadRisk": "The catalogue may be read as a model of the brain.",
+      "guard": "No head or brain shapes (the head cabinet was rejected by the user); the voice frames it as «по одной из версий».",
+      "status": "approved"
+    },
+    "tape-measure": {
+      "keyIdea": "The period seems longer.",
+      "sourceClaim": "S3 (retrospective judgement)",
+      "mapping": [
+        "tape length = felt length of the period"
+      ],
+      "whyNotLiteral": "Felt duration has no unit; a tape is the plain sign of «длинный».",
+      "misreadRisk": "Tape ticks could be read as a scale with values.",
+      "guard": "Ticks without numbers; the tape grows with the filled drawers, not with a value.",
+      "status": "approved"
+    },
+    "routine-loop": {
+      "keyIdea": "Identical days leave few traces and merge in memory.",
+      "sourceClaim": "S4 (routine and temporal landmarks; secondhand, wording kept cautious)",
+      "mapping": [
+        "ring road = the same route home → work → home",
+        "grey card on the ring = a day that left few traces",
+        "new roads = new routes and places"
+      ],
+      "whyNotLiteral": "Routine is a pattern over weeks; a loop shows repetition in one shot.",
+      "misreadRisk": "The advice could be read as a promise that new routes lengthen life.",
+      "guard": "The voice says «возможно, растянуть годы в памяти»; no time values on screen.",
+      "status": "approved"
+    },
+    "life-cake": {
+      "keyIdea": "Version 2: at ten a year is a tenth of life; with age this share shrinks.",
+      "sourceClaim": "S5 (Janet, proportional idea)",
+      "mapping": [
+        "whole cake = life lived so far",
+        "slice = one year",
+        "more slices = older age"
+      ],
+      "whyNotLiteral": "A share of life is a ratio; a cake slice is the familiar picture of a share.",
+      "misreadRisk": "Candles could be counted as an exact age.",
+      "guard": "Slices change from 10 to 50 as the voice says; candles are capped and are decoration of the birthday context, not data.",
+      "status": "approved"
+    },
+    "film-frames": {
+      "keyIdea": "Version 3: a young brain takes in more images per day.",
+      "sourceClaim": "S6 (Bejan; hypothesis)",
+      "mapping": [
+        "a film frame = an image taken in",
+        "more frames on the same strip length = more images per day"
+      ],
+      "whyNotLiteral": "Image processing speed is not visible; a film strip makes «more pictures» comparable.",
+      "misreadRisk": "Exact frame counts (8 vs 4) could be read as a measured ratio.",
+      "guard": "The voice calls it a version; scene 11 states all explanations are hypotheses. Ratio is illustrative.",
+      "status": "approved"
+    },
+    "head-cabinet": {
+      "keyIdea": "The brain stores new impressions.",
+      "sourceClaim": "S2, S3",
+      "mapping": [
+        "head-shaped cabinet = the brain",
+        "drawer = memory"
+      ],
+      "whyNotLiteral": "-",
+      "misreadRisk": "Suggests a literal storage mechanism in the brain; the user found it unattractive.",
+      "guard": "Not used.",
+      "status": "rejected"
+    }
+  },
+  "_note_2026_11_13": "Statuses «approved» reflect the storyboard approved at STOP 1 before this register existed; the metaphor audit (content/reviews/metaphors.md) lists changes that need the user's decision."
+}

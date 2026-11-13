@@ -2,7 +2,8 @@
 // end with a hanging preposition/conjunction, or differ from the script.
 import fs from 'node:fs';
 
-const tl = JSON.parse(fs.readFileSync('src/data/timeline.json', 'utf8'));
+const ti = process.argv.indexOf('--timeline');
+const tl = JSON.parse(fs.readFileSync(ti > 0 ? process.argv[ti + 1] : 'src/data/timeline.json', 'utf8'));
 const FPS = tl.fps;
 const HANGING = new Set(['в', 'во', 'на', 'с', 'со', 'к', 'ко', 'и', 'а', 'но', 'о', 'об', 'у', 'от', 'до', 'по', 'за', 'из', 'не', 'как', 'что', 'про', 'для', 'при', 'мы', 'и,']);
 const MAX_LINE = 24; // chars per caption line

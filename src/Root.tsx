@@ -19,6 +19,7 @@ export const RemotionRoot: React.FC = () => (
       durationInFrames: selectedScenes(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0),
     })}
   />
+  {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}
   <Composition id="Cover" component={Cover} schema={coverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   </>
 );

@@ -21,8 +21,11 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
       <Paving s={ROOM_S} at={[-1, -1, 0.004]} w={15} d={12} step={1} />
       {/* ring road */}
       <g transform={planeMatrix(ROOM_S, 'floor', LOOP.c)}>
-        <ellipse cx={0} cy={0} rx={LOOP.rx} ry={LOOP.ry} fill="none" stroke={COLORS.fillDark} strokeWidth={0.7} pathLength={100} strokeDasharray={`${100 - gap} ${gap}`} strokeDashoffset={-gap / 2} />
-        <ellipse cx={0} cy={0} rx={LOOP.rx} ry={LOOP.ry} fill="none" stroke={COLORS.ink} strokeWidth={STROKE.secondary} pathLength={100} strokeDasharray={`${100 - gap} ${gap}`} strokeDashoffset={-gap / 2} vectorEffect="non-scaling-stroke" />
+        <ellipse cx={0} cy={0} rx={LOOP.rx} ry={LOOP.ry} fill="none" stroke={COLORS.fillDark} strokeWidth={0.8} pathLength={100} strokeDasharray={`${100 - gap} ${gap}`} strokeDashoffset={-gap / 2} />
+        {[-0.4, 0.4].map((k) => (
+          <ellipse key={k} cx={0} cy={0} rx={LOOP.rx + k} ry={LOOP.ry + k} fill="none" stroke={COLORS.ink} strokeWidth={STROKE.secondary} pathLength={100} strokeDasharray={`${100 - gap} ${gap}`} strokeDashoffset={-gap / 2} vectorEffect="non-scaling-stroke" />
+        ))}
+        <ellipse cx={0} cy={0} rx={LOOP.rx} ry={LOOP.ry} fill="none" stroke={COLORS.fillLight} strokeWidth={STROKE.main} strokeDasharray="10 12" vectorEffect="non-scaling-stroke" opacity={1 - open} />
         {/* new roads branching out of the opened ring */}
         <path d={`M${LOOP.rx},0 L${LOOP.rx + 2.0},0.6`} fill="none" stroke={COLORS.accent} strokeWidth={0.55} pathLength={1} strokeDasharray={`${road(0)} 1`} strokeLinecap="butt" opacity={road(0) > 0 ? 1 : 0} />
         <path d={`M${LOOP.rx + 2.0},0.6 L${LOOP.rx + 3.0},-1.6`} fill="none" stroke={COLORS.accent} strokeWidth={0.55} pathLength={1} strokeDasharray={`${road(1)} 1`} strokeLinecap="butt" opacity={road(1) > 0 ? 1 : 0} />
@@ -33,7 +36,7 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
       <Tree s={ROOM_S} at={[6.6, 4.4, 0]} t={t} seed="c1" />
       {/* home and office */}
       <House s={ROOM_S} at={[1.0, 3.6, 0]} size={[1.8, 1.6, 1.4]} />
-      <Building s={ROOM_S} at={[9.4, 2.4, 0]} size={[2.4, 2.0, 4.2]} floors={5} lit={0.4} />
+      <Building s={ROOM_S} at={[9.4, 2.4, 0]} size={[2.4, 2.0, 4.2]} floors={5} lit={0.4} t={t} />
       <LampPost s={ROOM_S} at={[3.0, 2.0, 0]} />
       <LampPost s={ROOM_S} at={[9.0, 7.6, 0]} />
       {/* new places revealed by the open roads */}
@@ -82,8 +85,10 @@ export const CityLoop: React.FC<{t: number; frame: number; carSpeed: number; ope
           </g>
         </g>
       ) : null}
-      <Car s={ROOM_S} at={[car[0] - 0.5, car[1] - 0.27, 0.02]} accent={open > 0.5} />
+      <Car s={ROOM_S} at={[car[0] - 0.5, car[1] - 0.27, 0.02]} accent={open > 0.5} t={t} />
       <IsoPerson s={ROOM_S} at={[2.9, 5.6, 0]} h={1.0} bob={Math.sin(t * 3) * 0.02} />
+      <IsoPerson s={ROOM_S} at={[4.0 + ((t * 0.4) % 4), 8.6, 0]} h={1.0} walk={t * 7} />
+      <IsoPerson s={ROOM_S} at={[10.4 - ((t * 0.3) % 3), 8.0, 0]} h={0.95} walk={t * 7 + 1} />
     </g>
   );
 };

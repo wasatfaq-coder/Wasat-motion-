@@ -30,36 +30,63 @@ export const Road: React.FC<{s: number; at: P3; len: number; dir: 'x' | 'y'; wid
 };
 
 /** Building with windows on both visible faces, a door, a roof parapet and optional sign colour. */
-export const Building: React.FC<{s: number; at: P3; size: P3; floors?: number; accent?: boolean; lit?: number; door?: boolean}> = ({s, at, size, floors = 3, accent = false, lit = 0, door = true}) => {
+export const Building: React.FC<{s: number; at: P3; size: P3; floors?: number; accent?: boolean; lit?: number; door?: boolean; t?: number}> = ({s, at, size, floors = 3, accent = false, lit = 0, door = true, t = 0}) => {
   const [x, y, z] = at;
   const [w, d, h] = size;
   const cols = Math.max(2, Math.round(w / 0.7));
   const colsR = Math.max(2, Math.round(d / 0.7));
   const fh = h / floors;
+  const win = (on: boolean) => (on ? COLORS.fillMid : COLORS.fillLight);
   return (
     <g>
       <Box s={s} at={at} size={size} top={COLORS.fillMid} left={COLORS.fillLight} right={COLORS.fillMid} />
-      {/* windows on the front-left face (plane y = y + d) */}
+      {/* front-left face (plane y = y + d): floor bands, framed windows with sills, entrance */}
       <g transform={planeMatrix(s, 'wallX', [x, y + d, z + h])}>
+        {Array.from({length: floors - 1}, (_, f) => (
+          <line key={`b${f}`} x1={0} y1={(f + 1) * fh} x2={w} y2={(f + 1) * fh} stroke={COLORS.inkSoft} strokeWidth={STROKE.micro} {...ns} />
+        ))}
         {Array.from({length: floors}, (_, f) =>
           Array.from({length: cols}, (_, c) => {
-            const on = lit > 0 && random(`w${x}${y}${f}${c}`) < lit;
+            const cx = (c + 0.2) * (w / cols);
+            const ww = (w / cols) * 0.6;
             if (door && f === floors - 1 && c === Math.floor(cols / 2)) {
-              return <rect key={`${f}${c}`} x={(c + 0.25) * (w / cols)} y={f * fh + fh * 0.3} width={(w / cols) * 0.5} height={fh * 0.7} fill={accent ? COLORS.accent : COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />;
+              return (
+                <g key={`${f}${c}`}>
+                  <rect x={cx - 0.05} y={f * fh + fh * 0.25} width={ww + 0.1} height={fh * 0.75} fill={accent ? COLORS.accent : COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
+                  <line x1={cx + ww / 2} y1={f * fh + fh * 0.3} x2={cx + ww / 2} y2={(f + 1) * fh} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
+                  <rect x={cx - 0.15} y={f * fh + fh * 0.18} width={ww + 0.3} height={fh * 0.08} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
+                </g>
+              );
             }
-            return <rect key={`${f}${c}`} x={(c + 0.2) * (w / cols)} y={f * fh + fh * 0.22} width={(w / cols) * 0.6} height={fh * 0.5} fill={on ? COLORS.fillLight : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />;
+            const on = lit > 0 && random(`w${x}${y}${f}${c}`) < lit * (0.7 + 0.3 * Math.sin(t * 0.3 + c + f));
+            return (
+              <g key={`${f}${c}`}>
+                <rect x={cx} y={f * fh + fh * 0.2} width={ww} height={fh * 0.5} fill={win(on)} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
+                <line x1={cx + ww / 2} y1={f * fh + fh * 0.2} x2={cx + ww / 2} y2={f * fh + fh * 0.7} stroke={COLORS.inkSoft} strokeWidth={1} {...ns} />
+                <line x1={cx - 0.04} y1={f * fh + fh * 0.72} x2={cx + ww + 0.04} y2={f * fh + fh * 0.72} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
+              </g>
+            );
           }),
         )}
       </g>
-      {/* windows on the front-right face (plane x = x + w) */}
+      {/* front-right face (plane x = x + w): windows and small balconies */}
       <g transform={planeMatrix(s, 'wallY', [x + w, y, z + h])}>
         {Array.from({length: floors}, (_, f) =>
           Array.from({length: colsR}, (_, c) => (
-            <rect key={`${f}${c}`} x={(c + 0.2) * (d / colsR)} y={f * fh + fh * 0.22} width={(d / colsR) * 0.6} height={fh * 0.5} fill={lit > 0 && random(`r${x}${y}${f}${c}`) < lit ? COLORS.fillLight : COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
+            <g key={`${f}${c}`}>
+              <rect x={(c + 0.2) * (d / colsR)} y={f * fh + fh * 0.2} width={(d / colsR) * 0.6} height={fh * 0.5} fill={win(lit > 0 && random(`r${x}${y}${f}${c}`) < lit)} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
+              <line x1={(c + 0.15) * (d / colsR)} y1={f * fh + fh * 0.72} x2={(c + 0.85) * (d / colsR)} y2={f * fh + fh * 0.72} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
+            </g>
           )),
         )}
       </g>
-      <Box s={s} at={[x - 0.05, y - 0.05, z + h]} size={[w + 0.1, d + 0.1, 0.15]} stroke={STROKE.secondary} top={accent ? COLORS.accentSoft : COLORS.fillLight} />
+      {/* roof: parapet, AC unit, antenna */}
+      <Box s={s} at={[x - 0.05, y - 0.05, z + h]} size={[w + 0.1, d + 0.1, 0.15]} stroke={STROKE.secondary} top={accent ? COLORS.accentSoft : COLORS.fillLight} detail="none" />
+      <Box s={s} at={[x + w * 0.55, y + d * 0.2, z + h + 0.15]} size={[0.5, 0.4, 0.3]} stroke={STROKE.secondary} />
+      <Line3 s={s} points={[[x + w * 0.25, y + d * 0.5, z + h + 0.15], [x + w * 0.25, y + d * 0.5, z + h + 0.9]]} width={STROKE.secondary} />
+      <Line3 s={s} points={[[x + w * 0.25 - 0.15, y + d * 0.5, z + h + 0.75], [x + w * 0.25 + 0.15, y + d * 0.5, z + h + 0.75]]} width={STROKE.micro} />
+      {/* steps at the entrance */}
+      {door ? <Box s={s} at={[x + w * 0.35, y + d, z]} size={[w * 0.3, 0.25, 0.1]} stroke={STROKE.micro} detail="none" /> : null}
     </g>
   );
 };
@@ -73,6 +100,10 @@ export const House: React.FC<{s: number; at: P3; size?: P3; accent?: boolean}> =
       <Box s={s} at={at} size={size} left={COLORS.fillLight} right={COLORS.fillMid} />
       <Line3 s={s} close fill={accent ? COLORS.accent : COLORS.fillDark} width={STROKE.main} points={[[x - 0.1, y + d + 0.1, z + h], [x + w + 0.1, y + d + 0.1, z + h], [x + w + 0.1, y + d / 2, z + h + 0.8], [x - 0.1, y + d / 2, z + h + 0.8]]} />
       <Line3 s={s} close fill={COLORS.fillMid} width={STROKE.main} points={[[x + w + 0.1, y - 0.1, z + h], [x + w + 0.1, y + d + 0.1, z + h], [x + w + 0.1, y + d / 2, z + h + 0.8]]} />
+      <Box s={s} at={[x + w * 0.65, y + d * 0.25, z + h + 0.3]} size={[0.25, 0.25, 0.7]} stroke={STROKE.secondary} />
+      {Array.from({length: 4}, (_, i) => (
+        <Line3 key={i} s={s} width={STROKE.micro} color={COLORS.inkSoft} points={[[x - 0.1 + (w + 0.2) * ((i + 1) / 5), y + d + 0.1, z + h], [x - 0.1 + (w + 0.2) * ((i + 1) / 5), y + d / 2, z + h + 0.8]]} />
+      ))}
       <g transform={planeMatrix(s, 'wallX', [x, y + d, z + h])}>
         <rect x={w * 0.4} y={h * 0.4} width={w * 0.22} height={h * 0.6} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.secondary} {...ns} />
         <rect x={w * 0.1} y={h * 0.25} width={w * 0.2} height={h * 0.25} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} {...ns} />
@@ -100,29 +131,51 @@ export const Tree: React.FC<{s: number; at: P3; h?: number; t: number; seed?: st
 };
 
 /** Faceless isometric person: body box + round head. `h` = height in units (kids lower, adults taller). */
-export const IsoPerson: React.FC<{s: number; at: P3; h?: number; accent?: boolean; bob?: number; p?: number}> = ({s, at, h = 1.0, accent, bob = 0, p = 1}) => {
+export const IsoPerson: React.FC<{s: number; at: P3; h?: number; accent?: boolean; bob?: number; p?: number; walk?: number}> = ({s, at, h = 1.0, accent, bob = 0, p = 1, walk = 0}) => {
   if (p <= 0) return null;
   const [x, y, z] = at;
-  const body = h * 0.62;
-  const [hx, hy] = iso(s)([x + 0.15, y + 0.12, z + body + h * 0.2 + bob]);
+  const leg = h * 0.32;
+  const body = h * 0.38;
+  const swing = Math.sin(walk) * 0.08;
+  const [hx, hy] = iso(s)([x + 0.15, y + 0.12, z + leg + body + h * 0.18 + bob]);
   return (
     <g opacity={Math.min(1, p * 2)} transform={`translate(0 ${(1 - p) * 30})`}>
-      <Box s={s} at={[x, y, z + bob]} size={[0.3, 0.24, body]} stroke={STROKE.secondary} top={accent ? COLORS.accentSoft : COLORS.fillMid} left={accent ? COLORS.accent : COLORS.fillLight} right={accent ? COLORS.accentSoft : COLORS.fillMid} />
-      <circle cx={hx} cy={hy} r={h * 0.15 * s} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
+      {/* legs */}
+      <Line3 s={s} width={STROKE.main} points={[[x + 0.08 + swing, y + 0.12, z], [x + 0.1, y + 0.12, z + leg + bob]]} />
+      <Line3 s={s} width={STROKE.main} points={[[x + 0.22 - swing, y + 0.12, z], [x + 0.2, y + 0.12, z + leg + bob]]} />
+      {/* torso */}
+      <Box s={s} at={[x, y, z + leg + bob]} size={[0.3, 0.24, body]} stroke={STROKE.secondary} top={COLORS.fillMid} left={accent ? COLORS.accent : COLORS.fillLight} right={COLORS.fillMid} detail="none" />
+      {/* arm on the visible side */}
+      <Line3 s={s} width={STROKE.secondary} points={[[x + 0.3, y + 0.12, z + leg + body * 0.9 + bob], [x + 0.36 - swing, y + 0.12, z + leg + body * 0.2 + bob]]} />
+      <circle cx={hx} cy={hy} r={h * 0.14 * s} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
     </g>
   );
 };
 
 /** Small car driving along a direction (x or y). */
-export const Car: React.FC<{s: number; at: P3; accent?: boolean}> = ({s, at, accent}) => {
+export const Car: React.FC<{s: number; at: P3; accent?: boolean; t?: number}> = ({s, at, accent, t = 0}) => {
   const [x, y, z] = at;
+  const sus = Math.sin(t * 9) * 0.015;
   return (
     <g>
-      <Box s={s} at={[x, y, z + 0.15]} size={[1.0, 0.55, 0.32]} stroke={STROKE.secondary} left={accent ? COLORS.accent : COLORS.fillLight} right={accent ? COLORS.accentSoft : COLORS.fillMid} top={COLORS.fillLight} />
-      <Box s={s} at={[x + 0.25, y + 0.05, z + 0.47]} size={[0.5, 0.45, 0.25]} stroke={STROKE.secondary} left={COLORS.fillLight} right={COLORS.fillDark} />
+      <g transform={`translate(0 ${-sus * s})`}>
+        <Box s={s} at={[x, y, z + 0.15]} size={[1.0, 0.55, 0.3]} stroke={STROKE.secondary} left={accent ? COLORS.accent : COLORS.fillLight} right={COLORS.fillMid} top={COLORS.fillLight} detail="none" />
+        <Box s={s} at={[x + 0.25, y + 0.05, z + 0.45]} size={[0.5, 0.45, 0.24]} stroke={STROKE.secondary} left={COLORS.fillLight} right={COLORS.fillMid} detail="none" />
+        {/* windows on the cabin */}
+        <polygon points={pts(s, [[x + 0.3, y + 0.5, z + 0.5], [x + 0.48, y + 0.5, z + 0.5], [x + 0.48, y + 0.5, z + 0.64], [x + 0.3, y + 0.5, z + 0.64]])} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.micro} />
+        <polygon points={pts(s, [[x + 0.52, y + 0.5, z + 0.5], [x + 0.7, y + 0.5, z + 0.5], [x + 0.7, y + 0.5, z + 0.64], [x + 0.52, y + 0.5, z + 0.64]])} fill={COLORS.fillDark} stroke={COLORS.ink} strokeWidth={STROKE.micro} />
+        {/* door line and headlight */}
+        <Line3 s={s} width={STROKE.micro} points={[[x + 0.5, y + 0.55, z + 0.18], [x + 0.5, y + 0.55, z + 0.42]]} />
+        <polygon points={pts(s, [[x + 1.0, y + 0.08, z + 0.3], [x + 1.0, y + 0.18, z + 0.3], [x + 1.0, y + 0.18, z + 0.38], [x + 1.0, y + 0.08, z + 0.38]])} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.micro} />
+      </g>
       {[0.2, 0.8].map((u) => {
         const [cx, cy] = iso(s)([x + u, y + 0.55, z + 0.12]);
-        return <circle key={u} cx={cx} cy={cy} r={0.12 * s} fill={COLORS.ink} />;
+        return (
+          <g key={u}>
+            <circle cx={cx} cy={cy} r={0.13 * s} fill={COLORS.ink} />
+            <circle cx={cx} cy={cy} r={0.05 * s} fill={COLORS.fillMid} />
+          </g>
+        );
       })}
     </g>
   );
@@ -185,7 +238,8 @@ export const LampPost: React.FC<{s: number; at: P3}> = ({s, at}) => {
   const [hx, hy] = iso(s)([x, y, z + 2.6]);
   return (
     <g>
-      <Line3 s={s} points={[at, [x, y, z + 2.6], [x + 0.4, y, z + 2.7]]} width={STROKE.main} />
+      <Box s={s} at={[x - 0.1, y - 0.1, z]} size={[0.2, 0.2, 0.25]} stroke={STROKE.secondary} detail="none" />
+      <Line3 s={s} points={[[x, y, z + 0.25], [x, y, z + 2.6], [x + 0.4, y, z + 2.7]]} width={STROKE.main} />
       <circle cx={hx + 0.35 * s} cy={hy - 0.05 * s} r={0.16 * s} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
     </g>
   );

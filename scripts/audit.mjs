@@ -41,6 +41,9 @@ const LOC = {
   beach: /<Sea\b/,
   table: /<TableTop\b/,
   archive: /<ArchiveShell\b/,
+  square: /<SurveySquare\b/,
+  party: /<Shell[^>]*floor="parquet"/,
+  lab: /<Shell[^>]*floor="tiles"/,
 };
 const sceneFiles = fs.readdirSync(scenesDir).filter((f) => /^Scene\d+.*\.tsx$/.test(f)).sort();
 const allowFile = path.join(contentDir, 'locations-allow.json');

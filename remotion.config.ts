@@ -15,6 +15,9 @@ Config.setDefaultPremountInSeconds(2);
 // Cloud sandbox: remotion.media is blocked, so use the preinstalled headless shell.
 const preinstalled =
   "/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell";
-if (require("fs").existsSync(preinstalled)) {
+const browserExecutable = process.env.WASAT_REMOTION_BROWSER;
+if (browserExecutable) {
+  Config.setBrowserExecutable(browserExecutable);
+} else if (require("fs").existsSync(preinstalled)) {
   Config.setBrowserExecutable(preinstalled);
 }

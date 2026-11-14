@@ -3,6 +3,9 @@ import {Composition} from 'remotion';
 import {FORMAT} from './theme/format';
 import {Main, mainSchema, MainProps, selectedScenes} from './Main';
 import {Cover, coverSchema} from './Cover';
+import {McpToolCallMain, McpToolCallSelected} from './projects/mcp-tool-call/Main';
+import {McpToolCallCover} from './projects/mcp-tool-call/Cover';
+import {episodeSchema} from './components/Episode';
 import {AnatomyStyleSample} from './samples/AnatomyStyleSample';
 import {McpAnatomyPilot, MCP_PILOT_FRAMES} from './samples/McpAnatomyPilot';
 import {AnatomyKitSample} from './samples/AnatomyKitSample';
@@ -33,6 +36,18 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="AnatomyCoverSample" component={AnatomyCoverSample} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   <Composition id="AnatomyCast" component={AnatomyCastSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} />
   <Composition id="McpAnatomyPilot" component={McpAnatomyPilot} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={MCP_PILOT_FRAMES} />
+  <Composition
+    id="McpToolCallMain"
+    component={McpToolCallMain}
+    schema={episodeSchema}
+    width={FORMAT.width}
+    height={FORMAT.height}
+    fps={FORMAT.fps}
+    durationInFrames={1}
+    defaultProps={{muteVoice: false, hideCaptions: false, onlyScenes: []}}
+    calculateMetadata={({props}) => ({durationInFrames: Math.max(1, McpToolCallSelected(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0))})}
+  />
+  <Composition id="McpToolCallCover" component={McpToolCallCover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}
   <Composition id="Cover" component={Cover} schema={coverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   </>

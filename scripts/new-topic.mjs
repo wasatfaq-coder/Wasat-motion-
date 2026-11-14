@@ -89,9 +89,9 @@ const PLACEHOLDER = K.solidSvg(K.slabOf({x: 0, y: 0, w: 40, d: 40, r: 3}, 0, 40,
 const FRAME: P3[] = [[0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0], [0, 0, 4], [4, 4, 4]];
 
 export const COVERS: Record<'a' | 'b' | 'c', CoverSpec> = {
-  a: {technique: 'gap', lines: ['Вопрос', 'темы?'], accent: [1, 0], layout: 'top', art: PLACEHOLDER, frame: FRAME, placeholder: true},
-  b: {technique: 'contrast', lines: ['Было', 'и стало'], accent: [1, 1], layout: 'bottom', art: PLACEHOLDER, frame: FRAME, placeholder: true},
-  c: {technique: 'incomplete', lines: ['Что', 'внутри?'], accent: [1, 0], layout: 'top', art: PLACEHOLDER, frame: FRAME, placeholder: true},
+  a: {technique: 'gap', lines: ['Вопрос', 'темы?'], accent: [1, 0], layout: 'top', art: PLACEHOLDER, frame: FRAME, hero: FRAME, hook: "Эскиз обложки", placeholder: true},
+  b: {technique: 'contrast', lines: ['Было', 'и стало'], accent: [1, 1], layout: 'bottom', art: PLACEHOLDER, frame: FRAME, hero: FRAME, hook: "Эскиз обложки", placeholder: true},
+  c: {technique: 'incomplete', lines: ['Что', 'внутри?'], accent: [1, 0], layout: 'top', art: PLACEHOLDER, frame: FRAME, hero: FRAME, hook: "Эскиз обложки", placeholder: true},
 };
 `);
 write(path.join(srcDir, 'Cover.tsx'), `import React from 'react';

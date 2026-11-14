@@ -1,0 +1,36 @@
+{
+  "_doc": "MASTER_PROMPT_FINAL §20: every scene declares location and mode; every metaphor is justified and approved at STOP 1; measured data sits on a frontal plate. Set interface: real for a literal interface close-up. Link leadingMetaphor (metaphor id) to schemeScene (schematic scene id).",
+  "scenes": {
+    "scene-01": {
+      "location": "стойка и рабочая зона",
+      "mode": "metaphor",
+      "metaphors": [
+        "request-reply"
+      ],
+      "leadingMetaphor": "request-reply",
+      "schemeScene": "scene-02"
+    },
+    "scene-02": {
+      "location": "схема на той же оси",
+      "mode": "schematic",
+      "metaphors": []
+    }
+  },
+  "locationReuse": [],
+  "metaphors": {
+    "request-reply": {
+      "keyIdea": "Вызов инструмента и возврат результата",
+      "sourceClaim": "S1",
+      "mapping": [
+        "окно приёма = MCP-клиент",
+        "заявка = вызов",
+        "рабочая зона = MCP-сервер",
+        "лист с отметкой = результат"
+      ],
+      "rationale": "Возврат предмета делает направление результата видимым, затем scene-02 закрепляет роли",
+      "misreadRisk": "MCP воспринимается как машина или однонаправленная доставка",
+      "guard": "Отдельно показать возврат, подписать роли на схеме и соединить стрелки с клиентом",
+      "status": "proposed"
+    }
+  }
+}

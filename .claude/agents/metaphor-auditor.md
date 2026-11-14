@@ -9,9 +9,7 @@ content/script.json, content/storyboard.md, content/visual-register.json and, be
 For a new topic the same files live in projects/<slug>/content/.
 
 For every scene:
-1. Mode. Is literal possible? If the topic is an interface, a device, a process diagram, a chart or a procedure, the scene must be
-   literal or schematic: real layout, real labels, correct order and scale. A metaphor may only be an overlay or a bridge there,
-   never a substitute. A metaphor scene without a reason why literal fails = FAIL.
+1. Mode. Is literal possible? An authorial metaphor can lead a key scene. Verify its rationale and the linked schematic scene that establishes the real roles and connections. Show reproducible interface actions literally. Verify data, real layouts and procedural steps against the source.
 2. Mapping. Each metaphor element maps to one element of the source claim (write «X = Y»). Extra elements that imply more than the
    source (mechanism, causality, numbers, guarantees) = FAIL. Hypotheses must stay hypotheses on screen and in the voice.
 3. Misreading. List how a first-time viewer could misread it (literal storage, measured value, body part, promise). Check that the

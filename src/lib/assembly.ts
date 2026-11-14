@@ -48,7 +48,7 @@ export class Assembly {
   constructor(
     readonly name: string,
     readonly P: K.Projection,
-    readonly opts: {role?: Role; order?: string[]; allow?: [string, string][]; crowd?: [string, string][]; cover?: string[]} = {},
+    readonly opts: {role?: Role; detail?: 'complex' | 'simple' | 'schematic'; order?: string[]; allow?: [string, string][]; crowd?: [string, string][]; cover?: string[]} = {},
   ) {
     this.R = A.recorder(P, {order: opts.order ?? []});
     this.V = A.cameraBasis(P).V as Point3;

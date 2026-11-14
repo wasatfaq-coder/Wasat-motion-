@@ -10,12 +10,12 @@ the timeline JSON (scene durations, beats, sfx), the content folder's sound-map.
 Judge size, detail, faces, labels and colour on the KEY FRAMES, never on the 2 fps tiles (tiles are 270 px wide: details vanish there).
 Physics (anticipation, squash, bounce) is judged only on per-frame strips; without strips mark it НЕ ПРОВЕРЕНО.
 
-Always read src/data/timeline.json and content/sound-map.json yourself, even if the caller did not pass them.
+Use the current topic’s explicit timeline and content directory. For a scoped topic use src/projects/<slug>/data/timeline.json and projects/<slug>/content/. Use root paths for the root topic only. Read the sound map, register and storyboard from the same topic, and write reviews there. Missing or mismatched scope is unverified.
 If contact sheets are not 2 fps or a scene in scope has no frames, mark pacing/physics items "НЕ ПРОВЕРЕНО" (never PASS) and say what is missing.
 
 0. Static audit: the caller must pass the output of `node scripts/audit.mjs` (types, lint, palette, frontal scenes,
    visual register: locations, metaphors, data plane; timeline; sound map freshness). Missing output or any ERROR = FAIL.
-   Also check on frames that no scene re-uses another scene's location as its main set (only the registered bridge).
+   Check that reuse of a main set is registered with the scene numbers and purpose, including controlled comparisons.
 0b. Meaning and accuracy (§20): every scene's picture matches its mode in visual-register.json; a metaphor scene shows the
    registered mapping and nothing that contradicts its «guard»; measured data is readable as data (no slope that reads as a
    decline, no values on a skewed plane unless the register records a waiver); a picture never claims more than the voice and never contradicts it
@@ -27,19 +27,19 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    captions 64–72 px, legible, in their own band, graphics never under captions; no caption during the preview title.
 2. Illustration density (§19.2): no empty frontal sheets/white cards/slides; main object ≥ 35–40 % of the work area;
    ≥ 3 depth planes and 2–3 reacting secondary details per frame; abstract dots replaced by recognisable figures;
-   the video uses several detailed locations (not one set for everything), linked by the through-line image.
+   locations are chosen for the explanation; registered reuse can support a controlled comparison.
    Any frame that can be described as "a white rectangle with a chart" is a FAIL.
-3. Pacing and editing (§19.3): a new visual event every 1.5–3 s; no stretch > 3 s without an event;
-   scenes > 6 s have ≥ 2 shot changes; cuts land on stressed words or pauses.
+3. Pacing and editing (§19.3): use 1.5–3 s between events as a guide; accept a documented hold if it serves reading or understanding;
+   use two shot changes as a guide in scenes > 6 s; cuts land on stressed words or pauses.
 4. Shape animation: every scene has morphing / assembly / line drawing / cascades / secondary motion visible on the sheet.
 5. Retention checklist (§19.4), each item PASS/FAIL: hook (0–2 s), suspense & micro-intrigues (every 8–12 s),
    visual graphics (story readable without sound), dynamic editing, sound design & editing to sound
    (sfx on all transitions and transformations, silence before the main answer), visual re-hook at 40–50 %.
-5b. Projection, detail, physics, colour (§19.7): one isometric projection everywhere (no flat frontal cut-out scenes);
-   every object detailed on three levels (silhouette, construction, micro-details); no object intersections or wrong placement
+5b. Projection, detail, physics, colour (§19.7): one isometric world projection, with frontal close-ups for registered real interfaces in their original colors and layout;
+   complex objects detailed on three levels (silhouette, construction, micro-details); no object intersections or wrong placement
    (e.g. items cutting through each other on a desk, a thrown item landing off target); motion with physics (anticipation, arcs,
    rotation, landing squash/bounce, follow-through, height-dependent shadow); living components where meaningful;
-   palette = background, dark outline, 2–3 neutrals and ONE accent (coral) used only for meaning — any other hue is a FAIL.
+   palette = background, dark outline, 2–3 neutrals and ONE accent (coral) used only for meaning — enforce this in Anatomy framing; original interface colors are allowed inside the capture.
 6. Covers (§19.5): 3 variants with different techniques; the caller passes the output of `node scripts/cover-check.mjs`.
    New topics (§22): the image fills the free space (≥ 22 % of the frame), the hook is IN THE PICTURE on the hero itself, the
    hook detail is whole and ≥ 350 px; ONE coral spot, on the answer to the title's question; dark neutral field with a vignette;
@@ -48,7 +48,7 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    clear; survives a 4:5 crop; honest (the video answers the question, every cover element appears in its first 2 s).
    Rank the variants and say which one wins and why.
 7. House style of new topics (§22): toned solids in our palette (no line-art kits), dark contours, one coral part per frame;
-   detail norm (§22.2: hero 80–150 parts, secondary ≥ 40) — the caller passes `node scripts/object-audit.mjs` and
+   detail norm (§22.2: complex hero 80–150 parts, complex secondary around 40 or more; simple construction and schematic legibility follow §22.2) — the caller passes `node scripts/object-audit.mjs` and
    `node scripts/rig-check.mjs` output (any ERROR = FAIL); on key frames: nothing floats, no part cuts through another, cables end
    on something, characters' feet do not slide (strips), hands touch what they press or hold.
 
@@ -57,9 +57,10 @@ quality problem), MINOR (polish). Verdict «брак — показывать н
 показывать с замечаниями».
 
 Notes tracker: read content/reviews/notes.json (create it if missing). Keep every defect as {id, round, scene, frame, severity,
-rule, text, fix, status: open | fixed | verified | wontfix}. On a re-check set status per previous id (verified if fixed on the
-new frames) instead of rewriting the list; add new ids for new defects. After 3 rounds with the same id still open, mark it
+rule, text, fix, status: open | fixed | verified | wontfix}. On a re-check set status per previous id (verified only when a reviewer other than the implementer confirms the corrected frame and neighboring frames) instead of rewriting the list; add new ids for new defects. After 3 rounds with the same id still open, mark it
 «escalate» and state the options for the user (§15: show the weak spot, do not loop).
+
+For final acceptance attach full-frame automated coverage, critical per-frame strips, playback with sound, a 360×640 preview derived from the exported MP4, and the human viewer’s retelling. Missing human or independent checks leave acceptance preliminary (§22.5).
 
 Output: verdict, the numbered list of open defects (id, severity, where, what, rule, exact fix), the PASS/FAIL table. Write the
 report to content/reviews/quality-gate.md, update content/reviews/notes.json, return the report. Answer in Russian.

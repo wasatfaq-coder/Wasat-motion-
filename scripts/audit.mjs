@@ -25,8 +25,9 @@ const add = (lvl, msg) => out[lvl].push(msg);
 const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
 const run = (name, cmd) => {
   try {
-    execSync(cmd, {stdio: 'pipe'});
+    const result = execSync(cmd, {stdio: 'pipe', encoding: 'utf8'});
     add('ok', name);
+    return result;
   } catch (e) {
     add('error', `${name}: ${String(e.stdout || '') + String(e.stderr || '')}`.trim().slice(0, 800));
   }
@@ -60,14 +61,18 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
 // audits the rest of src/.
 {
   const topicDir = scenesDir.includes(`projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
-  const parts = srcFiles.filter((f) => f.endsWith('.parts.ts') && (topicDir ? f.startsWith(topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
-  if (parts.length) run(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`);
+  const parts = srcFiles.filter((f) => f.endsWith('.parts.ts') && (topicDir ? f.startsWith(topicDir + path.sep) : !f.includes(`${path.sep}projects${path.sep}`)));
+  if (!parts.length) add('warn', 'object-audit: no assemblies in this scope');
+  if (parts.length) {
+    const result = run('object-audit', `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`);
+    if (result?.includes('no assemblies found')) add('warn', 'object-audit: no exported assemblies in the selected parts files');
+  }
 }
 
 // 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques
 {
   const topicDir = scenesDir.includes(`projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
-  const covers = srcFiles.filter((f) => path.basename(f) === 'covers.ts' && (topicDir ? f.startsWith(topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
+  const covers = srcFiles.filter((f) => path.basename(f) === 'covers.ts' && (topicDir ? f.startsWith(topicDir + path.sep) : !f.includes(`${path.sep}projects${path.sep}`)));
   if (covers.length) {
     run(`cover-check (${covers.length})`, `node scripts/cover-check.mjs --quiet ${covers.map((f) => JSON.stringify(f)).join(' ')}`);
     try {
@@ -117,9 +122,10 @@ if (!fs.existsSync(regFile)) {
   const reg = readJson(regFile);
   const scenes = reg.scenes ?? {};
   const metaphors = reg.metaphors ?? {};
-  const REQUIRED = ['keyIdea', 'sourceClaim', 'mapping', 'whyNotLiteral', 'misreadRisk', 'guard', 'status'];
+  const REQUIRED = ['keyIdea', 'sourceClaim', 'mapping', 'misreadRisk', 'guard', 'status'];
   for (const [id, m] of Object.entries(metaphors)) {
     const miss = REQUIRED.filter((k) => !m[k] || (Array.isArray(m[k]) && !m[k].length));
+    if (!(m.rationale?.trim() || m.whyNotLiteral?.trim())) miss.push('rationale');
     if (miss.length) add('error', `metaphor «${id}»: missing ${miss.join(', ')} (§20.2)`);
     if (m.status === 'rejected' && Object.values(scenes).some((s) => (s.metaphors ?? []).includes(id))) add('error', `metaphor «${id}» was rejected but is still used`);
     else if (m.status !== 'approved' && m.status !== 'rejected') add('warn', `metaphor «${id}»: status «${m.status}», needs the user's approval at STOP 1 (§20.2)`);
@@ -130,6 +136,9 @@ if (!fs.existsSync(regFile)) {
     const n = idx + 1;
     const sc = scenes[s.id];
     if (!sc) return add('error', `register: ${s.id} is not declared in ${regFile}`);
+    if (sc.interface === 'real' && sc.mode !== 'literal') add('error', `register: ${s.id} real interface requires literal mode`);
+    if (sc.leadingMetaphor && (sc.mode !== 'metaphor' || !sc.metaphors?.includes(sc.leadingMetaphor) || scenes[sc.schemeScene]?.mode !== 'schematic' || !tl.scenes.slice(idx + 1).some((entry) => entry.id === sc.schemeScene)))
+      add('error', `register: ${s.id} leading metaphor needs a registered metaphor and a later schematic scene in the timeline`);
     if (!['literal', 'schematic', 'metaphor'].includes(sc.mode)) add('error', `register: ${s.id} mode must be literal | schematic | metaphor`);
     if (sc.mode === 'metaphor' && !(sc.metaphors ?? []).length) add('error', `register: ${s.id} is a metaphor scene without a registered metaphor`);
     for (const mid of sc.metaphors ?? []) if (!metaphors[mid]) add('error', `register: ${s.id} uses unknown metaphor «${mid}»`);

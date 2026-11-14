@@ -1,6 +1,6 @@
 # Project instructions
 
-This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.3, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
+This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.5, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
 
 ## Topics: one folder per topic
 - Finished / current topic «Почему нам кажется, что время течёт быстро» lives in the root layout (`content/`, `public/audio/`, `src/scenes/`). Its state: `content/progress.md`, `content/decisions.md`.
@@ -13,10 +13,10 @@ This repository produces vertical motion-explainer videos (YouTube Shorts) with 
 - Each topic gets its own working branch and PR.
 
 ## Always
-- House style for every new topic: Anatomy toned solids in our palette (MASTER_PROMPT_FINAL §22): draw with `src/lib/anatomy.tsx` (AnatomyStage, anatomyProjection, Kit, paint) and `src/lib/physics.ts`; the old line-art kits are only for the finished «время» topic. Reference look: composition `AnatomyStyle`. Detail norm is maximal (§22.2): hero object 80–150 parts, every secondary object ≥ 40, environment detailed too; parts list (PARTS) before geometry.
+- House style for every new topic: Anatomy toned solids in our palette (MASTER_PROMPT_FINAL §22): draw with `src/lib/anatomy.tsx` (AnatomyStage, anatomyProjection, Kit, paint) and `src/lib/physics.ts`; the old line-art kits are only for the finished «время» topic. Reference look: composition `AnatomyStyle`. Detail depends on function (§22.2): complex hero 80–150 parts, complex secondary around 40 or more, simple objects use their actual construction, and schematic nodes must be legible; parts list (PARTS) before geometry.
 - Hero objects: dossier by `object-researcher`, parts and motion plan by `object-architect` before STOP 1; build objects with `src/lib/assembly.ts` in `*.parts.ts` and run `node scripts/object-audit.mjs --settle` after any geometry change (zero problems before going on). Characters: `src/lib/rig.ts` + `src/lib/character.ts` (walkTo, reach/reachShare, holdInFront, sit); `scripts/rig-check.mjs` must pass. Labels and data: `src/components/Frontal.tsx`.
 - Covers (§19.5): three variants in `src/projects/<slug>/covers.ts` on `AnatomyCover`; `node scripts/cover-check.mjs`; the hook is in the picture; record the user's choice in `projects/<slug>/content/cover.json`.
-- Metaphors only for accuracy (MASTER_PROMPT_FINAL §20): every scene has a mode and location in `visual-register.json`; every metaphor is justified, checked by `metaphor-auditor` and approved by the user at STOP 1. Interfaces, schemes and data are shown literally. Avoid the typical errors of §20.5 (picture contradicts the voice, wrong unit, one image two meanings, decor that looks like data, hypothesis stated as fact); the storyboard has a «voice | frame» column per scene.
+- Metaphors only for accuracy (MASTER_PROMPT_FINAL §20): every scene has a mode and location in `visual-register.json`; every metaphor is justified, checked by `metaphor-auditor` and approved by the user at STOP 1. A leading metaphor links to a precise schematic scene. Real interface actions are shown literally in a frontal close-up. Apply §22.5 to topic acceptance. Avoid the typical errors of §20.5 (picture contradicts the voice, wrong unit, one image two meanings, decor that looks like data, hypothesis stated as fact); the storyboard has a «voice | frame» column per scene.
 - Before the gate and before committing visual work, run `node scripts/audit.mjs` (no rendering) and fix every ERROR.
 - For the gate, make 2 fps sheets and beat key frames with `node scripts/contact-sheet.mjs <outDir>`, and per-frame strips with `node scripts/frame-strip.mjs <from> <to>` for physics and anchors (stills only, no video render). Keep review notes in `content/reviews/notes.json` (id, severity, status); escalate a note open for 3 rounds to the user.
 - After changing a scene, re-check its sfx and run `node scripts/audit.mjs --stamp-sfx`.

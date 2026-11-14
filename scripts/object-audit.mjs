@@ -2,7 +2,7 @@
 // Geometry audit of house-style objects (MASTER_PROMPT_FINAL §22): imports every `*.parts.ts` under src/ (or the
 // files given), takes each exported Assembly (src/lib/assembly.ts) and runs the Anatomy audit on the shapes it
 // recorded while drawing: pipes/cables through parts, floating or sunk parts, ends off their mounts, folds, wrong
-// paint order, stand-in shapes; plus the §22.2 part count for its role (hero ≥ 80, secondary ≥ 40).
+// paint order, stand-in shapes; plus the §22.2 part count for complex objects by role (hero ≥ 80, secondary ≥ 40).
 // No rendering. Exit code 1 on any problem.
 // Paint order: `--settle` solves it from the geometry and writes `<name>.parts.keys.json` next to the file
 // ({exportName: {itemName: key}}); the parts file applies it with `X.applyKeys(KEYS.X)`. Items without a stored key
@@ -45,9 +45,10 @@ for (const file of files) {
     const unsettled = value.keysApplied && !settleKeys ? value.unsettled : [];
     const failures = audited.failures + (unsettled.length ? 1 : 0);
     const report = (unsettled.length ? `unsettled paint order: ${unsettled.length} item(s) have no stored key (${unsettled.slice(0, 5).join(', ')}…): run with --settle\n` : '') + audited.report;
-    const norm = PART_NORM[value.role];
-    const short = value.parts < norm;
-    results.push({file: relative(root, file), export: exportName, name: value.name, role: value.role, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});
+    const detail = value.opts.detail ?? 'complex';
+    const norm = detail === 'complex' ? PART_NORM[value.role] : 0;
+    const short = value.parts < Math.max(1, norm);
+    results.push({file: relative(root, file), export: exportName, name: value.name, role: value.role, detail, parts: value.parts, norm: Math.max(1, norm), failures, short, seconds: (Date.now() - started) / 1000, report});
   }
   if (settleKeys && Object.keys(solved).length) {
     const out = file.replace(/\.ts$/, '.keys.json');
@@ -65,5 +66,5 @@ for (const r of results) {
   if (r.failures && !quiet) console.log(r.report.split('\n').map((l) => '    ' + l).join('\n'));
 }
 if (json) console.log(JSON.stringify(results.map(({report, ...r}) => ({...r, report: r.failures ? report : ''})), null, 1));
-else if (!results.length) console.log('object-audit: no *.parts.ts assemblies found');
+else if (!results.length) console.log('object-audit: no assemblies found');
 process.exitCode = bad ? 1 : 0;

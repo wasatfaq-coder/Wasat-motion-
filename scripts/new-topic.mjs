@@ -31,7 +31,7 @@ duration_tolerance: 0.10
 language: ru
 style: anatomy_toned_solids    # §22: toned solids in our palette, thick contour, one coral part
 accent_colors: 1            # coral; a second accent only by the user's decision
-metaphor_policy: accuracy_first   # §20: literal > schematic > metaphor
+metaphor_policy: accuracy_first   # §20: literal > schematic > metaphor; a leading metaphor needs a later schematic scene
 voice_provider: elevenlabs
 voice_id: 3EuKHIEZbSzrHGNmdYsx
 voice_model: eleven_v4
@@ -40,15 +40,17 @@ captions: on
 music: forbidden
 cover: on
 `);
-write(path.join(content, 'progress.md'), `# Прогресс: ${title}\n\nСоздано ${today}. Слаг: \`${slug}\`.\n\n## Шаги (§8)\n- [ ] Бриф и источники\n- [ ] analysis.md (topic-analyst)\n- [ ] Сценарий и реестр сцен/метафор (metaphor-auditor, fact-checker)\n- [ ] СТОП 1: сценарий, раскадровка, реестр метафор\n- [ ] Стайлфреймы локаций и тестовый фрагмент\n- [ ] СТОП 2\n- [ ] Аниматик (стоп-кадры под голос)\n- [ ] Сборка, аудит, gate\n- [ ] СТОП 3: полный черновик\n- [ ] Мастер (scripts/master.mjs)\n`);
+write(path.join(content, 'progress.md'), `# Прогресс: ${title}\n\nСоздано ${today}. Слаг: \`${slug}\`.\n\n## Шаги (§8)\n- [ ] Бриф и источники\n- [ ] analysis.md (topic-analyst): оценка длительности и один выпуск или серия\n- [ ] Сценарий и реестр сцен/метафор (metaphor-auditor, fact-checker)\n- [ ] СТОП 1: сценарий, раскадровка, реестр метафор; для ведущей метафоры — metaphor-prep.md и проверка эскиза\n- [ ] Стайлфреймы локаций и тестовый фрагмент\n- [ ] СТОП 2\n- [ ] Аниматик (стоп-кадры под голос)\n- [ ] Сборка, аудит, gate\n- [ ] СТОП 3: полный черновик\n- [ ] Мастер (scripts/master.mjs)\n- [ ] Превью 360×640 из MP4, просмотр со звуком, зрительский пересказ и независимое подтверждение правок\n`);
 write(path.join(content, 'decisions.md'), `# Решения: ${title}\n\n| Дата | Решение | Кто |\n| --- | --- | --- |\n`);
 write(path.join(content, 'sources.md'), `# Источники\n\nКаждый факт: S<n>, ссылка, страница/раздел, границы применимости (§7).\n`);
-write(path.join(content, 'storyboard.md'), `# Раскадровка: ${title}\n\nДля каждой сцены (§8, §20): мысль · режим (literal / schematic / metaphor) · локация · главный объект · движение · якорное слово · звук.\n\n| Сцена | Мысль | Режим | Локация | Главный объект | Метафоры (id) | Якорное слово | Что говорит голос | Что показывает кадр | Звук |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n\nПеред СТОП 1 сверь каждую строку со списком типовых ошибок §20.5: кадр не противоречит голосу, единицы совпадают, один образ — один смысл, гипотезы помечены в голосе.\n`);
+write(path.join(content, 'storyboard.md'), `# Раскадровка: ${title}\n\nДля каждой сцены (§8, §20, §22.5): мысль · режим (literal / schematic / metaphor) · локация · главный объект · движение · якорное слово · звук · ожидаемый пересказ · ошибочное прочтение · смысловая пауза.\n\n| Сцена | Мысль | Режим | Локация | Главный объект | Метафоры (id) | Якорное слово | Что говорит голос | Что показывает кадр | Звук | Ожидаемый пересказ | Ошибочное прочтение | Смысловая пауза (диапазон и цель) |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n\nПеред СТОП 1 сверь каждую строку со списком типовых ошибок §20.5: кадр не противоречит голосу, единицы совпадают, один образ — один смысл, гипотезы помечены в голосе. Ориентир темпа 1,5–3 с (§19.3): длинный план допустим, если действие развивается; паузу без события запиши в последней колонке.\n`);
+write(path.join(content, 'metaphor-prep.md'), `# Подготовка визуальной метафоры: ${title}\n\nЗаполни, если метафора ведёт ключевую сцену. До СТОП 1 и до моделирования. Прикрепи результат metaphor-auditor и решение из decisions.md. Если ведущей метафоры нет, так и напиши в первой строке.\n\n| Пункт | Что записать |\n| --- | --- |\n| Мысль и источник | Одна фраза для пересказа, источник и пределы утверждения |\n| Варианты | Два узнаваемых образа и точная схема для сравнения |\n| Соответствия | Что означает каждый предмет, действие и направление |\n| Досье | Как узнать предмет по силуэту, какие детали определяют его функцию, на какие материалы опираемся |\n| Ошибочное прочтение | Что зритель может понять неверно и как это снимает кадр или голос |\n| Кадры | Общий план, крупный план и точная схема. Отметь объект и действие на каждом |\n| Проверка эскиза | На 360×640 без озвучки рецензент называет видимый предмет и действие. Запиши ответ и замечания |\n| Схема следом | Id сцены реестра, где роли и связи показаны буквально или схемой |\n| Решение | Выбранный образ, основание выбора, ссылка на проверку и согласование |\n`);
+write(path.join(content, 'series-plan.md'), `# План серии: ${title}\n\nЗаполни, только если тема не помещается в один выпуск (§19.3, дополнение 4.1). Один выпуск эту таблицу не обязан заполнять фактами: напиши «один выпуск» и вопрос, на который он отвечает.\n\n| Вопрос или связь | Выпуск | Сцена | Что зритель уже знает | Законченный ответ |\n| --- | --- | --- | --- | --- |\n`);
 write(path.join(content, 'script.json'), json({scenes: []}));
 write(path.join(content, 'sound-map.json'), json({_doc: 'Per scene: [{beat, offset, file, volume, reason}]. Review after every scene change, then node scripts/audit.mjs --stamp-sfx.'}));
 write(path.join(content, 'timing.json'), json({firstVoiceStartFrames: 6, lastTailMs: 300, pauses: {}, extraTailFrames: {}, spokenNumbers: {}}));
 write(path.join(content, 'visual-register.json'), json({
-  _doc: 'MASTER_PROMPT_FINAL §20: every scene declares location and mode; every metaphor is justified and approved at STOP 1; measured data sits on a frontal plate.',
+  _doc: 'MASTER_PROMPT_FINAL §20: every scene declares location and mode; every metaphor is justified and approved at STOP 1; measured data sits on a frontal plate. A leading metaphor sets leadingMetaphor (metaphor id) and schemeScene (a later schematic scene id). interface: real requires literal mode. whyNotLiteral and rationale are the same slot.',
   scenes: {},
   locationReuse: [],
   metaphors: {},
@@ -128,7 +130,7 @@ ${marker}`);
 fs.writeFileSync(root, r);
 
 console.log(`Topic ${slug} created:
-  ${content}/        brief.yaml, storyboard.md, visual-register.json, timing.json, sound-map.json, progress.md, decisions.md
+  ${content}/        brief.yaml, storyboard.md, metaphor-prep.md, series-plan.md, visual-register.json, timing.json, sound-map.json, progress.md, decisions.md
   public/${slug}/audio/vo/
   ${srcDir}/Main.tsx  composition ${pascal}Main registered in src/Root.tsx
   ${srcDir}/covers.ts, Cover.tsx  composition ${pascal}Cover (variants a/b/c: placeholders to replace)

@@ -1,6 +1,6 @@
 # Project instructions
 
-This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.3, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
+This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.4.3, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
 
 ## Topics: one folder per topic
 - Finished / current topic «Почему нам кажется, что время течёт быстро» lives in the root layout (`content/`, `public/audio/`, `src/scenes/`). Its state: `content/progress.md`, `content/decisions.md`.

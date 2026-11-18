@@ -157,14 +157,15 @@ export class Assembly {
     name: string,
     points: Point3[],
     r: number,
-    c: Common & {bend?: number; gaps?: [number, number][]; caps?: boolean | [boolean, boolean]; maxLength?: number; tone?: K.Tone; limp?: boolean; rings?: Record<string, unknown>; ends?: [boolean, boolean]} = {},
+    c: Common & {bend?: number; gaps?: [number, number][]; caps?: boolean | [boolean, boolean]; maxLength?: number; tone?: K.Tone; limp?: boolean; lit?: boolean; rings?: Record<string, unknown>; ends?: [boolean, boolean]} = {},
   ) {
     const n = this.full(name);
     const route = (c.bend ? G.fillet(points, c.bend, 7, {P: this.P, tube: r}) : points) as Point3[];
     const pieces = T.tubePieces(route, r, this.P, {maxLength: c.maxLength ?? 14, gaps: c.gaps ?? [], caps: c.caps ?? true, rings: c.rings ?? null});
     this.R.route(n, route, r, {gaps: c.gaps ?? [], limp: c.limp ?? false, ends: c.ends ?? [true, true], piece: c.piece ?? '', move: c.move ?? [0, 0, 0], ...(c.meta ?? {})});
+    const mark = (svg: string) => (c.lit ? svg.replace('<g class="tb">', '<g class="tb" data-lit="">') : svg);
     return pieces.map((piece: {mid: Point3; points: Point3[]; radii: number[]}, i: number) =>
-      this.put(`${n}:${i}`, piece.mid, T.tubeSvg(piece, {tone: c.tone ?? 'hi'}), [A.tube(piece.points, piece.radii, {name: n, limp: c.limp ?? false})], {...c, over: i === pieces.length - 1 ? c.over : ''}, {route: n, chunk: i}),
+      this.put(`${n}:${i}`, piece.mid, mark(T.tubeSvg(piece, {tone: c.tone ?? 'hi'})), [A.tube(piece.points, piece.radii, {name: n, limp: c.limp ?? false})], {...c, over: i === pieces.length - 1 ? c.over : ''}, {route: n, chunk: i}),
     );
   }
 

@@ -1,21 +1,53 @@
-import * as K from '../../vendor/anatomy/iso-kit';
-import {anatomyProjection} from '../../lib/anatomy';
+import {toRoom} from '../../lib/anatomy';
+import {boxCorners} from '../../lib/camera';
 import {CoverSpec} from '../../lib/coverLayout';
+import {Point3} from '../../lib/assembly';
 import {P3} from '../../lib/iso';
+import {AX, AY, PLATE_TOP, STAND, STAND_U, commutatorItems, loopItems, wireItems} from './stand.parts';
 
-// Covers of «Как работает электромотор» (MASTER_PROMPT_FINAL §19.5): three variants, each with a different technique
-// (gap, violation, incomplete, contrast, specific); title 2–4 words with one coral word; the image is the topic's
-// hero object drawn in the house style (§22), framed by `frame` (room points). Checked by scripts/cover-check.mjs.
-// PLACEHOLDERS: replace `art`, `frame` and `lines` and drop `placeholder` before the gate.
-const U = 10;
-const P = anatomyProjection(U);
-const PLACEHOLDER = K.solidSvg(K.slabOf({x: 0, y: 0, w: 40, d: 40, r: 3}, 0, 40, P, 8, 1), {tone: 'hi', lit: true});
-const FRAME: P3[] = [[0, 0, 0], [4, 0, 0], [0, 4, 0], [4, 4, 0], [0, 0, 4], [4, 4, 4]];
-const FLOOR = {x: -2, y: -2, w: 8, d: 8};
-const HERO: P3[] = [[1, 1, 0], [3, 3, 3]]; // the hook detail, inside the frame
+// Three covers from the built field stand (parts-plan §6). The cutaway motor of variant A is not built yet,
+// so A shows the stand's wire — the only hero that exists — with the title already written in the plan.
+// cover.json stays unchosen: the user still picks. Coral is the conductor, already in the picture, so the title is not coral.
+const R = (p: Point3): P3 => toRoom(p, STAND_U);
+const box = (min: Point3, size: Point3): P3[] => boxCorners(R(min), [size[0] / STAND_U, size[1] / STAND_U, size[2] / STAND_U]);
+const FLOOR = {x: -1, y: -1, w: 14, d: 10};
+
+const wireArt = STAND.svg({}, {extra: wireItems(), hide: (n) => /axis|bearing/.test(n)});
+const loopArt = STAND.svg({}, {extra: [...loopItems(Math.PI / 6), ...commutatorItems(Math.PI / 6)]});
+const halfArt = STAND.svg({}, {extra: [...loopItems(0.35), ...commutatorItems(0.35)]});
 
 export const COVERS: Record<'a' | 'b' | 'c', CoverSpec> = {
-  a: {technique: 'gap', hook: 'ЗАМЕНИТЬ: что в картинке не так с героем', lines: ['Вопрос', 'темы?'], layout: 'top', art: PLACEHOLDER, frame: FRAME, hero: HERO, floor: FLOOR, crop: 1, placeholder: true},
-  b: {technique: 'contrast', hook: 'ЗАМЕНИТЬ: что в картинке не так с героем', lines: ['Было', 'и стало'], accent: [1, 1], layout: 'top', art: PLACEHOLDER.replace(' data-lit=""', ''), frame: FRAME, hero: HERO, floor: FLOOR, crop: 1, placeholder: true},
-  c: {technique: 'incomplete', hook: 'ЗАМЕНИТЬ: что в картинке не так с героем', lines: ['Что', 'внутри?'], layout: 'top', art: PLACEHOLDER, frame: FRAME, hero: HERO, floor: FLOOR, crop: 1, placeholder: true},
+  a: {
+    technique: 'gap',
+    hook: 'коралловый провод между магнитами, и не видно, что его толкает',
+    lines: ['Что крутит', 'вал?'],
+    layout: 'top',
+    art: wireArt,
+    frame: box([AX - 22, AY - 20, PLATE_TOP + 2], [44, 40, 30]),
+    hero: box([AX - 5, AY - 5, PLATE_TOP + 8], [10, 10, 24]),
+    floor: FLOOR,
+    crop: 1.18,
+  },
+  b: {
+    technique: 'contrast',
+    hook: 'коралловая рамка между двумя магнитами, стороны рамки противоположны',
+    lines: ['Толкает', 'провод'],
+    layout: 'top',
+    art: loopArt,
+    frame: box([AX - 22, AY - 20, PLATE_TOP + 6], [44, 40, 32]),
+    hero: box([AX - 10, AY - 10, PLATE_TOP + 16], [20, 20, 16]),
+    floor: FLOOR,
+    crop: 1.12,
+  },
+  c: {
+    technique: 'incomplete',
+    hook: 'два полукольца коллектора с зазором между ними',
+    lines: ['Две', 'половинки'],
+    layout: 'top',
+    art: halfArt,
+    frame: box([AX - 18, AY - 16, PLATE_TOP], [36, 32, 24]),
+    hero: box([AX - 8, AY - 8, PLATE_TOP + 3], [16, 16, 12]),
+    floor: FLOOR,
+    crop: 1.16,
+  },
 };

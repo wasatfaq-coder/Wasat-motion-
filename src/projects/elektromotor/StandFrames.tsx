@@ -2,7 +2,8 @@ import React from 'react';
 import {useCurrentFrame} from 'remotion';
 import * as K from '../../vendor/anatomy/iso-kit';
 import {AnatomyStage, Kit, toRoom} from '../../lib/anatomy';
-import {boxCorners, camOn, RoomSvg, screenOf} from '../../lib/camera';
+import {boxCorners, Cam, camOn, lerpCam, RoomSvg, screenOf} from '../../lib/camera';
+import {SPRING_MECHANICAL, spring} from '../../lib/physics';
 import {Point3} from '../../lib/assembly';
 import {forceOnWire, screenDir} from '../../lib/handed';
 import {COLORS, STROKE} from '../../theme/tokens';
@@ -81,8 +82,9 @@ const Inset: React.FC<{x: number; y: number}> = ({x, y}) => {
   );
 };
 
-export const ElektromotorStand: React.FC = () => {
-  const frame = useCurrentFrame();
+type Beat = {extra: Item[]; arrows: Item[]; cam: Cam; showInset: boolean};
+
+const beatOf = (frame: number): Beat => {
   const room = (pts: Point3[]) => pts.map((p) => toRoom(p, STAND_U));
   let extra: Item[] = [];
   let arrows: Item[] = []; // drawn over everything (annotations, §20.4): never hidden behind a bench or a bearing
@@ -122,22 +124,61 @@ export const ElektromotorStand: React.FC = () => {
     arrows = [forceArrow(sd5(LOOP_R, mz5), along(sd5(LOOP_R, mz5), fU, 10, [0, 0, 0], 0), [0, 0, 1]), forceArrow(sd5(-LOOP_R, mz5), along(sd5(-LOOP_R, mz5), fD, 10, [0, 0, 0], 0), [0, 0, 1]), currentArrow(sd5(LOOP_R, LOOP_Z0 + 4), sd5(LOOP_R, LOOP_Z1 - 4), [-Math.sin(th), Math.cos(th), 0]), currentArrow(sd5(-LOOP_R, LOOP_Z1 - 4), sd5(-LOOP_R, LOOP_Z0 + 4), [-Math.sin(th), Math.cos(th), 0])];
     cam = camOn(room(boxCorners([AX - 9, AY - 8, PLATE_TOP + 2], [18, 16, 26]) as Point3[]), 0.95, [540, 720]);
   }
-  // N and S: frontal plates over the magnets (labels live in screen space, §20.4)
+  return {extra, arrows, cam, showInset};
+};
+
+const picture = (beat: Beat) => STAND.svg({}, {extra: beat.extra}) + beat.arrows.map((a) => a.svg).join('');
+const movingParts = (beat: Beat) => beat.extra.map((e) => e.svg).join('') + beat.arrows.map((a) => a.svg).join('');
+
+const StandView: React.FC<{beat: Beat; cam: Cam; next?: {beat: Beat; t: number}; labels: boolean}> = ({beat, cam, next, labels}) => {
   const nPos = screenOf(cam, toRoom([12, AY, PLATE_TOP + 22], STAND_U));
   const sPos = screenOf(cam, toRoom([78, AY, PLATE_TOP + 22], STAND_U));
+  const t = next?.t ?? 0;
   return (
     <AnatomyStage>
       <RoomSvg cam={cam}>
         <g className="ns">
-          <Kit svg={STAND.svg({}, {extra})} />
-          <Kit svg={arrows.map((a) => a.svg).join('')} />
+          {next ? (
+            <>
+              <Kit svg={STAND.svg({})} />
+              <Kit svg={movingParts(beat)} opacity={1 - t} />
+              <Kit svg={movingParts(next.beat)} opacity={t} />
+            </>
+          ) : (
+            <Kit svg={picture(beat)} />
+          )}
         </g>
       </RoomSvg>
       <FrontalLayer>
-        {frame !== 3 ? <Plate at={[nPos[0], nPos[1] - 70]} to={nPos} text="С" size={66} /> : null}
-        {frame !== 3 ? <Plate at={[sPos[0], sPos[1] - 70]} to={sPos} text="Ю" size={66} /> : null}
-        {showInset ? <Inset x={40} y={930} /> : null}
+        {labels ? <Plate at={[nPos[0], nPos[1] - 70]} to={nPos} text="С" size={66} /> : null}
+        {labels ? <Plate at={[sPos[0], sPos[1] - 70]} to={sPos} text="Ю" size={66} /> : null}
+        {beat.showInset && t < 0.5 ? <Inset x={40} y={930} /> : null}
       </FrontalLayer>
     </AnatomyStage>
   );
+};
+
+/** Style frames: frame 0 scene 2, 1 scene 3, 2 scene 4, 3 scene 5. still-check reads these four frames. */
+export const ElektromotorStand: React.FC = () => {
+  const frame = useCurrentFrame();
+  const beat = beatOf(Math.min(3, Math.max(0, frame)));
+  return <StandView beat={beat} cam={beat.cam} labels={frame !== 3} />;
+};
+
+const HOLD = 50;
+const MOVE = 20;
+/** Silent test reel: four stand beats, a critically damped camera between them (no overshoot on the rig). */
+export const REEL_FRAMES = 3 * (HOLD + MOVE) + HOLD;
+
+export const ElektromotorReel: React.FC = () => {
+  const frame = useCurrentFrame();
+  const slot = HOLD + MOVE;
+  const i = Math.min(3, Math.floor(frame / slot));
+  const local = frame - i * slot;
+  const beat = beatOf(i);
+  const moving = i < 3 && local >= HOLD;
+  const t = moving ? Math.min(1, spring((local - HOLD) / 30, SPRING_MECHANICAL)) : 0;
+  const next = moving ? beatOf(i + 1) : null;
+  const cam = next ? lerpCam(beat.cam, next.cam, t) : beat.cam;
+  return <StandView beat={beat} cam={cam} next={next ? {beat: next, t} : undefined} labels={i < 3} />;
 };

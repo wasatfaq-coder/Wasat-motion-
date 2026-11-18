@@ -37,8 +37,8 @@ const currentArrow = (from: Point3, to: Point3, wide: Point3): Item => {
 /** force: a thick flat arrow, dark outline and a light body */
 const forceArrow = (from: Point3, to: Point3, wide: Point3): Item => {
   const u = unit(sub(to, from));
-  const neck = back(to, u, 4.2);
-  return {at: to, svg: line(from, neck, 12, 'var(--anatomy-hi)') + line(from, neck, 6.5, 'var(--anatomy-shade-3)') + tri(to, u, 4.6, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
+  const neck = back(to, u, 3);
+  return {at: to, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, u, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
 };
 /** field: dashed lines from the N pole face to the S pole face, with two heads each */
 const fieldLines = (ys: number[], z: number): Item[] =>
@@ -116,7 +116,10 @@ export const ElektromotorStand: React.FC = () => {
     extra = [...loopItems(th), ...commutatorItems(th)];
     // the current in the two vertical sides runs in opposite directions: the swap of scene 5 flips both
     const sd5 = (sg: number, z: number): Point3 => [AX + Math.cos(th) * sg, AY + Math.sin(th) * sg, z];
-    arrows = [currentArrow(sd5(LOOP_R, LOOP_Z0 + 4), sd5(LOOP_R, LOOP_Z1 - 4), [-Math.sin(th), Math.cos(th), 0]), currentArrow(sd5(-LOOP_R, LOOP_Z1 - 4), sd5(-LOOP_R, LOOP_Z0 + 4), [-Math.sin(th), Math.cos(th), 0])];
+    const fU = forceDir([0, 0, 1]);
+    const fD = forceDir([0, 0, -1]);
+    const mz5 = (LOOP_Z0 + LOOP_Z1) / 2;
+    arrows = [forceArrow(sd5(LOOP_R, mz5), along(sd5(LOOP_R, mz5), fU, 10, [0, 0, 0], 0), [0, 0, 1]), forceArrow(sd5(-LOOP_R, mz5), along(sd5(-LOOP_R, mz5), fD, 10, [0, 0, 0], 0), [0, 0, 1]), currentArrow(sd5(LOOP_R, LOOP_Z0 + 4), sd5(LOOP_R, LOOP_Z1 - 4), [-Math.sin(th), Math.cos(th), 0]), currentArrow(sd5(-LOOP_R, LOOP_Z1 - 4), sd5(-LOOP_R, LOOP_Z0 + 4), [-Math.sin(th), Math.cos(th), 0])];
     cam = camOn(room(boxCorners([AX - 9, AY - 8, PLATE_TOP + 2], [18, 16, 26]) as Point3[]), 0.95, [540, 720]);
   }
   // N and S: frontal plates over the magnets (labels live in screen space, §20.4)

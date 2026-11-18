@@ -64,6 +64,8 @@ new frames) instead of rewriting the list; add new ids for new defects. After 3 
 Output: verdict, the numbered list of open defects (id, severity, where, what, rule, exact fix), the PASS/FAIL table. Write the
 report to content/reviews/quality-gate.md, update content/reviews/notes.json, return the report. Answer in Russian.
 
+Projection facts (the kit's isometric camera; do not flag these as defects, a past round did): horizontal lines run on screen with slope 0.58 only along the x and y axes; a horizontal line at azimuth 30° or 60° has slope 2.15 and one at azimuth 45° is VERTICAL; a rigid rectangle turned about a vertical axis therefore looks skewed at intermediate angles although it is rigid. The world is drawn left-handed: judge physical directions (right-hand rules) by the physical scene as a viewer sees it, not by coordinates. When a finding depends on the projection, say so and ask for a numeric check (the topic's checks print rigidity and directions) instead of blocking the frames.
+
 Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
 Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
 as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap

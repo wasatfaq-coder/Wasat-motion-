@@ -31,7 +31,7 @@ const T_POINT = T_OPEN + 0.5;
 const T_RELEASE = T_POINT + 0.7;
 const BUTTON: V3 = add(add(add(STOP_AT, mul(F, 27)), mul(L, 6)), [0, 0, 49]); // in front of the left shoulder
 
-const FLOOR = K.solidSvg(K.slabOf({x: -30, y: -150, w: 120, d: 180, r: 3}, -2, 2, P, 8, 0.8), {tone: 'hi', halo: true});
+const FLOOR = K.solidSvg(K.slabOf({x: -30, y: -150, w: 120, d: 180, r: 3}, -2, 2, P, 8, 0.8), {tone: 'hi', halo: true, className: 'halo-hero'});
 // a wall panel turned to face the walker (its face is the plane through the button, normal -F)
 const FACE = add(BUTTON, mul(F, 1.6));
 const PANEL_F = G.frameOf(FACE, F, L, [0, 0, 1]);
@@ -102,7 +102,7 @@ export const AnatomyCastSample: React.FC = () => {
   return (
     <AnatomyStage>
       <RoomSvg cam={cam}>
-        <Kit svg={K.solidSvg(K.slabOf({x: -24, y: -104, w: 56, d: 124, r: 3}, -2, 2, P, 8, 0.8), {tone: 'hi', halo: true})} />
+        <Kit svg={K.solidSvg(K.slabOf({x: -24, y: -104, w: 56, d: 124, r: 3}, -2, 2, P, 8, 0.8), {tone: 'hi', halo: true, className: 'halo-hero'})} />
         <g className="ns">
           {drawn.map((d, i) => (
             <Kit key={i} svg={d.svg} />
@@ -132,7 +132,7 @@ export const AnatomyGaitSample: React.FC = () => {
   return (
     <AnatomyStage>
       <RoomSvg cam={cam}>
-        <Kit svg={K.solidSvg(K.slabOf({x: -70, y: -90, w: 170, d: 150, r: 3}, -2, 2, P, 8, 0.8), {tone: 'hi', halo: true}) + STAIR_SVG} />
+        <Kit svg={K.solidSvg(K.slabOf({x: -70, y: -90, w: 170, d: 150, r: 3}, -2, 2, P, 8, 0.8), {tone: 'hi', halo: true, className: 'halo-hero'}) + STAIR_SVG} />
         <g className="ns">
           {people.map((p, i) => (
             <Kit key={i} svg={p.svg} />

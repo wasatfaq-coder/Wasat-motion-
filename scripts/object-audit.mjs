@@ -2,7 +2,8 @@
 // Geometry audit of house-style objects (MASTER_PROMPT_FINAL §22): imports every `*.parts.ts` under src/ (or the
 // files given), takes each exported Assembly (src/lib/assembly.ts) and runs the Anatomy audit on the shapes it
 // recorded while drawing: pipes/cables through parts, floating or sunk parts, ends off their mounts, folds, wrong
-// paint order, stand-in shapes; plus the §22.2 part count for its role (hero ≥ 80, secondary ≥ 40).
+// paint order, stand-in shapes; plus the §22.2 part count (hero ≥ 80 and secondary ≥ 40 are errors;
+// environment < 15, or above 40% of the hero in the same file, is a warning).
 // No rendering. Exit code 1 on any problem.
 // Paint order: `--settle` solves it from the geometry and writes `<name>.parts.keys.json` next to the file
 // ({exportName: {itemName: key}}); the parts file applies it with `X.applyKeys(KEYS.X)`. Items without a stored key
@@ -28,7 +29,7 @@ const walk = (dir) =>
   });
 
 const files = given.length ? given.map((f) => resolve(f)) : walk(join(root, 'src'));
-const {isAssembly, PART_NORM, A} = await tsImport(pathToFileURL(join(root, 'src/lib/assembly.ts')).href, import.meta.url);
+const {isAssembly, PART_NORM, ENV_HERO_SHARE, A} = await tsImport(pathToFileURL(join(root, 'src/lib/assembly.ts')).href, import.meta.url);
 
 const results = [];
 for (const file of files) {
@@ -93,13 +94,30 @@ for (const file of files) {
     const detail = value.detail ?? 'complex';
     // detail is recorded only. simple/schematic does not lower the §22.2 count.
     const norm = PART_NORM[value.role];
-    const short = value.parts < norm;
+    const short = value.role !== 'environment' && value.parts < norm;
     results.push({swept, file: relative(root, file), export: exportName, name: value.name, role: value.role, detail, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});
   }
   if (settleKeys && Object.keys(solved).length) {
     const out = file.replace(/\.ts$/, '.keys.json');
     writeFileSync(out, JSON.stringify(solved, null, 1) + '\n');
     if (!json) console.log(`keys → ${relative(root, out)}`);
+  }
+}
+
+const warns = [];
+const byFile = new Map();
+for (const r of results) {
+  const list = byFile.get(r.file) ?? [];
+  list.push(r);
+  byFile.set(r.file, list);
+}
+for (const [file, list] of byFile) {
+  const heroes = list.filter((r) => r.role === 'hero');
+  const heroMax = heroes.length ? Math.max(...heroes.map((r) => r.parts)) : 0;
+  for (const r of list) {
+    if (r.role !== 'environment') continue;
+    if (r.parts < r.norm) warns.push(`WARN  ${file} ${r.export}: ${r.parts} environment parts < ${r.norm} (§22.2)`);
+    if (heroMax > 0 && r.parts > ENV_HERO_SHARE * heroMax) warns.push(`WARN  ${file} ${r.export}: ${r.parts} environment parts > ${Math.round(ENV_HERO_SHARE * 100)}% of the hero (${heroMax}) (§22.2)`);
   }
 }
 
@@ -111,6 +129,9 @@ for (const r of results) {
   console.log(head);
   if (r.failures && !quiet) console.log(r.report.split('\n').map((l) => '    ' + l).join('\n'));
 }
-if (json) console.log(JSON.stringify(results.map(({report, ...r}) => ({...r, report: r.failures ? report : ''})), null, 1));
-else if (!results.length) console.log('object-audit: no *.parts.ts assemblies found');
+if (json) console.log(JSON.stringify({parts: results.map(({report, ...r}) => ({...r, report: r.failures ? report : ''})), warnings: warns}, null, 1));
+else {
+  for (const w of warns) console.log(w);
+  if (!results.length) console.log('object-audit: no *.parts.ts assemblies found');
+}
 process.exitCode = bad ? 1 : 0;

@@ -16,7 +16,7 @@ const at = (p: K.Point3) => K.iso(p, P);
 
 /** Static board: base, holes, traces, silkscreen (built once). */
 const BOARD = (() => {
-  const out: string[] = [slab({x: 0, y: 0, w: 140, d: 140, r: 4}, 0, 5, {tone: 'hi', halo: true}, 0.8)];
+  const out: string[] = [slab({x: 0, y: 0, w: 140, d: 140, r: 4}, 0, 5, {tone: 'hi', halo: true, className: 'halo-hero'}, 0.8)];
   for (const [x, y] of [[8, 8], [132, 8], [8, 132], [132, 132]]) out.push(K.solidSvg(K.cylinder(x, y, 3.2, 5, 1.2, P, 28, 0.3), {tone: 'mid'}), K.dotsSvg([at([x, y, 6.2])], {size: 1.4, tone: 'hi'}));
   for (let i = 0; i < 10; i++) {
     const t = 42 + i * 5.6;
@@ -99,7 +99,7 @@ const WIRES = Array.from({length: 8}, (_, i) => {
 }).join('');
 const LID_MARKS = [0, 1, 2].map((i) => K.lineSvg(K.pathOf([at([52, 60 + i * 5, 12]), at([52 + [30, 22, 26][i], 60 + i * 5, 12])]), {tone: 'mid', free: true})).join('') + K.lineSvg(K.sideSeam({x: 38, y: 38, w: 64, d: 64, r: 2}, 10.8, P), {tone: 'lo'});
 const LID = slab({x: 38, y: 38, w: 64, d: 64, r: 2}, 9.5, 2.5, {tone: 'hi'}, 1.2) + K.dotsSvg([at([44, 44, 12])], {size: 2, tone: 'hi'}) + LID_MARKS;
-const LID_HALO = K.solidSvg(K.slabOf({x: 38, y: 38, w: 64, d: 64, r: 2}, 9.5, 2.5, P, 8, 1.2), {tone: 'hi', halo: true}) + K.dotsSvg([at([44, 44, 12])], {size: 2, tone: 'hi'}) + LID_MARKS;
+const LID_HALO = K.solidSvg(K.slabOf({x: 38, y: 38, w: 64, d: 64, r: 2}, 9.5, 2.5, P, 8, 1.2), {tone: 'hi', halo: true, className: 'halo-hero'}) + K.dotsSvg([at([44, 44, 12])], {size: 2, tone: 'hi'}) + LID_MARKS;
 
 /** Parts count of the sample (§22.2): solids drawn by the kit. */
 export const SAMPLE_PARTS = {board: 1 + 4 + 40, onBoard: PARTS.length, die: 1 + BLOCKS.length, lid: 1};

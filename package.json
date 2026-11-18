@@ -45,6 +45,7 @@
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
     "review-video": "node scripts/review-video.mjs",
+    "lines": "node scripts/lines-check.mjs",
     "test": "node scripts/regress-checks.mjs && node scripts/audit.mjs && for d in projects/*/; do [ -d \"$d\" ] || continue; slug=$(basename \"$d\"); echo \"== $slug\"; node scripts/audit.mjs --scenes \"src/projects/$slug/scenes\" --content \"projects/$slug/content\" --timeline \"src/projects/$slug/data/timeline.json\"; done && node scripts/handed-check.mjs && node scripts/selftest-new-topic.mjs"
   },
   "allowScripts": {

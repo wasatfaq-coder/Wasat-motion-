@@ -10,7 +10,7 @@ import {AnatomyKitSample} from './samples/AnatomyKitSample';
 import {AnatomyCoverSample} from './samples/AnatomyCoverSample';
 import {anatomyCoverSchema} from './components/AnatomyCover';
 import {AnatomyCastSample, AnatomyCharacterSample, AnatomyGaitSample} from './samples/AnatomyCharacterSample';
-import {ElektromotorStand} from './projects/elektromotor/StandFrames';
+import {ElektromotorReel, ElektromotorStand, REEL_FRAMES} from './projects/elektromotor/StandFrames';
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -34,6 +34,7 @@ export const RemotionRoot: React.FC = () => (
   />
   <Composition id="ElektromotorCover" component={ElektromotorCover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   <Composition id="ElektromotorStand" component={ElektromotorStand} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={4} />
+  <Composition id="ElektromotorReel" component={ElektromotorReel} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={REEL_FRAMES} />
   {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}
   </>
 );

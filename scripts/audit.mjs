@@ -127,6 +127,19 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
 {
   const parts = srcFiles.filter((f) => f.endsWith('.parts.ts') && (topicDir ? under(f, topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
   if (parts.length) runCached(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`, [...parts, ...parts.map((f) => f.replace(/\.ts$/, '.keys.json')), 'src/lib/assembly.ts', 'src/lib/anatomy.tsx', 'src/vendor/anatomy', 'scripts/object-audit.mjs']);
+  // §22.2 line ends. Warnings only: existing scenes must not fail CI. --strict on the script itself fails.
+  if (parts.length) {
+    let buf = '';
+    const cmd = `node scripts/lines-check.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`;
+    try {
+      buf = execSync(cmd, {encoding: 'utf8'});
+      add('ok', `lines-check (${parts.length} file${parts.length === 1 ? '' : 's'})`);
+    } catch (e) {
+      buf = `${e.stdout || ''}${e.stderr || ''}`;
+      add('error', `lines-check: ${buf}`.trim().slice(0, 800));
+    }
+    for (const l of buf.split('\n')) if (l.startsWith('WARN ')) add('warn', `lines: ${l.slice(5)}`);
+  }
 }
 
 // 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques.

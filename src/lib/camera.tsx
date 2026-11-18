@@ -23,7 +23,7 @@ export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: numbe
   const [fx, fy] = cam.focus;
   const [sx, sy] = cam.screen ?? [540, 760];
   return (
-    <svg width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0, background: COLORS.bg}}>
+    <svg className="iso-svg" width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0, background: COLORS.bg}}>
       <defs>
         {/* Graphics live only in the band between the thesis and the caption zone; edges fade to the background. */}
         <linearGradient id="graphicsBand" x1="0" y1="0" x2="0" y2="1920" gradientUnits="userSpaceOnUse">

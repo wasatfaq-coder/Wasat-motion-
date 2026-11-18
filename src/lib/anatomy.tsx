@@ -6,18 +6,28 @@ import {ROOM_S} from './camera';
 import {P3} from './iso';
 
 // Adapter between the Anatomy core (src/vendor/anatomy, MIT) and our Remotion scenes (MASTER_PROMPT_FINAL §22).
-// The Anatomy camera at azimuth 45° and elevation 35.264° is exactly our isometric projection (src/lib/iso.ts):
+// At azimuth 45° and elevation 35.264° the kit matches our isometric projection (src/lib/iso.ts):
 // x' = cos30·(x − y)·s, y' = 0.5·(x + y)·s − z·s, with Anatomy scale = 0.96825·s (scale·√1.6 = 1.22474·s).
+// 35.264° is OUR isometry. Anatomy's own default elevation is 30°; do not switch to it or iso.ts stops matching.
 export const ANATOMY_ELEVATION = (Math.asin(Math.tan(Math.PI / 6)) * 180) / Math.PI; // 35.264°
+/** A scene may turn the kit camera. 45° is the default and the only angle that matches src/lib/iso.ts. */
+export const ANATOMY_AZIMUTH = {min: 35, max: 60, default: 45} as const;
 const SCALE_FROM_S = (Math.cos(Math.PI / 6) / Math.cos(Math.PI / 4)) / Math.sqrt(1.6); // 0.96825
 
-/** Projection for kit geometry drawn inside RoomSvg: `unitsPerRoomUnit` kit units make one room unit. */
-export const anatomyProjection = (unitsPerRoomUnit = 1): Projection => ({
-  origin: [0, 0],
-  scale: (ROOM_S / unitsPerRoomUnit) * SCALE_FROM_S,
-  azimuth: 45,
-  elevation: ANATOMY_ELEVATION,
-});
+/** Projection for kit geometry drawn inside RoomSvg: `unitsPerRoomUnit` kit units make one room unit.
+ *  `azimuth` is degrees, 35–60, default 45. The scale stays the 45° match with iso.ts, so the default
+ *  call is unchanged. A scene that passes another azimuth rotates only the kit camera. */
+export const anatomyProjection = (unitsPerRoomUnit = 1, azimuth: number = ANATOMY_AZIMUTH.default): Projection => {
+  if (azimuth < ANATOMY_AZIMUTH.min || azimuth > ANATOMY_AZIMUTH.max) {
+    throw new Error(`anatomyProjection: azimuth ${azimuth}° is outside ${ANATOMY_AZIMUTH.min}–${ANATOMY_AZIMUTH.max}°`);
+  }
+  return {
+    origin: [0, 0],
+    scale: (ROOM_S / unitsPerRoomUnit) * SCALE_FROM_S,
+    azimuth,
+    elevation: ANATOMY_ELEVATION,
+  };
+};
 
 /** Kit point → room point (for roomPoint / camOn cameras). */
 export const toRoom = ([x, y, z]: Point3, unitsPerRoomUnit = 1): P3 => [x / unitsPerRoomUnit, y / unitsPerRoomUnit, z / unitsPerRoomUnit];

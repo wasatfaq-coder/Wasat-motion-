@@ -1,5 +1,36 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/audit.mjs:*)",
+      "Bash(node scripts/pregate.mjs:*)",
+      "Bash(node scripts/object-audit.mjs:*)",
+      "Bash(node scripts/rig-check.mjs:*)",
+      "Bash(node scripts/handed-check.mjs:*)",
+      "Bash(node scripts/cover-check.mjs:*)",
+      "Bash(node scripts/still-check.mjs:*)",
+      "Bash(node scripts/check-text.mjs:*)",
+      "Bash(node scripts/contact-sheet.mjs:*)",
+      "Bash(node scripts/frame-strip.mjs:*)",
+      "Bash(node scripts/build-timeline.mjs:*)",
+      "Bash(npm run lint)",
+      "Bash(npx eslint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx remotion still:*)",
+      "Bash(npx remotion compositions:*)",
+      "Bash(graphify query:*)",
+      "Bash(graphify path:*)",
+      "Bash(graphify explain:*)",
+      "Bash(graphify update:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -7,6 +38,18 @@
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/graphify-install.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-edit-lint.sh",
+            "timeout": 60
           }
         ]
       }

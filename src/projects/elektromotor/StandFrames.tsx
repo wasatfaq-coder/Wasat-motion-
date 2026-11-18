@@ -7,12 +7,10 @@ import {Point3} from '../../lib/assembly';
 import {COLORS, STROKE} from '../../theme/tokens';
 import {FrontalLayer, Plate} from '../../components/Frontal';
 import {AX, AY, commutatorItems, LOOP_R, LOOP_Z0, LOOP_Z1, loopItems, PLATE_TOP, STAND, STAND_P, STAND_U, wireItems} from './stand.parts';
-import KEYS from './stand.parts.keys.json';
 
 // Style frames of the field stand (STOP 2, scenes 2–5). Three arrow looks, the same in every scene (decisions.md):
 //   current — thin dark with a small head · force — THICK flat (dark outline, light body) · field — dashed with heads.
 // Arrows are drawn with inline styles (no CSS classes), as markup over the audited object.
-STAND.applyKeys((KEYS as Record<string, Record<string, number>>).STAND);
 const P = STAND_P;
 const at = (p: Point3) => K.iso(p, P);
 type Item = {at: Point3; svg: string; bias?: number};

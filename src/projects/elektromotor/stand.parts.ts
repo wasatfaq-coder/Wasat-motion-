@@ -1,6 +1,7 @@
 import * as K from '../../vendor/anatomy/iso-kit';
 import {Assembly, G, Point3} from '../../lib/assembly';
 import {anatomyProjection} from '../../lib/anatomy';
+import KEYS from './stand.parts.keys.json';
 
 // Hero B of «Как работает электромотор»: the field stand (scenes 2–5), a classroom model of the SIMPLEST motor
 // (parts-plan.md §1.2): a plate on four feet, two magnets with pole pieces, a wire or a one-turn loop on a vertical
@@ -129,6 +130,9 @@ for (const x of [AX - 18, AX + 18]) {
   S.slab(`wire.post${x}`, {x: x - 1.5, y: AY - 1.5, w: 3, d: 3, r: 0.4}, PLATE_TOP, 28, {tone: 'mid', bevel: 0.3});
   S.slab(`wire.clamp${x}`, {x: x - 2.2, y: AY - 2.2, w: 4.4, d: 4.4, r: 0.4}, PLATE_TOP + 28, 1.6, {tone: 'hi', bevel: 0.3});
 }
+
+// paint order solved by `node scripts/object-audit.mjs --settle` (re-run after any change of the static parts)
+STAND.applyKeys((KEYS as Record<string, Record<string, number>>).STAND);
 
 // ── dynamic parts, rebuilt every frame: they return {at, svg} items for Assembly.svg({}, {extra})
 type Item = {at: Point3; svg: string; bias?: number};

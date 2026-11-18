@@ -176,7 +176,7 @@ export const wireItems = (bow = 0): Item[] => {
   const z0 = PLATE_TOP + 8;
   const z1 = PLATE_TOP + 28;
   const pts = [0, 0.25, 0.5, 0.75, 1].map((t) => [AX, AY + bow * Math.sin(Math.PI * t), z0 + (z1 - z0) * t] as Point3);
-  return pts.slice(0, -1).map((a, i) => bar(a, pts[i + 1], 1.4, true));
+  return pts.slice(0, -1).map((a, i) => bar(a, pts[i + 1], 1.9, true));
 };
 /** Commutator: a hub and two half-rings (and the gaps between them) at angle theta, below the loop. */
 export const commutatorItems = (theta: number): Item[] => {
@@ -193,7 +193,7 @@ export const commutatorItems = (theta: number): Item[] => {
   const out: Item[] = [];
   for (const k of [0, 1]) {
     const a0 = theta + 0.08 + k * Math.PI;
-    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-dark'}), bias: 7}); // two halves, two tones: the gaps and the swap read
+    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-mid'}), bias: 7}); // two halves, two tones: the gaps and the swap read
   }
   out.push({
     at: [AX, AY, z + h / 2],
@@ -206,7 +206,7 @@ export const commutatorItems = (theta: number): Item[] => {
         G.frameAlong([AX, AY, z], [0, 0, 1]),
         P,
       ),
-      {tone: 'mid'},
+      {tone: 'hi', className: 'cl-dark'},
     ),
     bias: 5,
   });

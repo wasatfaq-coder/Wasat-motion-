@@ -47,21 +47,30 @@ const fieldLines = (ys: number[], z: number): Item[] =>
   });
 
 const Inset: React.FC<{x: number; y: number}> = ({x, y}) => {
-  // a section looking down the wire: the current comes out of the page (dot), the field runs right, the force up
-  const c = {x: x + 110, y: y + 150};
+  // a plan view looking down the wire, turned like the stand on screen (x → right-down, y → left-down): the current
+  // comes out of the page (dot), the field runs along x, the force along y: the same directions as on the stand
+  const c = {x: x + 120, y: y + 100};
   const hi = COLORS.ink;
+  const X = [0.866, 0.5];
+  const Y = [-0.866, 0.5];
+  const pt = (v: number[], k: number) => `${c.x + v[0] * k} ${c.y + v[1] * k}`;
+  const head = (v: number[], k: number, w: number, fill: string, stroke: string) => {
+    const base = [c.x + v[0] * (k - 24), c.y + v[1] * (k - 24)];
+    const n = [-v[1], v[0]];
+    return <path d={`M${pt(v, k)} L${base[0] + n[0] * w} ${base[1] + n[1] * w} L${base[0] - n[0] * w} ${base[1] - n[1] * w} Z`} fill={fill} stroke={stroke} strokeWidth={3} strokeLinejoin="round" />;
+  };
   return (
     <g>
       <rect x={x + 6} y={y + 6} width={240} height={240} rx={22} fill={COLORS.fillDark} />
       <rect x={x} y={y} width={240} height={240} rx={22} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
-      <path d={`M${c.x - 80} ${c.y} H${c.x + 90}`} stroke={COLORS.inkSoft} strokeWidth={4} strokeDasharray="14 10" fill="none" />
-      <path d={`M${c.x + 100} ${c.y} l-20 -10 v20 z`} fill={COLORS.inkSoft} />
-      <path d={`M${c.x} ${c.y - 12} V${c.y - 70}`} stroke={hi} strokeWidth={13} fill="none" />
-      <path d={`M${c.x} ${c.y - 12} V${c.y - 70}`} stroke={COLORS.fillLight} strokeWidth={7} fill="none" />
-      <path d={`M${c.x} ${c.y - 96} l-18 26 h36 z`} fill={COLORS.fillLight} stroke={hi} strokeWidth={3} strokeLinejoin="round" />
-      <circle cx={c.x} cy={c.y} r={15} fill={COLORS.accent} stroke={hi} strokeWidth={STROKE.secondary} />
+      <path d={`M${pt(X, -70)} L${pt(X, 76)}`} stroke={COLORS.inkSoft} strokeWidth={4} strokeDasharray="14 10" fill="none" />
+      {head(X, 100, 10, COLORS.inkSoft, COLORS.inkSoft)}
+      <path d={`M${pt(Y, 14)} L${pt(Y, 62)}`} stroke={hi} strokeWidth={14} strokeLinecap="butt" fill="none" />
+      <path d={`M${pt(Y, 14)} L${pt(Y, 62)}`} stroke={COLORS.fillLight} strokeWidth={8} strokeLinecap="butt" fill="none" />
+      {head(Y, 92, 17, COLORS.fillLight, hi)}
+      <circle cx={c.x} cy={c.y} r={16} fill={COLORS.accent} stroke={hi} strokeWidth={STROKE.secondary} />
       <circle cx={c.x} cy={c.y} r={4.5} fill={hi} />
-      <path d={`M${c.x + 18} ${c.y - 18} h18 v18`} stroke={hi} strokeWidth={3} fill="none" />
+      <path d={`M${c.x + 36} ${c.y + 21} l9.5 -17 l-17 -9.5`} stroke={hi} strokeWidth={3} fill="none" transform={`translate(-18 -6)`} />
     </g>
   );
 };
@@ -70,14 +79,16 @@ export const ElektromotorStand: React.FC = () => {
   const frame = useCurrentFrame();
   const room = (pts: Point3[]) => pts.map((p) => toRoom(p, STAND_U));
   let extra: Item[] = [];
-  let cam = camOn(room(boxCorners([22, 16, PLATE_TOP], [46, 28, 30]) as Point3[]), 0.92, [540, 700]);
+  let arrows: Item[] = []; // drawn over everything (annotations, §20.4): never hidden behind a bench or a bearing
+  let cam = camOn(room(boxCorners([AX - 15, AY - 14, PLATE_TOP + 4], [30, 26, 28]) as Point3[]), 0.95, [540, 720]);
   let showInset = false;
   const mz = (LOOP_Z0 + LOOP_Z1) / 2;
   if (frame === 0) {
     // scene 2: the wire (coral) in the field; current up, force along +y (I·L×B with B along +x)
     const z0 = PLATE_TOP + 9;
     const z1 = PLATE_TOP + 27;
-    extra = [...fieldLines([AY - 8, AY + 8], PLATE_TOP + 24), ...wireItems(), currentArrow([AX + 3, AY, z0], [AX + 3, AY, z1], [0, 1, 0]), forceArrow([AX, AY + 2, PLATE_TOP + 18], [AX, AY + 15, PLATE_TOP + 18], [0, 0, 1])];
+    extra = [...fieldLines([AY - 8, AY + 8], PLATE_TOP + 24), ...wireItems()];
+    arrows = [currentArrow([AX + 3, AY, z0], [AX + 3, AY, z1], [0, 1, 0]), forceArrow([AX, AY + 2, PLATE_TOP + 18], [AX, AY + 16, PLATE_TOP + 18], [0, 0, 1])];
     showInset = true;
   } else if (frame === 1 || frame === 2) {
     // scene 3 (loop 30° from the field) and scene 4 (the dead position: the plane across the field lines)
@@ -86,14 +97,17 @@ export const ElektromotorStand: React.FC = () => {
     const wide: Point3 = [-d[1], d[0], 0];
     const sd = (s: number, z: number): Point3 => [AX + d[0] * s, AY + d[1] * s, z];
     extra = [...fieldLines([AY - 9, AY + 9], PLATE_TOP + 24), ...loopItems(th), ...commutatorItems(th)];
-    extra.push(currentArrow(sd(LOOP_R, LOOP_Z0 + 3), sd(LOOP_R, LOOP_Z1 - 3), wide), currentArrow(sd(-LOOP_R, LOOP_Z1 - 3), sd(-LOOP_R, LOOP_Z0 + 3), wide));
-    extra.push(forceArrow(sd(LOOP_R, mz), along(sd(LOOP_R, mz), [0, 1, 0], 11, [0, 0, 0], 0), [0, 0, 1]), forceArrow(sd(-LOOP_R, mz), along(sd(-LOOP_R, mz), [0, 1, 0], -11, [0, 0, 0], 0), [0, 0, 1]));
-    cam = camOn(room(boxCorners([20, 14, PLATE_TOP], [50, 32, 30]) as Point3[]), 0.95, [540, 700]);
+    arrows.push(currentArrow(sd(LOOP_R, LOOP_Z0 + 3), sd(LOOP_R, LOOP_Z1 - 3), wide), currentArrow(sd(-LOOP_R, LOOP_Z1 - 3), sd(-LOOP_R, LOOP_Z0 + 3), wide));
+    arrows.push(forceArrow(sd(LOOP_R, mz), along(sd(LOOP_R, mz), [0, 1, 0], 11, [0, 0, 0], 0), [0, 0, 1]), forceArrow(sd(-LOOP_R, mz), along(sd(-LOOP_R, mz), [0, 1, 0], -11, [0, 0, 0], 0), [0, 0, 1]));
+    cam = camOn(room(boxCorners([AX - 20, AY - 16, PLATE_TOP + 4], [40, 32, 36]) as Point3[]), 0.97, [540, 720]);
   } else {
     // scene 5: the commutator — two half-rings, the leads from the loop, the brushes pressing on them
     const th = 0.35;
-    extra = [...loopItems(th), ...commutatorItems(th), currentArrow([AX + 3.5, AY + 1, PLATE_TOP + 12], [AX + 2.4, AY + 0.5, PLATE_TOP + 19], [0, 1, 0])];
-    cam = camOn(room(boxCorners([AX - 15, AY - 11, PLATE_TOP], [30, 22, 24]) as Point3[]), 0.95, [540, 700]);
+    extra = [...loopItems(th), ...commutatorItems(th)];
+    // the current in the two leads runs in opposite directions: one arrow down, one up (the swap of scene 5 flips both)
+    const lead = (k: number): Point3 => [AX + Math.cos(th) * 4.4 * k, AY + Math.sin(th) * 4.4 * k, PLATE_TOP + 7.4];
+    arrows = [currentArrow([lead(1)[0], lead(1)[1], PLATE_TOP + 20], [lead(1)[0], lead(1)[1], PLATE_TOP + 9.5], [0, 1, 0]), currentArrow([lead(-1)[0], lead(-1)[1], PLATE_TOP + 9.5], [lead(-1)[0], lead(-1)[1], PLATE_TOP + 20], [0, 1, 0])];
+    cam = camOn(room(boxCorners([AX - 15, AY - 11, PLATE_TOP], [30, 22, 30]) as Point3[]), 0.95, [540, 720]);
   }
   // N and S: frontal plates over the magnets (labels live in screen space, §20.4)
   const nPos = screenOf(cam, toRoom([12, AY, PLATE_TOP + 22], STAND_U));
@@ -103,12 +117,13 @@ export const ElektromotorStand: React.FC = () => {
       <RoomSvg cam={cam}>
         <g className="ns">
           <Kit svg={STAND.svg({}, {extra})} />
+          <Kit svg={arrows.map((a) => a.svg).join('')} />
         </g>
       </RoomSvg>
       <FrontalLayer>
-        {frame !== 3 ? <Plate at={[nPos[0], nPos[1] - 70]} to={nPos} text="С" size={44} /> : null}
-        {frame !== 3 ? <Plate at={[sPos[0], sPos[1] - 70]} to={sPos} text="Ю" size={44} /> : null}
-        {showInset ? <Inset x={790} y={880} /> : null}
+        {frame !== 3 ? <Plate at={[nPos[0], nPos[1] - 70]} to={nPos} text="С" size={66} /> : null}
+        {frame !== 3 ? <Plate at={[sPos[0], sPos[1] - 70]} to={sPos} text="Ю" size={66} /> : null}
+        {showInset ? <Inset x={40} y={930} /> : null}
       </FrontalLayer>
     </AnatomyStage>
   );

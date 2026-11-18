@@ -38,25 +38,23 @@ const forceArrow = (from: Point3, to: Point3, side: Point3): Item => {
   return {
     at: to,
     svg:
-      `<path d="${shaft}" style="fill:none;stroke:var(--anatomy-hi);stroke-width:13px;stroke-linecap:butt"/>` +
-      `<path d="${shaft}" style="fill:none;stroke:var(--anatomy-shade-3);stroke-width:7px;stroke-linecap:butt"/>` +
-      head(to, u, 6.5, side).replace('stroke-width:2px', 'stroke-width:3px'),
+      `<path d="${shaft}" style="fill:none;stroke:var(--anatomy-hi);stroke-width:9px;stroke-linecap:butt"/>` +
+      `<path d="${shaft}" style="fill:none;stroke:var(--anatomy-shade-3);stroke-width:4.5px;stroke-linecap:butt"/>` +
+      head(to, u, 5, side).replace('stroke-width:2px', 'stroke-width:3px'),
   };
 };
 /** the field: five dashed lines from N to S with a head each */
 const fieldLines = (): Item[] =>
   [
-    [AY, PLATE_TOP + 26],
-    [AY - 8, PLATE_TOP + 26],
-    [AY + 8, PLATE_TOP + 26],
-    [AY, PLATE_TOP + 17],
-    [AY, PLATE_TOP + 33],
+    [AY, PLATE_TOP + 24],
+    [AY - 7, PLATE_TOP + 24],
+    [AY + 7, PLATE_TOP + 24],
   ].map(([y, z]) => {
-    const a: Point3 = [24, y, z];
-    const b: Point3 = [66, y, z];
+    const a: Point3 = [21, y, z];
+    const b: Point3 = [69, y, z];
     return {
       at: [AX, y, z] as Point3,
-      svg: `<g class="cover-sign">${K.lineSvg(K.pathOf([at(a), at(b)]), {tone: 'hi', dashed: true})}</g>` + head([AX + 14, y, z], [1, 0, 0], 5, [0, 0, 1]),
+      svg: `<g class="cover-sign">${K.lineSvg(K.pathOf([at(a), at(b)]), {tone: 'mid', dashed: true})}</g>` + head([AX + 17, y, z], [1, 0, 0], 3.4, [0, 0, 1]).replace('var(--anatomy-hi)', 'var(--anatomy-mid)'),
     };
   });
 
@@ -80,13 +78,13 @@ export const ElektromotorStand: React.FC = () => {
     extra = [...extra, ...loopItems(th), ...commutatorItems(th)];
     // currents: up on one vertical side, down on the other; forces on the sides: ±y (fixed by I·L×B with B along +x)
     extra.push(currentArrow(side(LOOP_R, LOOP_Z0 + 3), side(LOOP_R, LOOP_Z1 - 3), [-d[1], d[0], 0]), currentArrow(side(-LOOP_R, LOOP_Z1 - 3), side(-LOOP_R, LOOP_Z0 + 3), [-d[1], d[0], 0]));
-    const f = frame === 1 ? 13 : 13;
+    const f = 9;
     extra.push(forceArrow(side(LOOP_R, mz), [side(LOOP_R, mz)[0], side(LOOP_R, mz)[1] + f, mz], [0, 0, 1]), forceArrow(side(-LOOP_R, mz), [side(-LOOP_R, mz)[0], side(-LOOP_R, mz)[1] - f, mz], [0, 0, 1]));
     cam = camOn(room(boxCorners([14, 8, PLATE_TOP], [62, 44, 36]) as Point3[]), 0.95, [540, 760]);
   } else {
     // scene 5: the commutator close-up (the loop is above, the brushes press on the half-rings)
     extra = [...loopItems(0.35), ...commutatorItems(0.35)];
-    cam = camOn(room(boxCorners([AX - 22, AY - 12, PLATE_TOP], [44, 24, 12]).map((p) => p as Point3)), 0.95, [540, 760]);
+    cam = camOn(room(boxCorners([AX - 16, AY - 12, PLATE_TOP], [32, 24, 14]) as Point3[]), 0.95, [540, 760]);
   }
   return (
     <AnatomyStage>

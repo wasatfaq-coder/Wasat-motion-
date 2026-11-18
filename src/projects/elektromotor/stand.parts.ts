@@ -15,9 +15,9 @@ const P = STAND_P;
 export const AX = 45; // loop axis
 export const AY = 30;
 export const PLATE_TOP = 10;
-export const LOOP_R = 11; // half width of the loop
+export const LOOP_R = 12; // half width of the loop
 export const LOOP_Z0 = 21; // bottom bar (above the commutator)
-export const LOOP_Z1 = 36; // top bar
+export const LOOP_Z1 = 37; // top bar
 const up = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, 1]);
 
 export const STAND = new Assembly('stand', P, {
@@ -73,31 +73,20 @@ for (const [side, sx] of [
   ['S', -1],
 ] as const) {
   const m = (x: number, w: number) => (sx === 1 ? x : 90 - x - w); // mirror about x = 45
-  S.slab(`${side}.pedestal`, {x: m(5, 19), y: 15, w: 19, d: 30, r: 1}, PLATE_TOP, 3, {tone: 'mid', bevel: 0.4});
-  S.slab(`${side}.body`, {x: m(8, 12), y: 19, w: 12, d: 22, r: 0.6}, PLATE_TOP + 3, 20, {tone: 'hi', bevel: 0.5});
-  S.slab(`${side}.pole`, {x: m(20, 3.5), y: 18, w: 3.5, d: 24, r: 0.4}, PLATE_TOP + 3, 22, {tone: 'hi', bevel: 0.4});
-  S.slab(`${side}.yoke`, {x: m(6.2, 1.8), y: 18, w: 1.8, d: 24, r: 0.3}, PLATE_TOP + 3, 22, {tone: 'mid', bevel: 0.2});
-  for (const y of [17, 43])
-    S.turned(
-      `${side}.screw${y}`,
-      [
-        [0, 1.2],
-        [0.8, 1.2],
-        [1.2, 0.8, 1],
-        [1.4, 0],
-      ],
-      up(m(14, 0), y, PLATE_TOP + 3),
-      {tone: 'hi'},
-    );
-  S.slab(`${side}.letter`, {x: m(13, 2.4), y: 27.6, w: 2.4, d: 4.8, r: 0.3}, PLATE_TOP + 23, 0.2, {tone: 'mid', bevel: 0});
+  S.slab(`${side}.pedestal`, {x: m(5, 16), y: 17, w: 16, d: 26, r: 1}, PLATE_TOP, 3, {tone: 'mid', bevel: 0.4});
+  S.slab(`${side}.body`, {x: m(7, 10), y: 21, w: 10, d: 18, r: 0.6}, PLATE_TOP + 3, 16, {tone: 'hi', bevel: 0.5});
+  S.slab(`${side}.pole`, {x: m(17, 3.5), y: 20, w: 3.5, d: 20, r: 0.4}, PLATE_TOP + 3, 18, {tone: 'hi', bevel: 0.4});
+  S.slab(`${side}.yoke`, {x: m(5.2, 1.8), y: 20, w: 1.8, d: 20, r: 0.3}, PLATE_TOP + 3, 18, {tone: 'mid', bevel: 0.2});
+  for (const y of [18.6, 41.4]) S.turned(`${side}.screw${y}`, [[0, 1.2], [0.8, 1.2], [1.2, 0.8, 1], [1.4, 0]], up(m(12, 0), y, PLATE_TOP + 3), {tone: 'hi'});
+  S.slab(`${side}.letter`, {x: m(10, 2.4), y: 28.6, w: 2.4, d: 2.8, r: 0.3}, PLATE_TOP + 19, 0.2, {tone: 'mid', bevel: 0});
 }
 
 // ── axis, bearings and the arch over the loop
 S.cyl('bearing.low.base', AX, AY, 4.2, PLATE_TOP, 2, {tone: 'mid', bevel: 0.3});
 S.cyl('bearing.low', AX, AY, 2.6, PLATE_TOP + 2, 2, {tone: 'hi', bevel: 0.2, meta: {owner: 'axis'}});
-S.slab('arch.column', {x: AX - 2.5, y: 8, w: 5, d: 5, r: 0.6}, PLATE_TOP, 31, {tone: 'mid', bevel: 0.4});
-S.slab('arch.arm', {x: AX - 2.5, y: 8, w: 5, d: AY + 2.5 - 8, r: 0.6}, PLATE_TOP + 31, 3, {tone: 'hi', bevel: 0.4});
-S.cyl('bearing.top', AX, AY, 2.6, PLATE_TOP + 29.4, 1.6, {tone: 'hi', bevel: 0.2, meta: {owner: 'axis'}});
+S.slab('arch.column', {x: AX - 2, y: 8, w: 4, d: 4, r: 0.5}, PLATE_TOP, 31, {tone: 'mid', bevel: 0.4});
+S.slab('arch.arm', {x: AX - 2, y: 8, w: 4, d: AY + 2 - 8, r: 0.5}, PLATE_TOP + 31, 2.4, {tone: 'hi', bevel: 0.4});
+S.cyl('bearing.top', AX, AY, 2.4, PLATE_TOP + 29.4, 1.6, {tone: 'hi', bevel: 0.2, meta: {owner: 'axis'}});
 S.cyl('axis', AX, AY, 0.7, PLATE_TOP + 7.4, 21.8, {tone: 'hi', meta: {owner: 'axis'}});
 
 // ── brushes: holder on the plate, a spring leaf to the commutator, a tip, two screws, a supply wire to a terminal

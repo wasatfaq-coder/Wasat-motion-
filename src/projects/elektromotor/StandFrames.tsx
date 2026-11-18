@@ -165,8 +165,8 @@ export const ElektromotorStand: React.FC = () => {
   return <StandView beat={beat} cam={beat.cam} labels={frame !== 3} />;
 };
 
-const HOLD = 50;
-const MOVE = 20;
+const HOLD = 90; // 1.5 s at 60 fps: long enough to read the beat (§19.3)
+const MOVE = 30; // 0.5 s, inside the transition band; the critical spring has settled by then
 /** Silent test reel: four stand beats, then the camera eases back to the first.
  *  The rig uses the critical spring (no overshoot). The last frame is the opening again, so the file can loop. */
 export const REEL_FRAMES = 4 * (HOLD + MOVE);

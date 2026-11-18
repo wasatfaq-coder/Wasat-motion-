@@ -167,18 +167,19 @@ export const ElektromotorStand: React.FC = () => {
 
 const HOLD = 50;
 const MOVE = 20;
-/** Silent test reel: four stand beats, a critically damped camera between them (no overshoot on the rig). */
-export const REEL_FRAMES = 3 * (HOLD + MOVE) + HOLD;
+/** Silent test reel: four stand beats, then the camera eases back to the first.
+ *  The rig uses the critical spring (no overshoot). The last frame is the opening again, so the file can loop. */
+export const REEL_FRAMES = 4 * (HOLD + MOVE);
 
 export const ElektromotorReel: React.FC = () => {
   const frame = useCurrentFrame();
   const slot = HOLD + MOVE;
-  const i = Math.min(3, Math.floor(frame / slot));
-  const local = frame - i * slot;
+  const i = Math.floor(frame / slot) % 4;
+  const local = frame % slot;
   const beat = beatOf(i);
-  const moving = i < 3 && local >= HOLD;
+  const moving = local >= HOLD;
   const t = moving ? Math.min(1, spring((local - HOLD) / 30, SPRING_MECHANICAL)) : 0;
-  const next = moving ? beatOf(i + 1) : null;
+  const next = moving ? beatOf((i + 1) % 4) : null;
   const cam = next ? lerpCam(beat.cam, next.cam, t) : beat.cam;
-  return <StandView beat={beat} cam={cam} next={next ? {beat: next, t} : undefined} labels={i < 3} />;
+  return <StandView beat={beat} cam={cam} next={next ? {beat: next, t} : undefined} labels={i !== 3 || moving} />;
 };

@@ -29,8 +29,9 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    ≥ 3 depth planes and 2–3 reacting secondary details per frame; abstract dots replaced by recognisable figures;
    the video uses several detailed locations (not one set for everything), linked by the through-line image.
    Any frame that can be described as "a white rectangle with a chart" is a FAIL.
-3. Pacing and editing (§19.3): a new visual event every 1.5–3 s; no stretch > 3 s without an event;
-   scenes > 6 s have ≥ 2 shot changes; cuts land on stressed words or pauses.
+3. Pacing and editing (§19.3): 1.5–3 s between events is a guide. A hold passes when storyboard.md records its range and purpose
+   and the picture still has a clear focus. A stretch with no development and no recorded pause is a FAIL.
+   Scenes > 6 s are guided toward 2 shot changes; cuts land on stressed words or pauses.
 4. Shape animation: every scene has morphing / assembly / line drawing / cascades / secondary motion visible on the sheet.
 5. Retention checklist (§19.4), each item PASS/FAIL: hook (0–2 s), suspense & micro-intrigues (every 8–12 s),
    visual graphics (story readable without sound), dynamic editing, sound design & editing to sound
@@ -47,6 +48,9 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    coral is); a character only if big and clear; 2–4 words, 96–120 px, inside 420–1210 px; bottom strip and right button column
    clear; survives a 4:5 crop; honest (the video answers the question, every cover element appears in its first 2 s).
    Rank the variants and say which one wins and why.
+6b. Final master only: if the caller passes video-review.json from `node scripts/review-video.mjs`, check that its sha256 matches
+   the exported file, that near-black and empty frames are either absent or written as open notes, and that pending viewer status
+   is not reported as acceptance. Missing preview on a still-frame stop is НЕ ПРОВЕРЕНО, not a style FAIL.
 7. House style of new topics (§22): toned solids in our palette (no line-art kits), dark contours, one coral part per frame;
    detail norm (§22.2: hero 80–150 parts, secondary ≥ 40) — the caller passes `node scripts/object-audit.mjs` and
    `node scripts/rig-check.mjs` output (any ERROR = FAIL); on key frames: nothing floats, no part cuts through another, cables end

@@ -11,8 +11,9 @@
 //   plus the shared core every topic is built on (src/lib, src/components, src/theme, src/samples, src/Root.tsx,
 //   src/index.ts). Not the root topic and not other topics (§13: one topic = one folder).
 // Mark the sound map as reviewed after re-syncing it: node scripts/audit.mjs --stamp-sfx
+// --only captions   run just the caption step (regression slice; a release audit does not pass --only)
 // Exit code 1 if any ERROR. Run before the quality gate and before every commit of visual work.
-import {execSync} from 'node:child_process';
+import {execFileSync, execSync} from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -26,8 +27,20 @@ const scenesDir = arg('scenes', 'src/scenes');
 const contentDir = arg('content', 'content');
 const timelineFile = arg('timeline', 'src/data/timeline.json');
 const stampSfx = process.argv.includes('--stamp-sfx');
+const only = new Set(
+  (arg('only', '') ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
+);
+const step = (name) => only.size === 0 || only.has(name);
 const out = {error: [], warn: [], ok: []};
 const add = (lvl, msg) => out[lvl].push(msg);
+const finish = () => {
+  for (const lvl of ['error', 'warn']) for (const m of out[lvl]) console.log(`${lvl.toUpperCase()} ${m}`);
+  console.log(`\n${out.error.length} errors, ${out.warn.length} warnings, ${out.ok.length} ok`);
+  process.exit(out.error.length ? 1 : 0);
+};
 const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
 const q = (s) => JSON.stringify(s);
 const under = (file, dir) => file === dir || file.startsWith(dir + path.sep);
@@ -40,6 +53,15 @@ const SHARED_FILES = ['src/Root.tsx', 'src/index.ts'];
 const run = (name, cmd) => {
   try {
     execSync(cmd, {stdio: 'pipe'});
+    add('ok', name);
+  } catch (e) {
+    add('error', `${name}: ${String(e.stdout || '') + String(e.stderr || '')}`.trim().slice(0, 800));
+  }
+};
+/** Same as run(), but argv is an array: the timeline path is not passed through a shell. */
+const runFile = (name, file, args) => {
+  try {
+    execFileSync(file, args, {stdio: 'pipe', encoding: 'utf8'});
     add('ok', name);
   } catch (e) {
     add('error', `${name}: ${String(e.stdout || '') + String(e.stderr || '')}`.trim().slice(0, 800));
@@ -85,11 +107,13 @@ const runCached = (name, cmd, inputs) => {
   if (out.error.length === before) markPassed(name, inputs);
 };
 
-// 1) types, lint (warnings are errors too), captions of THIS topic's timeline
-runTsc();
+// 1) types, lint (warnings are errors too), captions of THIS topic's timeline.
+// --timeline is forwarded as an argv element, so a defective topic timeline fails even when the root one is fine.
+if (step('tsc')) runTsc();
 const eslintRoots = topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES].filter((r) => fs.existsSync(r)) : ['src'];
-run('eslint', `npx eslint ${eslintRoots.map(q).join(' ')} --max-warnings 0`);
-run('captions', `node scripts/check-text.mjs --timeline ${q(timelineFile)}`);
+if (step('eslint')) run('eslint', `npx eslint ${eslintRoots.map(q).join(' ')} --max-warnings 0`);
+if (step('captions')) runFile('captions', process.execPath, ['scripts/check-text.mjs', '--timeline', timelineFile]);
+if (only.size && [...only].every((name) => name === 'tsc' || name === 'eslint' || name === 'captions')) finish();
 
 // 2) palette: only theme tokens in components; no second (pink) accent.
 // A topic run reads its own code and the shared core, not src/scenes or src/illustrations of «время».
@@ -217,9 +241,11 @@ if (!fs.existsSync(regFile)) {
   const reg = readJson(regFile);
   const scenes = reg.scenes ?? {};
   const metaphors = reg.metaphors ?? {};
-  const REQUIRED = ['keyIdea', 'sourceClaim', 'mapping', 'whyNotLiteral', 'misreadRisk', 'guard', 'status'];
+  const REQUIRED = ['keyIdea', 'sourceClaim', 'mapping', 'misreadRisk', 'guard', 'status'];
   for (const [id, m] of Object.entries(metaphors)) {
     const miss = REQUIRED.filter((k) => !m[k] || (Array.isArray(m[k]) && !m[k].length));
+    // whyNotLiteral stays the field existing registers use. rationale is the same slot for a leading metaphor.
+    if (!String(m.whyNotLiteral ?? '').trim() && !String(m.rationale ?? '').trim()) miss.push('whyNotLiteral');
     if (miss.length) add('error', `metaphor «${id}»: missing ${miss.join(', ')} (§20.2)`);
     if (m.status === 'rejected' && Object.values(scenes).some((s) => (s.metaphors ?? []).includes(id))) add('error', `metaphor «${id}» was rejected but is still used`);
     else if (m.status !== 'approved' && m.status !== 'rejected') add('warn', `metaphor «${id}»: status «${m.status}», needs the user's approval at STOP 1 (§20.2)`);
@@ -231,6 +257,17 @@ if (!fs.existsSync(regFile)) {
     const sc = scenes[s.id];
     if (!sc) return add('error', `register: ${s.id} is not declared in ${regFile}`);
     if (!['literal', 'schematic', 'metaphor'].includes(sc.mode)) add('error', `register: ${s.id} mode must be literal | schematic | metaphor`);
+    if (sc.interface === 'real' && sc.mode !== 'literal') add('error', `register: ${s.id} real interface requires literal mode (§20.1)`);
+    if (sc.leadingMetaphor) {
+      const later = tl.scenes.slice(idx + 1).some((entry) => entry.id === sc.schemeScene);
+      const scheme = scenes[sc.schemeScene];
+      const linked = (sc.metaphors ?? []).includes(sc.leadingMetaphor) && metaphors[sc.leadingMetaphor];
+      if (sc.mode !== 'metaphor' || !linked || !later || scheme?.mode !== 'schematic') {
+        add('error', `register: ${s.id} leading metaphor «${sc.leadingMetaphor}» needs mode metaphor, the metaphor registered on this scene, and a later schematic scene «${sc.schemeScene ?? '?'}» (§20.1)`);
+      }
+      const prep = path.join(contentDir, 'metaphor-prep.md');
+      if (!fs.existsSync(prep)) add('error', `register: ${s.id} leading metaphor has no ${prep} (§22.5)`);
+    }
     if (sc.mode === 'metaphor' && !(sc.metaphors ?? []).length) add('error', `register: ${s.id} is a metaphor scene without a registered metaphor`);
     for (const mid of sc.metaphors ?? []) if (!metaphors[mid]) add('error', `register: ${s.id} uses unknown metaphor «${mid}»`);
     if (sc.data && sc.data.plane !== 'frontal') {
@@ -273,6 +310,4 @@ if (fs.existsSync(smFile)) {
   }
 } else add('warn', `sound: ${smFile} not found`);
 
-for (const lvl of ['error', 'warn']) for (const m of out[lvl]) console.log(`${lvl.toUpperCase()} ${m}`);
-console.log(`\n${out.error.length} errors, ${out.warn.length} warnings, ${out.ok.length} ok`);
-process.exit(out.error.length ? 1 : 0);
+finish();

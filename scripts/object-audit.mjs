@@ -91,9 +91,11 @@ for (const file of files) {
       report += `\n    dynamic sweep: ${sweepProblems} part(s) sink into the static stand`;
     }
     const failures = audited.failures + (unsettled.length ? 1 : 0) + (notApplied ? 1 : 0) + sweepProblems;
+    const detail = value.detail ?? 'complex';
+    // detail is recorded only. simple/schematic does not lower the §22.2 count.
     const norm = PART_NORM[value.role];
     const short = value.role !== 'environment' && value.parts < norm;
-    results.push({swept, file: relative(root, file), export: exportName, name: value.name, role: value.role, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});
+    results.push({swept, file: relative(root, file), export: exportName, name: value.name, role: value.role, detail, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});
   }
   if (settleKeys && Object.keys(solved).length) {
     const out = file.replace(/\.ts$/, '.keys.json');

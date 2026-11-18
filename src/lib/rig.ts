@@ -143,26 +143,46 @@ export const bodyFrame = (yaw: number) => {
   return {f, l: [-f[1], f[0], 0] as V3};
 };
 
+const finite3 = (v: V3) => Number.isFinite(v[0]) && Number.isFinite(v[1]) && Number.isFinite(v[2]);
+
 /** Two-bone IK: the middle joint for a limb from `a` to `target` with bone lengths l1, l2 and a bend direction hint.
- *  `minAngle` is the smallest interior angle at the middle joint (the deepest bend the joint allows). */
+ *  `minAngle` is the smallest interior angle at the middle joint (the deepest bend the joint allows).
+ *  A target that is too far, too close, or on the joint itself is clamped onto a reachable point: bones keep
+ *  their length, the joint does not bend past `minAngle`, and the result is finite (`reached` is false). */
 export const ik = (a: V3, target: V3, l1: number, l2: number, pole: V3, minAngle = 0) => {
-  let d = sub(target, a);
-  let D = len(d);
+  const here = finite3(a) ? a : ([0, 0, 0] as V3);
+  const collapsed = () => ({mid: here, end: here, reached: false});
+  if (!finite3(a) || !finite3(target) || !Number.isFinite(l1) || !Number.isFinite(l2) || l1 <= 0 || l2 <= 0) return collapsed();
+  const poleOk: V3 = finite3(pole) ? pole : [0, 0, 1];
+  const ang = Number.isFinite(minAngle) ? Math.min(Math.PI, Math.max(0, minAngle)) : 0;
   const max = l1 + l2 - 1e-4;
-  const min = Math.max(Math.abs(l1 - l2) + 1e-4, Math.sqrt(l1 * l1 + l2 * l2 - 2 * l1 * l2 * Math.cos(minAngle)));
-  let reached = true;
-  if (D > max || D < min) {
+  const law = l1 * l1 + l2 * l2 - 2 * l1 * l2 * Math.cos(ang);
+  const min = Math.min(max, Math.max(Math.abs(l1 - l2) + 1e-4, Math.sqrt(Math.max(0, law))));
+  const raw = sub(target, a);
+  const rawLen = len(raw);
+  let reached = rawLen > 1e-8 && rawLen <= max + 1e-4 && rawLen + 1e-4 >= min;
+  const D = Math.min(max, Math.max(min, rawLen > 1e-8 ? rawLen : min));
+  // A target on the joint has no direction. Fall back to a stable axis so the limb does not collapse to NaN.
+  let dir: V3;
+  if (rawLen > 1e-8) dir = unit(raw);
+  else {
+    dir = unit(Math.abs(poleOk[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0]);
     reached = false;
-    D = Math.min(max, Math.max(min, D));
   }
-  const dir = unit(d);
-  d = mul(dir, D);
-  let p = sub(pole, mul(dir, dot(pole, dir)));
-  if (len(p) < 1e-6) p = sub([1, 0, 0], mul(dir, dir[0]));
-  p = unit(p);
+  if (!finite3(dir) || !(D > 0)) return collapsed();
+  const end = add(a, mul(dir, D));
+  let bend = sub(poleOk, mul(dir, dot(poleOk, dir)));
+  if (!finite3(bend) || len(bend) < 1e-6) {
+    const alt: V3 = Math.abs(dir[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    bend = sub(alt, mul(dir, dot(alt, dir)));
+  }
+  if (!finite3(bend) || len(bend) < 1e-8) return {mid: add(a, mul(dir, Math.min(l1, D))), end, reached: false};
+  const p = unit(bend);
   const x = (l1 * l1 - l2 * l2 + D * D) / (2 * D);
   const h = Math.sqrt(Math.max(0, l1 * l1 - x * x));
-  return {mid: add(add(a, mul(dir, x)), mul(p, h)), end: add(a, d), reached};
+  const mid = add(add(a, mul(dir, x)), mul(p, h));
+  if (!finite3(mid) || !finite3(end)) return collapsed();
+  return {mid, end, reached};
 };
 
 /** Interior angle at b of the chain a–b–c. */

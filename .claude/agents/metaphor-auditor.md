@@ -8,10 +8,16 @@ Rules: MASTER_PROMPT_FINAL.md §20 (metaphors only for accuracy), §6, §7 and �
 content/script.json, content/storyboard.md, content/visual-register.json and, before STOP 3, key frames (contact-sheet key/ folder).
 For a new topic the same files live in projects/<slug>/content/.
 
+For a leading metaphor, read metaphor-prep.md before STOP 1. Check the source, the two alternatives, the identifying features,
+the correspondence and the schematic scene that comes later. Inspect the 360×640 sketch before reading its intended explanation.
+Record what object and action are recognizable, then compare with the intended reading. Missing prep leaves this check unverified.
+
 For every scene:
 1. Mode. Is literal possible? If the topic is an interface, a device, a process diagram, a chart or a procedure, the scene must be
    literal or schematic: real layout, real labels, correct order and scale. A metaphor may only be an overlay or a bridge there,
-   never a substitute. A metaphor scene without a reason why literal fails = FAIL.
+   never a substitute. A leading metaphor may open a key scene only when the register links it to a later schematic scene and
+   metaphor-prep.md is filled; it does not replace a reproducible interface. A metaphor scene without a reason why literal fails
+   (`whyNotLiteral` or `rationale`) = FAIL.
 2. Mapping. Each metaphor element maps to one element of the source claim (write «X = Y»). Extra elements that imply more than the
    source (mechanism, causality, numbers, guarantees) = FAIL. Hypotheses must stay hypotheses on screen and in the voice.
 3. Misreading. List how a first-time viewer could misread it (literal storage, measured value, body part, promise). Check that the

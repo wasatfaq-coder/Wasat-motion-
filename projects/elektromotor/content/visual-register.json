@@ -23,7 +23,7 @@
     },
     "scene-05": {
       "location": "inside-motor",
-      "mode": "literal",
+      "mode": "schematic",
       "metaphors": []
     },
     "scene-06": {

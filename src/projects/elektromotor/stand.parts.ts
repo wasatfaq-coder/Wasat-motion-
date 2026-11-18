@@ -27,7 +27,7 @@ export const STAND = new Assembly('stand', P, {
 const S = STAND;
 
 // ── base: plate on four feet with levelling pads, rails, bolts, a ruler along the front
-S.slab('plate', {x: 0, y: 0, w: 90, d: 60, r: 3}, 6, 4, {tone: 'hi', halo: true, ground: false, bevel: 0.8, className: 'cl-mid'});
+S.slab('plate', {x: 0, y: 0, w: 90, d: 60, r: 3}, 6, 4, {tone: 'hi', halo: true, ground: false, bevel: 0.8, className: 'cl-mid', shadow: 'hero'});
 for (const [x, y] of [
   [8, 8],
   [82, 8],

@@ -26,8 +26,11 @@ export type Point3 = K.Point3;
 export type Frame = {o: Point3; a: Point3; u: Point3; v: Point3};
 export type Role = 'hero' | 'secondary' | 'environment';
 
-/** §22.2 detail norm: recorded parts per role. */
-export const PART_NORM: Record<Role, number> = {hero: 80, secondary: 40, environment: 0};
+/** §22.2 detail norm: recorded parts per role. Environment is a warning in object-audit, not an error. */
+export const PART_NORM: Record<Role, number> = {hero: 80, secondary: 40, environment: 15};
+
+/** An environment object stays supporting: at most this share of the hero part count in the same file (§22.2). */
+export const ENV_HERO_SHARE = 0.4;
 
 type Common = {
   piece?: string; // a sub-assembly that moves as one (lid, door, arm); its share is passed to svg()
@@ -36,6 +39,7 @@ type Common = {
   ground?: boolean; // stands on the floor / is the base everything else rests on
   over?: string; // markup drawn on top of this part (labels, seams, dots on its surface)
   meta?: Record<string, unknown>; // audit meta: owner, touch, seated, cut, limp…
+  shadow?: 'hero' | 'part'; // halo blur: hero body 12–16 px, small part 6–8 px (§22.1). Default is the small part.
 };
 type SolidOpts = Common & K.SolidStyle;
 
@@ -67,6 +71,12 @@ export class Assembly {
     return this.R.nameFor(`${this.name}.${name}`);
   }
 
+  /** Hero bodies take the wider contact shadow; the class is read by ANATOMY_CSS (§22.1). */
+  private styled(c: SolidOpts): SolidOpts {
+    if (c.shadow !== 'hero') return c;
+    return {...c, className: [c.className, 'halo-hero'].filter(Boolean).join(' ')};
+  }
+
   private shape<S extends object>(s: S, c: Common, name: string) {
     return this.R.solid({...s, ...(c.meta ?? {}), ...(c.ground ? {ground: true} : {}), name});
   }
@@ -80,7 +90,7 @@ export class Assembly {
   /** A box with rounded plan corners standing at z (plan in kit units). */
   slab(name: string, plan: K.Plan, z: number, h: number, c: SolidOpts & {bevel?: number; steps?: number} = {}) {
     const n = this.full(name);
-    const svg = K.solidSvg(K.slabOf(plan, z, h, this.P, c.steps ?? 8, c.bevel ?? 0.6), c);
+    const svg = K.solidSvg(K.slabOf(plan, z, h, this.P, c.steps ?? 8, c.bevel ?? 0.6), this.styled(c));
     return this.put(n, [plan.x + plan.w / 2, plan.y + plan.d / 2, z + h / 2], svg, [this.shape(A.slab(plan, z, h, {}, c.steps ?? 8), c, n)], c);
   }
 
@@ -89,7 +99,7 @@ export class Assembly {
     const n = this.full(name);
     const cx = ring.reduce((s, p) => s + p[0], 0) / ring.length;
     const cy = ring.reduce((s, p) => s + p[1], 0) / ring.length;
-    return this.put(n, [cx, cy, z + h / 2], K.solidSvg(K.extrude(ring, z, h, this.P), c), [this.shape(A.extruded(ring, z, h), c, n)], c);
+    return this.put(n, [cx, cy, z + h / 2], K.solidSvg(K.extrude(ring, z, h, this.P), this.styled(c)), [this.shape(A.extruded(ring, z, h), c, n)], c);
   }
 
   /** A prism of a CONVEX polygon in the frame's (u, v) plane, extruded along F.a from s0 to s1 — on ANY axis
@@ -99,13 +109,13 @@ export class Assembly {
     const cx = polygon.reduce((t, q) => t + q[0], 0) / polygon.length;
     const cy = polygon.reduce((t, q) => t + q[1], 0) / polygon.length;
     const at = G.add3(G.add3(G.add3(F.o, G.mul3(F.u, cx)), G.mul3(F.v, cy)), G.mul3(F.a, (s0 + s1) / 2)) as Point3;
-    return this.put(n, at, K.solidSvg(G.prismOf(F, polygon, s0, s1, this.P), c), [this.shape(A.prism(F, polygon, s0, s1), c, n)], c);
+    return this.put(n, at, K.solidSvg(G.prismOf(F, polygon, s0, s1, this.P), this.styled(c)), [this.shape(A.prism(F, polygon, s0, s1), c, n)], c);
   }
 
   /** Upright cylinder (pins, posts, cans standing on the floor). */
   cyl(name: string, cx: number, cy: number, r: number, z: number, h: number, c: SolidOpts & {bevel?: number} = {}) {
     const n = this.full(name);
-    const svg = K.solidSvg(K.cylinder(cx, cy, r, z, h, this.P, 32, c.bevel ?? 0.4), c);
+    const svg = K.solidSvg(K.cylinder(cx, cy, r, z, h, this.P, 32, c.bevel ?? 0.4), this.styled(c));
     return this.put(n, [cx, cy, z + h / 2], svg, [this.shape(A.cylinder(cx, cy, r, z, h), c, n)], c);
   }
 
@@ -117,27 +127,27 @@ export class Assembly {
     const s = profile.map((p) => p[0]);
     const mid = (Math.min(...s) + Math.max(...s)) / 2;
     const at = G.add3(F.o, G.mul3(F.a, mid)) as Point3;
-    return this.put(n, at, K.solidSvg(paths, c), [this.shape(A.solid(F, profile), c, n)], c);
+    return this.put(n, at, K.solidSvg(paths, this.styled(c)), [this.shape(A.solid(F, profile), c, n)], c);
   }
 
   /** A flat disc / flange / wheel on any axis (s0..s1 along F.a). */
   disc(name: string, s0: number, s1: number, r: number, F: Frame, c: SolidOpts = {}) {
     const n = this.full(name);
     const at = G.add3(F.o, G.mul3(F.a, (s0 + s1) / 2)) as Point3;
-    return this.put(n, at, K.solidSvg(G.disc(s0, s1, r, F, this.P), c), [this.shape(A.disc(F, s0, s1, r), c, n)], c);
+    return this.put(n, at, K.solidSvg(G.disc(s0, s1, r, F, this.P), this.styled(c)), [this.shape(A.disc(F, s0, s1, r), c, n)], c);
   }
 
   /** A ring / collar with thickness on any axis (eye bolts, collars, flanges with a bore). */
   ring(name: string, s0: number, s1: number, rIn: number, rOut: number, F: Frame, c: SolidOpts = {}) {
     const n = this.full(name);
     const at = G.add3(F.o, G.mul3(F.a, (s0 + s1) / 2)) as Point3;
-    return this.put(n, at, K.solidSvg(G.ringBand(s0, s1, rIn, rOut, F, this.P), c), [this.shape(A.ring(F, s0, s1, rIn, rOut), c, n)], c);
+    return this.put(n, at, K.solidSvg(G.ringBand(s0, s1, rIn, rOut, F, this.P), this.styled(c)), [this.shape(A.ring(F, s0, s1, rIn, rOut), c, n)], c);
   }
 
   /** A ball (knob, joint, bearing, terminal). */
   ball(name: string, centre: Point3, r: number, c: SolidOpts = {}) {
     const n = this.full(name);
-    return this.put(n, centre, K.solidSvg(G.sphereOf(centre, r, this.P), c), [this.shape(A.ball(centre, r), c, n)], c);
+    return this.put(n, centre, K.solidSvg(G.sphereOf(centre, r, this.P), this.styled(c)), [this.shape(A.ball(centre, r), c, n)], c);
   }
 
   /** A pipe, hose or cable along 3D control points. `bend` fillets the corners (≥ 2.6·r is safe); `gaps` are

@@ -1,17 +1,37 @@
 // Frame-based physics (MASTER_PROMPT_FINAL §12, §19.7, §22): every value is a pure function of time t (seconds),
 // no state carried between frames, so any frame renders the same in any order.
 
+/** Share of travel a label, force arrow or plate may overshoot (§22.3). Mechanical parts use none. */
+export const LABEL_OVERSHOOT = {min: 0.03, max: 0.06} as const;
+
+const LABEL_STIFFNESS = 170;
+const LABEL_DAMPING = 18;
+
+/** Magnets, shafts, brushes and other mechanical parts: critical damping, no overshoot (§22.3). */
+export const SPRING_MECHANICAL = {stiffness: LABEL_STIFFNESS, damping: 2 * Math.sqrt(LABEL_STIFFNESS), mass: 1} as const;
+
+/** Labels, force arrows, plates: the default spring, about 5 % overshoot, inside 3–6 % (§22.3). */
+export const SPRING_LABEL = {stiffness: LABEL_STIFFNESS, damping: LABEL_DAMPING, mass: 1} as const;
+
+/** First-peak overshoot of an underdamped spring (0 when critical or overdamped). */
+export const springOvershoot = ({stiffness, damping, mass = 1}: {stiffness: number; damping: number; mass?: number}) => {
+  const zeta = damping / (2 * Math.sqrt(stiffness * mass));
+  if (zeta >= 1) return 0;
+  return Math.exp((-Math.PI * zeta) / Math.sqrt(1 - zeta * zeta));
+};
+
 /** Damped spring from 0 to 1 started at t = 0 (closed form). stiffness k, damping c, mass m.
+ *  Defaults are SPRING_LABEL. Mechanical entrances pass SPRING_MECHANICAL.
  *  Underdamped springs overshoot and settle; critical/overdamped ones approach without overshoot. */
-export const spring = (t: number, {stiffness = 170, damping = 18, mass = 1} = {}) => {
+export const spring = (t: number, {stiffness = LABEL_STIFFNESS, damping = LABEL_DAMPING, mass = 1} = {}) => {
   if (t <= 0) return 0;
   const w0 = Math.sqrt(stiffness / mass);
   const zeta = damping / (2 * Math.sqrt(stiffness * mass));
-  if (zeta < 1) {
+  if (zeta < 1 - 1e-6) {
     const wd = w0 * Math.sqrt(1 - zeta * zeta);
     return 1 - Math.exp(-zeta * w0 * t) * (Math.cos(wd * t) + ((zeta * w0) / wd) * Math.sin(wd * t));
   }
-  if (zeta === 1) return 1 - Math.exp(-w0 * t) * (1 + w0 * t);
+  if (zeta <= 1 + 1e-6) return 1 - Math.exp(-w0 * t) * (1 + w0 * t);
   const r1 = -w0 * (zeta - Math.sqrt(zeta * zeta - 1));
   const r2 = -w0 * (zeta + Math.sqrt(zeta * zeta - 1));
   return 1 - (r2 * Math.exp(r1 * t) - r1 * Math.exp(r2 * t)) / (r2 - r1);

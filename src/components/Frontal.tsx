@@ -1,5 +1,5 @@
 import React from 'react';
-import {COLORS, STROKE, TYPE} from '../theme/tokens';
+import {COLORS, STROKE, TYPE, TYPE_FLOOR} from '../theme/tokens';
 import {fontFamily} from '../theme/font';
 import {SAFE, ZONES} from '../theme/layout';
 
@@ -89,8 +89,8 @@ export const FrontalChart: React.FC<ChartProps> = ({x, y, w, h, kind, data, unit
   const p = clamp01(progress);
   const grow = (i: number) => clamp01(p * data.length - i);
   const font = {fontFamily, fontWeight: TYPE.weightBold} as const;
-  const valueSize = 30;
-  const labelSize = 28;
+  const valueSize = TYPE_FLOOR.figure; // numbers the sentence needs, ≥ 32 px (§5)
+  const labelSize = 28; // auxiliary names, above the 26 px floor (§5)
   const linePts = data.map((d, i) => [px0 + step * (i + 0.5), vy(d.value)] as [number, number]);
   const drawn = (() => {
     if (kind !== 'line') return '';
@@ -112,7 +112,7 @@ export const FrontalChart: React.FC<ChartProps> = ({x, y, w, h, kind, data, unit
           {title}
         </text>
       ) : null}
-      <text x={x + w - pad} y={y + (title ? 46 : 40)} textAnchor="end" fontSize={26} fill={COLORS.inkSoft} {...font}>
+      <text x={x + w - pad} y={y + (title ? 46 : 40)} textAnchor="end" fontSize={TYPE_FLOOR.auxiliary} fill={COLORS.inkSoft} {...font}>
         {unit}
       </text>
       {/* zero baseline: the axis starts at 0 */}

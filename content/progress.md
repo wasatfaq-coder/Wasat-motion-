@@ -1,6 +1,6 @@
 # Progress
 
-Rules: MASTER_PROMPT_FINAL.md. The snapshot below was written against v2.1; the rules file is now v2.4.2 (docs/CHANGELOG.md). Decisions: content/decisions.md.
+Rules: MASTER_PROMPT_FINAL.md. The snapshot below was written against v2.1; the rules file is now v2.4.3 (docs/CHANGELOG.md). Decisions: content/decisions.md.
 
 ## Сверка 18.11.2026
 

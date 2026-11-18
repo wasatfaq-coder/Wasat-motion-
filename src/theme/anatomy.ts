@@ -1,4 +1,4 @@
-import {COLORS, STROKE} from './tokens';
+import {COLORS, SHADOW, STROKE} from './tokens';
 import {ISO_CSS} from '../vendor/anatomy/iso-kit';
 
 // House style for new topics (MASTER_PROMPT_FINAL §22): Anatomy's toned solids (four face tones by facing, bevels,
@@ -11,7 +11,6 @@ const SHADE = {
   litShade: '#C94E3C', // coral side faces of the lit part
   lo: '#9A949C',
   faint: '#D9D1C5',
-  halo: '#8A7F70',
 } as const;
 
 // Clothing tones for the character (hair, trousers, shoes = dark; shirt = mid), so the body reads apart from skin.
@@ -32,8 +31,12 @@ export const ANATOMY_CSS = `${ISO_CSS}
  --anatomy-shade-0:${SHADE.s0};--anatomy-shade-1:${SHADE.s1};--anatomy-shade-2:${SHADE.s2};--anatomy-shade-3:${SHADE.s3};
  --anatomy-lit-top:${COLORS.accent};--anatomy-lit-shade:${SHADE.litShade};
  --anatomy-hi:${COLORS.ink};--anatomy-mid:${COLORS.inkSoft};--anatomy-lo:${SHADE.lo};--anatomy-faint:${SHADE.faint};--anatomy-lit:${COLORS.ink};
- --anatomy-halo:${SHADE.halo};--anatomy-dot:${COLORS.ink};--anatomy-weight:${ANATOMY_STYLE.inner}px}
+ --anatomy-halo:${SHADOW.color};--anatomy-halo-opacity:${SHADOW.opacity};--anatomy-dot:${COLORS.ink};--anatomy-weight:${ANATOMY_STYLE.inner}px}
 .iso .iso-svg{overflow:visible}
+/* Contact shadow (§22.1): down the isometric vertical, paper-derived colour, not the kit's black halo.
+   Small parts use the default; a hero body adds class halo-hero (Assembly shadow: 'hero'). */
+.iso .iso-halo{fill:${SHADOW.color};opacity:${SHADOW.opacity};filter:blur(${SHADOW.blurPart}px);transform:translateY(${SHADOW.drop}px)}
+.iso .iso-solid.halo-hero>.iso-halo{filter:blur(${SHADOW.blurHero}px)}
 /* Remotion renders frame by frame: the kit's CSS animations (flow dashes, pulsing dots) are switched off (§12);
    animate those with the frame number instead */
 .iso .iso-line[data-flow],.iso .iso-dots circle[data-pulse]{animation:none!important}

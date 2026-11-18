@@ -12,6 +12,8 @@
       "Bash(node scripts/check-text.mjs:*)",
       "Bash(node scripts/contact-sheet.mjs:*)",
       "Bash(node scripts/frame-strip.mjs:*)",
+      "Bash(node scripts/review-video.mjs:*)",
+      "Bash(node scripts/lines-check.mjs:*)",
       "Bash(node scripts/build-timeline.mjs:*)",
       "Bash(npm run lint)",
       "Bash(npx eslint:*)",

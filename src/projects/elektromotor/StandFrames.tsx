@@ -4,6 +4,7 @@ import * as K from '../../vendor/anatomy/iso-kit';
 import {AnatomyStage, Kit, toRoom} from '../../lib/anatomy';
 import {boxCorners, camOn, RoomSvg, screenOf} from '../../lib/camera';
 import {Point3} from '../../lib/assembly';
+import {forceOnWire, screenDir} from '../../lib/handed';
 import {COLORS, STROKE} from '../../theme/tokens';
 import {FrontalLayer, Plate} from '../../components/Frontal';
 import {AX, AY, commutatorItems, LOOP_R, LOOP_Z0, LOOP_Z1, loopItems, PLATE_TOP, STAND, STAND_P, STAND_U, wireItems} from './stand.parts';
@@ -13,9 +14,13 @@ import {AX, AY, commutatorItems, LOOP_R, LOOP_Z0, LOOP_Z1, loopItems, PLATE_TOP,
 // Arrows are drawn with inline styles (no CSS classes), as markup over the audited object.
 const P = STAND_P;
 const at = (p: Point3) => K.iso(p, P);
+const FIELD: Point3 = [1, 0, 0]; // N → S, along +x
+/** the force on a conductor segment with the given current direction: I·L × B by the right-hand rule (src/lib/handed.ts) */
+const forceDir = (current: Point3): Point3 => forceOnWire(current, FIELD);
 type Item = {at: Point3; svg: string; bias?: number};
 const sub = (a: Point3, b: Point3): Point3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const len = (a: Point3) => Math.hypot(a[0], a[1], a[2]);
+const forceSpan = (p: Point3, d: Point3, k: number): [Point3, Point3] => [along(p, d, 2, [0, 0, 0], 0), along(p, d, k, [0, 0, 0], 0)];
 const unit = (a: Point3): Point3 => a.map((v) => v / (len(a) || 1)) as Point3;
 const back = (p: Point3, u: Point3, d: number): Point3 => [p[0] - u[0] * d, p[1] - u[1] * d, p[2] - u[2] * d];
 const along = (p: Point3, u: Point3, s: number, q: Point3, t: number): Point3 => [p[0] + u[0] * s + q[0] * t, p[1] + u[1] * s + q[1] * t, p[2] + u[2] * s + q[2] * t];
@@ -33,7 +38,7 @@ const currentArrow = (from: Point3, to: Point3, wide: Point3): Item => {
 const forceArrow = (from: Point3, to: Point3, wide: Point3): Item => {
   const u = unit(sub(to, from));
   const neck = back(to, u, 4.2);
-  return {at: to, svg: line(from, neck, 12, 'var(--anatomy-hi)') + line(from, neck, 6.5, 'var(--anatomy-shade-3)') + tri(to, u, 6.4, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
+  return {at: to, svg: line(from, neck, 12, 'var(--anatomy-hi)') + line(from, neck, 6.5, 'var(--anatomy-shade-3)') + tri(to, u, 4.6, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
 };
 /** field: dashed lines from the N pole face to the S pole face, with two heads each */
 const fieldLines = (ys: number[], z: number): Item[] =>
@@ -44,13 +49,17 @@ const fieldLines = (ys: number[], z: number): Item[] =>
     return {at: [AX, y, z] as Point3, svg: line(a, b, 2.4, 'var(--anatomy-mid)', '7 6') + heads.join('')};
   });
 
+const norm2 = (v: [number, number]): [number, number] => {
+  const l = Math.hypot(v[0], v[1]) || 1;
+  return [v[0] / l, v[1] / l];
+};
 const Inset: React.FC<{x: number; y: number}> = ({x, y}) => {
-  // a plan view looking down the wire, turned like the stand on screen (x → right-down, y → left-down): the current
-  // comes out of the page (dot), the field runs along x, the force along y: the same directions as on the stand
+  // a plan view looking down the wire, turned like the stand on screen: the current comes out of the page (dot); the
+  // field and the force use the SAME screen directions as the 3D arrows (derived from the same vectors)
   const c = {x: x + 120, y: y + 100};
   const hi = COLORS.ink;
-  const X = [0.866, 0.5];
-  const Y = [-0.866, 0.5];
+  const X = norm2(screenDir(FIELD, P));
+  const Y = norm2(screenDir(forceDir([0, 0, 1]), P));
   const pt = (v: number[], k: number) => `${c.x + v[0] * k} ${c.y + v[1] * k}`;
   const head = (v: number[], k: number, w: number, fill: string, stroke: string) => {
     const base = [c.x + v[0] * (k - 24), c.y + v[1] * (k - 24)];
@@ -68,7 +77,6 @@ const Inset: React.FC<{x: number; y: number}> = ({x, y}) => {
       {head(Y, 92, 17, COLORS.fillLight, hi)}
       <circle cx={c.x} cy={c.y} r={16} fill={COLORS.accent} stroke={hi} strokeWidth={STROKE.secondary} />
       <circle cx={c.x} cy={c.y} r={4.5} fill={hi} />
-      <path d={`M${c.x + 36} ${c.y + 21} l9.5 -17 l-17 -9.5`} stroke={hi} strokeWidth={3} fill="none" transform={`translate(-18 -6)`} />
     </g>
   );
 };
@@ -78,7 +86,7 @@ export const ElektromotorStand: React.FC = () => {
   const room = (pts: Point3[]) => pts.map((p) => toRoom(p, STAND_U));
   let extra: Item[] = [];
   let arrows: Item[] = []; // drawn over everything (annotations, §20.4): never hidden behind a bench or a bearing
-  let cam = camOn(room(boxCorners([AX - 15, AY - 14, PLATE_TOP + 4], [30, 26, 28]) as Point3[]), 0.95, [540, 720]);
+  let cam = camOn(room(boxCorners([AX - 11, AY - 12, PLATE_TOP + 6], [22, 24, 24]) as Point3[]), 0.9, [540, 720]);
   let showInset = false;
   const mz = (LOOP_Z0 + LOOP_Z1) / 2;
   if (frame === 0) {
@@ -86,7 +94,7 @@ export const ElektromotorStand: React.FC = () => {
     const z0 = PLATE_TOP + 9;
     const z1 = PLATE_TOP + 27;
     extra = [...fieldLines([AY - 8, AY + 8], PLATE_TOP + 24), ...wireItems()];
-    arrows = [currentArrow([AX + 3, AY, z0], [AX + 3, AY, z1], [0, 1, 0]), forceArrow([AX, AY + 2, PLATE_TOP + 18], [AX, AY + 16, PLATE_TOP + 18], [0, 0, 1])];
+    arrows = [currentArrow([AX + 3, AY, z0], [AX + 3, AY, z1], [0, 1, 0]), forceArrow(...forceSpan([AX, AY, PLATE_TOP + 18], forceDir([0, 0, 1]), 16), [0, 0, 1])];
     showInset = true;
   } else if (frame === 1 || frame === 2) {
     // scene 3 (loop 30° from the field) and scene 4 (the dead position: the plane across the field lines)
@@ -96,16 +104,20 @@ export const ElektromotorStand: React.FC = () => {
     const sd = (s: number, z: number): Point3 => [AX + d[0] * s, AY + d[1] * s, z];
     extra = [...fieldLines([AY - 9, AY + 9], PLATE_TOP + 24), ...loopItems(th), ...commutatorItems(th)];
     arrows.push(currentArrow(sd(LOOP_R, LOOP_Z0 + 3), sd(LOOP_R, LOOP_Z1 - 3), wide), currentArrow(sd(-LOOP_R, LOOP_Z1 - 3), sd(-LOOP_R, LOOP_Z0 + 3), wide));
-    arrows.push(forceArrow(sd(LOOP_R, mz), along(sd(LOOP_R, mz), [0, 1, 0], 11, [0, 0, 0], 0), [0, 0, 1]), forceArrow(sd(-LOOP_R, mz), along(sd(-LOOP_R, mz), [0, 1, 0], -11, [0, 0, 0], 0), [0, 0, 1]));
-    cam = camOn(room(boxCorners([AX - 20, AY - 16, PLATE_TOP + 4], [40, 32, 36]) as Point3[]), 0.97, [540, 720]);
+    // the force on each vertical side follows from ITS current (up on the +s side, down on the −s side): I·L × B
+    const fUp = forceDir([0, 0, 1]);
+    const fDown = forceDir([0, 0, -1]);
+    const reach = 11;
+    arrows.push(forceArrow(sd(LOOP_R, mz), along(sd(LOOP_R, mz), fUp, reach, [0, 0, 0], 0), [0, 0, 1]), forceArrow(sd(-LOOP_R, mz), along(sd(-LOOP_R, mz), fDown, reach, [0, 0, 0], 0), [0, 0, 1]));
+    cam = camOn(room(boxCorners([AX - 17, AY - 15, PLATE_TOP + 8], [34, 30, 32]) as Point3[]), 0.9, [540, 720]);
   } else {
     // scene 5: the commutator — two half-rings, the leads from the loop, the brushes pressing on them
     const th = 0.35;
     extra = [...loopItems(th), ...commutatorItems(th)];
-    // the current in the two leads runs in opposite directions: one arrow down, one up (the swap of scene 5 flips both)
-    const lead = (k: number): Point3 => [AX + Math.cos(th) * 4.4 * k, AY + Math.sin(th) * 4.4 * k, PLATE_TOP + 7.4];
-    arrows = [currentArrow([lead(1)[0], lead(1)[1], PLATE_TOP + 20], [lead(1)[0], lead(1)[1], PLATE_TOP + 9.5], [0, 1, 0]), currentArrow([lead(-1)[0], lead(-1)[1], PLATE_TOP + 9.5], [lead(-1)[0], lead(-1)[1], PLATE_TOP + 20], [0, 1, 0])];
-    cam = camOn(room(boxCorners([AX - 15, AY - 11, PLATE_TOP], [30, 22, 30]) as Point3[]), 0.95, [540, 720]);
+    // the current in the two vertical sides runs in opposite directions: the swap of scene 5 flips both
+    const sd5 = (sg: number, z: number): Point3 => [AX + Math.cos(th) * sg, AY + Math.sin(th) * sg, z];
+    arrows = [currentArrow(sd5(LOOP_R, LOOP_Z0 + 4), sd5(LOOP_R, LOOP_Z1 - 4), [-Math.sin(th), Math.cos(th), 0]), currentArrow(sd5(-LOOP_R, LOOP_Z1 - 4), sd5(-LOOP_R, LOOP_Z0 + 4), [-Math.sin(th), Math.cos(th), 0])];
+    cam = camOn(room(boxCorners([AX - 15, AY - 12, PLATE_TOP], [30, 24, 30]) as Point3[]), 0.88, [540, 720]);
   }
   // N and S: frontal plates over the magnets (labels live in screen space, §20.4)
   const nPos = screenOf(cam, toRoom([12, AY, PLATE_TOP + 22], STAND_U));

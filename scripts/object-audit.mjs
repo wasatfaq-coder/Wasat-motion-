@@ -43,8 +43,14 @@ for (const file of files) {
     }
     const audited = value.audit();
     const unsettled = value.keysApplied && !settleKeys ? value.unsettled : [];
-    const failures = audited.failures + (unsettled.length ? 1 : 0);
-    const report = (unsettled.length ? `unsettled paint order: ${unsettled.length} item(s) have no stored key (${unsettled.slice(0, 5).join(', ')}…): run with --settle\n` : '') + audited.report;
+    // root cause of a past failure: the audit judged a different paint order than the scene drew. The parts file itself
+    // must apply its settled keys (`X.applyKeys(KEYS.X)`), so the audit and every render see the same order.
+    const notApplied = !value.keysApplied && !settleKeys;
+    const failures = audited.failures + (unsettled.length ? 1 : 0) + (notApplied ? 1 : 0);
+    const report =
+      (notApplied ? `paint order not applied: ${exportName} never calls applyKeys(KEYS.${exportName}) in ${relative(root, file)}; run with --settle, import <file>.keys.json and apply it in the parts file (not in the scene)\n` : '') +
+      (unsettled.length ? `unsettled paint order: ${unsettled.length} item(s) have no stored key (${unsettled.slice(0, 5).join(', ')}…): run with --settle\n` : '') +
+      audited.report;
     const norm = PART_NORM[value.role];
     const short = value.parts < norm;
     results.push({file: relative(root, file), export: exportName, name: value.name, role: value.role, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});

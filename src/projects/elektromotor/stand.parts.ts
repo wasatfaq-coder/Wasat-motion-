@@ -111,7 +111,7 @@ for (const [side, dx] of [
   const lx = dx === 1 ? AX + 5.4 : hx - 2;
   const lw = dx === 1 ? hx + 2 - (AX + 5.4) : AX - 5.4 - (hx - 2);
   S.slab(`brush${side}.leaf`, {x: lx, y: AY - 1.4, w: lw, d: 2.8, r: 0.2}, PLATE_TOP + 4.5, 0.5, {tone: 'mid', bevel: 0.1, meta: {owner: `brush${side}`}});
-  S.cyl(`brush${side}.tip`, AX + dx * 5.9, AY, 0.9, PLATE_TOP + 2.4, 2.1, {tone: 'hi', meta: {owner: `brush${side}`}});
+  S.cyl(`brush${side}.tip`, AX + dx * 5.55, AY, 0.9, PLATE_TOP + 2.4, 2.1, {tone: 'hi', meta: {owner: `brush${side}`}});
 }
 for (const [side, y] of [
   ['L', 5],
@@ -180,7 +180,7 @@ export const wireItems = (bow = 0): Item[] => {
   const z0 = PLATE_TOP + 8;
   const z1 = PLATE_TOP + 28;
   const pts = [0, 0.25, 0.5, 0.75, 1].map((t) => [AX, AY + bow * Math.sin(Math.PI * t), z0 + (z1 - z0) * t] as Point3);
-  return pts.slice(0, -1).map((a, i) => bar(a, pts[i + 1], 1.9, true));
+  return pts.slice(0, -1).map((a, i) => bar(a, pts[i + 1], 2.4, true));
 };
 /** Commutator: a hub and two half-rings (and the gaps between them) at angle theta, below the loop. */
 export const commutatorItems = (theta: number): Item[] => {
@@ -197,7 +197,7 @@ export const commutatorItems = (theta: number): Item[] => {
   const out: Item[] = [];
   for (const k of [0, 1]) {
     const a0 = theta + 0.08 + k * Math.PI;
-    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-mid'}), bias: 7}); // two halves, two tones: the gaps and the swap read
+    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-dark'}), bias: 7}); // two halves, two tones: the gaps and the swap read
   }
   out.push({
     at: [AX, AY, z + h / 2],
@@ -210,7 +210,7 @@ export const commutatorItems = (theta: number): Item[] => {
         G.frameAlong([AX, AY, z], [0, 0, 1]),
         P,
       ),
-      {tone: 'hi', className: 'cl-dark'},
+      {tone: 'mid'},
     ),
     bias: 5,
   });

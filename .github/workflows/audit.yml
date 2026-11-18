@@ -14,6 +14,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: caption, timeline and preview regressions
+        run: node scripts/regress-checks.mjs
       - run: node scripts/audit.mjs
       - name: audit every topic in projects/
         run: |

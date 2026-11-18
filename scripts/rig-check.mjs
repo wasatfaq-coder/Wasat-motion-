@@ -168,6 +168,50 @@ if (!process.argv.includes('--no-order')) {
     }
 }
 
+// 5) IK regressions: a joint never bends past its limit, and an unreachable or coincident target stays finite
+{
+  const finiteVec = (v) => v.every(Number.isFinite);
+  const a = [0, 0, 0];
+  const l1 = R.DIM.thigh;
+  const l2 = R.DIM.shin;
+  const minA = R.LIMITS.kneeMin;
+  const cases = [
+    ['far', [1000, 0, 0], [0, 1, 0], false],
+    ['coincident', [0, 0, 0], [0, 1, 0], false],
+    ['too close', [1, 0, 0], [0, 0, 1], false],
+    ['pole parallel', [20, 0, 0], [1, 0, 0], true],
+    ['reachable', [20, 8, 0], [0, 0, 1], true],
+  ];
+  for (const [name, target, pole, expectReach] of cases) {
+    const r = R.ik(a, target, l1, l2, pole, minA);
+    if (!finiteVec(r.mid) || !finiteVec(r.end)) fail(`ik ${name}: NaN or infinite`);
+    if (Math.abs(dist(a, r.mid) - l1) > 1e-3 || Math.abs(dist(r.mid, r.end) - l2) > 1e-3) fail(`ik ${name}: bone length changed`);
+    const ang = R.jointAngle(a, r.mid, r.end);
+    if (!Number.isFinite(ang) || ang < minA - 1e-3) fail(`ik ${name}: angle ${Number.isFinite(ang) ? ((ang * 180) / Math.PI).toFixed(1) : 'NaN'}° below the limit`);
+    if (r.reached !== expectReach) fail(`ik ${name}: reached ${r.reached}, expected ${expectReach}`);
+  }
+  const broken = R.ik(a, [1, 0, 0], Number.NaN, l2, [0, 1, 0], minA);
+  if (!finiteVec(broken.mid) || !finiteVec(broken.end) || broken.reached) fail('ik non-finite bone length: expected a finite miss');
+  const pose = R.stand([0, 0, 0], 0);
+  const extreme = R.solve({...pose, handL: [0, 0, 0], handR: [1e6, 0, 40], footL: pose.root, footR: [0, 0, -100]});
+  const walkNums = (v, path) => {
+    if (typeof v === 'number') {
+      if (!Number.isFinite(v)) fail(`solve extreme: ${path} is not finite`);
+    } else if (Array.isArray(v)) v.forEach((x, i) => walkNums(x, `${path}[${i}]`));
+    else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) if (k !== 'pose') walkNums(x, path ? `${path}.${k}` : k);
+  };
+  walkNums(extreme, '');
+  for (const side of ['L', 'R']) {
+    const knee = R.jointAngle(extreme.hip[side], extreme.knee[side], extreme.ankle[side]);
+    const elbow = R.jointAngle(extreme.shoulder[side], extreme.elbow[side], extreme.wrist[side]);
+    if (!(knee >= R.LIMITS.kneeMin - 1e-3)) fail(`solve extreme: ${side} knee bent past its limit`);
+    if (!(elbow >= R.LIMITS.elbowMin - 1e-3)) fail(`solve extreme: ${side} elbow bent past its limit`);
+    if (Math.abs(dist(extreme.hip[side], extreme.knee[side]) - R.DIM.thigh) > 1e-3) fail(`solve extreme: ${side} thigh length changed`);
+    if (Math.abs(dist(extreme.shoulder[side], extreme.elbow[side]) - R.DIM.upper) > 1e-3) fail(`solve extreme: ${side} upper arm length changed`);
+  }
+  if (!quiet) console.log('ok ik: unreachable and coincident targets stay finite and inside the joint limit');
+}
+
 if (fails.length) {
   console.log(fails.slice(0, 60).join('\n'));
   console.log(`rig-check failed: ${fails.length} problem(s)`);

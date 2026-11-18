@@ -1,6 +1,6 @@
 # Project instructions
 
-This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.4.2, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
+This repository produces vertical motion-explainer videos (YouTube Shorts) with Remotion. Rules: `MASTER_PROMPT_FINAL.md` (v2.5, the single source of rules; do not change it unless the user asks; changes go to `docs/CHANGELOG.md`).
 
 ## Topics: one folder per topic
 - Finished / current topic «Почему нам кажется, что время течёт быстро» lives in the root layout (`content/`, `public/audio/`, `src/scenes/`). Its state: `content/progress.md`, `content/decisions.md`.
@@ -13,7 +13,9 @@ This repository produces vertical motion-explainer videos (YouTube Shorts) with 
 - Each topic gets its own working branch and PR.
 
 ## Always
-- House style for every new topic: Anatomy toned solids in our palette (MASTER_PROMPT_FINAL §22): draw with `src/lib/anatomy.tsx` (AnatomyStage, anatomyProjection, Kit, paint) and `src/lib/physics.ts`; the old line-art kits are only for the finished «время» topic. Reference look: composition `AnatomyStyle`. Detail norm is maximal (§22.2): hero object 80–150 parts, every secondary object ≥ 40, environment detailed too; parts list (PARTS) before geometry.
+- House style for every new topic: Anatomy toned solids in our palette (MASTER_PROMPT_FINAL §22): draw with `src/lib/anatomy.tsx` (AnatomyStage, anatomyProjection, Kit, paint) and `src/lib/physics.ts`; the old line-art kits are only for the finished «время» topic. Reference look: composition `AnatomyStyle`. Detail norm is maximal (§22.2): hero object 80–150 parts, every secondary object ≥ 40, environment detailed too; parts list (PARTS) before geometry. `Assembly`'s `detail` flag (`complex` / `simple` / `schematic`) records how the object is read and does not lower that count.
+- Pace (§19.3, addendum 4.1): 1.5–3 s between visual events is a guide. A documented meaningful hold is allowed; a dead stretch is still a defect. A leading metaphor needs `metaphor-prep.md` and a later schematic scene; interfaces stay literal (§20).
+- `node scripts/check-text.mjs` exits non-zero on caption defects. `audit.mjs` passes the selected `--timeline` to it as an argv array. Phone-size check of an exported master: `node scripts/review-video.mjs <master.mp4> <reviews-dir>` (360×640, SHA-256, near-black and empty frames, notes in that directory's `notes.json`).
 - Hero objects: dossier by `object-researcher`, parts and motion plan by `object-architect` before STOP 1; build objects with `src/lib/assembly.ts` in `*.parts.ts` and run `node scripts/object-audit.mjs --settle` after any geometry change (zero problems before going on). Characters: `src/lib/rig.ts` + `src/lib/character.ts` (walkTo, reach/reachShare, holdInFront, sit); `scripts/rig-check.mjs` must pass. Labels and data: `src/components/Frontal.tsx`.
 - Covers (§19.5): three variants in `src/projects/<slug>/covers.ts` on `AnatomyCover`; `node scripts/cover-check.mjs`; the hook is in the picture; record the user's choice in `projects/<slug>/content/cover.json`.
 - Metaphors only for accuracy (MASTER_PROMPT_FINAL §20): every scene has a mode and location in `visual-register.json`; every metaphor is justified, checked by `metaphor-auditor` and approved by the user at STOP 1. Interfaces, schemes and data are shown literally. Avoid the typical errors of §20.5 (picture contradicts the voice, wrong unit, one image two meanings, decor that looks like data, hypothesis stated as fact); the storyboard has a «voice | frame» column per scene.

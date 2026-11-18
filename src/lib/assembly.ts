@@ -25,6 +25,8 @@ export {G, T, A, K};
 export type Point3 = K.Point3;
 export type Frame = {o: Point3; a: Point3; u: Point3; v: Point3};
 export type Role = 'hero' | 'secondary' | 'environment';
+/** How the object is meant to be read. The part-count norm does not change with this flag (§22.2). */
+export type Detail = 'complex' | 'simple' | 'schematic';
 
 /** §22.2 detail norm: recorded parts per role. */
 export const PART_NORM: Record<Role, number> = {hero: 80, secondary: 40, environment: 0};
@@ -48,7 +50,7 @@ export class Assembly {
   constructor(
     readonly name: string,
     readonly P: K.Projection,
-    readonly opts: {role?: Role; order?: string[]; allow?: [string, string][]; crowd?: [string, string][]; cover?: string[]} = {},
+    readonly opts: {role?: Role; detail?: Detail; order?: string[]; allow?: [string, string][]; crowd?: [string, string][]; cover?: string[]} = {},
   ) {
     this.R = A.recorder(P, {order: opts.order ?? []});
     this.V = A.cameraBasis(P).V as Point3;
@@ -56,6 +58,11 @@ export class Assembly {
 
   get role(): Role {
     return this.opts.role ?? 'secondary';
+  }
+
+  /** Recorded reading of the object. Default complex. Does not lower PART_NORM. */
+  get detail(): Detail {
+    return this.opts.detail ?? 'complex';
   }
 
   /** Recorded parts (solids + pipe/cable routes): the §22.2 count. */

@@ -9,3 +9,8 @@ For each claim write a row: claim | where (scene, fragment or still) | quote and
 Check every registered metaphor's «sourceClaim» against the source (§20). Check that metaphors and pictures do not claim more than the source (a picture of a growing pile is an illustration, not a measurement),
 that hypotheses are not shown as facts, and that numbers on screen equal the source. Read numbers from full-size stills, not contact sheets.
 Write the report to content/reviews/facts.md in Russian: verdict «принято» or «нужны правки», findings with exact fixes, the table.
+
+Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
+Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
+as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
+from memory. Report only what you verified in the files you were given.

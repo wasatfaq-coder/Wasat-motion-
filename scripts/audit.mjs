@@ -11,6 +11,7 @@ import {execSync} from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import {markPassed, passedBefore} from './lib-cache.mjs';
 
 const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -30,6 +31,14 @@ const run = (name, cmd) => {
   } catch (e) {
     add('error', `${name}: ${String(e.stdout || '') + String(e.stderr || '')}`.trim().slice(0, 800));
   }
+};
+
+/** run(), but skipped when the inputs are unchanged since the last pass (slow geometry checks; CI has no cache) */
+const runCached = (name, cmd, inputs) => {
+  if (passedBefore(name, inputs)) return add('ok', `${name} (unchanged since the last pass)`);
+  const before = out.error.length;
+  run(name, cmd);
+  if (out.error.length === before) markPassed(name, inputs);
 };
 
 // 1) types, lint (warnings are errors too), captions
@@ -61,7 +70,7 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
 {
   const topicDir = scenesDir.includes(`projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
   const parts = srcFiles.filter((f) => f.endsWith('.parts.ts') && (topicDir ? f.startsWith(topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
-  if (parts.length) run(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`);
+  if (parts.length) runCached(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`, [...parts, ...parts.map((f) => f.replace(/\.ts$/, '.keys.json')), 'src/lib/assembly.ts', 'src/lib/anatomy.tsx', 'src/vendor/anatomy', 'scripts/object-audit.mjs']);
 }
 
 // 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques
@@ -80,7 +89,7 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
 }
 
 // 2c) character rig (§22): no foot sliding, rigid bones, IK reaches, ≥ 40 parts per outfit
-run('rig-check', 'node scripts/rig-check.mjs --quiet');
+runCached('rig-check', 'node scripts/rig-check.mjs --quiet', ['src/lib/rig.ts', 'src/lib/character.ts', 'src/lib/anatomy.tsx', 'src/vendor/anatomy', 'scripts/rig-check.mjs']);
 
 // 3b) house style for new topics (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits
 const OLD_KITS = /from ['"][./]*illustrations\/(Room|CityKit|Interiors|Archive|CardCatalog|primitives|Props|MemoryCards|Board)['"]/;
@@ -108,6 +117,37 @@ for (const s of tl.scenes) {
   if (!sceneFileOf(s.id)) add('error', `timeline: no scene file for ${s.id} in ${scenesDir}`);
 }
 if (tl.totalFrames !== undefined && tl.totalFrames !== cursor) add('error', `timeline: totalFrames ${tl.totalFrames} ≠ sum ${cursor}`);
+
+// 5b) one coral meaning per topic (§20.5 «один образ — два смысла»; the pilot's coral meant three things until the audit
+// of metaphors): the register declares `coralMeaning`, every scene that has a coral part states the SAME meaning
+{
+  const rf = path.join(contentDir, 'visual-register.json');
+  if (fs.existsSync(rf) && contentDir.startsWith('projects')) {
+    const reg = readJson(rf);
+    const withCoral = Object.entries(reg.scenes ?? {}).filter(([, v]) => v.coral);
+    if (withCoral.length && !reg.coralMeaning) add('error', 'register: scenes declare `coral` but the register has no `coralMeaning` (one coral part = one meaning, §20.5)');
+    for (const [id, v] of withCoral) if (reg.coralMeaning && v.coral !== reg.coralMeaning) add('error', `register: ${id} gives coral the meaning «${v.coral}», the topic's is «${reg.coralMeaning}»: one image, one meaning (§20.5)`);
+    if (!withCoral.length && Object.keys(reg.scenes ?? {}).length) add('warn', 'register: no scene declares its `coral` part (§22.1: exactly one coral part per frame)');
+  }
+}
+
+// 5c) every script scene cites sources that exist in the dossier (and says when it relies on a simplification)
+{
+  const df = path.join(contentDir, 'dossier.json');
+  const sf = path.join(contentDir, 'script.json');
+  if (fs.existsSync(df) && fs.existsSync(sf)) {
+    const dossier = readJson(df);
+    const status = Object.fromEntries((dossier.verification ?? []).map((v) => [v.id, v.status]));
+    for (const sc of readJson(sf).scenes ?? []) {
+      for (const id of sc.source ?? []) {
+        if (!(id in status)) add('error', `claims: ${sc.id} cites ${id}, which is not in dossier.json verification (add the claim or fix the id)`);
+        else if (/не подтверждено/.test(status[id])) add('error', `claims: ${sc.id} relies on ${id}, which the dossier marks «${status[id]}»: confirm it or rephrase the voice (§7)`);
+        else if (/упрощено|частично/.test(status[id]) && !(sc.simplified ?? []).includes(id)) add('warn', `claims: ${sc.id} relies on ${id} («${status[id]}»); say so in the voice («в простейшем моторе») and list it in the scene's \`simplified\``);
+      }
+      if (!(sc.source ?? []).length) add('warn', `claims: ${sc.id} cites no source (§7)`);
+    }
+  }
+}
 
 // 6) visual register: locations, scene modes, metaphors, data accuracy (§19.2, §20)
 const regFile = path.join(contentDir, 'visual-register.json');

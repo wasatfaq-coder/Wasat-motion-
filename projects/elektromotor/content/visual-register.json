@@ -9,22 +9,26 @@
     "scene-02": {
       "location": "field-stand",
       "mode": "schematic",
-      "metaphors": []
+      "metaphors": [],
+      "coral": "проводник с током (провод, рамка, обмотки якоря)"
     },
     "scene-03": {
       "location": "field-stand",
       "mode": "schematic",
-      "metaphors": []
+      "metaphors": [],
+      "coral": "проводник с током (провод, рамка, обмотки якоря)"
     },
     "scene-04": {
       "location": "field-stand",
       "mode": "schematic",
-      "metaphors": []
+      "metaphors": [],
+      "coral": "проводник с током (провод, рамка, обмотки якоря)"
     },
     "scene-05": {
       "location": "inside-motor",
       "mode": "schematic",
-      "metaphors": []
+      "metaphors": [],
+      "coral": "проводник с током (провод, рамка, обмотки якоря)"
     },
     "scene-06": {
       "location": "inside-motor",
@@ -47,5 +51,6 @@
       "reason": "сквозной образ: тот же верстак и мотор в начале и в конце, ответ замыкает вопрос (СТОП 1)"
     }
   ],
-  "metaphors": {}
+  "metaphors": {},
+  "coralMeaning": "проводник с током (провод, рамка, обмотки якоря)"
 }

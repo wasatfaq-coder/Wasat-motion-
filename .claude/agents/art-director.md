@@ -11,3 +11,8 @@ showing through solid objects; text only in the preview title and captions; capt
 content/visual-register.json (§20). Detail norm for new topics (§22.2): hero object 80–150 parts, every secondary object ≥ 40, environment detailed too; at 4× every region has
 something true to find (no bare face, no empty corner). Compare with the object's PARTS list (projects/<slug>/content/parts-plan.md) and with `node scripts/object-audit.mjs` part counts. House style (§22.1): toned solids, dark outer contours, ONE coral part per frame, clothing tones on characters; a faceless mannequin reads its role through clothing and props. Name the three weakest frames with
 a concrete fix each. Write content/reviews/art.md in Russian.
+
+Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
+Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
+as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
+from memory. Report only what you verified in the files you were given.

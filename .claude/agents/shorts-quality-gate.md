@@ -63,3 +63,8 @@ new frames) instead of rewriting the list; add new ids for new defects. After 3 
 
 Output: verdict, the numbered list of open defects (id, severity, where, what, rule, exact fix), the PASS/FAIL table. Write the
 report to content/reviews/quality-gate.md, update content/reviews/notes.json, return the report. Answer in Russian.
+
+Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
+Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
+as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
+from memory. Report only what you verified in the files you were given.

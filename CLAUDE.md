@@ -23,4 +23,5 @@ This repository produces vertical motion-explainer videos (YouTube Shorts) with 
 - Master: `node scripts/master.mjs` (render, loudness on the encoded AAC, format checks, cover, report).
 - Before showing frames, covers or video to the user, run the `shorts-quality-gate` agent (§19) and fix every defect it finds; facts go through `fact-checker`.
 - Do not reuse illustrations or locations from another topic without the user's consent (§4); shared kits (room, city, board) are building blocks, the scenes are designed anew.
+- Code map: for questions about how the code is wired or what a change in shared code (`src/lib`, `src/components`, `src/theme`) affects, use the `graph-pilot` skill (Graphify, installed by the SessionStart hook; `graphify update .` builds the graph in seconds, only code-only commands, never `graphify install`).
 - The user works from a phone: answer in Russian, keep messages short, send images and videos as files.

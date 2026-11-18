@@ -7,3 +7,6 @@ dist
 out
 reference
 whisper.cpp
+
+# Graphify: граф строится заново в каждой сессии (скилл graph-pilot)
+graphify-out/

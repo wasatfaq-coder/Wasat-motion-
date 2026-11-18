@@ -1,0 +1,24 @@
+# Граф Graphify — карта кода (скилл graph-pilot): src/ и scripts/.
+# Правила, планы, сценарии и раскадровки читаются напрямую: их заголовки вытесняли бы код из ответов `graphify query`.
+*.md
+
+# Контент тем (бриф, сценарий, раскадровка, sound map, ревью — JSON и markdown): данные, не код.
+content/
+projects/
+
+# Статика Remotion: голос, sfx, шрифты, обложки.
+public/
+
+# Документация, скиллы и агенты Claude Code: не код видео.
+docs/
+.claude/
+.agents/
+.github/
+
+# Сборки, рендеры, внешние инструменты.
+node_modules/
+out/
+dist/
+reference/
+whisper.cpp/
+graphify-out/

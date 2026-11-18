@@ -109,7 +109,7 @@ export const ElektromotorStand: React.FC = () => {
     const fDown = forceDir([0, 0, -1]);
     const reach = 11;
     arrows.push(forceArrow(sd(LOOP_R, mz), along(sd(LOOP_R, mz), fUp, reach, [0, 0, 0], 0), [0, 0, 1]), forceArrow(sd(-LOOP_R, mz), along(sd(-LOOP_R, mz), fDown, reach, [0, 0, 0], 0), [0, 0, 1]));
-    cam = camOn(room(boxCorners([AX - 13, AY - 13, PLATE_TOP + 10], [26, 26, 30]) as Point3[]), 0.95, [540, 720]);
+    cam = camOn(room(boxCorners([AX - 10, AY - 10, PLATE_TOP + 12], [20, 20, 28]) as Point3[]), 0.97, [540, 720]);
   } else {
     // scene 5: the commutator — two half-rings, the leads from the loop, the brushes pressing on them
     const th = 0.35;
@@ -117,7 +117,7 @@ export const ElektromotorStand: React.FC = () => {
     // the current in the two vertical sides runs in opposite directions: the swap of scene 5 flips both
     const sd5 = (sg: number, z: number): Point3 => [AX + Math.cos(th) * sg, AY + Math.sin(th) * sg, z];
     arrows = [currentArrow(sd5(LOOP_R, LOOP_Z0 + 4), sd5(LOOP_R, LOOP_Z1 - 4), [-Math.sin(th), Math.cos(th), 0]), currentArrow(sd5(-LOOP_R, LOOP_Z1 - 4), sd5(-LOOP_R, LOOP_Z0 + 4), [-Math.sin(th), Math.cos(th), 0])];
-    cam = camOn(room(boxCorners([AX - 12, AY - 10, PLATE_TOP + 2], [24, 20, 30]) as Point3[]), 0.92, [540, 720]);
+    cam = camOn(room(boxCorners([AX - 9, AY - 8, PLATE_TOP + 2], [18, 16, 26]) as Point3[]), 0.95, [540, 720]);
   }
   // N and S: frontal plates over the magnets (labels live in screen space, §20.4)
   const nPos = screenOf(cam, toRoom([12, AY, PLATE_TOP + 22], STAND_U));

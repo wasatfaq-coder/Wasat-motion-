@@ -190,14 +190,14 @@ export const commutatorItems = (theta: number): Item[] => {
   const r1 = 5.2;
   const half = (a0: number) => {
     const ring: [number, number][] = [];
-    for (let i = 0; i <= 16; i++) ring.push([AX + r1 * Math.cos(a0 + (i / 16) * (Math.PI - 0.16)), AY + r1 * Math.sin(a0 + (i / 16) * (Math.PI - 0.16))]);
-    for (let i = 16; i >= 0; i--) ring.push([AX + r0 * Math.cos(a0 + (i / 16) * (Math.PI - 0.16)), AY + r0 * Math.sin(a0 + (i / 16) * (Math.PI - 0.16))]);
+    for (let i = 0; i <= 16; i++) ring.push([AX + r1 * Math.cos(a0 + (i / 16) * (Math.PI - 0.5)), AY + r1 * Math.sin(a0 + (i / 16) * (Math.PI - 0.5))]);
+    for (let i = 16; i >= 0; i--) ring.push([AX + r0 * Math.cos(a0 + (i / 16) * (Math.PI - 0.5)), AY + r0 * Math.sin(a0 + (i / 16) * (Math.PI - 0.5))]);
     return ring;
   };
   const out: Item[] = [];
   for (const k of [0, 1]) {
-    const a0 = theta + 0.08 + k * Math.PI;
-    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-dark'}), bias: 7}); // two halves, two tones: the gaps and the swap read
+    const a0 = theta + 0.25 + k * Math.PI;
+    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-dark'}), bias: 8}); // two halves, two tones: the gaps and the swap read
   }
   out.push({
     at: [AX, AY, z + h / 2],
@@ -212,7 +212,7 @@ export const commutatorItems = (theta: number): Item[] => {
       ),
       {tone: 'mid'},
     ),
-    bias: 5,
+    bias: -4, // the hub is drawn first: the half-rings stand round it
   });
   return out;
 };

@@ -1,0 +1,47 @@
+# Graphify — шпаргалка «задача → команда»
+
+Шпаргалка для человека: Claude работает по `SKILL.md`, где те же команды и правила.
+Команды graphify 0.9.75 для облачной сессии Claude Code. 🆓 — без LLM и без токенов, ⛔ — здесь не запускать.
+
+## Граф
+
+| Хочу | Команда |
+|---|---|
+| Построить или освежить граф | `graphify update .` 🆓 (~3 с, только код) |
+| Граф «грязный» после рефакторинга | `graphify update . --force` 🆓 |
+| Сообщества крупнее или мельче | `graphify cluster-only . --no-label --resolution 1.5` 🆓 |
+| Убрать хабы (react, remotion, COLORS) | `graphify cluster-only . --no-label --exclude-hubs 99` 🆓 |
+| Обзор проекта | открыть `graphify-out/GRAPH_REPORT.md` |
+
+## Спросить проект
+
+Спрашивать именами из кода, не по-русски: узлы графа — это функции, типы и файлы.
+
+| Хочу | Команда |
+|---|---|
+| Как устроена фича | `graphify query "anatomy kit paint" --budget 2000` 🆓 |
+| Связь двух сущностей | `graphify path "walkTo()" "AnatomyStage()"` 🆓 (`--undirected`, если пути нет) |
+| Объяснить одну сущность | `graphify explain "AnatomyStage()"` 🆓 |
+| Что заденет правка | `graphify affected "walkTo()"` 🆓 |
+| Главные узлы | `graphify god-nodes --top 15` 🆓 |
+
+## Показать
+
+| Хочу | Команда |
+|---|---|
+| Граф на телефоне | `python3 <папка скилла>/phone_view.py --seed "<узел>" --title "<название>" --out <файл>.html` → опубликовать как Artifact 🆓 (папка скилла — та, где лежит этот файл; полная команда — SKILL.md, шаг Д) |
+| Весь граф на компьютере | `graphify-out/graph.html` (≈ 1 100 узлов, тяжёлый) |
+| Вики по проекту | `graphify export wiki` → `graphify-out/wiki/index.md` 🆓 |
+
+## Опасная зона
+
+| Команда | Чем опасна |
+|---|---|
+| `graphify extract .` без `--code-only`, `--mode deep`, `graphify label` | ⛔ отправляют документы проекта внешней модели, нужен ключ, стоят денег |
+| `graphify add <url>`, `graphify clone` | ⛔ качают из интернета в проект |
+| `graphify install`, `graphify claude install` | ⛔ пишут свой скилл, раздел в `CLAUDE.md` и PreToolUse-хук, который на части сборок блокирует чтение файлов |
+| `graphify hook install`, `graphify watch` | ⛔ git-хуки и фоновый процесс; граф и так строится за секунды |
+| `pip install graphify` | ⛔ чужой пакет: правильный — `graphifyy` (две «y»), его ставит хук сессии |
+
+Откат, если хук graphify всё же попал в настройки: удалить блок `hooks` со словом `graphify` из `PreToolUse`
+в `.claude/settings.json` или `~/.claude/settings.json`.

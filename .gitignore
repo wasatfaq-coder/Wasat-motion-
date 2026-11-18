@@ -7,4 +7,8 @@ dist
 out
 reference
 whisper.cpp
+# local result cache of slow checks (scripts/lib-cache.mjs)
 .cache
+
+# Graphify: граф строится заново в каждой сессии (скилл graph-pilot)
+graphify-out/

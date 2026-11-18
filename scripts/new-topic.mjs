@@ -122,7 +122,8 @@ if (!r.includes(marker)) throw new Error('Root.tsx marker not found');
 let imports = `import {${pascal}Main, ${pascal}Selected} from './projects/${slug}/Main';\nimport {${pascal}Cover} from './projects/${slug}/Cover';`;
 if (!/import \{episodeSchema\} from '\.\/components\/Episode';/.test(r)) imports += "\nimport {episodeSchema} from './components/Episode';";
 if (!/import \{anatomyCoverSchema\} from '\.\/components\/AnatomyCover';/.test(r)) imports += "\nimport {anatomyCoverSchema} from './components/AnatomyCover';";
-r = r.replace("import {Cover, coverSchema} from './Cover';", `import {Cover, coverSchema} from './Cover';\n${imports}`);
+if (!/import \{totalFrames\} from '\.\/lib\/sceneSet';/.test(r)) imports += "\nimport {totalFrames} from './lib/sceneSet';";
+r = r.replace("import {Cover, coverSchema} from './Cover';",`import {Cover, coverSchema} from './Cover';\n${imports}`);
 r = r.replace(marker, `  <Composition
     id="${pascal}Main"
     component={${pascal}Main}
@@ -132,7 +133,7 @@ r = r.replace(marker, `  <Composition
     fps={FORMAT.fps}
     durationInFrames={1}
     defaultProps={{muteVoice: false, hideCaptions: false, onlyScenes: []}}
-    calculateMetadata={({props}) => ({durationInFrames: Math.max(1, ${pascal}Selected(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0))})}
+    calculateMetadata={({props}) => ({durationInFrames: Math.max(1, totalFrames(${pascal}Selected(props.onlyScenes)))})}
   />
   <Composition id="${pascal}Cover" component={${pascal}Cover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
 ${marker}`);

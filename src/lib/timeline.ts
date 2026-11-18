@@ -3,11 +3,14 @@ import timelineJson from '../data/timeline.json';
 export type Word = {text: string; startFrame: number; endFrame: number; status: string};
 export type Page = {text: string; startFrame: number; endFrame: number; words: Word[]};
 export type Beat = {id: string; word: string; frame: number | null; status: string};
-export type SfxEvent = {file: string; frame: number; volume: number; reason: string};
+export type SfxRole = 'bed' | 'active' | 'accent';
+export type SfxEvent = {file: string; frame: number; volume: number; reason: string; role?: SfxRole; duckUnderVoice?: number; fadeInFrames?: number; fadeOutFrames?: number; durationInFrames?: number};
 export type SceneData = {
   id: string;
   from: number;
   durationInFrames: number;
+  /** Overlap with the previous scene (frames), subtracted once from the total: src/lib/sceneSet.ts. */
+  transitionInFrames?: number;
   audio: string;
   audioDurationInFrames: number;
   voiceStartFrame: number;

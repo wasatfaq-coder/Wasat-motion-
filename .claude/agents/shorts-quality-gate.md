@@ -29,14 +29,15 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    ≥ 3 depth planes and 2–3 reacting secondary details per frame; abstract dots replaced by recognisable figures;
    locations are chosen for the explanation; registered reuse can support a controlled comparison.
    Any frame that can be described as "a white rectangle with a chart" is a FAIL.
-3. Pacing and editing (§19.3): use 1.5–3 s between events as a guide; accept a documented hold if it serves reading or understanding;
-   use two shot changes as a guide in scenes > 6 s; cuts land on stressed words or pauses.
+3. Pacing and editing (§19.3, §23.1): the mechanism works continuously; a new meaningful event every 1.5–3 s (gap > 3 s or a frozen frame = FAIL,
+   except a camera/sound hold while the process runs and the short final tail); events follow the causal chain; cuts land on stressed words or pauses.
+   Pass the output of `node scripts/motion-plan-check.mjs` for new topics.
 4. Shape animation: every scene has morphing / assembly / line drawing / cascades / secondary motion visible on the sheet.
 5. Retention checklist (§19.4), each item PASS/FAIL: hook (0–2 s), suspense & micro-intrigues (every 8–12 s),
    visual graphics (story readable without sound), dynamic editing, sound design & editing to sound
    (sfx on all transitions and transformations, silence before the main answer), visual re-hook at 40–50 %.
-5b. Projection, detail, physics, colour (§19.7): one isometric world projection, with frontal close-ups for registered real interfaces in their original colors and layout;
-   complex objects detailed on three levels (silhouette, construction, micro-details); no object intersections or wrong placement
+5b. Projection, detail, physics, colour (§19.7): isometric base; explanatory cutaways, axial views and frontal schemes only with a registered purpose, place in the whole and way back (§23.4); real interfaces frontally in their original colours and layout;
+   every object detailed on three levels (silhouette, construction, micro-details); no object intersections or wrong placement
    (e.g. items cutting through each other on a desk, a thrown item landing off target); motion with physics (anticipation, arcs,
    rotation, landing squash/bounce, follow-through, height-dependent shadow); living components where meaningful;
    palette = background, dark outline, 2–3 neutrals and ONE accent (coral) used only for meaning — enforce this in Anatomy framing; original interface colors are allowed inside the capture.
@@ -47,8 +48,8 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    coral is); a character only if big and clear; 2–4 words, 96–120 px, inside 420–1210 px; bottom strip and right button column
    clear; survives a 4:5 crop; honest (the video answers the question, every cover element appears in its first 2 s).
    Rank the variants and say which one wins and why.
-7. House style of new topics (§22): toned solids in our palette (no line-art kits), dark contours, one coral part per frame;
-   detail norm (§22.2: complex hero 80–150 parts, complex secondary around 40 or more; simple construction and schematic legibility follow §22.2) — the caller passes `node scripts/object-audit.mjs` and
+7. House style of new topics (§22): toned solids in our palette (no line-art kits), dark contours, one coral semantic group per frame;
+   detail norm (§22.2: hero 80–150 parts, every secondary ≥ 40; only schematic nodes are judged by legibility) — the caller passes `node scripts/object-audit.mjs` and
    `node scripts/rig-check.mjs` output (any ERROR = FAIL); on key frames: nothing floats, no part cuts through another, cables end
    on something, characters' feet do not slide (strips), hands touch what they press or hold.
 
@@ -57,10 +58,10 @@ quality problem), MINOR (polish). Verdict «брак — показывать н
 показывать с замечаниями».
 
 Notes tracker: read content/reviews/notes.json (create it if missing). Keep every defect as {id, round, scene, frame, severity,
-rule, text, fix, status: open | fixed | verified | wontfix}. On a re-check set status per previous id (verified only when a reviewer other than the implementer confirms the corrected frame and neighboring frames) instead of rewriting the list; add new ids for new defects. After 3 rounds with the same id still open, mark it
+rule, text, fix, status: open | fixed | verified | wontfix}. On a re-check set status per previous id (fixed = waiting for re-check and still blocks release; verified only when a reviewer other than the implementer confirms the corrected frame and neighbouring frames, with an evidence link and the reviewed video SHA-256; a check by an agent is marked reviewerKind: model) instead of rewriting the list; add new ids for new defects. After 3 rounds with the same id still open, mark it
 «escalate» and state the options for the user (§15: show the weak spot, do not loop).
 
-For final acceptance attach full-frame automated coverage, critical per-frame strips, playback with sound, a 360×640 preview derived from the exported MP4, and the human viewer’s retelling. Missing human or independent checks leave acceptance preliminary (§22.5).
+For final acceptance attach full-frame automated coverage, critical per-frame strips, playback with sound, a 360×640 preview derived from the exported MP4, and the human viewer’s retelling. Missing human or independent checks leave acceptance preliminary (§22.5). The human viewer is the user; without their retelling the status is «принят без зрительского теста» and release needs their explicit consent. Record results in reviews/quality-gate.json (schema scripts/lib/qa.mjs, §23.9): check statuses pass | fail | not_reviewed | not_applicable, frame-block coverage 0…totalFrames−1, playback with sound, notes; the markdown report mirrors the JSON. Two-pass comprehension check (§23.10): silent description first, then causal explanation with voice and a prediction for a changed parameter.
 
 Output: verdict, the numbered list of open defects (id, severity, where, what, rule, exact fix), the PASS/FAIL table. Write the
 report to content/reviews/quality-gate.md, update content/reviews/notes.json, return the report. Answer in Russian.

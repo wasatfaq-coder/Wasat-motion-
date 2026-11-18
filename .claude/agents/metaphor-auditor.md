@@ -11,7 +11,7 @@ For a new topic the same files live in projects/<slug>/content/.
 For a leading metaphor, read metaphor-prep.md before STOP 1. Check the source, alternatives, identifying features, correspondence and schematic reveal. Inspect the 360×640 sketch before reading its intended explanation. Record what object and action are recognizable, then compare with the intended reading. Missing evidence leaves this check unverified.
 
 For every scene:
-1. Mode. Is literal possible? An authorial metaphor can lead a key scene. Verify its rationale and the linked schematic scene that establishes the real roles and connections. Show reproducible interface actions literally. Verify data, real layouts and procedural steps against the source.
+1. Mode. Is literal possible? An authorial metaphor can lead a key scene. Verify its rationale, its limits (where the image stops matching the real process) and the linked schematic scene that establishes the real roles and connections; the storyboard records the transition from the metaphor back to the real device. A combined scene (literal construction + conventional overlays) lists its overlays in the register (§23.3). Invisible processes reuse the channel vocabulary docs/process-vocabulary.json. Show reproducible interface actions literally. Verify data, real layouts and procedural steps against the source.
 2. Mapping. Each metaphor element maps to one element of the source claim (write «X = Y»). Extra elements that imply more than the
    source (mechanism, causality, numbers, guarantees) = FAIL. Hypotheses must stay hypotheses on screen and in the voice.
 3. Misreading. List how a first-time viewer could misread it (literal storage, measured value, body part, promise). Check that the

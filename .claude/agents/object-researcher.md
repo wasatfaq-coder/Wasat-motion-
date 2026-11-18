@@ -17,6 +17,10 @@ Write projects/<slug>/content/dossier.json:
   "principle": [{"step": 1, "what happens": "...", "moving parts": ["..."], "speed or time": "...", "source": "D2"}],
   "proportions": "key ratios to keep (e.g. stator length ≈ 1.2 × diameter)",
   "cutaways": ["which layers can be removed and in what order"],
+  "disassembly": [{"step": 1, "release": "fastener or latch", "remove": "part", "obstacles": "...", "source": "D1"}],
+  "workingContacts": ["contacts, meshes and seals that must stay intact while the device works (§23.5)"],
+  "timeScale": [{"process": "...", "real": "e.g. 3000 rpm", "shown": "e.g. slowed ×100", "basis": "calculation or convention", "notice": "when the viewer is told"}],
+  "experiment": {"input": "the one parameter that changes", "fixed": ["conditions kept"], "expected": "output change", "source": "D2 or model"},
   "pitfalls": ["common misconceptions the picture must not repeat (§20.5)"] }
 
 Also write projects/<slug>/content/dossier.md in Russian: a one-page summary, the list of open questions for the user, and every

@@ -1,5 +1,7 @@
 # MCP · вызов инструмента
 
+> Образец удалён 18.11.2026 по решению пользователя: он не прошёл приёмку (docs/samples/mcp-pilot-audit.md). Описание оставлено как разбор ошибок; команды рендера ниже больше не работают.
+
 Черновой фрагмент на 9 секунд. Источник — [архитектура MCP, Tool Execution](https://modelcontextprotocol.io/docs/learn/architecture#understanding-the-tool-execution-request).
 
 | Время | План | Действие |

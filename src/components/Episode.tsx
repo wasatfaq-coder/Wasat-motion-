@@ -4,6 +4,7 @@ import {Audio} from '@remotion/media';
 import {z} from 'zod';
 import {COLORS} from '../theme/tokens';
 import {SceneData, Timeline} from '../lib/timeline';
+import {layoutScenes, pickScenes} from '../lib/sceneSet';
 import {Captions} from './Captions';
 import {Sfx} from './Sfx';
 
@@ -17,9 +18,8 @@ export const episodeSchema = z.object({
 export type EpisodeProps = z.infer<typeof episodeSchema>;
 export type SceneMap = Record<string, React.FC<{scene: SceneData}>>;
 
-/** Scenes included in a render: all implemented ones, or the subset passed in props. */
-export const selectScenes = (timeline: Timeline, scenes: SceneMap, only: string[]) =>
-  timeline.scenes.filter((s) => scenes[s.id] && (only.length === 0 || only.includes(s.id)));
+/** Scenes included in a render: every timeline scene, or an explicit subset for preview (strict, src/lib/sceneSet.ts). */
+export const selectScenes = (timeline: Timeline, scenes: SceneMap, only: string[]) => pickScenes(timeline.scenes, Object.keys(scenes), only);
 
 export const Episode: React.FC<EpisodeProps & {timeline: Timeline; scenes: SceneMap; captionsFrom?: (scene: SceneData) => number}> = ({
   muteVoice,
@@ -29,14 +29,11 @@ export const Episode: React.FC<EpisodeProps & {timeline: Timeline; scenes: Scene
   scenes,
   captionsFrom = () => 0,
 }) => {
-  const list = selectScenes(timeline, scenes, onlyScenes);
-  let cursor = 0;
+  const placed = layoutScenes(selectScenes(timeline, scenes, onlyScenes));
   return (
     <AbsoluteFill style={{backgroundColor: COLORS.bg}}>
-      {list.map((scene) => {
+      {placed.map(({scene, start: from}) => {
         const C = scenes[scene.id];
-        const from = cursor;
-        cursor += scene.durationInFrames;
         return (
           <Sequence key={scene.id} from={from} durationInFrames={scene.durationInFrames} name={scene.id}>
             <C scene={scene} />

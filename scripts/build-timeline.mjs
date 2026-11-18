@@ -4,6 +4,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {pathToFileURL} from 'node:url';
+import {tsImport} from 'tsx/esm/api';
+import {readBrief, durationRange, durationProblem} from './lib/brief.mjs';
 
 // Topic-agnostic: paths come from flags, topic-specific timing from <content>/timing.json.
 //   node scripts/build-timeline.mjs                       (root topic: content/, public/, src/data/timeline.json)
@@ -29,6 +32,9 @@ const PAUSES = timing.pauses ?? {};
 const EXTRA_TAIL = timing.extraTailFrames ?? {};
 // Spoken forms of digits used in the script, for alignment with the recognised speech.
 const NUM = timing.spokenNumbers ?? {};
+// Overlap of a scene with the previous one, in frames (§23.4, item 14): {"scene-03": 18}. Subtracted once.
+const TRANSITIONS = timing.transitions ?? {};
+const {layoutScenes, totalFrames} = await tsImport(pathToFileURL(path.resolve('src/lib/sceneSet.ts')).href, import.meta.url);
 
 const script = JSON.parse(fs.readFileSync(path.join(CONTENT, 'script.json'), 'utf8'));
 const smFile = path.join(CONTENT, 'sound-map.json');
@@ -190,6 +196,7 @@ script.scenes.forEach((scene, si) => {
     id: scene.id,
     from: cursor,
     durationInFrames: dur,
+    ...(TRANSITIONS[scene.id] ? {transitionInFrames: TRANSITIONS[scene.id]} : {}),
     audio: pub(`audio/vo/${scene.id}.mp3`),
     audioDurationInFrames: toFrames(audioMs),
     voiceStartFrame: voiceStart,
@@ -199,13 +206,19 @@ script.scenes.forEach((scene, si) => {
     sfx: (soundMap[scene.id] ?? []).map((e) => {
       const b = beats.find((x) => x.id === e.beat);
       if (!b) throw new Error(`sound-map: ${scene.id} refers to unknown beat «${e.beat}»`);
-      return {file: e.file, frame: Math.max(0, b.frame + e.offset - (LEAD[e.file] ?? 0)), volume: e.volume, reason: e.reason};
+      const extra = Object.fromEntries(['role', 'duckUnderVoice', 'fadeInFrames', 'fadeOutFrames', 'durationInFrames'].filter((k) => e[k] !== undefined).map((k) => [k, e[k]]));
+      return {file: e.file, frame: Math.max(0, b.frame + e.offset - (LEAD[e.file] ?? 0)), volume: e.volume, reason: e.reason, ...extra};
     }),
   });
   cursor += dur;
 });
-timeline.totalFrames = cursor;
+// global start frames with overlaps subtracted once (src/lib/sceneSet.ts); sequential scenes keep cursor timing
+for (const {scene: s, start} of layoutScenes(timeline.scenes)) s.from = start;
+timeline.totalFrames = totalFrames(timeline.scenes);
+cursor = timeline.totalFrames;
 fs.mkdirSync(path.dirname(OUT), {recursive: true});
 fs.writeFileSync(OUT, JSON.stringify(timeline, null, 1) + '\n');
 console.log(report.join('\n'));
 console.log('total', cursor, 'frames =', (cursor / FPS).toFixed(2), 's');
+const durationIssue = durationProblem(cursor / FPS, durationRange(readBrief(CONTENT)));
+if (durationIssue) console.log(`WARNING ${durationIssue} (item 11; audit and master report it as an error)`);

@@ -26,3 +26,8 @@ For every scene:
 
 Write content/reviews/metaphors.md in Russian: verdict «принято» / «нужны правки», a table scene | mode | metaphor | mapping |
 risk | guard | verdict, and exact fixes (including a literal alternative where a metaphor fails). Return the report.
+
+Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
+Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
+as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
+from memory. Report only what you verified in the files you were given.

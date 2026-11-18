@@ -21,3 +21,8 @@ Write projects/<slug>/content/dossier.json:
 
 Also write projects/<slug>/content/dossier.md in Russian: a one-page summary, the list of open questions for the user, and every
 place where the source and a popular explanation disagree. Return a short summary with the open questions.
+
+Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
+Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
+as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
+from memory. Report only what you verified in the files you were given.

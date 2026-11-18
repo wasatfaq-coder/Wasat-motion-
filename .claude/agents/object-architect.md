@@ -19,3 +19,8 @@ Write projects/<slug>/content/parts-plan.md in Russian:
 5. One coral part per frame and why it is the meaning (§22.1); the cover's hook object (§19.5).
 6. Size on the Anatomy scale (Figure / Hero / Epic) and the time estimate; Epic needs the user's decision.
 Return a short summary: part counts per object, the riskiest geometry, open questions for STOP 1.
+
+Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
+Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
+as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
+from memory. Report only what you verified in the files you were given.

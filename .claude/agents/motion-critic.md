@@ -9,3 +9,8 @@ Check: real intermediate shapes in transformations (not cross-fades); shape anim
 every source frame of that range, not from 2 fps sheets). Ask for strips: `node scripts/frame-strip.mjs <from> <to>`
 (≤ 180 frames each) for anchors, landings and cuts; list the ranges you need. Check that content/sound-map.json reasons still
 match the action after scene changes (audit warns when a scene changed after the last --stamp-sfx). Write content/reviews/motion.md in Russian with findings and exact fixes.
+
+Output protocol (root cause of repeated manual work: subagents in this environment may be unable to write files or to fetch some sites).
+Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
+as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
+from memory. Report only what you verified in the files you were given.

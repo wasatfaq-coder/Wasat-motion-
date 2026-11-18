@@ -117,7 +117,11 @@ export const coverLayout = (spec: CoverSpec): CoverLayout => {
     if (artCoral) errors.push('two coral spots: the image has a coral part and the title a coral word; keep one');
   } else if (!artCoral) warns.push('no coral spot: mark the hook detail (lit) or one title word');
   if (!spec.floor) warns.push('no floor or ground under the image: add `floor` (context, §19.2)');
-  if (spec.placeholder) warns.push('placeholder cover: replace the image, the hook and the title before the gate');
+  if (spec.placeholder) {
+    // a scaffolded stand-in cannot meet the rules yet: its findings are warnings until it is replaced
+    warns.push(...errors.splice(0).map((e) => `(placeholder) ${e}`));
+    warns.push('placeholder cover: replace the image, the hook and the title before the gate');
+  }
   return {fontSize, lines, title, region, cam: {focus, zoom, screen}, image, hero, share, errors, warns};
 };
 

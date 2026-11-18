@@ -92,6 +92,16 @@ export class Assembly {
     return this.put(n, [cx, cy, z + h / 2], K.solidSvg(K.extrude(ring, z, h, this.P), c), [this.shape(A.extruded(ring, z, h), c, n)], c);
   }
 
+  /** A prism of a CONVEX polygon in the frame's (u, v) plane, extruded along F.a from s0 to s1 — on ANY axis
+   *  (beams, bars, plates that are not upright). A concave outline (a half-ring) must be an upright `extruded`. */
+  prism(name: string, F: Frame, polygon: number[][], s0: number, s1: number, c: SolidOpts = {}) {
+    const n = this.full(name);
+    const cx = polygon.reduce((t, q) => t + q[0], 0) / polygon.length;
+    const cy = polygon.reduce((t, q) => t + q[1], 0) / polygon.length;
+    const at = G.add3(G.add3(G.add3(F.o, G.mul3(F.u, cx)), G.mul3(F.v, cy)), G.mul3(F.a, (s0 + s1) / 2)) as Point3;
+    return this.put(n, at, K.solidSvg(G.prismOf(F, polygon, s0, s1, this.P), c), [this.shape(A.prism(F, polygon, s0, s1), c, n)], c);
+  }
+
   /** Upright cylinder (pins, posts, cans standing on the floor). */
   cyl(name: string, cx: number, cy: number, r: number, z: number, h: number, c: SolidOpts & {bevel?: number} = {}) {
     const n = this.full(name);
@@ -178,7 +188,7 @@ export class Assembly {
   keysApplied = false;
 
   /** The object as SVG markup, painted back to front. `shares` moves pieces (0 = home, 1 = at `move`). */
-  svg(shares: Record<string, number> = {}, opts: {hide?: (name: string) => boolean} = {}) {
+  svg(shares: Record<string, number> = {}, opts: {hide?: (name: string) => boolean; extra?: {at: Point3; svg: string; bias?: number}[]} = {}) {
     // `hide` leaves parts out of a picture (e.g. a cable that would read as a second shaft on a cover)
     const items = (this.R.items as Item[]).filter((i) => !opts.hide?.(i.name));
     const keyed = items.map((item, index) => {
@@ -186,6 +196,17 @@ export class Assembly {
       const off = G.mul3(item.move, share) as Point3;
       return {item, index, off, key: item.key + G.dot3(off, this.V)};
     });
+    // extra items (parts rebuilt every frame, such as a turning loop) are ordered with the rest. Their depth is on the
+    // plain scale (dot(at, V)) while settled keys live on another one, so an extra takes the settled key of the static
+    // item just in front of it on the plain scale (plus a hair for its own depth).
+    const byBase = [...(this.R.items as (Item & {baseKey: number})[])].sort((a, b) => a.baseKey - b.baseKey);
+    const keyFor = (b: number) => {
+      let lo = -1;
+      for (let i = 0; i < byBase.length && byBase[i].baseKey <= b; i++) lo = i;
+      if (lo < 0) return byBase.length ? byBase[0].key - 1e-3 + (b - byBase[0].baseKey) * 1e-3 : b;
+      return byBase[lo].key + 1e-3 + (b - byBase[lo].baseKey) * 1e-3;
+    };
+    for (const [i, e] of (opts.extra ?? []).entries()) keyed.push({item: {svg: e.svg, move: [0, 0, 0]} as unknown as Item, index: items.length + i, off: [0, 0, 0] as Point3, key: keyFor(G.dot3(e.at, this.V) + (e.bias ?? 0))});
     keyed.sort((a, b) => a.key - b.key || a.index - b.index);
     return keyed
       .map(({item, off}) => {

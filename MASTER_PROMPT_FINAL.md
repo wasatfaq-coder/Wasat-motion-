@@ -562,6 +562,7 @@ ffmpeg -hide_banner -i out/final.mp4 -vn \
 - Подписи и данные: src/components/Frontal.tsx — FrontalLayer, Plate с выноской, FrontalChart (столбцы/линия, ось от нуля, единица обязательна) (§20.4).
 - Персонаж: src/lib/rig.ts (скелет, IK с пределами суставов, походка по пути и по земле без скольжения, старт/стоп, сидеть, тянуться, держать, позы пальцев), src/lib/character.ts (манекен без лица, ~80 деталей, роль по одежде и предмету, порядок отрисовки лучом по формам). `node scripts/rig-check.mjs` — контакт стоп, пределы, кости, IK, тело без проникновений, баланс, пальцы, норма деталей, порядок отрисовки; входит в audit.
 - Обложки: §19.5.
+- Проверки до gate: scripts/pregate.mjs, scripts/still-check.mjs, scripts/handed-check.mjs (правила правой руки только через physCross, проекция левосторонняя).
 - Образцы: композиции AnatomyStyle, AnatomyKit, AnatomyCharacter, AnatomyGait, AnatomyCast, AnatomyCoverSample.
 - Агенты: object-researcher (досье героя по первоисточникам), object-architect (список деталей, план мира, разрезов и движения) — до СТОП 1; art-director проверяет норму деталей и врезки 4×.
 - Аудит запрещает сценам новых тем старые контурные наборы (Room, CityKit, Interiors, Archive, CardCatalog, primitives, Props, MemoryCards, Board) и CSS-анимации ядра.

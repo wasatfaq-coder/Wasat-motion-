@@ -23,3 +23,7 @@ jobs:
             echo "== $slug"
             node scripts/audit.mjs --scenes "src/projects/$slug/scenes" --content "projects/$slug/content" --timeline "src/projects/$slug/data/timeline.json"
           done
+      - name: handedness of the kit (right-hand rules must use physCross)
+        run: node scripts/handed-check.mjs
+      - name: the topic scaffold still compiles and audits clean
+        run: node scripts/selftest-new-topic.mjs

@@ -23,7 +23,9 @@ fs.mkdirSync(dir, {recursive: true});
 const browser = (() => {
   const base = '/opt/pw-browsers';
   if (!fs.existsSync(base)) return null;
-  const d = fs.readdirSync(base).find((n) => n.startsWith('chromium_headless_shell'));
+  const d = fs
+    .readdirSync(base)
+    .find((n) => n.startsWith('chromium_headless_shell') && fs.statSync(path.join(base, n)).isDirectory());
   if (!d) return null;
   const sub = fs.readdirSync(path.join(base, d)).find((n) => n.startsWith('chrome-'));
   return sub ? path.join(base, d, sub, 'chrome-headless-shell') : null;

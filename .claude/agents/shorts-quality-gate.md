@@ -29,14 +29,14 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
    ≥ 3 depth planes and 2–3 reacting secondary details per frame; abstract dots replaced by recognisable figures;
    the video uses several detailed locations (not one set for everything), linked by the through-line image.
    Any frame that can be described as "a white rectangle with a chart" is a FAIL.
-3. Pacing and editing (§19.3): 1.5–3 s between events is a guide. A hold passes when storyboard.md records its range and purpose
-   and the picture still has a clear focus. A stretch with no development and no recorded pause is a FAIL.
-   Scenes > 6 s are guided toward 2 shot changes; cuts land on stressed words or pauses.
+3. Pacing and editing (§19.3, §23.1): the mechanism works continuously and a new meaningful event lands every 1.5–3 s. A gap > 3 s or a
+   frozen frame is a FAIL, except a camera or sound hold recorded in storyboard.md while the process keeps running, and the short final tail.
+   Shot changes are one kind of event, not a quota; cuts land on stressed words or pauses.
 4. Shape animation: every scene has morphing / assembly / line drawing / cascades / secondary motion visible on the sheet.
 5. Retention checklist (§19.4), each item PASS/FAIL: hook (0–2 s), suspense & micro-intrigues (every 8–12 s),
    visual graphics (story readable without sound), dynamic editing, sound design & editing to sound
    (sfx on all transitions and transformations, silence before the main answer), visual re-hook at 40–50 %.
-5b. Projection, detail, physics, colour (§19.7): one isometric projection everywhere (no flat frontal cut-out scenes);
+5b. Projection, detail, physics, colour (§19.7): isometric base; cutaways, axial views and frontal schemes only with a recorded purpose, place in the whole and way back (§23.4); real interfaces frontally in their original colours; no flat frontal cut-out scenes without a purpose;
    every object detailed on three levels (silhouette, construction, micro-details); no object intersections or wrong placement
    (e.g. items cutting through each other on a desk, a thrown item landing off target); motion with physics (anticipation, arcs,
    rotation, landing squash/bounce, follow-through, height-dependent shadow); living components where meaningful;
@@ -51,8 +51,8 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
 6b. Final master only: if the caller passes video-review.json from `node scripts/review-video.mjs`, check that its sha256 matches
    the exported file, that near-black and empty frames are either absent or written as open notes, and that pending viewer status
    is not reported as acceptance. Missing preview on a still-frame stop is НЕ ПРОВЕРЕНО, not a style FAIL.
-7. House style of new topics (§22): toned solids in our palette (no line-art kits), dark contours, one coral part per frame;
-   detail norm (§22.2: hero 80–150 parts, secondary ≥ 40) — the caller passes `node scripts/object-audit.mjs` and
+7. House style of new topics (§22): toned solids in our palette (no line-art kits), dark contours, one coral semantic group per frame;
+   detail norm (§22.2: hero 80–150 parts, every secondary ≥ 40, no «simple» exemption; only schematic nodes are judged by legibility) — the caller passes `node scripts/object-audit.mjs` and
    `node scripts/rig-check.mjs` output (any ERROR = FAIL); on key frames: nothing floats, no part cuts through another, cables end
    on something, characters' feet do not slide (strips), hands touch what they press or hold.
 
@@ -61,9 +61,14 @@ quality problem), MINOR (polish). Verdict «брак — показывать н
 показывать с замечаниями».
 
 Notes tracker: read content/reviews/notes.json (create it if missing). Keep every defect as {id, round, scene, frame, severity,
-rule, text, fix, status: open | fixed | verified | wontfix}. On a re-check set status per previous id (verified if fixed on the
-new frames) instead of rewriting the list; add new ids for new defects. After 3 rounds with the same id still open, mark it
+rule, text, fix, status: open | fixed | verified | wontfix}. On a re-check set status per previous id (fixed = waiting for a re-check and still blocks release;
+verified only when a reviewer other than the implementer confirms the corrected frame and neighbouring frames, with an evidence link
+and the reviewed video's SHA-256; a check by an agent is marked reviewerKind: model) instead of rewriting the list; add new ids for new defects. After 3 rounds with the same id still open, mark it
 «escalate» and state the options for the user (§15: show the weak spot, do not loop).
+
+Acceptance (§22.5, §23.9, §23.10): the human viewer is the user; without their retelling the status is «принят без зрительского теста» and
+the video ships only with their explicit consent. Comprehension is checked in two passes: first a silent description of visible actions, then
+the causal explanation with voice and a prediction for one changed parameter; a model's answer is labelled as a model check.
 
 Output: verdict, the numbered list of open defects (id, severity, where, what, rule, exact fix), the PASS/FAIL table. Write the
 report to content/reviews/quality-gate.md, update content/reviews/notes.json, return the report. Answer in Russian.

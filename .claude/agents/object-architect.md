@@ -10,14 +10,14 @@ src/lib/character.ts (the faceless mannequin, poses, walkTo, reach, holdInFront)
 
 Write projects/<slug>/content/parts-plan.md in Russian:
 1. PARTS: every object of every scene with its role (hero 80–150 parts, secondary ≥ 40, environment detailed too) as a table.
-   You may set Assembly `detail` to complex, simple or schematic to record how the object is read. The count above does not drop.
+   Assembly `detail` is complex (default) or schematic; schematic only for scheme blocks, arrows and plates (judged by legibility at 360×640). No «simple» exemption.
    «группа (основание → конструкция → механизм → объект показа) | деталь | кол-во | примитив Assembly | опирается на | досье».
    Every part rests on another; nothing floats; crossing parts share an owner or are split (a ring round a body is cut into slices).
 2. World plan: kit units per room unit, the layout of each location, the camera per beat (what fills ≥ 35–40 % of the frame, §19.2).
 3. Cutaway plan: which layer comes off on which anchor word, in what order (§22.2: case → lid off → layers → part).
 4. Motion plan by anchors: what moves, how (physics.ts: spring, anticipate, bounce, squash, followThrough; rig: walkTo, reachShare),
    which piece/move vectors, what the object-audit must see apart.
-5. One coral part per frame and why it is the meaning (§22.1); the cover's hook object (§19.5).
+5. One coral semantic group per beat and why it is the meaning (§22.1); per part a visibility plan by shot (§23.6); working contacts, disassembly order and whether an exploded view is a convention (§23.5); a motion profile per moving group (material, axis or path, contacts, allowed deformation); the cover's hook object (§19.5).
 6. Size on the Anatomy scale (Figure / Hero / Epic) and the time estimate; Epic needs the user's decision.
 Return a short summary: part counts per object, the riskiest geometry, open questions for STOP 1.
 

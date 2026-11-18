@@ -25,8 +25,10 @@ export {G, T, A, K};
 export type Point3 = K.Point3;
 export type Frame = {o: Point3; a: Point3; u: Point3; v: Point3};
 export type Role = 'hero' | 'secondary' | 'environment';
-/** How the object is meant to be read. The part-count norm does not change with this flag (§22.2). */
-export type Detail = 'complex' | 'simple' | 'schematic';
+/** How the object is read (§22.2, decision of 18.11.2026): every physical object is `complex` and meets PART_NORM;
+ *  `schematic` is only for scheme blocks, arrows and plates, judged by legibility at 360×640 instead of the count.
+ *  There is no «simple» exemption. */
+export type Detail = 'complex' | 'schematic';
 
 /** §22.2 detail norm: recorded parts per role. Environment is a warning in object-audit, not an error. */
 export const PART_NORM: Record<Role, number> = {hero: 80, secondary: 40, environment: 15};

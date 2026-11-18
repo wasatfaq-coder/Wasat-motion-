@@ -16,7 +16,8 @@ For every scene:
 1. Mode. Is literal possible? If the topic is an interface, a device, a process diagram, a chart or a procedure, the scene must be
    literal or schematic: real layout, real labels, correct order and scale. A metaphor may only be an overlay or a bridge there,
    never a substitute. A leading metaphor may open a key scene only when the register links it to a later schematic scene and
-   metaphor-prep.md is filled; it does not replace a reproducible interface. A metaphor scene without a reason why literal fails
+   metaphor-prep.md is filled; it does not replace a reproducible interface. The register states its `limits` (where the image stops
+   matching the real process) and the storyboard records the transition back to the real device (§20.2, §23.3). A metaphor scene without a reason why literal fails
    (`whyNotLiteral` or `rationale`) = FAIL.
 2. Mapping. Each metaphor element maps to one element of the source claim (write «X = Y»). Extra elements that imply more than the
    source (mechanism, causality, numbers, guarantees) = FAIL. Hypotheses must stay hypotheses on screen and in the voice.

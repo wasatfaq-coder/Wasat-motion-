@@ -90,10 +90,14 @@ for (const file of files) {
       for (const m of [...sunk].slice(0, 8)) report += `\n      dynamic ${m}`;
       report += `\n    dynamic sweep: ${sweepProblems} part(s) sink into the static stand`;
     }
-    const failures = audited.failures + (unsettled.length ? 1 : 0) + (notApplied ? 1 : 0) + sweepProblems;
+    let failures = audited.failures + (unsettled.length ? 1 : 0) + (notApplied ? 1 : 0) + sweepProblems;
     const detail = value.detail ?? 'complex';
-    // detail is recorded only. simple/schematic does not lower the §22.2 count.
-    const norm = PART_NORM[value.role];
+    // §22.2: no «simple» exemption; a schematic node (block, arrow, plate) is judged by legibility at 360×640, not by count.
+    if (!['complex', 'schematic'].includes(detail)) {
+      report += `\n    detail «${detail}» is not allowed: use complex (physical object) or schematic (scheme node) (§22.2)`;
+      failures++;
+    }
+    const norm = detail === 'schematic' ? 0 : PART_NORM[value.role];
     const short = value.role !== 'environment' && value.parts < norm;
     results.push({swept, file: relative(root, file), export: exportName, name: value.name, role: value.role, detail, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});
   }

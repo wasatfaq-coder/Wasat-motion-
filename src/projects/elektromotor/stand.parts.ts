@@ -193,7 +193,7 @@ export const commutatorItems = (theta: number): Item[] => {
   const out: Item[] = [];
   for (const k of [0, 1]) {
     const a0 = theta + 0.08 + k * Math.PI;
-    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-dark'}), bias: 6}); // two halves, two tones: the gaps and the swap read
+    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), k === 0 ? {tone: 'hi'} : {tone: 'hi', className: 'cl-dark'}), bias: 7}); // two halves, two tones: the gaps and the swap read
   }
   out.push({
     at: [AX, AY, z + h / 2],

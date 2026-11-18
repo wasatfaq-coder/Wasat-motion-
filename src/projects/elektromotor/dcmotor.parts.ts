@@ -84,13 +84,16 @@ S.extruded('magnet.S', sector(RI - 1.1, RI, FRONT - Math.PI / 2 + 0.5, FRONT + M
 const RO: {piece: string; move: Point3} = {piece: 'rotor', move: [0, 0, 0]};
 S.turned('shaft.low', [[6, 1], [14, 1]], AXIS, {tone: 'hi', ...sh, ...RO});
 S.turned('shaft.mid', [[14, 1], [40, 1]], AXIS, {tone: 'hi', ...sh, ...RO});
-S.turned('shaft.top', [[40, 1], [ZT + 13]].map((p) => [p[0], p[1] ?? 1]) as number[][], AXIS, {tone: 'hi', ...sh, ...RO});
+S.turned('shaft.top', [[40, 1], [ZT + 13, 1]], AXIS, {tone: 'hi', ...sh, ...RO});
 S.turned('core.hub', [[21, 3.2], [40, 3.2]], AXIS, {tone: 'mid', ...sh, ...RO});
 for (const a of POLE_ANGLES) {
   // a T-shaped pole: a neck and a curved shoe
   const neck = 1.3;
   const t = (r: number, lat: number) => [CX + r * Math.cos(a) - lat * Math.sin(a), CY + r * Math.sin(a) + lat * Math.cos(a)] as [number, number];
-  const pole: Poly = [t(3, -neck), t(8.6, -neck), ...sector(8.6, 12.2, a - 0.62, a + 0.62, 8).slice(0, 9), t(8.6, neck), t(3, neck)].map((p) => p as [number, number]);
+  const A0 = a - 0.62;
+  const A1 = a + 0.62;
+  // the neck from the hub outward, then the shoe: its inner arc is the shoulder, its outer arc faces the magnet
+  const pole: Poly = [t(3, -neck), t(8.6, -neck), polar(8.6, A0), ...sector(8.6, 12.2, A0, A1, 8).slice(0, 9), polar(8.6, A1), t(8.6, neck), t(3, neck)];
   S.extruded(`pole${Math.round((a * 180) / Math.PI)}`, pole, 22, 16, {tone: 'hi', meta: {owner: 'core'}, ...RO});
 }
 S.disc('core.plate.low', 20, 22, 5.2, AXIS, {tone: 'mid', meta: {owner: 'core'}, ...RO});
@@ -100,7 +103,10 @@ POLE_ANGLES.forEach((a, i) => {
   const t = (r: number, lat: number) => [CX + r * Math.cos(a) - lat * Math.sin(a), CY + r * Math.sin(a) + lat * Math.cos(a)] as [number, number];
   for (let k = 0; k < 3; k++) {
     const r0 = 4.3 + k * 1.3;
-    S.extruded(`coil${i}.layer${k}`, [t(r0, -3.6), t(r0 + 1.3, -3.6), t(r0 + 1.3, 3.6), t(r0, 3.6)], 23, 14, {tone: 'hi', lit: i === 0, meta: {owner: `coil${i}`}, ...RO});
+    // the winding passes either side of the neck (a hollow wrap cannot be one solid): two flanks per layer
+    for (const [side, l0, l1] of [['a', -3.6, -1.3], ['b', 1.3, 3.6]] as const) {
+      S.extruded(`coil${i}.layer${k}${side}`, [t(r0, l0), t(r0 + 1.3, l0), t(r0 + 1.3, l1), t(r0, l1)], 23, 14, {tone: 'hi', lit: i === 0, meta: {owner: `coil${i}`}, ...RO});
+    }
   }
 });
 // commutator: an insulating hub and three segments with gaps, under the core

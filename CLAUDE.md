@@ -30,6 +30,7 @@ This repository produces vertical motion-explainer videos (YouTube Shorts) with 
 - After changing a scene, re-check its sfx and run `node scripts/audit.mjs --stamp-sfx`.
 - Master: `node scripts/master.mjs` (render, loudness on the encoded AAC, format checks, cover, report).
 - Before showing frames, covers or video to the user, run the `shorts-quality-gate` agent (§19) and fix every defect it finds; facts go through `fact-checker`.
+- Never merge a PR that adds or changes a video (a render, a demo or a master) until the session merging it has watched the new video itself (contact sheets and `node scripts/review-video.mjs`); green CI alone is not enough. A PR without a video is merged on green CI.
 - Do not reuse illustrations or locations from another topic without the user's consent (§4); shared kits (room, city, board) are building blocks, the scenes are designed anew.
 - Code map: for questions about how the code is wired or what a change in shared code (`src/lib`, `src/components`, `src/theme`) affects, use the `graph-pilot` skill (Graphify, installed by the SessionStart hook; `graphify update .` builds the graph in seconds, only code-only commands, never `graphify install`).
 - The user works from a phone: answer in Russian, keep messages short, send images and videos as files.

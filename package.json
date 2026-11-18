@@ -1,8 +1,11 @@
 {
   "name": "wasat-motion",
   "version": "1.0.0",
-  "description": "My Remotion video",
-  "repository": {},
+  "description": "Вертикальные моушн-эксплейнеры для Shorts на Remotion",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wasatfaq-coder/Wasat-motion-"
+  },
   "license": "UNLICENSED",
   "engines": {
     "node": "^20.19.0 || ^22.13.0 || >=24"
@@ -40,7 +43,8 @@
     "dev": "remotion studio",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
-    "lint": "eslint src && tsc"
+    "lint": "eslint src && tsc",
+    "test": "node scripts/audit.mjs && for d in projects/*/; do [ -d \"$d\" ] || continue; slug=$(basename \"$d\"); echo \"== $slug\"; node scripts/audit.mjs --scenes \"src/projects/$slug/scenes\" --content \"projects/$slug/content\" --timeline \"src/projects/$slug/data/timeline.json\"; done && node scripts/handed-check.mjs && node scripts/selftest-new-topic.mjs"
   },
   "allowScripts": {
     "esbuild": false

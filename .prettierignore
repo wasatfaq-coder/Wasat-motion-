@@ -1,0 +1,7 @@
+# Hand-written geometry and tooling are not auto-formatted: `prettier --write` between a read and an edit made the
+# Edit/Write of the same file fail and lost work during the pilot. The linter (eslint) is the style gate.
+src/projects/**
+src/lib/**
+src/samples/**
+src/components/**
+scripts/**

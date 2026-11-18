@@ -217,6 +217,31 @@ export const commutatorItems = (theta: number): Item[] => {
   return out;
 };
 
+/** Shapes of the parts that turn (loop, leads, commutator) at angle theta, for the dynamic audit in scripts/object-audit.mjs:
+ *  swept through a half turn they must not sink into the static stand (magnets, poles, arch, brushes, bearings). */
+import {A} from '../../lib/assembly';
+export const dynamicShapes = (theta: number): {name: string; shape: unknown}[] => {
+  const d = dirOf(theta);
+  const at = (s: number, z: number): Point3 => [AX + d[0] * s, AY + d[1] * s, z];
+  const bars: [string, Point3, Point3][] = [
+    ['loop.bottom', at(-LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z0)],
+    ['loop.top', at(-LOOP_R, LOOP_Z1), at(LOOP_R, LOOP_Z1)],
+    ['loop.left', at(-LOOP_R, LOOP_Z0), at(-LOOP_R, LOOP_Z1)],
+    ['loop.right', at(LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z1)],
+    ['lead.1', at(3.2, LOOP_Z0), at(4.4, PLATE_TOP + 7.4)],
+    ['lead.2', at(-3.2, LOOP_Z0), at(-4.4, PLATE_TOP + 7.4)],
+  ];
+  const out = bars.map(([name, a, b]) => ({name, shape: A.tube([a, b], [name.startsWith('lead') ? 0.9 : 1.4, name.startsWith('lead') ? 0.9 : 1.4], {name})}));
+  for (const k of [0, 1]) {
+    const a0 = theta + 0.25 + k * Math.PI;
+    const ring: [number, number][] = [];
+    for (let i = 0; i <= 8; i++) ring.push([AX + 5.2 * Math.cos(a0 + (i / 8) * (Math.PI - 0.5)), AY + 5.2 * Math.sin(a0 + (i / 8) * (Math.PI - 0.5))]);
+    for (let i = 8; i >= 0; i--) ring.push([AX + 3.2 * Math.cos(a0 + (i / 8) * (Math.PI - 0.5)), AY + 3.2 * Math.sin(a0 + (i / 8) * (Math.PI - 0.5))]);
+    out.push({name: `commutator.${k}`, shape: A.extruded(ring, PLATE_TOP + 4, 3.4, {name: `commutator.${k}`})});
+  }
+  return out;
+};
+
 export const STAND_CORNERS: Point3[] = [
   [0, 0, 0],
   [90, 0, 0],

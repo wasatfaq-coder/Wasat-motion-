@@ -58,6 +58,9 @@ export const lerpCam = (a: Cam, b: Cam, t: number): Cam => ({
  *  (or of the graphics band height, whichever is tighter). Use it so the main object meets §19.2 (≥ 35–40 %)
  *  without guessing zoom numbers. */
 export const camOn = (points: P3[], fill = 0.55, screen: [number, number] = [540, 720]): Cam => {
+  // root cause of a past miss: a camera built from three points that were not the extremes of the object came out far
+  // too close. Pass the corners of a BOX (boxCorners / camOnBox) or at least every extreme point of the object.
+  if (points.length < 4) throw new Error(`camOn: ${points.length} point(s); pass the corners of a box (boxCorners, camOnBox) so the framing covers the whole object`);
   const xy = points.map((p) => roomPoint(p));
   const xs = xy.map((p) => p[0]);
   const ys = xy.map((p) => p[1]);
@@ -79,3 +82,6 @@ export const screenOf = (cam: Cam, p: P3): [number, number] => {
   const [sx, sy] = cam.screen ?? [540, 760];
   return [sx + cam.zoom * (rx - cam.focus[0]), sy + cam.zoom * (ry - cam.focus[1])];
 };
+
+/** Camera on an axis-aligned box in room units: the safe way to frame an object (all eight corners). */
+export const camOnBox = (min: P3, size: P3, fill = 0.55, screen: [number, number] = [540, 720]): Cam => camOn(boxCorners(min, size), fill, screen);

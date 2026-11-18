@@ -1,4 +1,4 @@
-import {Assembly, G, Point3} from '../../lib/assembly';
+import {A, Assembly, G, Point3} from '../../lib/assembly';
 import {anatomyProjection} from '../../lib/anatomy';
 import KEYS from './dcmotor.parts.keys.json';
 
@@ -141,3 +141,18 @@ DC.applyKeys((KEYS as Record<string, Record<string, number>>).DC);
 export const DC_CORNERS: Point3[] = [
   [10, 0, 0], [80, 0, 0], [10, 60, 0], [80, 60, 0], [CX, CY, ZT + 16], [CX + 20, CY + 20, ZT], [CX - 20, CY - 20, ZT],
 ];
+
+/** Shapes of the turning armature (three pole shoes, three coils, three commutator segments) at angle theta, for the
+ *  dynamic audit in scripts/object-audit.mjs: swept through a half turn they must not sink into the static motor
+ *  (magnets, housing, shields). The brushes press on the commutator by design and are excused by the audit. */
+export const dynamicShapes = (theta: number): {name: string; shape: unknown}[] => {
+  const out: {name: string; shape: unknown}[] = [];
+  POLE_ANGLES.forEach((a0, i) => {
+    const a = a0 + theta;
+    const ring = (r0: number, r1: number, w: number): Poly => sector(r0, r1, a - w, a + w, 8);
+    out.push({name: `shoe${i}`, shape: A.extruded(ring(8.6, 12.2, 0.62), 22, 16, {name: `shoe${i}`})});
+    out.push({name: `coil${i}`, shape: A.extruded(ring(4.3, 8.2, 0.4), 23, 14, {name: `coil${i}`})});
+    out.push({name: `seg${i}`, shape: A.extruded(ring(2.6, 4.2, 0.95), 12, 7, {name: `seg${i}`})});
+  });
+  return out;
+};

@@ -4,7 +4,12 @@
 // on-screen text, timeline, sound map and its freshness.
 //
 // Usage (root topic):  node scripts/audit.mjs
+//   The root topic («время»: src/scenes, src/illustrations, src/Main.tsx, src/Cover.tsx, content/) plus every
+//   other file under src/. This run must stay as strict as before.
 // Usage (new topic):   node scripts/audit.mjs --scenes src/projects/<slug>/scenes --content projects/<slug>/content --timeline src/projects/<slug>/data/timeline.json
+//   That topic only (src/projects/<slug>/, projects/<slug>/content/, and public/<slug>/ via its sound map)
+//   plus the shared core every topic is built on (src/lib, src/components, src/theme, src/samples, src/Root.tsx,
+//   src/index.ts). Not the root topic and not other topics (§13: one topic = one folder).
 // Mark the sound map as reviewed after re-syncing it: node scripts/audit.mjs --stamp-sfx
 // Exit code 1 if any ERROR. Run before the quality gate and before every commit of visual work.
 import {execSync} from 'node:child_process';
@@ -24,6 +29,14 @@ const stampSfx = process.argv.includes('--stamp-sfx');
 const out = {error: [], warn: [], ok: []};
 const add = (lvl, msg) => out[lvl].push(msg);
 const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
+const q = (s) => JSON.stringify(s);
+const under = (file, dir) => file === dir || file.startsWith(dir + path.sep);
+// A topic run is recognised by its scenes living in src/projects/<slug>/scenes (the same signal object-audit uses).
+const topicDir =
+  scenesDir.includes(`${path.sep}projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
+// Shared core checked together with every topic. The root topic and other topics are not part of it.
+const SHARED_DIRS = ['src/lib', 'src/components', 'src/theme', 'src/samples'];
+const SHARED_FILES = ['src/Root.tsx', 'src/index.ts'];
 const run = (name, cmd) => {
   try {
     execSync(cmd, {stdio: 'pipe'});
@@ -31,6 +44,37 @@ const run = (name, cmd) => {
   } catch (e) {
     add('error', `${name}: ${String(e.stdout || '') + String(e.stderr || '')}`.trim().slice(0, 800));
   }
+};
+// tsc is one program (tsconfig include: src). A topic run still typechecks that program, then reports only
+// diagnostics in this topic, the shared core, or src/vendor. Diagnostics of another topic are left to that
+// topic's audit and to the root run, which keeps the unfiltered tsc. An unparsed failure is never dropped.
+const relOf = (file) => (path.isAbsolute(file) ? path.relative(process.cwd(), file) : path.normalize(file));
+const inTscScope = (file) => {
+  const rel = relOf(file);
+  if (under(rel, path.join('src', 'vendor'))) return true;
+  if (topicDir && under(rel, topicDir)) return true;
+  if (SHARED_DIRS.some((d) => under(rel, d))) return true;
+  return SHARED_FILES.includes(rel);
+};
+const runTsc = () => {
+  if (!topicDir) return run('tsc', 'npx tsc --noEmit');
+  let text = '';
+  try {
+    execSync('npx tsc --noEmit --pretty false', {stdio: 'pipe', encoding: 'utf8'});
+    return add('ok', 'tsc');
+  } catch (e) {
+    text = String(e.stdout || '') + String(e.stderr || '');
+  }
+  const kept = [];
+  let located = 0;
+  for (const line of text.split('\n')) {
+    const m = /^(.+?)\(\d+,\d+\):/.exec(line);
+    if (!m) continue;
+    located++;
+    if (inTscScope(m[1])) kept.push(line);
+  }
+  if (!located || kept.length) add('error', `tsc: ${(kept.length ? kept.join('\n') : text).trim().slice(0, 800)}`);
+  else add('ok', 'tsc');
 };
 
 /** run(), but skipped when the inputs are unchanged since the last pass (slow geometry checks; CI has no cache) */
@@ -41,14 +85,17 @@ const runCached = (name, cmd, inputs) => {
   if (out.error.length === before) markPassed(name, inputs);
 };
 
-// 1) types, lint (warnings are errors too), captions
-run('tsc', 'npx tsc --noEmit');
-run('eslint', 'npx eslint src --max-warnings 0');
-run('captions', 'node scripts/check-text.mjs');
+// 1) types, lint (warnings are errors too), captions of THIS topic's timeline
+runTsc();
+const eslintRoots = topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES].filter((r) => fs.existsSync(r)) : ['src'];
+run('eslint', `npx eslint ${eslintRoots.map(q).join(' ')} --max-warnings 0`);
+run('captions', `node scripts/check-text.mjs --timeline ${q(timelineFile)}`);
 
-// 2) palette: only theme tokens in components; no second (pink) accent
+// 2) palette: only theme tokens in components; no second (pink) accent.
+// A topic run reads its own code and the shared core, not src/scenes or src/illustrations of «время».
 const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
-const srcFiles = walk('src').filter((f) => /\.tsx?$/.test(f) && !f.includes(`${path.sep}vendor${path.sep}`)); // vendored code keeps its defaults; our theme overrides them
+const walkRoots = (roots) => roots.filter((r) => fs.existsSync(r)).flatMap((r) => (fs.statSync(r).isDirectory() ? walk(r) : [r]));
+const srcFiles = walkRoots(topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES] : ['src']).filter((f) => /\.tsx?$/.test(f) && !f.includes(`${path.sep}vendor${path.sep}`)); // vendored code keeps its defaults; our theme overrides them
 for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`))) {
   fs.readFileSync(f, 'utf8').split('\n').forEach((l, i) => {
     if (/^\s*(\/\/|\*)/.test(l)) return;
@@ -68,15 +115,14 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
 // order, stand-in shapes) and the §22.2 part count. A topic run audits its own src/projects/<slug>/; the root run
 // audits the rest of src/.
 {
-  const topicDir = scenesDir.includes(`projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
-  const parts = srcFiles.filter((f) => f.endsWith('.parts.ts') && (topicDir ? f.startsWith(topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
+  const parts = srcFiles.filter((f) => f.endsWith('.parts.ts') && (topicDir ? under(f, topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
   if (parts.length) runCached(`object-audit (${parts.length} file${parts.length === 1 ? '' : 's'})`, `node scripts/object-audit.mjs --quiet ${parts.map((f) => JSON.stringify(f)).join(' ')}`, [...parts, ...parts.map((f) => f.replace(/\.ts$/, '.keys.json')), 'src/lib/assembly.ts', 'src/lib/anatomy.tsx', 'src/vendor/anatomy', 'scripts/object-audit.mjs']);
 }
 
-// 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques
+// 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques.
+// A topic run checks its own covers.ts; the root run checks covers outside src/projects (the style samples).
 {
-  const topicDir = scenesDir.includes(`projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
-  const covers = srcFiles.filter((f) => path.basename(f) === 'covers.ts' && (topicDir ? f.startsWith(topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
+  const covers = srcFiles.filter((f) => path.basename(f) === 'covers.ts' && (topicDir ? under(f, topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
   if (covers.length) {
     run(`cover-check (${covers.length})`, `node scripts/cover-check.mjs --quiet ${covers.map((f) => JSON.stringify(f)).join(' ')}`);
     try {
@@ -91,9 +137,10 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
 // 2c) character rig (§22): no foot sliding, rigid bones, IK reaches, ≥ 40 parts per outfit
 runCached('rig-check', 'node scripts/rig-check.mjs --quiet', ['src/lib/rig.ts', 'src/lib/character.ts', 'src/lib/anatomy.tsx', 'src/vendor/anatomy', 'scripts/rig-check.mjs']);
 
-// 3b) house style for new topics (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits
+// 3b) house style for new topics (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits.
+// Root run: every topic (so a kit misuse is still caught). Topic run: that topic only.
 const OLD_KITS = /from ['"][./]*illustrations\/(Room|CityKit|Interiors|Archive|CardCatalog|primitives|Props|MemoryCards|Board)['"]/;
-for (const f of srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && f.endsWith('.tsx'))) {
+for (const f of srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && f.endsWith('.tsx') && (!topicDir || under(f, topicDir)))) {
   const src = fs.readFileSync(f, 'utf8');
   if (OLD_KITS.test(src)) add('error', `style: ${f} uses an old line-art kit; new topics are drawn with the Anatomy core via src/lib/anatomy.tsx (§22)`);
   if (/flow:\s*true|pulse:\s*true/.test(src)) add('error', `determinism: ${f} uses the kit's CSS animation (flow/pulse); animate from the frame number instead (§12, §22)`);
@@ -187,7 +234,8 @@ if (!fs.existsSync(regFile)) {
   });
 }
 
-// 7) sound map: files exist, beats exist, events inside their scene, reviewed after the last scene change
+// 7) sound map of this topic: files exist (public/<slug>/ for its voice, public/audio for shared sfx), beats exist,
+// events inside their scene, reviewed after the last scene change
 const smFile = path.join(contentDir, 'sound-map.json');
 const hashOf = (id) => {
   const f = sceneFileOf(id);

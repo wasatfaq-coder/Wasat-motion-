@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Self-test of the topic scaffold (root cause of a past miss: scripts/new-topic.mjs lagged behind the cover and
 // style rules, so a fresh topic did not even compile). Creates a throw-away topic, then checks that it type-checks,
-// lints, passes its own audit and cover-check with ERRORS = 0 (placeholders are warnings), and removes it again.
+// lints, passes its own audit and cover-check with ERRORS = 0 (placeholders are warnings), does not report files
+// of the root topic, and removes it again.
 import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 
@@ -15,7 +16,10 @@ try {
   sh('npx', ['tsc', '--noEmit']);
   sh('npx', ['eslint', 'src', '--max-warnings', '0']);
   sh('node', ['scripts/cover-check.mjs', '--quiet', `src/projects/${slug}/covers.ts`]);
-  sh('node', ['scripts/audit.mjs', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`]);
+  const auditOut = sh('node', ['scripts/audit.mjs', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`]);
+  if (/(?:^|\s)src\/(?:scenes|illustrations)\//.test(auditOut) || /(?:^|\s)src\/(?:Main|Cover)\.tsx/.test(auditOut)) {
+    throw new Error(`topic audit reported files of the root topic:\n${auditOut}`);
+  }
   if (!fs.readFileSync('src/Root.tsx', 'utf8').includes(`id="${pascal}Cover"`)) throw new Error('the scaffold did not register the cover composition');
 } catch (e) {
   failed = String(e.stdout || '') + String(e.stderr || '') + String(e.message || '');

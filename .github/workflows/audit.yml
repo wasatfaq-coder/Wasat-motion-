@@ -17,6 +17,7 @@ jobs:
       - run: node scripts/audit.mjs
       - name: audit every topic in projects/
         run: |
+          # audit.mjs scopes a topic run to that topic plus the shared core (not the root topic)
           for d in projects/*/; do
             [ -d "$d" ] || continue
             slug=$(basename "$d")

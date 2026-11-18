@@ -10,7 +10,7 @@ the timeline JSON (scene durations, beats, sfx), the content folder's sound-map.
 Judge size, detail, faces, labels and colour on the KEY FRAMES, never on the 2 fps tiles (tiles are 270 px wide: details vanish there).
 Physics (anticipation, squash, bounce) is judged only on per-frame strips; without strips mark it НЕ ПРОВЕРЕНО.
 
-Always read src/data/timeline.json and content/sound-map.json yourself, even if the caller did not pass them.
+Always read the topic's timeline (`src/projects/<slug>/data/timeline.json`) and sound map (`projects/<slug>/content/sound-map.json`) yourself, even if the caller did not pass them.
 If contact sheets are not 2 fps or a scene in scope has no frames, mark pacing/physics items "НЕ ПРОВЕРЕНО" (never PASS) and say what is missing.
 
 0. Static audit: the caller must pass the output of `node scripts/audit.mjs` (types, lint, palette, frontal scenes,

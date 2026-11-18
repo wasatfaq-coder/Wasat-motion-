@@ -12,7 +12,7 @@ import {coverLayout, CoverSpec} from '../lib/coverLayout';
 // zone, a 2–4 word title in bold Rubik with one coral word, nothing in the bottom and the right button column.
 // A topic keeps its three variants in src/projects/<slug>/covers.ts (checked by scripts/cover-check.mjs).
 
-/** Covers are seen as thumbnails: contours keep 7 px and inner lines 4.5 px at any zoom (like the «время» cover). */
+/** Covers are seen as thumbnails: contours keep 7 px and inner lines 4.5 px at any zoom. */
 const COVER_CSS = `.iso .cover .iso-line{stroke-width:4.5px}.iso .cover .iso-line.iso-edge{stroke-width:7px;stroke:var(--anatomy-hi)}.iso .cover .tb path{vector-effect:non-scaling-stroke}
 .iso .cover .cover-sign .iso-line{stroke-width:12px;stroke:var(--anatomy-hi);stroke-linecap:round}.iso .cover .cover-sign .iso-solid .iso-line.iso-edge{stroke-width:7px}`;
 /** Room-unit projection for the floor (1 kit unit = 1 room unit). */

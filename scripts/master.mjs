@@ -2,7 +2,7 @@
 // Master pipeline (MASTER_PROMPT_FINAL §14, §16): render video and audio, two-pass loudnorm to −14 LUFS with a
 // true-peak check on the ENCODED AAC (retries with more headroom), format checks, faststart, cover, JSON report.
 //
-//   node scripts/master.mjs                                   # root topic: Main + Cover, src/data/timeline.json
+//   node scripts/master.mjs --comp <Slug>Main --timeline src/projects/<slug>/data/timeline.json --out out/<slug>
 //   node scripts/master.mjs --comp <Slug>Main --cover <Slug>Cover --timeline src/projects/<slug>/data/timeline.json --out out/<slug>
 //   node scripts/master.mjs --skip-render                     # reuse out/master_video.mp4 and out/master_audio.wav
 //
@@ -16,10 +16,14 @@ const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : def;
 };
-const COMP = arg('comp', 'Main');
+const COMP = arg('comp', '');
+const TIMELINE = arg('timeline', '');
+if (!COMP || !TIMELINE) {
+  console.error('usage: node scripts/master.mjs --comp <Slug>Main --timeline <timeline.json> [--cover <Slug>Cover] [--out out/<slug>]');
+  process.exit(1);
+}
 // a topic's cover is <Slug>Cover next to <Slug>Main; its variant is the one the user chose (projects/<slug>/content/cover.json)
-const COVER = arg('cover', COMP === 'Main' ? 'Cover' : COMP.replace(/Main$/, 'Cover'));
-const TIMELINE = arg('timeline', 'src/data/timeline.json');
+const COVER = arg('cover', COMP.replace(/Main$/, 'Cover'));
 const topicSlug = (TIMELINE.match(/src\/projects\/([^/]+)\//) ?? [])[1];
 const coverFile = topicSlug ? path.join('projects', topicSlug, 'content', 'cover.json') : null;
 const coverChoice = coverFile && fs.existsSync(coverFile) ? JSON.parse(fs.readFileSync(coverFile, 'utf8')) : null;

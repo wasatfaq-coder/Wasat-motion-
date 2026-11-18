@@ -109,7 +109,9 @@ if (!r.includes(marker)) throw new Error('Root.tsx marker not found');
 let imports = `import {${pascal}Main, ${pascal}Selected} from './projects/${slug}/Main';\nimport {${pascal}Cover} from './projects/${slug}/Cover';`;
 if (!/import \{episodeSchema\} from '\.\/components\/Episode';/.test(r)) imports += "\nimport {episodeSchema} from './components/Episode';";
 if (!/import \{anatomyCoverSchema\} from '\.\/components\/AnatomyCover';/.test(r)) imports += "\nimport {anatomyCoverSchema} from './components/AnatomyCover';";
-r = r.replace("import {Cover, coverSchema} from './Cover';", `import {Cover, coverSchema} from './Cover';\n${imports}`);
+const importAnchor = '/* new-topic: imports */';
+if (!r.includes(importAnchor)) throw new Error('Root.tsx import anchor not found');
+r = r.replace(importAnchor, `${importAnchor}\n${imports}`);
 r = r.replace(marker, `  <Composition
     id="${pascal}Main"
     component={${pascal}Main}

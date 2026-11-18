@@ -1,4 +1,4 @@
-// Shared camera for every topic (moved from src/scenes/RoomScene.tsx): room projection, RoomSvg, camOn, lerpCam.
+// Shared camera for every topic: room projection, RoomSvg, camOn, lerpCam.
 import React from 'react';
 import {COLORS} from '../theme/tokens';
 import {iso, P3} from './iso';

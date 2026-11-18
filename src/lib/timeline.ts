@@ -1,5 +1,3 @@
-import timelineJson from '../data/timeline.json';
-
 export type Word = {text: string; startFrame: number; endFrame: number; status: string};
 export type Page = {text: string; startFrame: number; endFrame: number; words: Word[]};
 export type Beat = {id: string; word: string; frame: number | null; status: string};
@@ -17,14 +15,6 @@ export type SceneData = {
   sfx: SfxEvent[];
 };
 export type Timeline = {fps: number; totalFrames: number; scenes: SceneData[]};
-
-export const TIMELINE = timelineJson as Timeline;
-
-export const sceneById = (id: string) => {
-  const s = TIMELINE.scenes.find((x) => x.id === id);
-  if (!s) throw new Error(`Scene ${id} not in timeline`);
-  return s;
-};
 
 /** Local frame of a named beat; throws if the beat is missing so errors are not silent. */
 export const beat = (scene: SceneData, id: string) => {

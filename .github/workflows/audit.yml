@@ -1,5 +1,5 @@
-# Static checks on every push and PR (no rendering): types, lint, captions, palette, projection,
-# visual register (locations, metaphors, data accuracy), timeline and sound map. MASTER_PROMPT_FINAL §12, §20.
+# Static checks on every push and PR (no rendering): the shared core, then every topic in projects/.
+# MASTER_PROMPT_FINAL §12, §20.
 name: audit
 on:
   push:
@@ -14,10 +14,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: node scripts/audit.mjs
+      - name: audit the shared core
+        run: node scripts/audit.mjs
       - name: audit every topic in projects/
         run: |
-          # audit.mjs scopes a topic run to that topic plus the shared core (not the root topic)
+          # audit.mjs scopes a topic run to that topic plus the shared core (not other topics)
           for d in projects/*/; do
             [ -d "$d" ] || continue
             slug=$(basename "$d")

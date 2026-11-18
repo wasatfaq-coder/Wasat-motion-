@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Every frame of a range as one strip (MASTER_PROMPT_FINAL §6 ±3 frames, §15 motion): anchors, landings,
 // squash/bounce, cuts. 2 fps sheets cannot show these.
-//   node scripts/frame-strip.mjs <fromFrame> <toFrame> [out.png] [--comp Main] [--scale 0.3] [--cols 10]
+//   node scripts/frame-strip.mjs <fromFrame> <toFrame> [out.png] --comp <Slug>Main [--scale 0.3] [--cols 10]
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -16,7 +16,7 @@ const arg = (name, def) => {
 const [fromArg, toArg, outArg] = process.argv.slice(2).filter((a, i, all) => !a.startsWith('--') && !(all[i - 1] ?? '').startsWith('--'));
 const from = Number(fromArg);
 const to = Number(toArg);
-if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) throw new Error('usage: frame-strip.mjs <from> <to> [out.png]');
+if (!Number.isFinite(from) || !Number.isFinite(to) || to < from || !arg('comp', '')) throw new Error('usage: frame-strip.mjs <from> <to> [out.png] --comp <Slug>Main');
 if (to - from > 180) throw new Error('range too long: use ≤ 180 frames (3 s) per strip');
 const out = outArg ?? `out/strips/strip-${from}-${to}.png`;
 const scale = Number(arg('scale', '0.3'));
@@ -26,7 +26,7 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'strip-'));
 const shell = '/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell';
 const browserExecutable = fs.existsSync(shell) ? shell : null;
 const serveUrl = await bundle({entryPoint: path.resolve('src/index.ts')});
-const comp = await selectComposition({serveUrl, id: arg('comp', 'Main'), browserExecutable});
+const comp = await selectComposition({serveUrl, id: arg('comp', ''), browserExecutable});
 const files = [];
 for (let f = from; f <= to; f++) {
   const file = path.join(tmp, `f${String(f).padStart(5, '0')}.png`);

@@ -21,8 +21,8 @@ description: Отвечает на вопросы о коде Wasat-motion по 
   `export PATH="$HOME/.local/bin:$PATH"`).
 - Граф — `graphify-out/` в корне репозитория (в `.gitignore`, в коммит не попадает; в новой сессии его нет —
   строится за ~3 с). Главное: `graph.json`, `GRAPH_REPORT.md` (обзор: сообщества, главные узлы), `graph.html`.
-- В граф входит код: `src/` (сцены, `src/lib` — anatomy, assembly, rig, character, physics, camera;
-  `src/components`, `src/theme`, `src/illustrations`, `src/projects/<slug>/`) и `scripts/` (audit, master,
+- В граф входит код: `src/` (`src/lib` — anatomy, assembly, rig, character, physics, camera;
+  `src/components`, `src/theme`, `src/samples`, `src/projects/<slug>/`) и `scripts/` (audit, master,
   contact-sheet, object-audit, rig-check…). **Не входят** (`.graphifyignore`): `*.md` (в т. ч.
   `MASTER_PROMPT_FINAL.md`, `CLAUDE.md`), `content/`, `projects/` (контент тем), `public/`, `docs/`, `.claude/`,
   `.agents/`. Правила, сценарии, раскадровки и решения читай напрямую.
@@ -65,7 +65,7 @@ description: Отвечает на вопросы о коде Wasat-motion по 
 - Граф — карта, а не ответ: по ней открой 2–4 файла, на которые она указала, и отвечай по ним, со ссылками
   `файл:строка`.
 - Перед правкой общего кода (`src/lib`, `src/components`, `src/theme`) полезен `affected`: он покажет, какие
-  сцены и скрипты всех тем это задевает (в т. ч. законченную тему «время»).
+  сцены и скрипты тем это задевает.
 
 ## Гарды (до запуска команды)
 

@@ -3,7 +3,12 @@
 import fs from 'node:fs';
 
 const ti = process.argv.indexOf('--timeline');
-const tl = JSON.parse(fs.readFileSync(ti > 0 ? process.argv[ti + 1] : 'src/data/timeline.json', 'utf8'));
+const timelinePath = ti > 0 ? process.argv[ti + 1] : '';
+if (!timelinePath || !fs.existsSync(timelinePath)) {
+  console.error('usage: node scripts/check-text.mjs --timeline <timeline.json>');
+  process.exit(1);
+}
+const tl = JSON.parse(fs.readFileSync(timelinePath, 'utf8'));
 const FPS = tl.fps;
 const HANGING = new Set(['в', 'во', 'на', 'с', 'со', 'к', 'ко', 'и', 'а', 'но', 'о', 'об', 'у', 'от', 'до', 'по', 'за', 'из', 'не', 'как', 'что', 'про', 'для', 'при', 'мы', 'и,']);
 const MAX_LINE = 24; // chars per caption line

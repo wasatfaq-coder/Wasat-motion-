@@ -1,8 +1,7 @@
 import React from 'react';
 import {Composition} from 'remotion';
 import {FORMAT} from './theme/format';
-import {Main, mainSchema, MainProps, selectedScenes} from './Main';
-import {Cover, coverSchema} from './Cover';
+/* new-topic: imports */
 import {ElektromotorMain, ElektromotorSelected} from './projects/elektromotor/Main';
 import {ElektromotorCover} from './projects/elektromotor/Cover';
 import {episodeSchema} from './components/Episode';
@@ -15,19 +14,6 @@ import {ElektromotorStand} from './projects/elektromotor/StandFrames';
 
 export const RemotionRoot: React.FC = () => (
   <>
-  <Composition
-    id="Main"
-    component={Main}
-    schema={mainSchema}
-    width={FORMAT.width}
-    height={FORMAT.height}
-    fps={FORMAT.fps}
-    durationInFrames={1}
-    defaultProps={{muteVoice: false, hideCaptions: false, onlyScenes: []} as MainProps}
-    calculateMetadata={({props}) => ({
-      durationInFrames: selectedScenes(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0),
-    })}
-  />
   {/* style sample for new topics (MASTER_PROMPT_FINAL §22) */}
   <Composition id="AnatomyStyle" component={AnatomyStyleSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={240} />
   <Composition id="AnatomyKit" component={AnatomyKitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={240} />
@@ -49,6 +35,5 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="ElektromotorCover" component={ElektromotorCover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   <Composition id="ElektromotorStand" component={ElektromotorStand} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={4} />
   {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}
-  <Composition id="Cover" component={Cover} schema={coverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   </>
 );

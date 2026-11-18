@@ -3,13 +3,13 @@
 // types, lint, captions, palette, projection, visual register (locations, metaphors, data accuracy),
 // on-screen text, timeline, sound map and its freshness.
 //
-// Usage (root topic):  node scripts/audit.mjs
-//   The root topic («время»: src/scenes, src/illustrations, src/Main.tsx, src/Cover.tsx, content/) plus every
-//   other file under src/. This run must stay as strict as before.
-// Usage (new topic):   node scripts/audit.mjs --scenes src/projects/<slug>/scenes --content projects/<slug>/content --timeline src/projects/<slug>/data/timeline.json
+// Usage (shared core): node scripts/audit.mjs
+//   No topic. Types, lint, palette, sample parts and covers, the rig, and the house-style check of every
+//   topic under src/projects/. There is no root topic.
+// Usage (one topic):   node scripts/audit.mjs --scenes src/projects/<slug>/scenes --content projects/<slug>/content --timeline src/projects/<slug>/data/timeline.json
 //   That topic only (src/projects/<slug>/, projects/<slug>/content/, and public/<slug>/ via its sound map)
 //   plus the shared core every topic is built on (src/lib, src/components, src/theme, src/samples, src/Root.tsx,
-//   src/index.ts). Not the root topic and not other topics (§13: one topic = one folder).
+//   src/index.ts). Not other topics (§13: one topic = one folder).
 // Mark the sound map as reviewed after re-syncing it: node scripts/audit.mjs --stamp-sfx
 // Exit code 1 if any ERROR. Run before the quality gate and before every commit of visual work.
 import {execSync} from 'node:child_process';
@@ -22,10 +22,20 @@ const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : def;
 };
-const scenesDir = arg('scenes', 'src/scenes');
-const contentDir = arg('content', 'content');
-const timelineFile = arg('timeline', 'src/data/timeline.json');
+const explicitTopic = process.argv.includes('--scenes') || process.argv.includes('--content') || process.argv.includes('--timeline');
+// A run without flags checks the shared core. A topic run names its own scenes, content and timeline.
+const scenesDir = arg('scenes', '');
+const contentDir = arg('content', '');
+const timelineFile = arg('timeline', '');
 const stampSfx = process.argv.includes('--stamp-sfx');
+if (explicitTopic && (!scenesDir || !contentDir || !timelineFile)) {
+  console.error('audit: a topic run needs --scenes, --content and --timeline');
+  process.exit(1);
+}
+if (stampSfx && !explicitTopic) {
+  console.error('audit: --stamp-sfx needs --scenes, --content and --timeline of a topic');
+  process.exit(1);
+}
 const out = {error: [], warn: [], ok: []};
 const add = (lvl, msg) => out[lvl].push(msg);
 const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -34,7 +44,7 @@ const under = (file, dir) => file === dir || file.startsWith(dir + path.sep);
 // A topic run is recognised by its scenes living in src/projects/<slug>/scenes (the same signal object-audit uses).
 const topicDir =
   scenesDir.includes(`${path.sep}projects${path.sep}`) || scenesDir.includes('projects/') ? path.dirname(scenesDir) : null;
-// Shared core checked together with every topic. The root topic and other topics are not part of it.
+// Shared core checked together with every topic. Other topics are not part of it.
 const SHARED_DIRS = ['src/lib', 'src/components', 'src/theme', 'src/samples'];
 const SHARED_FILES = ['src/Root.tsx', 'src/index.ts'];
 const run = (name, cmd) => {
@@ -89,10 +99,10 @@ const runCached = (name, cmd, inputs) => {
 runTsc();
 const eslintRoots = topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES].filter((r) => fs.existsSync(r)) : ['src'];
 run('eslint', `npx eslint ${eslintRoots.map(q).join(' ')} --max-warnings 0`);
-run('captions', `node scripts/check-text.mjs --timeline ${q(timelineFile)}`);
+if (timelineFile) run('captions', `node scripts/check-text.mjs --timeline ${q(timelineFile)}`);
 
 // 2) palette: only theme tokens in components; no second (pink) accent.
-// A topic run reads its own code and the shared core, not src/scenes or src/illustrations of «время».
+// A topic run reads its own code and the shared core. A run without flags reads every file still under src/.
 const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
 const walkRoots = (roots) => roots.filter((r) => fs.existsSync(r)).flatMap((r) => (fs.statSync(r).isDirectory() ? walk(r) : [r]));
 const srcFiles = walkRoots(topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES] : ['src']).filter((f) => /\.tsx?$/.test(f) && !f.includes(`${path.sep}vendor${path.sep}`)); // vendored code keeps its defaults; our theme overrides them
@@ -105,7 +115,7 @@ for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`
 }
 
 // 3) on-screen text: everything except captions, the preview title and labelled plates must be reviewed (§19.1)
-const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal)\.tsx|Cover\.tsx)$/;
+const TEXT_OK = /(components[\\/](Captions|Frontal)\.tsx|Cover\.tsx)$/;
 for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) {
   const n = (fs.readFileSync(f, 'utf8').match(/<text\b/g) ?? []).length;
   if (n) add('warn', `text in frame: ${f} draws ${n} <text> node(s); allowed only as labels on frontal plates or data values (§19.1, §20.4)`);
@@ -137,8 +147,8 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
 // 2c) character rig (§22): no foot sliding, rigid bones, IK reaches, ≥ 40 parts per outfit
 runCached('rig-check', 'node scripts/rig-check.mjs --quiet', ['src/lib/rig.ts', 'src/lib/character.ts', 'src/lib/anatomy.tsx', 'src/vendor/anatomy', 'scripts/rig-check.mjs']);
 
-// 3b) house style for new topics (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits.
-// Root run: every topic (so a kit misuse is still caught). Topic run: that topic only.
+// 3b) house style (§22): scenes under src/projects/ use the Anatomy core, not the old line-art kits.
+// A run without flags checks every topic. A topic run checks that topic only.
 const OLD_KITS = /from ['"][./]*illustrations\/(Room|CityKit|Interiors|Archive|CardCatalog|primitives|Props|MemoryCards|Board)['"]/;
 for (const f of srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && f.endsWith('.tsx') && (!topicDir || under(f, topicDir)))) {
   const src = fs.readFileSync(f, 'utf8');
@@ -147,8 +157,10 @@ for (const f of srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep
   if (/scenes[\\/]Scene\d+/.test(f) && !/lib\/anatomy['"]/.test(src)) add('warn', `style: ${f} does not use src/lib/anatomy.tsx (AnatomyStage, anatomyProjection) (§22)`);
 }
 
+// 4–7) this topic's scenes, timeline, register and sound map. Skipped when the run has no topic flags.
+const sceneFiles = scenesDir && fs.existsSync(scenesDir) ? fs.readdirSync(scenesDir).filter((f) => /^Scene\d+.*\.tsx$/.test(f)).sort() : [];
+if (scenesDir && timelineFile && contentDir) {
 // 4) projection per scene (§19.7)
-const sceneFiles = fs.readdirSync(scenesDir).filter((f) => /^Scene\d+.*\.tsx$/.test(f)).sort();
 const sceneFileOf = (id) => sceneFiles.find((f) => f.startsWith(`Scene${id.replace('scene-', '')}`));
 for (const f of sceneFiles) {
   if (/<FrontalSvg\b|<Cam2D\b/.test(fs.readFileSync(path.join(scenesDir, f), 'utf8'))) add('error', `projection: ${f} is a flat frontal scene; convert to isometry (§19.7)`);
@@ -259,6 +271,7 @@ if (fs.existsSync(smFile)) {
     add('ok', 'sound map stamped as reviewed');
   }
 } else add('warn', `sound: ${smFile} not found`);
+}
 
 for (const lvl of ['error', 'warn']) for (const m of out[lvl]) console.log(`${lvl.toUpperCase()} ${m}`);
 console.log(`\n${out.error.length} errors, ${out.warn.length} warnings, ${out.ok.length} ok`);

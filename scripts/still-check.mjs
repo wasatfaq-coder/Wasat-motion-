@@ -5,7 +5,9 @@
 //   band      content cut by the graphics band's fade (rows 240–290 and 1160–1215): no bright content there
 //   empty     the share of the working band that holds nothing (a lost, tiny object)
 //   coral     coral area share of the band (the one meaning must be visible)
-//   text      text plates are not measured here: Plate glyph sizes are checked in Frontal.tsx (≥ 64 px)
+//   text      type size is not measured here. Floors live in the components: captions TYPE.caption (rule 64–72 px,
+//             §19.1), plate labels TYPE.label (rule 40–56 px, §5), chart figures TYPE_FLOOR.figure (32 px) and
+//             auxiliary axis labels at least TYPE_FLOOR.auxiliary (26 px) in Frontal.tsx.
 // Spec: projects/<slug>/content/stills.json  {"comp": "...", "frames": [0, 1], "coral": true, "heroMinWidth": 0.3}
 //   node scripts/still-check.mjs projects/<slug>/content/stills.json [--keep <dir>]
 // Exit code 1 on any ERROR; WARN lines are advice.

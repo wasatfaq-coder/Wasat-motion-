@@ -386,8 +386,12 @@ export class Assembly {
 
   /** svg() for a frame where moving parts fade in or out. A part split into pieces (dynTube) must not fade piece by
    *  piece: the pieces overlap at their joints, and two half-transparent pieces over each other read as dark spots.
-   *  Parts that share one opacity form a layer: the picture with that layer at full strength is drawn over the
-   *  picture without it, at the layer's opacity. Depth order inside each picture stays the ray-tested one.
+   *  Parts that share one opacity form a layer. Layers are sorted from the most to the least opaque; picture k holds
+   *  the solid parts and layers 1..k at full strength and is drawn over the rest at alpha a_k (layerAlphas), so a part
+   *  of layer j ends at exactly its opacity o_j = 1 − Π_{k≥j}(1 − a_k). Root cause (docs/root-causes.md): each layer
+   *  used to be drawn as a picture of ONLY its own parts at its own opacity, so every later picture repainted the
+   *  object over the earlier layers' parts and washed them out (the burner flames vanished). Depth order inside each
+   *  picture stays the ray-tested one.
    *  Parts without shapes (field lines, annotations) keep their own opacity in the base picture. */
   svgFaded(extra: Extra[], shares: Record<string, number> = {}, opts: {hide?: (name: string) => boolean} = {}) {
     const solid = (e: Extra) => (e.shapes?.length ?? 0) > 0;
@@ -399,8 +403,13 @@ export class Assembly {
         layers.set(k, [...(layers.get(k) ?? []), {...e, opacity: undefined}]);
       }
     let svg = this.paintPlan(shares, {...opts, extra: full}).svg;
-    const solidFull = full.filter(solid);
-    for (const [o, group] of [...layers].sort((a, b) => b[0] - a[0])) svg += `<g opacity="${o.toFixed(3)}">${this.paintPlan(shares, {...opts, extra: [...solidFull, ...group]}).svg}</g>`;
+    const sorted = [...layers].sort((a, b) => b[0] - a[0]);
+    const alphas = layerAlphas(sorted.map(([o]) => o));
+    const inPicture = [...full.filter(solid)];
+    sorted.forEach(([, group], k) => {
+      inPicture.push(...group);
+      if (alphas[k] > 0.0005) svg += `<g opacity="${alphas[k].toFixed(4)}">${this.paintPlan(shares, {...opts, extra: [...inPicture]}).svg}</g>`;
+    });
     return svg;
   }
 
@@ -432,6 +441,10 @@ export class Assembly {
 
 /** A part drawn outside the static assembly (rebuilt every frame) and passed to Assembly.svg({}, {extra}).
  *  With `shapes` it is ordered by the true 3D geometry (src/lib/depth.ts); without, by one depth key at `at`. */
+/** Alphas for nested fade pictures: opacities sorted from high to low → the alpha of each picture so a part first
+ *  shown in picture j ends at its own opacity (1 − Π_{k≥j}(1 − a_k) = o_j). */
+export const layerAlphas = (o: number[]): number[] => o.map((oj, j) => (j === o.length - 1 ? oj : 1 - (1 - oj) / (1 - o[j + 1])));
+
 export type Extra = {at: Point3; svg: string; bias?: number; name?: string; shapes?: unknown[]; opacity?: number; annotation?: boolean};
 /** A moving part with its shapes: what the depth order and scripts/motion-check.mjs need. A part with no shapes must
  *  say `annotation: true` (a field line, a marker): motion-check refuses a solid it cannot order. */

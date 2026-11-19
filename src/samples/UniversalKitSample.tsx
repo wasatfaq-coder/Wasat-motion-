@@ -67,8 +67,9 @@ const frame = (svg: string) => camFitSvg(svg, {rect: safeRect(), fill: 0.86});
 const people = (() => {
   const g = new Assembly('people', P, {role: 'secondary'});
   crowd(g, queue([[0, 0, 0], [40, 0, 0]], 5, 10, 0), {prefix: 'q'});
-  crowd(g, stream([[0, 24, 0], [44, 24, 0]], 4, 1.2), {prefix: 's', lit: 1});
-  figure(g, 'happy', {at: [22, 44, levitate(2, 0.5, 9, 6).lift * SHOW('levitation')], yaw: 0});
+  crowd(g, stream([[0, 24, 0], [44, 24, 0]], 4, 1.2), {prefix: 's'});
+  // the lifted figure is the coral one (its meaning), with its contact patch on the floor under it
+  figure(g, 'happy', {at: [22, 44, levitate(2, 0.5, 9, 6).lift * SHOW('levitation')], yaw: 0, lit: true});
   return g;
 })();
 
@@ -96,7 +97,8 @@ export const KIT_PAGES: Page[] = [
   plain('docs', DOCS),
   plain('map', MAP_TABLE, 'the one region'),
   plain('chron', CHRON, 'none: the event sign is too small to carry a meaning on a long timeline (the topic frames the event closer)'),
-  {id: 'storm', coral: NO_CORAL, A: STORM.A, svg: () => STORM.svg(SHOW('storm'), 0.2)},
+  // t = 0.06 s: two of the three bolts strike at once (each flickers in its own window)
+  {id: 'storm', coral: 'the bolts', A: STORM.A, svg: () => STORM.svg(SHOW('storm'), 0.06)},
   {id: 'tangle', coral: NO_CORAL, A: TANGLE.A, svg: () => TANGLE.svg(SHOW('tangle'))},
   // the flower in its catalog show state, with a burst of sparks (they join the flower's depth order as moving parts)
   {id: 'bloom', coral: NO_CORAL, A: BLOOM, svg: () => BLOOM.svg({}, {extra: sparks(P, [0, 0, 46], SHOW('sparks'))})},
@@ -113,15 +115,15 @@ export const KIT_PAGES: Page[] = [
   // money moving: dots run along a pipe route over the stacks
   {id: 'cash', coral: 'the coin stack', A: CASH, svg: () => CASH.svg({}, {extra: [{name: 'flow', at: [24, -6, 2], svg: flowDots(P, [[-4, -6, 2], [24, -6, 2], [24, 20, 2]], 0.5), annotation: true}]})},
   // fire under the flask and steam above it, ordered against the bench by ray tests
-  {id: 'lab', coral: NO_CORAL, A: LAB, svg: () => LAB.svgFaded([...particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 0.8}, 1.4), ...particles(P, 'steam', {at: [52, 16, T + 26], spread: 1.5}, 1.4), ...particles(P, 'gas', {at: [30, 24, T + 6]}, 1)])},
+  {id: 'lab', coral: 'none: a burner flame is a few pixels when the whole bench is framed; the zoom page shows it', A: LAB, svg: () => LAB.svgFaded([...particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4), ...particles(P, 'steam', {at: [52, 16, T + 31], spread: 1.5}, 1.4), ...particles(P, 'gas', {at: [30, 24, T + 6]}, 1)])},
   {id: 'swatches', coral: NO_CORAL, A: SWATCHES, svg: () => SWATCHES.svg({}, {extra: [{name: 'title', at: [0, 0, 0], svg: `<title>${describe(['wood', 'metal', 'glass'])}</title>`, annotation: true}]})},
   // transitions: a section of the archive half cut away with its drawer peeled out; a zoom most of the way into the burner (the pull-out page shows the start of the way back)
   {id: 'cutaway', coral: NO_CORAL, A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [0, 0, 1], 48, 6, 0.3), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
-  {id: 'zoom', coral: NO_CORAL, bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svg(), cam: () => zoomInto(boxOf(LAB), burner, 0.9).cam},
+  {id: 'zoom', coral: 'the flame', bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => zoomInto(boxOf(LAB), burner, 1).cam},
   {id: 'pullout', coral: NO_CORAL, bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svg(), cam: () => pullOut(burner, boxOf(LAB), 0.75).cam},
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},
   // the map helpers: a plan point of the projection and a simplified ring drawn on the table top
-  {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, 29.4], bias: -1, annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), 29.4, P, true), {tone: 'lo'})}]})},
+  {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, 29.4], annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), 29.4, P, true), {tone: 'lo'})}]})},
 ];
 
 export const UniversalKitSample: React.FC = () => {

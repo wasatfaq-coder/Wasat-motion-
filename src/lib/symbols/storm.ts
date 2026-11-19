@@ -47,7 +47,8 @@ export const storm = (name: string, P: K.Projection, [cx, cy, cz]: Point3, o: St
     for (let s = 0; s < 5; s++) {
       const F = G.frameAlong(pts[s], G.sub3(pts[s + 1], pts[s]));
       const len = G.len3(G.sub3(pts[s + 1], pts[s]));
-      const w = (0.9 - s * 0.12) * k;
+      // 0.9 read as a hairline zigzag on a phone; a bolt is a wedge as wide as a finger at the cloud
+      const w = (1.6 - s * 0.2) * k;
       const id = `bolt${j}.${s}`;
       A.prism(id, F, [[-w, 0], [0, w * 0.6], [w, 0], [0, -w * 0.6]], -0.2 * k, len + 0.2 * k, {tone: 'hi', lit: o.lit, meta: {owner: `${name}.bolt${j}`, touch: [`${name}.*`]}});
       bolts.push(`${name}.${id}`);

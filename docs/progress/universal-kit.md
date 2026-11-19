@@ -11,6 +11,12 @@ starts the next session itself; this file is the hand-over; the rule is in `CLAU
 4. [ ] Frames changed → `node scripts/style-check.mjs --update`; PR; merge on green CI.
 5. [ ] Rules numbering (§23 of PR #19 vs §24 in main): waits until PR #19 is merged (open on 19.11.2026).
 
+## Status after the consolidated fix pass (user: fix every finding at once, then one gate round)
+Fixed in shared code with guards: S1, S2, S3, S4 (bleed pages declared), S5, U-01, U-03 (bolts wide + coral), U-09,
+U-11 (screen ui), U-12, U-13, U-14 (svgFaded layers, tripod height, flame), U-17, U-18, U-19 (plan line in depth order).
+Still open going into gate round 2: U-02 chron gear board, U-04 tube gaps, U-05/06 bloom sparks and ring, U-07 trapdoor
+hinges, U-08 heads, U-10 phone cable end, U-15 swatches, U-16 cutaway, U-20 map post ring, U-21 doc touching cabinet.
+
 ## Gate round 1 (19.11.2026): FAIL
 style-check was green: the refs recorded the same defects (root cause of «style-check passed»: refs were taken without a
 gate; guard idea: `style-check --update` refuses unless the frames are gate-stamped).

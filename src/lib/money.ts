@@ -59,5 +59,6 @@ export const flowDots = (P: K.Projection, route: Point3[], t: number, o: {speed?
   const shift = (((o.speed ?? 12) * t) % gap + gap) % gap;
   const pts: [number, number][] = [];
   for (let s = shift; s <= total; s += gap) pts.push(K.iso(G.pointAlong(route, s), P));
-  return K.dotsSvg(pts, {size: o.size ?? 0.8, tone: o.tone ?? 'mid'});
+  // 0.8 drew 2–3 px dots that no phone shows (gate round 1 of the showcase)
+  return K.dotsSvg(pts, {size: o.size ?? 1.8, tone: o.tone ?? 'lo'});
 };

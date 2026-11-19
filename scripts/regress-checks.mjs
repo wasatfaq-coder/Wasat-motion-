@@ -96,6 +96,17 @@ for (const m of (await import('./lib/code-rules.mjs')).selftest()) fail(m);
   if (!intrusions([[0.5, 0.5, 1], [1, 1, 1]], glass).length) fail('scale: a model inside a solid was not caught (intrusions)');
   if (intrusions([[0.5, 0.5, 3], [1, 1, 1]], glass).length) fail('scale: a model standing on a solid was refused (intrusions)');
 }
+// svgFaded: parts of several fade layers each end at their own opacity (later pictures used to wash earlier ones out)
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {layerAlphas} = await tsImport(new URL('../src/lib/assembly.ts', import.meta.url).href, import.meta.url);
+  const o = [0.98, 0.87, 0.6, 0.44];
+  const a = layerAlphas(o);
+  o.forEach((oj, j) => {
+    const shown = 1 - a.slice(j).reduce((p, ak) => p * (1 - ak), 1);
+    if (Math.abs(shown - oj) > 1e-9) fail(`assembly: svgFaded layer ${j} ends at ${shown.toFixed(3)}, not its opacity ${oj}`);
+  });
+}
 // camFitSvg frames by the drawn points only: markup under a transform (a screen interface) is in its own pixel space
 {
   const {tsImport} = await import('tsx/esm/api');

@@ -49,7 +49,8 @@ const live = (e: Emitter, t: number, kind: Kind) => {
       p = [o[0] + Math.cos(a * 3.1) * r, o[1] + Math.sin(a * 2.3) * r, o[2] + (rand(i + 11) - 0.3) * r];
     } else {
       // buoyant: rises, slows, drifts and sways
-      const rise = kind === 'fire' ? 22 : kind === 'steam' ? 12 : 9;
+      // a flame stands on its nozzle: tongues lift a little and shrink (22 flew them off as loose chips)
+      const rise = kind === 'fire' ? 8 : kind === 'steam' ? 12 : 9;
       const sway = Math.sin(age * 3 + i) * (kind === 'fire' ? 0.6 : 1.6) * age;
       p = [o[0] + sway + age * 2, o[1] + sway * 0.5, o[2] + rise * age * (1 - 0.25 * age / life)];
     }
@@ -63,19 +64,22 @@ const live = (e: Emitter, t: number, kind: Kind) => {
  *  the object's parts by ray tests. Root cause (docs/root-causes.md): particles were painted on their own and could
  *  show through the object they were behind. Smoke and steam puffs grow and fade; fire tongues rise and shrink; drops
  *  fly on ballistic paths; gas is fine dots (an annotation: no body to order). */
-export const particles = (P: K.Projection, kind: Kind, e: Emitter, t: number): Dyn[] => {
+/** `lit` makes fire the coral part. Root cause (docs/root-causes.md): flames in the lightest tone vanished on the light
+ *  paper, and drops in the coins' tone read as beads; fire may be the frame's one coral meaning, drops are darker. */
+export const particles = (P: K.Projection, kind: Kind, e: Emitter, t: number, o: {lit?: boolean} = {}): Dyn[] => {
   const out: Dyn[] = [];
   for (const {p, age, i} of live(e, t, kind)) {
     const name = `${kind}${i}`;
     if (kind === 'fire') {
+      // a tongue 2.5 times as tall as it is wide (a burner flame; 1.6 tall read as a chip)
       const k = 1.6 * (1 - age);
       const F = G.frameAlong(p, [Math.sin(i) * 0.2, 0, 1]);
       const poly = [[-k, 0], [0, k * 0.5], [k, 0], [0, -k * 0.5]];
-      out.push({...dynSolid(name, p, K.solidSvg(G.prismOf(F, poly, 0, k * 2.6, P), {tone: 'hi'}), A.prism(F, poly, 0, k * 2.6, {name})), opacity: 1 - age * 0.6});
+      out.push({...dynSolid(name, p, K.solidSvg(G.prismOf(F, poly, 0, k * 4, P), {tone: 'hi', lit: o.lit}), A.prism(F, poly, 0, k * 4, {name})), opacity: 1 - age * 0.6});
     } else if (kind === 'drops') {
-      out.push(dynBall(name, p, 0.7, P, {tone: 'hi'}));
+      out.push(dynBall(name, p, 0.7, P, {tone: 'lo'}));
     } else if (kind === 'gas') {
-      out.push({name, at: p, svg: K.dotsSvg([K.iso(p, P)], {size: 0.5, tone: 'mid'}), shapes: [], annotation: true});
+      out.push({name, at: p, svg: K.dotsSvg([K.iso(p, P)], {size: 1, tone: 'lo'}), shapes: [], annotation: true});
     } else {
       const r = (kind === 'steam' ? 1.4 : 2) + age * (kind === 'steam' ? 3 : 4.5);
       out.push(dynBall(name, p, r, P, {tone: kind === 'steam' ? 'hi' : 'mid'}, 0.9 * (1 - age) ** 1.3));

@@ -44,11 +44,13 @@ const from = G.add3([68, 28, T + 1.2], G.mul3(toBurner, 3.4));
 // is not: a hose end wider than its mount face never seats)
 const to = G.add3([52, 16, T + 2.4], G.mul3(toBurner, -1.1));
 lab.pipe('hose', [from, [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2, T + 0.75], G.add3(to, G.mul3(toBurner, -2.6)), to], 0.55, {bend: 4, limp: true, meta: {touch: ['top', 'burner.base']}});
-// a tripod over the burner (a ring on three legs) and a flask of water on it
-lab.ring('tripod', 0, 0.8, 5.2, 6.4, up(52, 16, T + 14), {tone: 'lo'});
+// a tripod over the burner (a ring on three legs) and a flask of water on it. The ring stands 8 units over the burner
+// mouth (T + 11.6): at 2.4 the flame had no room and the ring and flask hid it (gate round 1)
+const RING = T + 20;
+lab.ring('tripod', 0, 0.8, 5.2, 6.4, up(52, 16, RING), {tone: 'lo'});
 for (let i = 0; i < 3; i++) {
   const a = (i / 3) * Math.PI * 2 + 0.3;
-  lab.pipe(`tripod.leg${i}`, [[52 + Math.cos(a) * 5.8, 16 + Math.sin(a) * 5.8, T + 14], [52 + Math.cos(a) * 7.4, 16 + Math.sin(a) * 7.4, T]], 0.45);
+  lab.pipe(`tripod.leg${i}`, [[52 + Math.cos(a) * 5.8, 16 + Math.sin(a) * 5.8, RING], [52 + Math.cos(a) * 8.2, 16 + Math.sin(a) * 8.2, T]], 0.45);
 }
-vessel(lab, 'flask', [52, 16, T + 14.8], {r: 4.6, h: 9, level: 6});
+vessel(lab, 'flask', [52, 16, RING + 0.8], {r: 4.6, h: 9, level: 6});
 export const LAB = keyed(lab, 'LAB');

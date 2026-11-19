@@ -465,3 +465,12 @@ export const dynSolid = (name: string, at: Point3, svg: string, shape: unknown, 
 
 /** Duck-typed check (the audit may load this module twice). */
 export const isAssembly = (x: unknown): x is Assembly => typeof x === 'object' && x !== null && 'R' in x && typeof (x as Assembly).audit === 'function';
+
+/** Marks painted over a whole picture ON PURPOSE (force arrows that must never hide behind a part, a lifted lid on a
+ *  cover): the one allowed way to put markup after an Assembly's svg(), with the reason written at the call. Anything
+ *  that sits on or among the parts (a line on a table top, flow dots, a screen's interface) goes in as `extra` so the
+ *  depth order places it; the audit refuses a bare `A.svg() + …` (scripts/lib/code-rules.mjs, docs/root-causes.md). */
+export const onTop = (picture: string, marks: string[], why: string): string => {
+  if (!why.trim()) throw new Error('onTop: say why these marks are painted over every part');
+  return picture + marks.join('');
+};

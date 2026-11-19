@@ -83,6 +83,20 @@ for (const [id, row] of Object.entries(JSON.parse(fs.readFileSync('src/lib/symbo
 for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))
   if (fs.readFileSync(path.join('scripts', f), 'utf8').includes('/opt/pw-' + 'browsers')) fail(`scripts/${f} names the browser directory itself; use findBrowser() from scripts/lib/browser.mjs`);
 
+// the frame checks of style-check / still-check bite on broken frames (a tiny hero, a part outside the safe rect, a
+// body cut by the band's fade, two or no coral meanings) and pass a clean one
+for (const m of (await import('./lib/frame-checks.mjs')).selftest()) fail(m);
+// the audit rule against markup glued to an Assembly picture as a string bites on broken code and passes clean code
+for (const m of (await import('./lib/code-rules.mjs')).selftest()) fail(m);
+// a nested scale model may stand on a solid of the outer level, never inside one (the bowl stood in a glass)
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {intrusions} = await tsImport(new URL('../src/lib/scale.tsx', import.meta.url).href, import.meta.url);
+  const glass = [[[0, 0, 0], [2, 2, 3]]];
+  if (!intrusions([[0.5, 0.5, 1], [1, 1, 1]], glass).length) fail('scale: a model inside a solid was not caught (intrusions)');
+  if (intrusions([[0.5, 0.5, 3], [1, 1, 1]], glass).length) fail('scale: a model standing on a solid was refused (intrusions)');
+}
+
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wasat-regress-'));
 const bad = path.join(dir, 'bad.json');
 const good = path.join(dir, 'good.json');

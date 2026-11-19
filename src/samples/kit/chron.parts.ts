@@ -9,7 +9,7 @@ const chron = new Assembly('chron', P, {role: 'secondary', order: ['carriage'], 
 const R = rail(chron, [0, 0, 0], {from: 1900, to: 2000, perYear: 1.2});
 export const STATIONS = [
   {id: 's1', year: 1905},
-  {id: 's2', year: 1930, lit: true},
+  {id: 's2', year: 1930},
   {id: 's3', year: 1957},
   {id: 's4', year: 1991},
 ].map((s) => station(chron, s, R.xOf, R.y0, 0));

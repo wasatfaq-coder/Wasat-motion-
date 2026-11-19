@@ -197,6 +197,17 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2j) no markup glued to an Assembly's picture as a string (scripts/lib/code-rules.mjs rawOverlay): it is painted
+// outside the object's depth order. Topic code and the samples (the showcase is the model topics copy).
+{
+  const {rawOverlay} = await import('./lib/code-rules.mjs');
+  const code = srcFiles.filter((f) => (f.includes(`${path.sep}projects${path.sep}`) ? (topicDir ? under(f, topicDir) : true) : f.includes(`${path.sep}samples${path.sep}`)) && /\.tsx?$/.test(f));
+  for (const f of code) {
+    const hits = rawOverlay(fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, ''));
+    if (hits.length) add('error', `depth: ${f} glues markup to an Assembly picture as a string (${hits.map((h) => `«${h}»`).join(', ')}); pass it as \`extra\` so it is ordered by depth, or put text on a frontal layer`);
+  }
+}
+
 // 2i) reuse with consent (§4, §24): a topic builds its own objects from the kit builders in src/lib. Importing another
 // topic's code (src/projects/<other>) or the demo samples (src/samples) is allowed only for a catalog entry
 // (src/lib/catalog.json) whose `consent` lists this topic. Root cause: nothing stopped a topic from quietly reusing a

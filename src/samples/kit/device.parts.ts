@@ -11,7 +11,7 @@ ph.cyl('pad', 7, 14.5, 10, 0, 1.2, {tone: 'mid', ground: true, bevel: 0.4, shado
 ph.ring('pad.rim', 0, 0.3, 8.8, 10, G.frameAlong([7, 14.5, 1.2], [0, 0, 1]), {tone: 'lo'});
 ph.cyl('pad.led', 7, 24.2, 0.3, 0.5, 0.2, {tone: 'hi', bevel: 0});
 ph.pipe('pad.cable', [[17, 14.5, 0.6], [24, 14.5, 0.6], [40, 20, 0.6]], 0.5, {bend: 3, limp: true, ends: [true, false]});
-export const PHONE_SCREEN = phone(ph, [0, 0, 1.2], {lit: 'button'});
+export const PHONE_SCREEN = phone(ph, [0, 0, 1.2]);
 export const PHONE = keyed(ph, 'PHONE');
 const mo = new Assembly('monitor', P, {role: 'secondary'});
 export const MONITOR_SCREEN = monitor(mo, [0, 0, 0], {});

@@ -16,12 +16,13 @@ export const coin = (A: Assembly, name: string, [x, y, z]: Point3, o: {r?: numbe
   A.turned(`${name}.face`, [[0, r * 0.62], [0.12, r * 0.58, 1], [0.18, 0.0001]], up(x, y, z + t), {tone: 'mid', meta: {owner: o.owner ?? name}});
 };
 
-/** A stack of `n` coins at (x, y) from z, each a hair off-centre (a real stack is never perfectly straight). */
-export const coinStack = (A: Assembly, name: string, [x, y, z]: Point3, n: number, o: {r?: number; t?: number; litTop?: boolean} = {}) => {
+/** A stack of `n` coins at (x, y) from z, each a hair off-centre (a real stack is never perfectly straight).
+ *  `lit` makes the whole stack the coral part (a sum read on a phone); `litTop` only its top coin (a close shot). */
+export const coinStack = (A: Assembly, name: string, [x, y, z]: Point3, n: number, o: {r?: number; t?: number; litTop?: boolean; lit?: boolean} = {}) => {
   const t = o.t ?? 0.8;
   for (let i = 0; i < n; i++) {
     const j = Math.sin(i * 2.7) * 0.25;
-    coin(A, `${name}.${i}`, [x + j, y - j, z + i * t], {r: o.r, t, lit: o.litTop && i === n - 1, owner: `${name}.0`, ground: i === 0});
+    coin(A, `${name}.${i}`, [x + j, y - j, z + i * t], {r: o.r, t, lit: o.lit || (o.litTop && i === n - 1), owner: `${name}.0`, ground: i === 0});
   }
   return z + n * t;
 };

@@ -11,6 +11,7 @@
 //      layout     the hero filling too little of the rect, or sitting in its top or bottom part (an empty half)
 //      jerk       a point that jumps or changes speed abruptly between two frames (not on a declared cut)
 //      pop        a part, arrow or plate that appears or vanishes within a frame or two instead of fading
+//      read       a plate with text that is fully visible for less than the time to read it (chars ÷ readCps + readPad)
 //      seam       a looping reel whose last frame does not lead into the first
 //      small      a drawn inset (plate kind 'inset') smaller than LIMITS.insetMin on its short side
 //    node scripts/motion-check.mjs [files…]            (default: every src/**/*.motion.ts)
@@ -54,6 +55,9 @@ export const LIMITS = {
   still: 1, // px/frame below which a settling part reads as stopped
   late: 8, // frames an arrow may stay hidden after its owner has stopped (it annotates the pose it stops in, R6)
   tipOn: 14, // px from an arrow tip to the axis of a moving body that is not its owner (the head lands on it, R4)
+  readCps: 13, // characters per second a viewer reads a label at (Cyrillic and Latin alike; spaces do not count)
+  readPad: 1.2, // seconds to find the label and its leader before reading starts
+  readMin: 1.5, // seconds any label stays, however short (a single letter still has to be found)
   tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
   insetMin: 320, // px: the shorter side of a drawn inset (kind 'inset'); a 240 px inset left a 35 px current dot (N6)
 };
@@ -229,6 +233,24 @@ export const checkSpec = async (spec) => {
     }
     for (const p of pose.plates) t.set(`plate:${p.name}`, {x: p.x, y: p.y, o: p.opacity});
     tracks.push(t);
+  }
+  // read: a plate with text must stay fully visible (opacity ≥ 0.95) for long enough to be read, counted from the
+  // first frame it is fully visible; in a looping reel a plate that is still up at the last frame goes on from frame 0.
+  // Root cause: only caption pages had a hold rule (check-text); a label could flash for a few frames and pass.
+  if (!spec.stills) {
+    const texts = new Map();
+    for (let f = 0; f < spec.frames; f++) for (const p of spec.pose(f).plates) if (p.text) texts.set(p.name, p.text);
+    for (const [name, text] of texts) {
+      const full = (f) => (tracks[f].get(`plate:${name}`)?.o ?? 0) >= 0.95;
+      const start = Array.from({length: spec.frames}, (_, f) => f).find(full);
+      if (start === undefined) continue; // never fully visible: the crop and pop checks speak for it
+      let end = start;
+      while (end < spec.frames && full(end)) end++;
+      let run = end - start;
+      if (spec.loop && end >= spec.frames) for (let f = 0; f < start && full(f); f++) run++;
+      const need = Math.max(LIMITS.readMin, [...text].filter((c) => !/\s/.test(c)).length / LIMITS.readCps + LIMITS.readPad);
+      if (run / spec.fps < need - 1e-6) add('read', start, `plate ${name} «${text}» is fully visible for ${(run / spec.fps).toFixed(2)} s from frame ${start}; reading it needs ${need.toFixed(2)} s`);
+    }
   }
   // late: an arrow that comes back after its owner stopped leaves the pose bare (the owner settles, the note lags)
   const owners = new Map();

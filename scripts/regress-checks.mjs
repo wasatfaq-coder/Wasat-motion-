@@ -11,6 +11,8 @@ import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {tsImport} from 'tsx/esm/api';
 
 const fails = [];
 const fail = (msg) => fails.push(msg);
@@ -153,6 +155,45 @@ if (!has('ffmpeg') || !has('ffprobe')) {
   const liveNotes = fs.existsSync(liveNotesFile) ? JSON.parse(fs.readFileSync(liveNotesFile, 'utf8')).notes ?? [] : [];
   if (liveNotes.some((n) => /-(b|e)-/.test(n.id))) fail('review-video записал чёрный или пустой кадр на живой картинке');
   if (!liveReport.checks.motion) fail('review-video не записал строку motion в video-review.json');
+}
+
+// anatomy-plate techniques (src/lib/techniques.ts, §25): the hatching of a cut belongs to the world, the dye front
+// is ordered by distance, an exploded stack keeps its order. Numbers, not pictures: a drifting hatch or a front that
+// colours a far part first is a defect nobody sees in a still.
+{
+  const T = await tsImport(pathToFileURL(path.resolve('src/lib/techniques.ts')).href, import.meta.url);
+  const box = {kind: 'box', x: 0, y: 0, w: 10, d: 6, z0: 0, z1: 8};
+  const cyl = {kind: 'cylinder', cx: 0, cy: 0, r: 5, z0: 0, z1: 10};
+  const face = T.cutFace(box, {axis: 'z', at: 4});
+  const segs = T.hatchSegments(face, {axis: 'z', at: 4}, 2);
+  if (segs.length !== 7) fail(`techniques: a 10×6 face at spacing 2 must carry 7 hatch lines, got ${segs.length}`);
+  for (const [a, b] of segs) {
+    if (Math.abs(a[0] - a[1] - (b[0] - b[1])) > 1e-6) fail('techniques: a hatch line is not at 45° in the plane');
+    if (Math.abs((a[0] - a[1]) / 2 - Math.round((a[0] - a[1]) / 2)) > 1e-6) fail('techniques: hatch lines are not on world multiples of the spacing (they would swim between faces)');
+    for (const p of [a, b]) if (p[0] < -1e-6 || p[0] > 10 + 1e-6 || p[1] < -1e-6 || p[1] > 6 + 1e-6) fail('techniques: a hatch line leaves the cut face');
+  }
+  if (T.cutFace(box, {axis: 'z', at: 9})) fail('techniques: a plane above the body must not cut it');
+  const chord = T.cutFace(cyl, {axis: 'x', at: 3});
+  if (!chord || Math.abs(chord[0][1] + 4) > 1e-9 || Math.abs(chord[1][1] - 4) > 1e-9) fail('techniques: the cut of a cylinder at 3 from its axis must be a chord of half-width 4');
+  if (T.cutFace(cyl, {axis: 'x', at: 6})) fail('techniques: a plane beyond the cylinder radius must not cut it');
+  const P = {origin: [0, 0], scale: 10, azimuth: 45, elevation: 35.264};
+  const svg = T.sectionSvg(box, {axis: 'z', at: 4}, P);
+  if (!svg.includes('iso-line') || svg.includes('coral')) fail('techniques: sectionSvg must draw with the kit tones and no coral');
+  if (T.sectionSvg(box, {axis: 'z', at: 9}, P) !== '') fail('techniques: sectionSvg of a missed plane must be empty');
+  const near = T.dyeShare([1, 0, 0], [0, 0, 0], 6, 4);
+  const far = T.dyeShare([20, 0, 0], [0, 0, 0], 6, 4);
+  const mid = T.dyeShare([5, 0, 0], [0, 0, 0], 6, 4);
+  if (!(near === 1 && far === 0 && mid > 0 && mid < 1)) fail(`techniques: the dye front must colour near parts first (near ${near}, mid ${mid}, far ${far})`);
+  if (T.dyeShare([20, 0, 0], [0, 0, 0], T.dyeRadius(1, 20, 4), 4) !== 1) fail('techniques: at full progress the farthest part must be fully dyed');
+  const off = (i) => T.explodeOffset(i, 4, 1, 10)[2];
+  if (!(off(0) === 0 && off(1) < off(2) && off(2) < off(3))) fail('techniques: an exploded stack must keep its layer order');
+  if (T.explodeOffset(3, 4, 0, 10)[2] !== 0) fail('techniques: at progress 0 the stack must be assembled');
+}
+
+// the voice check catches a skipped clause, a swapped word and digits in the voice text, and passes a clean line
+{
+  const r = run(['scripts/vo-check.mjs', '--selftest']);
+  if (r.code !== 0) fail(`vo-check --selftest failed\n${r.out.slice(-600)}`);
 }
 
 fs.rmSync(dir, {recursive: true, force: true});

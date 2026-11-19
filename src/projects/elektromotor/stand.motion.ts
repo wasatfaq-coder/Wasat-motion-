@@ -155,12 +155,12 @@ export const partsOf = (s: StandState): {extra: Dyn[]; arrows: Arrow[]} => {
 
 /** Screen rects of the label plates and the inset (for the check and the scene). */
 export const platesOf = (s: StandState, rect: Rect): PlateProbe[] => {
-  const plate = (name: string, a: Point3): PlateProbe => {
+  const plate = (name: string, a: Point3, text: string): PlateProbe => {
     const [x, y] = screenOf(s.cam, toRoom(a, STAND_U));
-    return {name, x: x - PLATE_W / 2, y: y - LABEL_LIFT - PLATE_H / 2, w: PLATE_W, h: PLATE_H, opacity: s.labels};
+    return {name, x: x - PLATE_W / 2, y: y - LABEL_LIFT - PLATE_H / 2, w: PLATE_W, h: PLATE_H, opacity: s.labels, text};
   };
   const ins = insetRect(rect);
-  return [plate('label.N', LABEL_ANCHORS.N), plate('label.S', LABEL_ANCHORS.S), {name: 'inset', kind: 'inset', ...ins, opacity: s.inset}];
+  return [plate('label.N', LABEL_ANCHORS.N, 'С'), plate('label.S', LABEL_ANCHORS.S, 'Ю'), {name: 'inset', kind: 'inset', ...ins, opacity: s.inset}];
 };
 
 const poseOf = (s: StandState, rect: Rect): MotionPose => {
@@ -206,5 +206,5 @@ export const reelState = (frame: number) => {
 /** Motion specs walked by scripts/motion-check.mjs (no rendering). */
 export const MOTION: MotionSpec[] = [
   {id: 'ElektromotorReel', frames: REEL_FRAMES, fps: FORMAT.fps, loop: true, pose: (f) => poseOf(reelState(f), REEL_RECT)},
-  {id: 'ElektromotorStand', frames: 4, fps: FORMAT.fps, loop: false, cuts: [1, 2, 3], pose: (f) => poseOf(stillState(f), STILL_RECT)},
+  {id: 'ElektromotorStand', frames: 4, fps: FORMAT.fps, loop: false, stills: true, cuts: [1, 2, 3], pose: (f) => poseOf(stillState(f), STILL_RECT)},
 ];

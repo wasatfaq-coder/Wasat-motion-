@@ -25,7 +25,7 @@ const CAM = camFit(room(CORE), {rect});
 const CAM_WIDE = camFit(room(HERO), {rect});
 const FRAMES = 60;
 
-type Opts = {thinHead?: boolean; angle?: (f: number) => number; arrowO?: (f: number) => number; fieldHead?: boolean; onBar?: boolean; meet?: boolean; wide?: boolean; reach?: number; tailOff?: number; cam?: Cam; jumpAt?: number; hideArrowAt?: number; halfTurn?: boolean; inset?: number; extra?: (f: number) => MotionPose['extra']};
+type Opts = {thinHead?: boolean; angle?: (f: number) => number; arrowO?: (f: number) => number; fieldHead?: boolean; onBar?: boolean; meet?: boolean; wide?: boolean; reach?: number; tailOff?: number; cam?: Cam; jumpAt?: number; hideArrowAt?: number; halfTurn?: boolean; inset?: number; extra?: (f: number) => MotionPose['extra']; label?: (f: number) => number};
 const pose = (f: number, o: Opts): MotionPose => {
   let theta = o.angle ? o.angle(f) : ((o.halfTurn ? Math.PI : 2 * Math.PI) * f) / FRAMES;
   if (o.jumpAt !== undefined && f >= o.jumpAt) theta += 1.2;
@@ -48,7 +48,7 @@ const pose = (f: number, o: Opts): MotionPose => {
       ...(o.meet ? [{name: 'arm.inA', owner: 'arm', tail: end, tip: [15.3, 20, 10] as Point3, opacity: 1}, {name: 'arm.inB', owner: 'arm', tail: [15, 20, 10] as Point3, tip: [14.8, 20, 10] as Point3, opacity: 1}] : []),
     ],
     keep: (o.wide ? HERO : CORE).map((at, i) => ({name: `hero${i}`, at})),
-    plates: o.inset ? [{name: 'inset', kind: 'inset' as const, x: rect.x0, y: rect.y1 - o.inset, w: o.inset, h: o.inset, opacity: 1}] : [],
+    plates: [...(o.inset ? [{name: 'inset', kind: 'inset' as const, x: rect.x0, y: rect.y1 - o.inset, w: o.inset, h: o.inset, opacity: 1}] : []), ...(o.label ? [{name: 'label.field', text: 'Поле', x: rect.x0 + 40, y: (rect.y0 + rect.y1) / 2 - 40, w: 120, h: 80, opacity: o.label(f)}] : [])],
     touch: [['arm', 'post']],
     // 'fieldHead': the head of a field line exactly where the force arrow ends
     heads: o.fieldHead ? [{name: 'field0.head', at: [end[0], end[1], end[2] + 3] as Point3, opacity: 1}] : [],
@@ -99,6 +99,9 @@ export const CASES: [string, MotionSpec, string[]][] = [
   ['loop does not close', spec('seam', {halfTurn: true}), ['seam']],
   ['three sticks over each other', spec('depth', {extra: sticks}), ['depth']],
   ['a solid without shapes', spec('noshape', {extra: () => [{name: 'lid', at: [10, 10, 10] as Point3, svg: '<path/>', shapes: []}]}), ['depth']],
+  // a label of four letters needs 4 ÷ 13 + 1.2 = 1.51 s; 200 frames are 3.3 s
+  ['a label held for 3 s', spec('labelok', {label: (f) => (f < 6 ? f / 6 : f < 194 ? 1 : (200 - f) / 6)}, {frames: 200, loop: false}), []],
+  ['a label up for 0.4 s', spec('labelshort', {label: (f) => (f < 6 ? f / 6 : f < 30 ? 1 : f < 36 ? (36 - f) / 6 : 0)}, {frames: 200, loop: false}), ['read']],
   ['declared cut is allowed', spec('cut', {jumpAt: 30}, {cuts: [30], loop: false}), []],
   ['held beat, then an eased move', {id: 'eased', frames: FRAMES, fps: 60, loop: false, pose: (f) => pose(f < 20 ? 0 : 15 * ease((f - 20) / 40), {})}, []],
 ];

@@ -56,8 +56,10 @@ export const blendCam = (a: Cam, b: Cam, t: number): Cam => ({
  *  that follows its conductor round a corner). */
 export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3; along?: string[]; svg?: string};
 /** A frontal plate or inset in screen pixels. `kind: 'inset'` marks a drawn inset (a section, a plan view): its side
- *  must be at least LIMITS.insetMin px (scripts/motion-check.mjs), smaller its glyphs vanish on a phone (N6). */
-export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; kind?: 'label' | 'inset'};
+ *  must be at least LIMITS.insetMin px (scripts/motion-check.mjs), smaller its glyphs vanish on a phone (N6).
+ *  `text` is the label a plate shows (omit it for an inset): motion-check keeps every plate with text fully visible
+ *  long enough to be read (kind `read`, LIMITS.read*). */
+export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; kind?: 'label' | 'inset'; text?: string};
 
 /** Everything scripts/motion-check.mjs needs to judge one frame without rendering it. */
 export type MotionPose = {
@@ -83,5 +85,6 @@ export type MotionPose = {
   touch?: [string, string][];
 };
 
-/** A reel or scene the motion check walks frame by frame. `cuts` are frames where a hard cut is intended. */
-export type MotionSpec = {id: string; frames: number; fps: number; loop: boolean; cuts?: number[]; pose: (frame: number) => MotionPose};
+/** A reel or scene the motion check walks frame by frame. `cuts` are frames where a hard cut is intended.
+ *  `stills`: the frames are separate style frames (one per beat), not a timeline, so no time-based rule (read) applies. */
+export type MotionSpec = {id: string; frames: number; fps: number; loop: boolean; cuts?: number[]; stills?: boolean; pose: (frame: number) => MotionPose};

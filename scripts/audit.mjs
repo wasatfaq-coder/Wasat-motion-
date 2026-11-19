@@ -113,7 +113,38 @@ if (step('tsc')) runTsc();
 const eslintRoots = topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES].filter((r) => fs.existsSync(r)) : ['src'];
 if (step('eslint')) run('eslint', `npx eslint ${eslintRoots.map(q).join(' ')} --max-warnings 0`);
 if (step('captions')) runFile('captions', process.execPath, ['scripts/check-text.mjs', '--timeline', timelineFile]);
-if (only.size && [...only].every((name) => name === 'tsc' || name === 'eslint' || name === 'captions')) finish();
+// 25.2 a new topic differs from the last finished one on at least four of six axes (distinct.json). Missing or pending:
+// a warning (the check is meant for after the script); filled but with fewer than six axes or fewer than four
+// differences: an error.
+if (topicDir && step('distinct')) {
+  const df = path.join(contentDir, 'distinct.json');
+  const AXES = ['structure', 'opening', 'signatureShot', 'camera', 'soundShape', 'ending'];
+  if (!fs.existsSync(df)) add('warn', `distinct: no ${df}; after the script compare the topic with the last one (MASTER_PROMPT_FINAL §25.2)`);
+  else {
+    try {
+      const d = readJson(df);
+      if (d.status === 'pending') add('warn', `distinct: ${df} is still pending; fill it after the script (§25.2)`);
+      else {
+        const got = AXES.filter((a) => d.axes?.[a] && typeof d.axes[a].differs === 'boolean' && String(d.axes[a].this ?? '').trim());
+        const differ = got.filter((a) => d.axes[a].differs).length;
+        if (!String(d.against ?? '').trim()) add('error', `distinct: ${df} names no topic it was compared with («against»)`);
+        else if (got.length < AXES.length) add('error', `distinct: ${df} must describe all six axes (${AXES.join(', ')}); missing: ${AXES.filter((a) => !got.includes(a)).join(', ')}`);
+        else if (differ < 4) add('error', `distinct: only ${differ} of 6 axes differ from «${d.against}» (§25.2 needs ≥ 4); rethink the structure, not only the picture`);
+        else add('ok', `distinct: ${differ} of 6 axes differ from «${d.against}»`);
+      }
+    } catch (e) {
+      add('error', `distinct: cannot read ${df}: ${e.message}`);
+    }
+  }
+}
+// the voice says what the script says (§9.5): scripts/vo-check.mjs over the recognised speech; a topic without
+// transcripts yet (voice not generated) gets a warning, not an error, and a passed check is never faked
+if (step('voice')) {
+  const trDir = path.join(contentDir, 'transcripts');
+  if (fs.existsSync(trDir) && fs.readdirSync(trDir).some((f) => f.endsWith('.json'))) runFile('voice', process.execPath, ['scripts/vo-check.mjs', '--content', contentDir, '--quiet']);
+  else add('warn', `voice: no transcripts in ${trDir}; run scripts/transcribe.mjs after the voice so scripts/vo-check.mjs can compare it with the script`);
+}
+if (only.size && [...only].every((name) => name === 'tsc' || name === 'eslint' || name === 'captions' || name === 'voice' || name === 'distinct')) finish();
 
 // 2) palette: only theme tokens in components; no second (pink) accent.
 // A topic run reads its own code and the shared core, not src/scenes or src/illustrations of «время».

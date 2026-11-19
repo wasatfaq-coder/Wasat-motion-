@@ -1,19 +1,83 @@
 {
   "_doc": "MASTER_PROMPT_FINAL §20: every scene declares location and mode. No metaphors: interface literal; tokens, candidates and the inside-model graph are schematic (the graph follows the attribution-graph figures of S1).",
-  "coralMeaning": "выбранный токен — кусочек, который модель выдаёт или выбрала заранее",
+  "coralMeaning": "слово или кусочек, которым заканчивается выдача (в тексте ответа или строки); узлы схемы — не коралл",
   "scenes": {
-    "scene-01": {"location": "desk-phone", "mode": "literal", "interface": "real", "metaphors": [], "coral": "последний выданный токен в ответе"},
-    "scene-02": {"location": "token-board", "mode": "schematic", "metaphors": [], "whyNotLiteral": "токенизация не видна в интерфейсе; схема плиток показывает границы токенов, которые глоссарий S6 описывает словами"},
-    "scene-03": {"location": "token-board", "mode": "schematic", "metaphors": [], "coral": "выбранный следующий токен", "whyNotLiteral": "распределение вероятностей не показывается пользователю; полоски без чисел — порядок, не измерение"},
-    "scene-04": {"location": "inside-model", "mode": "schematic", "metaphors": [], "whyNotLiteral": "внутренние вычисления не имеют формы; схема узлов-понятий по рисункам S1"},
-    "scene-05": {"location": "inside-model", "mode": "schematic", "metaphors": [], "coral": "узел «rabbit» — выбранное заранее слово", "whyNotLiteral": "как scene-04"},
-    "scene-06": {"location": "inside-model", "mode": "schematic", "metaphors": [], "coral": "текущее выбранное слово конца строки (habit, затем green)", "whyNotLiteral": "как scene-04"},
-    "scene-07": {"location": "desk-phone", "mode": "literal", "interface": "real", "metaphors": [], "coral": "последний выданный токен в ответе"}
+    "scene-01": {
+      "location": "desk-phone",
+      "mode": "literal",
+      "interface": "real",
+      "metaphors": [],
+      "coral": "последний выданный кусочек ответа"
+    },
+    "scene-02": {
+      "location": "token-board",
+      "mode": "schematic",
+      "metaphors": [],
+      "whyNotLiteral": "токенизация не видна в интерфейсе; схема плиток показывает границы токенов, которые глоссарий S6 описывает словами"
+    },
+    "scene-03": {
+      "location": "token-board",
+      "mode": "schematic",
+      "metaphors": [],
+      "coral": "кусочек, которым продолжится ответ",
+      "whyNotLiteral": "распределение вероятностей не показывается пользователю; полоски без чисел — порядок, не измерение"
+    },
+    "scene-04": {
+      "location": "плашка-схема",
+      "mode": "schematic",
+      "metaphors": [],
+      "whyNotLiteral": "внутренние вычисления не имеют формы; схема узлов-понятий по рисункам S1"
+    },
+    "scene-05": {
+      "location": "плашка-схема",
+      "mode": "schematic",
+      "metaphors": [],
+      "coral": "слово «rabbit» в конце выданной строки",
+      "whyNotLiteral": "как scene-04"
+    },
+    "scene-06": {
+      "location": "плашка-схема",
+      "mode": "schematic",
+      "metaphors": [],
+      "coral": "слово в конце строки после выдачи (habit, затем green)",
+      "whyNotLiteral": "как scene-04"
+    },
+    "scene-07": {
+      "location": "desk-phone + врезка-плашка",
+      "mode": "literal+schematic",
+      "interface": "real",
+      "metaphors": [],
+      "coral": "последнее слово ответа",
+      "whyNotLiteral": "врезка: схема расчётов не имеет формы; доля исследованного не показывается"
+    }
   },
   "locationReuse": [
-    {"location": "desk-phone", "scenes": [1, 7], "reason": "петля: ответ на вопрос хука в том же кадре"},
-    {"location": "token-board", "scenes": [2, 3], "reason": "одна строка: нарезка и выбор следующего токена продолжают друг друга"},
-    {"location": "inside-model", "scenes": [4, 5, 6], "reason": "одна схема: открытие, план, вмешательство на тех же узлах"}
+    {
+      "location": "desk-phone",
+      "scenes": [
+        1,
+        7
+      ],
+      "reason": "петля: ответ на вопрос хука в том же кадре"
+    },
+    {
+      "location": "token-board",
+      "scenes": [
+        2,
+        3
+      ],
+      "reason": "одна строка: нарезка и выбор следующего токена продолжают друг друга"
+    },
+    {
+      "location": "плашка-схема",
+      "scenes": [
+        4,
+        5,
+        6
+      ],
+      "reason": "одна схема: открытие, план, вмешательство на тех же узлах"
+    }
   ],
-  "metaphors": {}
+  "metaphors": {},
+  "schemeSource": "Схема сцен 4–7 воспроизводит только узлы и связи рисунков S1 (https://www.anthropic.com/research/tracing-thoughts-language-model); рисунки сверить до моделирования, лишних стрелок причинности и слоёв не добавлять (аудит Н-11)"
 }

@@ -33,6 +33,12 @@ const CIRCUIT = boxCorners([-70, -10, 0], [160, 82, 74]);
 const CUT = boxCorners([CX - 16, CY - 16, 6], [32, 32, 56]);
 // scene 6: the core and the commutator (z 10…40), not the pulley
 const ARMATURE = boxCorners([CX - 13, CY - 13, 10], [26, 26, 31]);
+/** the close-up of scene 6 is framed on coil 0 (the conductor with current): the coil's centre at its angle, a box
+ *  round it. Framing the whole armature left the coral at 8 % of the frame width (still-check, root-causes.md). */
+const COIL_BOX = (theta: number) => {
+  const a = POLE_ANGLES[0] + theta;
+  return boxCorners([CX + 5.5 * Math.cos(a) - 6, CY + 5.5 * Math.sin(a) - 6, 14], [12, 12, 22]);
+};
 
 // ── hands (rig units, drawn at HAND_K × the rig's scale; character.ts drawArms): the person stands on the viewer's
 // side facing the motor with the hands at shoulder height, so the upper arms run toward the viewer, down the screen,
@@ -81,12 +87,11 @@ export const arrowSvg = ARR.svgOf;
 export const motorBeats = (rect: Rect): MotorState[] => {
   const wide = camFit(room(CIRCUIT), {rect, fill: 0.95});
   const open = camFit(room(CUT), {rect, fill: 0.95});
-  const close = camFit(room(ARMATURE), {rect, fill: 0.9});
   const base = {half: 1, bench: true, hideHalf: false, circuit: true, hands: false, arrows: false};
   return [
     {...base, theta: COIL_TO_OPENING, half: 0, hands: true, cam: wide},
     {...base, theta: COIL_TO_OPENING, cam: open},
-    {...base, theta: COIL_TO_OPENING - 0.35, bench: false, hideHalf: true, circuit: false, arrows: true, cam: close},
+    {...base, theta: COIL_TO_OPENING - 0.35, bench: false, hideHalf: true, circuit: false, arrows: true, cam: camFit(room(COIL_BOX(COIL_TO_OPENING - 0.35)), {rect, fill: 0.9})},
     {...base, theta: COIL_TO_OPENING + 0.3, arrows: true, cam: open},
   ];
 };
@@ -122,7 +127,7 @@ export const MOTION: MotionSpec[] = [
     cuts: [1, 2, 3],
     pose: (f) => {
       const s = motorStill(f);
-      return poseOf(s, MOTOR_RECT, f === 0 ? CIRCUIT : f === 2 ? ARMATURE : CUT);
+      return poseOf(s, MOTOR_RECT, f === 0 ? CIRCUIT : f === 2 ? COIL_BOX(s.theta) : CUT);
     },
   },
 ];

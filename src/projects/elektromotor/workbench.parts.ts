@@ -18,7 +18,7 @@ const out = (x: number, z: number) => G.frameAlong([x, WALL_Y, z], [0, 1, 0]); /
 const up = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, 1]);
 const down = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, -1]);
 
-export const BENCH = new Assembly('bench', P, {role: 'environment', detail: 'simple'});
+export const BENCH = new Assembly('bench', P, {role: 'environment'});
 const B = BENCH;
 
 // ── table: five boards on four aprons and four legs, a front edge rail, a lower shelf

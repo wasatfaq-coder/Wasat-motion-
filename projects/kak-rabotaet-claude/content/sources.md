@@ -16,3 +16,5 @@
 Было нужно найти до сценария (если ракурс потребует): определение токена в глоссарии Anthropic (https://platform.claude.com/docs/en/resources/glossary); предобучение на предсказании следующего токена (первичный источник).
 
 Сверка S1, рифма (19.11.2026, вторая): задача — «To write the second line, the model had to satisfy two constraints… the need to rhyme (with "grab it"), and the need to make sense». Текст: «Claude plans ahead. Before starting the second line, it began "thinking" of potential on-topic words that would rhyme with "grab it"». Подпись к рисунку: «the model plans the rhyme "rabbit" at the end of the second line in advance»; при подавлении — «uses a different planned rhyme»; «green» — «makes plans for this entirely different ending». В голосе: «запланировано» (по подписи), не «выбрано окончательно».
+
+Рисунок рифмы S1: раскладка, узлы и связи по тексту страницы не описаны; статья-первоисточник на transformer-circuits.pub недоступна из среды (доступ не дан пользователем). Схема — упрощённая, по описанию (см. visual-register.json, schemeSource).

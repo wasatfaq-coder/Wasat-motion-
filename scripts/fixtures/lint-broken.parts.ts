@@ -49,3 +49,19 @@ owner.cyl('hinge', 2, 2, 1, 10, 1, {meta: {owner: 'owner.colum'}});
 export const view = make('view');
 view.slab('base', {x: 0, y: 0, w: 24, d: 24, r: 1}, 0, 1, {ground: true});
 view.pipe('cable', [[2, 2, 1.5], [18, 18, 1.5]], 0.5, {limp: true, ends: [false, false]});
+
+// a piece that never moves, and an order entry no part uses (each multiplies the audited share states)
+export const piece = new Assembly('piece', P, {role: 'environment', order: ['lid', 'cap']});
+piece.cyl('box', 0, 0, 5, 0, 4, {ground: true});
+piece.cyl('lid', 0, 0, 5, 4, 1, {piece: 'lid', move: [0, 0, 0]});
+
+
+// a half-shell round a shaft that runs across the silhouette azimuth (front and side in one part)
+export const arc = make('arc');
+arc.cyl('shaft', 0, 0, 2, 0, 10, {ground: true});
+{
+  const ring: [number, number][] = [];
+  for (let k = 0; k <= 18; k++) ring.push([6 * Math.cos(-0.3 + (k / 18) * 3), 6 * Math.sin(-0.3 + (k / 18) * 3)]);
+  for (let k = 18; k >= 0; k--) ring.push([5 * Math.cos(-0.3 + (k / 18) * 3), 5 * Math.sin(-0.3 + (k / 18) * 3)]);
+  arc.extruded('half', ring, 0, 8, {meta: {touch: ['shaft']}});
+}

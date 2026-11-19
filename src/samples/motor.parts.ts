@@ -19,7 +19,7 @@ const up = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, 1
 const build = (name: string, lit: 'pulley' | 'terminals' | 'stator', withLid = true) => {
   const M = new Assembly(name, MOTOR_P, {
     role: 'hero',
-    order: ['lid'],
+    order: withLid ? ['lid'] : [],
     // the box base is seated 1.6 into the can's curve: the sliver where the can is "in front" is the buried base
     allow: [[`${name}.box`, `${name}.can*`]],
   });

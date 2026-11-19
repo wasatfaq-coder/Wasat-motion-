@@ -13,6 +13,7 @@
 //      pop        a part, arrow or plate that appears or vanishes within a frame or two instead of fading
 //      read       a plate with text that is fully visible for less than the time to read it (chars ÷ readCps + readPad)
 //      seam       a looping reel whose last frame does not lead into the first
+//      small      a drawn inset (plate kind 'inset') smaller than LIMITS.insetMin on its short side
 //    node scripts/motion-check.mjs [files…]            (default: every src/**/*.motion.ts)
 //
 // 2) PIXELS of a rendered video (review-video, the quality gate): any mp4 of any topic.
@@ -58,6 +59,7 @@ export const LIMITS = {
   readPad: 1.2, // seconds to find the label and its leader before reading starts
   readMin: 1.5, // seconds any label stays, however short (a single letter still has to be found)
   tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
+  insetMin: 320, // px: the shorter side of a drawn inset (kind 'inset'); a 240 px inset left a 35 px current dot (N6)
 };
 
 const walk = (dir) =>
@@ -200,6 +202,9 @@ export const checkSpec = async (spec) => {
     if (out.length) addOnce('crop', 'keep', f, `${out.length} hero point(s) outside the safe rect at frame ${f} (${out.map((k) => k.name).slice(0, 4).join(', ')})`);
     for (const p of pose.plates.filter((x) => x.opacity > 0.05))
       if (p.x < r.x0 - 1 || p.y < r.y0 - 1 || p.x + p.w > r.x1 + 1 || p.y + p.h > r.y1 + 1) addOnce('crop', p.name, f, `plate ${p.name} leaves the safe rect at frame ${f}`);
+    // small: a drawn inset below the floor (its marks are read on a phone, N6)
+    for (const p of pose.plates.filter((x) => x.opacity > 0.05 && x.kind === 'inset'))
+      if (Math.min(p.w, p.h) < LIMITS.insetMin) addOnce('small', p.name, f, `inset ${p.name} is ${Math.round(Math.min(p.w, p.h))} px on its short side at frame ${f} (≥ ${LIMITS.insetMin})`);
     // layout: the hero fills the rect and sits in its middle
     if (xy.length) {
       const xs = xy.map((p) => p[0]);

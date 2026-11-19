@@ -81,7 +81,7 @@ export const LABEL_SIZE = 66;
 /** the plate drawn by Frontal Plate for one letter at LABEL_SIZE (textWidth + padding, 1.55 em high) */
 const PLATE_W = LABEL_SIZE * 0.6 + LABEL_SIZE * 1.1;
 const PLATE_H = LABEL_SIZE * 1.55;
-export const INSET = {w: 240, h: 240};
+export const INSET = {w: 320, h: 320};
 const room = (pts: Point3[]) => pts.map((p) => toRoom(p, STAND_U));
 const heroPoints = () => [...boxCorners(HERO_MIN, HERO_SIZE), LABEL_ANCHORS.N, LABEL_ANCHORS.S] as Point3[];
 
@@ -160,7 +160,7 @@ export const platesOf = (s: StandState, rect: Rect): PlateProbe[] => {
     return {name, x: x - PLATE_W / 2, y: y - LABEL_LIFT - PLATE_H / 2, w: PLATE_W, h: PLATE_H, opacity: s.labels, text};
   };
   const ins = insetRect(rect);
-  return [plate('label.N', LABEL_ANCHORS.N, 'С'), plate('label.S', LABEL_ANCHORS.S, 'Ю'), {name: 'inset', ...ins, opacity: s.inset}];
+  return [plate('label.N', LABEL_ANCHORS.N, 'С'), plate('label.S', LABEL_ANCHORS.S, 'Ю'), {name: 'inset', kind: 'inset', ...ins, opacity: s.inset}];
 };
 
 const poseOf = (s: StandState, rect: Rect): MotionPose => {

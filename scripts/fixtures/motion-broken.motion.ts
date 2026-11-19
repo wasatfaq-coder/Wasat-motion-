@@ -25,7 +25,7 @@ const CAM = camFit(room(CORE), {rect});
 const CAM_WIDE = camFit(room(HERO), {rect});
 const FRAMES = 60;
 
-type Opts = {thinHead?: boolean; angle?: (f: number) => number; arrowO?: (f: number) => number; fieldHead?: boolean; onBar?: boolean; meet?: boolean; wide?: boolean; reach?: number; tailOff?: number; cam?: Cam; jumpAt?: number; hideArrowAt?: number; halfTurn?: boolean; extra?: (f: number) => MotionPose['extra']; label?: (f: number) => number};
+type Opts = {thinHead?: boolean; angle?: (f: number) => number; arrowO?: (f: number) => number; fieldHead?: boolean; onBar?: boolean; meet?: boolean; wide?: boolean; reach?: number; tailOff?: number; cam?: Cam; jumpAt?: number; hideArrowAt?: number; halfTurn?: boolean; inset?: number; extra?: (f: number) => MotionPose['extra']; label?: (f: number) => number};
 const pose = (f: number, o: Opts): MotionPose => {
   let theta = o.angle ? o.angle(f) : ((o.halfTurn ? Math.PI : 2 * Math.PI) * f) / FRAMES;
   if (o.jumpAt !== undefined && f >= o.jumpAt) theta += 1.2;
@@ -48,7 +48,7 @@ const pose = (f: number, o: Opts): MotionPose => {
       ...(o.meet ? [{name: 'arm.inA', owner: 'arm', tail: end, tip: [15.3, 20, 10] as Point3, opacity: 1}, {name: 'arm.inB', owner: 'arm', tail: [15, 20, 10] as Point3, tip: [14.8, 20, 10] as Point3, opacity: 1}] : []),
     ],
     keep: (o.wide ? HERO : CORE).map((at, i) => ({name: `hero${i}`, at})),
-    plates: o.label ? [{name: 'label.field', text: 'Поле', x: rect.x0 + 40, y: (rect.y0 + rect.y1) / 2 - 40, w: 120, h: 80, opacity: o.label(f)}] : [],
+    plates: [...(o.inset ? [{name: 'inset', kind: 'inset' as const, x: rect.x0, y: rect.y1 - o.inset, w: o.inset, h: o.inset, opacity: 1}] : []), ...(o.label ? [{name: 'label.field', text: 'Поле', x: rect.x0 + 40, y: (rect.y0 + rect.y1) / 2 - 40, w: 120, h: 80, opacity: o.label(f)}] : [])],
     touch: [['arm', 'post']],
     // 'fieldHead': the head of a field line exactly where the force arrow ends
     heads: o.fieldHead ? [{name: 'field0.head', at: [end[0], end[1], end[2] + 3] as Point3, opacity: 1}] : [],
@@ -92,6 +92,8 @@ export const CASES: [string, MotionSpec, string[]][] = [
   ['a force tip on the head of a field line', spec('fieldhead', {fieldHead: true, extra: () => []}), ['arrows']],
   ['an arrow head lands on another bar', spec('onbar', {onBar: true, extra: () => dynTube('bar', [[22, 28, 10], [22, 36, 10]], 1, P, {lit: true})}), ['arrows']],
   ['two arrow heads meet over the axis', spec('meet', {meet: true}), ['arrows']],
+  ['a 240 px inset', spec('inset', {inset: 240}), ['small']],
+  ['a 320 px inset', spec('inset320', {inset: 320}), []],
   ['arm jumps', spec('jerk', {jumpAt: 30}), ['jerk']],
   ['arrow vanishes', spec('pop', {hideArrowAt: 30}), ['pop']],
   ['loop does not close', spec('seam', {halfTurn: true}), ['seam']],

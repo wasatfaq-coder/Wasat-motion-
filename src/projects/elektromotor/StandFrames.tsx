@@ -6,7 +6,7 @@ import {screenDir} from '../../lib/handed';
 import {COLORS, STROKE} from '../../theme/tokens';
 import {FrontalLayer, Plate} from '../../components/Frontal';
 import {STAND, STAND_P, STAND_U} from './stand.parts';
-import {FIELD, forceDir, insetRect, LABEL_ANCHORS, LABEL_LIFT, LABEL_SIZE, partsOf, REEL_RECT, reelState, StandState, STILL_RECT_OF, stillState} from './stand.motion';
+import {FIELD, forceDir, INSET, insetRect, LABEL_ANCHORS, LABEL_LIFT, LABEL_SIZE, partsOf, REEL_RECT, reelState, StandState, STILL_RECT_OF, stillState} from './stand.motion';
 export {REEL_FRAMES} from './stand.motion';
 
 // Style frames of the field stand (STOP 2, scenes 2–5) and the silent test reel. The state of every frame comes from
@@ -20,7 +20,9 @@ const norm2 = (v: [number, number]): [number, number] => {
 const Inset: React.FC<{x: number; y: number; opacity: number}> = ({x, y, opacity}) => {
   // a plan view looking down the wire, turned like the stand on screen: the current comes out of the page (dot); the
   // field and the force use the SAME screen directions as the 3D arrows (derived from the same vectors)
-  const c = {x: x + 120, y: y + 100};
+  // drawn on a 240 px grid and scaled to INSET (320 px, the floor of motion-check `small`, N6)
+  const k0 = INSET.w / 240;
+  const c = {x: 120, y: 100};
   const hi = COLORS.ink;
   const X = norm2(screenDir(FIELD, P));
   const Y = norm2(screenDir(forceDir([0, 0, 1]), P));
@@ -31,9 +33,9 @@ const Inset: React.FC<{x: number; y: number; opacity: number}> = ({x, y, opacity
     return <path d={`M${pt(v, k)} L${base[0] + n[0] * w} ${base[1] + n[1] * w} L${base[0] - n[0] * w} ${base[1] - n[1] * w} Z`} fill={fill} stroke={stroke} strokeWidth={3} strokeLinejoin="round" />;
   };
   return (
-    <g opacity={opacity}>
-      <rect x={x + 6} y={y + 6} width={240} height={240} rx={22} fill={COLORS.fillDark} />
-      <rect x={x} y={y} width={240} height={240} rx={22} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
+    <g opacity={opacity} transform={`translate(${x} ${y}) scale(${k0})`}>
+      <rect x={6} y={6} width={240} height={240} rx={22} fill={COLORS.fillDark} />
+      <rect x={0} y={0} width={240} height={240} rx={22} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
       <path d={`M${pt(X, -70)} L${pt(X, 76)}`} stroke={COLORS.inkSoft} strokeWidth={4} strokeDasharray="14 10" fill="none" />
       {head(X, 100, 10, COLORS.inkSoft, COLORS.inkSoft)}
       <path d={`M${pt(Y, 14)} L${pt(Y, 62)}`} stroke={hi} strokeWidth={14} strokeLinecap="butt" fill="none" />

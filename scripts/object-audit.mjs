@@ -9,6 +9,7 @@
 // ({exportName: {itemName: key}}); the parts file applies it with `X.applyKeys(KEYS.X)`. Items without a stored key
 // (the object changed since) are an error until the keys are settled again.
 //   node scripts/object-audit.mjs [files…] [--settle] [--json] [--quiet]
+import {execFileSync} from 'node:child_process';
 import {readdirSync, statSync, writeFileSync} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -58,11 +59,18 @@ if (args.includes('--selftest')) {
   if (cap?.owner !== 't.monitor.column') fails.push(`doubled owner name resolved to «${cap?.owner}», expected «t.monitor.column»`);
   const col = t.R.solids.find((s) => s.name === 't.monitor.column');
   if (!Array.isArray(col?.touch) || col.touch[0] !== 't.base') fails.push(`touch string became ${JSON.stringify(col?.touch)}, expected ["t.base"]`);
+  // the state sweep must catch a lid whose thickness swings into its wall while opening
+  try {
+    execFileSync(process.execPath, [join(root, 'scripts/object-audit.mjs'), join(root, 'scripts/fixtures/sweep-broken.parts.ts')], {stdio: 'pipe'});
+    fails.push('stateSweep: the swinging lid passed');
+  } catch (e) {
+    if (!/state sweep: [1-9]/.test(String(e.stdout))) fails.push(`stateSweep: no state-sweep finding for the swinging lid\n${String(e.stdout).slice(-400)}`);
+  }
   if (fails.length) {
     console.log(`object-audit --selftest: ${fails.length} guard(s) failed\n  ${fails.join('\n  ')}`);
     process.exit(1);
   }
-  console.log(`object-audit --selftest: ${objects.length} lint guards and 3 Assembly guards bite`);
+  console.log(`object-audit --selftest: ${objects.length} lint guards, 3 Assembly guards and the state sweep bite`);
   process.exit(0);
 }
 
@@ -140,6 +148,25 @@ for (const file of files) {
     const norm = PART_NORM[value.role];
     const short = value.role !== 'environment' && value.parts < norm;
     results.push({swept, file: relative(root, file), export: exportName, name: value.name, role: value.role, detail, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});
+  }
+  // objects whose SHAPE changes with a state (a flower opening, a hatch swinging) are rebuilt per frame; the module
+  // exports `stateSweep: {name: (state 0..1) => Assembly}` and every in-between build must pass lint, supports and
+  // tube clearance. Root cause (docs/root-causes.md): only the open and the closed builds were ever checked.
+  if (mod.stateSweep && typeof mod.stateSweep === 'object') {
+    for (const [sweepName, build] of Object.entries(mod.stateSweep)) {
+      const started = Date.now();
+      const found = [];
+      for (const st of [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1]) {
+        const obj = build(st);
+        for (const l of obj.lint()) found.push(`state ${st}: ${l}`);
+        const sup = A.supports(obj.R.solids, obj.R.tubes, {ground: obj.R.ground});
+        for (const n of sup.loose) found.push(`state ${st}: loose ${n}`);
+        for (const d of sup.sunk) found.push(`state ${st}: sunk ${d.a} × ${d.b} ${d.depth.toFixed(2)} deep`);
+        for (const c of A.clearances(obj.R.tubes, obj.R.solids, {only: 'through'})) found.push(`state ${st}: through ${c.tube} × ${c.other}`);
+      }
+      const uniq = [...new Set(found)];
+      results.push({swept: 8, file: relative(root, file), export: `stateSweep.${sweepName}`, name: sweepName, role: 'secondary', detail: 'complex', parts: build(1).parts, norm: 0, failures: uniq.length, short: false, seconds: (Date.now() - started) / 1000, report: `    state sweep: ${uniq.length} problem(s) over 8 states\n${uniq.slice(0, 12).map((l) => `      ${l}`).join('\n')}`});
+    }
   }
   if (settleKeys && Object.keys(solved).length) {
     const out = file.replace(/\.ts$/, '.keys.json');

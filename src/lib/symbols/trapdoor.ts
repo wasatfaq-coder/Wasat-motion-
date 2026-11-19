@@ -17,12 +17,14 @@ export const trapdoor = (name: string, P: K.Projection, [x, y, z]: Point3, open 
   const hx = x + (w - hw) / 2;
   const hy = y + (d - hd) / 2;
   const T = 2; // floor thickness
-  // the pit below the hatch: floor and four walls
-  A.slab('pit', {x: hx - 1, y: hy - 1, w: hw + 2, d: hd + 2, r: 0.3}, z - 18, 1.2, {tone: 'lo', ground: true});
-  A.slab('pit.n', {x: hx - 1, y: hy - 1, w: hw + 2, d: 1, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
-  A.slab('pit.s', {x: hx - 1, y: hy + hd, w: hw + 2, d: 1, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
-  A.slab('pit.w', {x: hx - 1, y: hy, w: 1, d: hd, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
-  A.slab('pit.e', {x: hx + hw, y: hy, w: 1, d: hd, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
+  // the pit below the hatch: floor and four walls. The x walls stand clear of a fully open leaf with its battens
+  // (thickness 1.6·T swung to 80°): a wall flush with the opening was hit by the battens (found by stateSweep).
+  const P0 = 1.8 * T + 0.4;
+  A.slab('pit', {x: hx - P0 - 1, y: hy - 1, w: hw + 2 * P0 + 2, d: hd + 2, r: 0.3}, z - 18, 1.2, {tone: 'lo', ground: true});
+  A.slab('pit.n', {x: hx - P0 - 1, y: hy - 1, w: hw + 2 * P0 + 2, d: 1, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
+  A.slab('pit.s', {x: hx - P0 - 1, y: hy + hd, w: hw + 2 * P0 + 2, d: 1, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
+  A.slab('pit.w', {x: hx - P0 - 1, y: hy, w: 1, d: hd, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
+  A.slab('pit.e', {x: hx + hw + P0, y: hy, w: 1, d: hd, r: 0.1}, z - 16.8, 16.8 - T, {tone: 'lo'});
   // floor boards round the hatch: strips along x, cut where the hatch is
   const board = 4;
   let i = 0;
@@ -48,17 +50,19 @@ export const trapdoor = (name: string, P: K.Projection, [x, y, z]: Point3, open 
     const inward = -side; // +1: the leaf runs east from a west hinge
     const along: Point3 = [inward * Math.cos(ang), 0, -Math.sin(ang)];
     // the leaf: a prism in the frame (u = along y, v = along the leaf from the hinge), thickness down
-    const F = {o: [pivotX, hy, z] as Point3, a: G.cross3(along, [0, 1, 0]) as Point3, u: [0, 1, 0] as Point3, v: along};
-    if (F.a[2] > 0) F.a = G.mul3(F.a, -1) as Point3;
+    // the axis is at the leaf's BOTTOM edge and the leaf body lies above it: swinging down, the body turns into the
+    // opening. With the axis at the top edge the leaf's thickness swept into the floor board (found by stateSweep).
+    const F = {o: [pivotX, hy, z - T * 0.9] as Point3, a: G.cross3(along, [0, 1, 0]) as Point3, u: [0, 1, 0] as Point3, v: along};
+    if (F.a[2] < 0) F.a = G.mul3(F.a, -1) as Point3;
     const lw = hw / 2 - 0.3;
     A.prism(`leaf${li}`, F, [[0.3, 0], [hd - 0.3, 0], [hd - 0.3, lw], [0.3, lw]], 0, T * 0.9, {tone: 'hi', lit: o.lit});
     // battens under the leaf
-    for (const b of [0.25, 0.75]) A.prism(`leaf${li}.batten${b}`, F, [[hd * b - 0.8, 1], [hd * b + 0.8, 1], [hd * b + 0.8, lw - 1], [hd * b - 0.8, lw - 1]], T * 0.9, T * 1.6, {tone: 'mid', meta: {owner: `${name}.leaf${li}`}});
+    for (const b of [0.25, 0.75]) A.prism(`leaf${li}.batten${b}`, F, [[hd * b - 0.8, 1], [hd * b + 0.8, 1], [hd * b + 0.8, lw - 1], [hd * b - 0.8, lw - 1]], -T * 0.7, 0, {tone: 'mid', meta: {owner: `${name}.leaf${li}`}});
     // three hinges per leaf: barrel along y at the pivot, and a strap on the leaf
     for (const t of [0.2, 0.5, 0.8]) {
       const hyy = hy + hd * t;
-      A.turned(`hinge${li}.${t}`, [[-1.4, 0.6], [1.4, 0.6]], G.frameAlong([pivotX + inward * 0.6, hyy, z - 0.6], [0, 1, 0]), {tone: 'lo', meta: {owner: `${name}.leaf${li}`}});
-      A.prism(`hinge${li}.${t}.strap`, F, [[hd * t - 0.7, 0.2], [hd * t + 0.7, 0.2], [hd * t + 0.7, 4], [hd * t - 0.7, 4]], -0.25, 0, {tone: 'lo', meta: {owner: `${name}.leaf${li}`}});
+      A.turned(`hinge${li}.${t}`, [[-1.4, 0.6], [1.4, 0.6]], G.frameAlong([pivotX + inward * 0.6, hyy, z - T * 0.9], [0, 1, 0]), {tone: 'lo', meta: {owner: `${name}.leaf${li}`}});
+      A.prism(`hinge${li}.${t}.strap`, F, [[hd * t - 0.7, 0.2], [hd * t + 0.7, 0.2], [hd * t + 0.7, 4], [hd * t - 0.7, 4]], T * 0.9, T * 0.9 + 0.25, {tone: 'lo', meta: {owner: `${name}.leaf${li}`}});
     }
   });
   return A;

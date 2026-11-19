@@ -322,7 +322,21 @@ if (!fs.existsSync(regFile)) {
     const n = idx + 1;
     const sc = scenes[s.id];
     if (!sc) return add('error', `register: ${s.id} is not declared in ${regFile}`);
-    if (!['literal', 'schematic', 'metaphor'].includes(sc.mode)) add('error', `register: ${s.id} mode must be literal | schematic | metaphor`);
+    if (!['literal', 'schematic', 'metaphor', 'symbol'].includes(sc.mode)) add('error', `register: ${s.id} mode must be literal | schematic | metaphor | symbol`);
+    // §24.1 symbol mode: a state of a person shown by a symbol from src/lib/symbols/catalog.json. The symbol stands for
+    // the CAUSE, so it needs the cause, the beat it appears on and the beat it leaves on; never over an interface or data.
+    if (sc.mode === 'symbol') {
+      const catalog = readJson('src/lib/symbols/catalog.json').symbols;
+      const beats = new Set((s.beats ?? []).map((b) => b.id));
+      if (!(sc.symbols ?? []).length) add('error', `register: ${s.id} is a symbol scene without symbols [{id, state, cause, appearsOn, leavesOn}] (§24.1)`);
+      for (const y of sc.symbols ?? []) {
+        if (!catalog[y.id]) add('error', `register: ${s.id} symbol «${y.id}» is not in src/lib/symbols/catalog.json (${Object.keys(catalog).join(', ')}); a new row needs the user's approval (§24.1)`);
+        const miss = ['state', 'cause', 'appearsOn', 'leavesOn'].filter((k) => !String(y[k] ?? '').trim());
+        if (miss.length) add('error', `register: ${s.id} symbol «${y.id}» misses ${miss.join(', ')} (a symbol shows a cause: it appears on an event and leaves when the cause is removed, §24.1)`);
+        for (const k of ['appearsOn', 'leavesOn']) if (y[k] && beats.size && !beats.has(y[k]) && y[k] !== 'after') add('error', `register: ${s.id} symbol «${y.id}» ${k} «${y[k]}» is not a beat of this scene (or «after» for a later scene)`);
+      }
+      if (sc.interface === 'real' || sc.data) add('error', `register: ${s.id} shows an interface or data: these stay literal, never symbolic (§20.1, §24.1)`);
+    }
     if (sc.interface === 'real' && sc.mode !== 'literal') add('error', `register: ${s.id} real interface requires literal mode (§20.1)`);
     if (sc.leadingMetaphor) {
       const later = tl.scenes.slice(idx + 1).some((entry) => entry.id === sc.schemeScene);

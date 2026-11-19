@@ -90,7 +90,12 @@ export class Assembly {
    *  audit reported sunk or loose parts; a `touch` string instead of a list crashed the audit. A name that already
    *  starts with this object's name, or a pattern that starts with it, is kept. */
   private resolve(n: string) {
-    return n.startsWith(`${this.name}.`) || n === this.name ? n : `${this.name}.${n}`;
+    const prefixed = `${this.name}.${n}`;
+    // a part already recorded under the prefixed name wins: in object «monitor», owner «monitor.column» is the part
+    // «monitor.monitor.column», not a name that is already full
+    const known = (x: string) => (this.R.solids as {name: string}[]).some((s) => s.name === x) || (this.R.routes as {name: string}[]).some((r) => r.name === x);
+    if (known(prefixed)) return prefixed;
+    return n.startsWith(`${this.name}.`) || n === this.name ? n : prefixed;
   }
 
   private meta(c: Common): Record<string, unknown> {
@@ -211,6 +216,7 @@ export class Assembly {
    *  - a pipe end sits on a part that shares the pipe's owner (or is owned by the pipe): the audit never counts a
    *    part of the same owner as a mount, so the end reads as loose; leave the owner off;
    *  - a ring (a hollow body) round a smaller coaxial body inside its span (soil in a pot rim): same paint cycle;
+   *  - an owner that names no part and groups nothing (a typo, or a doubled object name);
    *  - a pipe bend folds back on screen (handles, arches and steps turned in a plane that holds the line of sight). */
   lint(): string[] {
     const out: string[] = [];
@@ -257,7 +263,24 @@ export class Assembly {
           );
       }
     }
+    // an owner that names no part and groups nothing: a typo, or a builder name that already starts with the object's
+    // name (part «monitor.column» in object «monitor» is «monitor.monitor.column»; owner «monitor.column» is kept as is)
+    const names = new Set<string>([...(this.R.solids as {name: string}[]).map((s) => s.name), ...(this.R.routes as {name: string}[]).map((r) => r.name)]);
+    const uses = new Map<string, number>();
+    for (const s of [...(this.R.solids as {owner?: string}[]), ...(this.R.tubes as {owner?: string; name: string}[]).filter((t) => t.owner !== t.name)])
+      if (s.owner) uses.set(s.owner, (uses.get(s.owner) ?? 0) + 1);
+    for (const [owner, n] of uses) if (!names.has(owner) && n < 2) out.push(`owner: «${owner}» names no part and groups nothing; check the name (a part name that starts with the object's own name gets it twice)`);
     // a bend that folds back on screen (a corner turned in a plane that holds the line of sight): cheap to find now
+    // a pipe end that does not sit square and flush on its mount: every point of the end's rim must be within ±0.15 of
+    // the mount's surface. On a curved mount of radius R a tube of radius r spreads by R − √(R² − r²), so a thick hose
+    // on a thin tube never seats; end it on a flat face or a body much larger than the tube
+    for (const t of A.terminals(this.R.tubes, this.R.solids) as {tube: string; end: string; d: number; low: number; high: number; nearest: string; at?: number[]}[])
+      out.push(
+        `terminal: the ${t.end} of «${t.tube}» does not seat on «${t.nearest}» (centre ${t.d.toFixed(2)}, rim ${t.low.toFixed(2)}…${t.high.toFixed(2)}, all must be within ±0.15)${t.at ? ` at [${t.at.map((v) => v.toFixed(1)).join(', ')}]` : ''}; move the end along its axis, square it to the face, or end on a flatter mount`,
+      );
+    // a tube chunk whose outline crosses itself on screen (a tight corner seen along the line of sight)
+    for (const s of A.selfOverlaps(this.R.items, this.P) as {item?: string; name?: string; at?: number[]}[])
+      out.push(`self-overlap: «${s.item ?? s.name}» folds over itself on screen${s.at ? ` at [${s.at.map((v) => v.toFixed(1)).join(', ')}]` : ''}; widen the bend or turn the corner across the view`);
     const at = (p?: number[]) => (p ? ` at [${p.map((v) => v.toFixed(1)).join(', ')}]` : '');
     for (const f of A.folds(this.R.routes, this.P, {items: this.R.items}) as {name: string; flatTurn: number; at?: number[]}[])
       out.push(`fold: «${f.name}» turns ${Math.round(f.flatTurn)}° on screen${at(f.at)}; widen the bend (≥ 2.6·r), turn the corner across the view, or use a ramp instead of a vertical step`);

@@ -26,19 +26,21 @@ export const figure = (A: Assembly, name: string, f: Figure) => {
   const swing = f.step === undefined ? 0 : Math.sin(ph) * 1.6 * k;
   const bob = f.step === undefined ? 0 : Math.abs(Math.cos(ph)) * 0.3 * k;
   const P = (s: number, fwd: number, up: number): Point3 => [x + side[0] * s + fx * fwd, y + side[1] * s + fy * fwd, z + up + bob];
-  const own = {meta: {owner: `${name}.hips`}};
+  const own = {meta: {owner: `${name}.pelvis`}};
   const cloth = f.dark ? {className: 'cl-dark'} : {className: 'cl-mid'};
   // the figure stands on its shoes: they are its ground
   ([-1, 1] as const).forEach((s, i) => {
     const fwd = s * swing;
     A.slab(`${name}.shoe${i}`, {x: P(s * 1.1 * k, fwd, 0)[0] - 0.9 * k, y: P(s * 1.1 * k, fwd, 0)[1] - 0.9 * k, w: 1.8 * k, d: 1.8 * k, r: 0.6 * k}, z, 0.8 * k, {tone: 'lo', ground: true, bevel: 0.2});
-    capsule(A, `${name}.leg${i}`, P(s * 1.1 * k, fwd, 0.8 * k), P(s * 1.0 * k, fwd * 0.2, 7.6 * k), 0.85 * k, {tone: 'mid', ...cloth, ...own});
+    // the leg ends flat under the pelvis (a leg that sinks into a round hip has no paint order against it)
+    A.turned(`${name}.leg${i}`, [[0, 0.75 * k], [5.8 * k, 0.85 * k]], G.frameAlong(P(s * 1.05 * k, fwd * 0.15, 0.8 * k), G.sub3(P(s * 1.0 * k, 0, 6.6 * k), P(s * 1.05 * k, fwd * 0.15, 0.8 * k))), {tone: 'mid', ...cloth, ...own});
   });
-  A.ball(`${name}.hips`, P(0, 0, 7.8 * k), 1.9 * k, {tone: 'mid', ...cloth});
+  loft(A, `${name}.pelvis`, P(0, 0, 6.6 * k), [0, 0, 1], [[0, 1.9 * k], [1.6 * k, 2.0 * k]], {tone: 'mid', ...cloth});
   loft(A, `${name}.torso`, P(0, 0, 8.2 * k), [0, 0, 1], [[0, 1.9 * k], [2.4 * k, 2.2 * k], [4.6 * k, 2.3 * k], [5.6 * k, 1.6 * k]], {tone: 'hi', lit: f.lit, ...own});
   ([-1, 1] as const).forEach((s, i) => {
-    const shoulder = P(s * 2.2 * k, 0, 13 * k);
-    const hand = P(s * 2.6 * k, -s * swing * 0.8, 9 * k);
+    // the arm hangs from the side of the torso, not out of it (an arm inside the body has no paint order)
+    const shoulder = P(s * 2.8 * k, 0, 12.6 * k);
+    const hand = P(s * 3.2 * k, -s * swing * 0.8, 9 * k);
     capsule(A, `${name}.arm${i}`, shoulder, hand, 0.6 * k, {tone: 'hi', lit: f.lit, ...own});
     A.ball(`${name}.hand${i}`, [hand[0], hand[1], hand[2] - 0.5 * k], 0.65 * k, {tone: 'hi', ...own});
   });

@@ -82,27 +82,41 @@ export const particles = (P: K.Projection, kind: Kind, e: Emitter, t: number) =>
   return paint(items, P);
 };
 
-/** The liquid inside a turned vessel: a body that follows the vessel's INNER profile up to `level` (kit units from
- *  the vessel's frame origin), with a flat surface and ripple rings drawn on it. `inner` is [[s, r], …] from the
- *  bottom up. Recorded in the vessel's Assembly (owner = the vessel), so the audit sees it sit inside. */
-export const liquid = (A: Assembly, name: string, F: {o: Point3; a: Point3; u: Point3; v: Point3}, inner: [number, number][], level: number, o: {owner?: string; ripple?: number; lit?: boolean} = {}) => {
-  const rAt = (s: number) => {
-    for (let i = 0; i < inner.length - 1; i++) {
-      const [s0, r0] = inner[i];
-      const [s1, r1] = inner[i + 1];
-      if (s >= s0 && s <= s1) return r0 + ((r1 - r0) * (s - s0)) / Math.max(1e-9, s1 - s0);
+/** An open upright vessel (a glass, a beaker, a tank) with liquid to `level` (kit units above the bottom): a base
+ *  disc, the wall as two upright half-rings — the BACK half drawn behind the liquid and the FRONT half in front of it
+ *  — and the liquid body with ripple rings on its surface. Root cause behind the split: a wall drawn as one ring goes
+ *  round the liquid, its front arc in front and its back arc behind, and no single paint key can say both (lint:
+ *  «encircled»). `ripple` is a frame-driven phase 0..1. */
+export const vessel = (A: Assembly, name: string, [x, y, z]: Point3, o: {r: number; wall?: number; h: number; level: number; ripple?: number; lit?: boolean; foot?: number}) => {
+  const wall = o.wall ?? 0.8;
+  const foot = o.foot ?? 1;
+  const rIn = o.r - wall;
+  A.cyl(name, x, y, o.r, z, foot, {tone: 'mid', ground: true, bevel: 0.3, shadow: 'hero'});
+  // split line square to the horizontal view direction, so one half is wholly behind and one wholly in front
+  const V = A.V;
+  const view = Math.atan2(V[1], V[0]);
+  const half = (from: number): K.Plane[] => {
+    const n = 24;
+    const outer: K.Plane[] = [];
+    const inner: K.Plane[] = [];
+    for (let i = 0; i <= n; i++) {
+      const a = from + (i / n) * Math.PI;
+      outer.push([x + o.r * Math.cos(a), y + o.r * Math.sin(a)]);
+      inner.push([x + rIn * Math.cos(a), y + rIn * Math.sin(a)]);
     }
-    return inner[inner.length - 1][1];
+    return [...outer, ...inner.reverse()];
   };
-  const prof = inner.filter(([s]) => s < level).map(([s, r]) => [s, r]);
-  prof.push([level, rAt(level)]);
-  const top = G.add3(F.o, G.mul3(F.a, level)) as Point3;
-  // ripple rings on the surface: concentric, phase from `ripple` (a frame-driven value), drawn on the body
-  const rings = [0.35, 0.6, 0.85]
+  const own = {meta: {owner: `${A.name}.${name}`}};
+  A.extruded(`${name}.back`, half(view + Math.PI / 2), z + foot, o.h, {tone: 'hi', ...own});
+  const level = Math.min(o.h, Math.max(0.2, o.level));
+  const rings = [0.3, 0.55, 0.8]
     .map((k) => {
-      const rr = rAt(level) * ((k + (o.ripple ?? 0)) % 1);
-      return rr > 0.4 ? K.lineSvg(G.circleOf({...F, o: top}, 0, rr, A.P), {tone: 'lo'}) : '';
+      const rr = rIn * ((k + (o.ripple ?? 0)) % 1);
+      return rr > 0.5 ? K.lineSvg(K.ring(x, y, rr, z + foot + level, A.P), {tone: 'lo'}) : '';
     })
     .join('');
-  return A.turned(name, prof, F, {tone: 'mid', lit: o.lit, over: rings, meta: o.owner ? {owner: o.owner} : {}});
+  A.cyl(`${name}.liquid`, x, y, rIn - 0.02, z + foot, level, {tone: 'mid', bevel: 0, lit: o.lit, over: rings, ...own});
+  A.extruded(`${name}.front`, half(view - Math.PI / 2), z + foot, o.h, {tone: 'hi', ...own});
+  // a lip ring on top of the wall, as two halves for the same reason
+  return {surface: [x, y, z + foot + level] as Point3, top: z + foot + o.h};
 };

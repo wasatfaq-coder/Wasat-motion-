@@ -63,6 +63,22 @@ for (const [id, row] of Object.entries(JSON.parse(fs.readFileSync('src/lib/symbo
   if (hook({CLAUDE_PROJECT_DIR: tmpRoot}).status !== 0) fail('require-gate: a stamped image was blocked');
 }
 
+// a script CI runs must not need python3 (the runner has no Pillow; style-check failed only in CI): every
+// `node scripts/…` step of the workflow, and the scripts/lib modules it imports, stays plain Node
+{
+  const wf = fs.readFileSync('.github/workflows/audit.yml', 'utf8');
+  const steps = [...new Set([...wf.matchAll(/node (scripts\/[\w./-]+\.mjs)/g)].map((m) => m[1]))];
+  const seen = new Set();
+  const visit = (f) => {
+    if (seen.has(f) || !fs.existsSync(f)) return;
+    seen.add(f);
+    const code = fs.readFileSync(f, 'utf8');
+    if (/['"]python3?['"]/.test(code)) fail(`${f} runs python in CI; use plain Node (scripts/lib/png.mjs for images)`);
+    for (const m of code.matchAll(/from '\.\/(lib\/[\w.-]+\.mjs)'/g)) visit(path.join('scripts', m[1]));
+  };
+  steps.forEach(visit);
+}
+
 // one browser lookup (scripts/lib/browser.mjs): a script with its own copy pinned a version path that stopped matching
 for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))
   if (fs.readFileSync(path.join('scripts', f), 'utf8').includes('/opt/pw-' + 'browsers')) fail(`scripts/${f} names the browser directory itself; use findBrowser() from scripts/lib/browser.mjs`);

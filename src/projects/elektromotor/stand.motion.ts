@@ -32,17 +32,21 @@ const tri = (tip: Point3, u: Point3, size: number, wide: Point3, fill: string, s
 const line = (a: Point3, b: Point3, width: number, color: string, dash = '') =>
   `<path d="${K.pathOf([at(a), at(b)])}" style="fill:none;stroke:${color};stroke-width:${width}px;stroke-linecap:round;${dash ? `stroke-dasharray:${dash};` : ''}"/>`;
 
+/** force arrow length on the loop sides: at the dead position (90°) both point along the radius, so they stop well
+ *  short of the axis (LOOP_R) and never meet over it (R4) */
+const LOOP_FORCE = 7;
+
 export type Arrow = ArrowProbe & {svg: string};
 /** current: thin dark shaft with a small head */
 const currentArrow = (name: string, owner: string, from: Point3, to: Point3, wide: Point3, opacity: number): Arrow => {
   const u = unit(sub(to, from));
-  return {name, owner, tail: from, opacity, svg: line(from, back(to, u, 2.5), 3.2, 'var(--anatomy-hi)') + tri(to, u, 3.6, wide, 'var(--anatomy-hi)')};
+  return {name, owner, tail: from, tip: to, opacity, svg: line(from, back(to, u, 2.5), 3.2, 'var(--anatomy-hi)') + tri(to, u, 3.6, wide, 'var(--anatomy-hi)')};
 };
 /** force: a thick flat arrow, dark outline and a light body; the tail starts on the conductor */
 const forceArrow = (name: string, owner: string, from: Point3, dir: Point3, reach: number, wide: Point3, opacity: number): Arrow => {
   const to = along(from, dir, reach);
   const neck = back(to, dir, 3);
-  return {name, owner, tail: from, opacity, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, dir, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
+  return {name, owner, tail: from, tip: to, opacity, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, dir, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
 };
 /** field: dashed lines from the N pole face to the S pole face, with two heads each (no shapes: an annotation) */
 const fieldLines = (ys: number[], z: number, opacity: number): Dyn[] =>
@@ -111,7 +115,7 @@ export const partsOf = (s: StandState): {extra: Dyn[]; arrows: Arrow[]} => {
     // scene 2: the wire (coral) in the field; current up, force along +y (I·L×B with B along +x)
     extra.push(...wireItems(0, s.wire));
     arrows.push(currentArrow('wire.current', 'sceneWire.drop', [AX + 2.4, WIRE_Y, PLATE_TOP + 9], [AX + 2.4, WIRE_Y, PLATE_TOP + 27], [0, 1, 0], s.wire));
-    arrows.push(forceArrow('wire.force', 'sceneWire.drop', [AX, WIRE_Y + 1.4, PLATE_TOP + 18], forceDir([0, 0, 1]), 14, [0, 0, 1], s.wire));
+    arrows.push(forceArrow('wire.force', 'sceneWire.drop', [AX, WIRE_Y + 1.4, PLATE_TOP + 14], forceDir([0, 0, 1]), 11, [0, 0, 1], s.wire));
   }
   if (s.loop > 0) {
     const th = s.theta;
@@ -124,8 +128,8 @@ export const partsOf = (s: StandState): {extra: Dyn[]; arrows: Arrow[]} => {
     arrows.push(currentArrow('loop.current-', 'loop.minus', sd(-LOOP_R - 2.2, LOOP_Z1 - 3), sd(-LOOP_R - 2.2, LOOP_Z0 + 3), wide, s.loop));
     // the force on each vertical side follows from ITS current (up on the + side, down on the − side): I·L × B
     const mz = (LOOP_Z0 + LOOP_Z1) / 2;
-    arrows.push(forceArrow('loop.force+', 'loop.plus', sd(LOOP_R, mz), forceDir([0, 0, 1]), 11, [0, 0, 1], s.loop));
-    arrows.push(forceArrow('loop.force-', 'loop.minus', sd(-LOOP_R, mz), forceDir([0, 0, -1]), 11, [0, 0, 1], s.loop));
+    arrows.push(forceArrow('loop.force+', 'loop.plus', sd(LOOP_R, mz), forceDir([0, 0, 1]), LOOP_FORCE, [0, 0, 1], s.loop));
+    arrows.push(forceArrow('loop.force-', 'loop.minus', sd(-LOOP_R, mz), forceDir([0, 0, -1]), LOOP_FORCE, [0, 0, 1], s.loop));
   }
   return {extra, arrows};
 };

@@ -53,7 +53,7 @@ const StandView: React.FC<{state: StandState; rect: Rect; bottom: number}> = ({s
   const ins = insetRect(rect);
   return (
     <AnatomyStage>
-      <RoomSvg cam={state.cam} bottom={bottom} sides={90}>
+      <RoomSvg cam={state.cam} bottom={bottom} sides={90} fade={110}>
         <g className="ns">
           <Kit svg={picture} />
         </g>

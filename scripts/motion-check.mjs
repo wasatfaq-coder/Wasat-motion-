@@ -43,10 +43,13 @@ export const LIMITS = {
   sink: 0.6, // kit units a moving part may press into a static one
   air: 0.35, // room units between an arrow tail and its owner's surface
   fillMin: 0.55, // the hero spans at least this share of the rect's width or height
+  tallMin: 0.75, // a vertical frame: the hero and its plates span at least this share of the rect's HEIGHT (a wide, low
+  // picture fitted by width leaves empty bands above and below, R1 2026-11-19)
   offCentre: 0.18, // the hero centre may sit this share of the rect height off its centre
   jump: 40, // px a point may move in one frame
   accel: 8, // px/frame² a point may change speed by
   fade: 0.34, // opacity a part may gain or lose in one frame
+  tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
 };
 
 const walk = (dir) =>
@@ -139,6 +142,15 @@ export const checkSpec = async (spec) => {
         }
       }
     }
+    // tips: two visible arrows whose heads meet read as one bar
+    const tipped = pose.arrows.filter((x) => x.opacity > 0.05 && x.tip);
+    for (let i = 0; i < tipped.length; i++)
+      for (let j = i + 1; j < tipped.length; j++) {
+        const [ax, ay] = scr(tipped[i].tip);
+        const [bx, by] = scr(tipped[j].tip);
+        const d = Math.hypot(ax - bx, ay - by);
+        if (d < LIMITS.tips) addOnce('arrows', `${tipped[i].name}|${tipped[j].name}`, f, `the tips of ${tipped[i].name} and ${tipped[j].name} are ${d.toFixed(0)} px apart at frame ${f} (≥ ${LIMITS.tips}); shorten them so they do not read as one bar`);
+      }
     // air: arrow tails on their owners
     for (const a of pose.arrows.filter((x) => x.opacity > 0.05)) {
       const own = [...pose.extra.filter((d) => d.name.startsWith(a.owner)).flatMap((d) => d.shapes), ...pose.assembly.R.solids.filter((s) => nameOf(s).includes(a.owner))];
@@ -166,6 +178,9 @@ export const checkSpec = async (spec) => {
       const bottom = Math.max(...ys, ...plateYs);
       const off = ((top + bottom) / 2 - (r.y0 + r.y1) / 2) / (r.y1 - r.y0);
       if (fill < LIMITS.fillMin) addOnce('layout', 'fill', f, `the hero spans ${(fill * 100).toFixed(0)} % of the safe rect at frame ${f} (≥ ${LIMITS.fillMin * 100} %)`);
+      const tall = (bottom - top) / (r.y1 - r.y0);
+      if (r.y1 - r.y0 > r.x1 - r.x0 && tall < LIMITS.tallMin)
+        addOnce('layout', 'tall', f, `the picture spans ${(tall * 100).toFixed(0)} % of the safe rect's height at frame ${f} (≥ ${LIMITS.tallMin * 100} %): a wide, low composition leaves empty bands above and below; frame closer on the hero (camFit on its core) and let the environment run past the sides`);
       if (Math.abs(off) > LIMITS.offCentre) addOnce('layout', 'centre', f, `the picture sits in the ${off < 0 ? 'top' : 'bottom'} part of the frame at frame ${f} (centre ${(off * 100).toFixed(0)} % off; the other part is empty)`);
     }
     // tracks for jerk / pop / seam
@@ -286,7 +301,25 @@ export const checkFrames = (frames, {loop = false, cuts = [], captions = false} 
     // a horizontal cut: the picture ends in a wide flat edge (the graphics band or the frame cut through it), not in
     // the corner of an object. A plate's outline is one thin line: two rows inside it the ink is narrow again.
     const flat = (a, b) => a >= 0.14 * W && b >= 0.14 * W;
-    if (flat(width[bottom - 1] ?? 0, width[bottom - 3] ?? 0) || flat(width[top + 1] ?? 0, width[top + 3] ?? 0)) hcutFrames.push(i);
+    // a soft edge is not a cut: environment that runs past the band and FADES out (RoomSvg fade ≥ 80 px) keeps its
+    // its full contrast FADE_ROWS and more from its last ink row and almost none in the last rows; a hard cut keeps it
+    // to the edge
+    const peak = (y) => {
+      let sum = 0;
+      let n = 0;
+      for (let x = 0; x < W; x++) {
+        const d = Math.abs(fr[y * W + x] - bg);
+        if (d > 14) (sum += d), n++;
+      }
+      return n ? sum / n : 0;
+    };
+    const FADE_ROWS = Math.round((80 / 1920) * H);
+    const hard = (edge, dir) => {
+      const full = Math.max(...Array.from({length: 2 * FADE_ROWS}, (_, k) => peak(Math.min(H - 1, Math.max(0, edge + dir * (FADE_ROWS + k))))));
+      const near = Math.max(...Array.from({length: 3}, (_, k) => peak(Math.min(H - 1, Math.max(0, edge + dir * (1 + k))))));
+      return near > 0.6 * full;
+    };
+    if ((flat(width[bottom - 1] ?? 0, width[bottom - 3] ?? 0) && hard(bottom, -1)) || (flat(width[top + 1] ?? 0, width[top + 3] ?? 0) && hard(top, 1))) hcutFrames.push(i);
     const span = (bottom - top) / (y1 - y0);
     const off = ((top + bottom) / 2 - (y0 + y1) / 2) / (y1 - y0);
     if (span < 0.45) layoutBad.push([i, `the picture spans ${(span * 100).toFixed(0)} % of the band height`]);
@@ -380,6 +413,13 @@ const selftest = async () => {
   expect('pixels crop', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i) - 80, 130, 200, 260)), {}), ['crop']);
   expect('pixels empty bottom', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 150, 150, 110)), {}), ['layout']);
   expect('pixels cut by the band', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 200, 150, 400)), {}), ['crop']);
+  // the same block, but the band FADES it out over 30 rows (≈ 120 px): environment running past the band is allowed
+  const faded = (f) => {
+    const yb = Math.round(BAND.full * H);
+    for (let y = yb - 30; y < H; y++) for (let x = 0; x < W; x++) f[y * W + x] = Math.round(bg + (f[y * W + x] - bg) * Math.max(0, (yb - y) / 30));
+    return f;
+  };
+  expect('pixels soft fade at the band', checkFrames(Array.from({length: N}, (_, i) => faded(frame(smooth(i), 130, 150, 400))), {}), []);
   expect('pixels pop', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 130, 150, 260, i < 60 ? [[20, 300, 40, 40, 30]] : [])), {}), ['pop']);
   expect('pixels jump', checkFrames(Array.from({length: N}, (_, i) => frame(i < 60 ? 40 : 80, 130, 150, 260)), {}), ['pop']);
   expect('pixels declared cut', checkFrames(Array.from({length: N}, (_, i) => frame(i < 60 ? 40 : 80, 130, 150, 260)), {cuts: [60]}), []);

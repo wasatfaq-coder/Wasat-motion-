@@ -48,7 +48,8 @@ export const blendCam = (a: Cam, b: Cam, t: number): Cam => ({
 });
 
 /** An arrow (current, force, field) as the motion check sees it: its tail must sit on its owner part. */
-export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number};
+/** `tip` (optional): where the head ends; motion-check keeps the tips of two arrows apart (they must not read as one bar). */
+export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3};
 /** A frontal plate or inset in screen pixels. */
 export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number};
 

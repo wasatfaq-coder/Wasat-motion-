@@ -30,6 +30,8 @@ jobs:
         run: node scripts/lines-check.mjs --selftest
       - name: motion check catches every defect kind on broken inputs (crop, depth, through, air, layout, jerk, pop, seam)
         run: node scripts/motion-check.mjs --selftest
+      - name: object lint catches every root cause on broken objects (through, encircled, mount, terminal, fold, self-overlap, owner)
+        run: node scripts/object-audit.mjs --selftest
       - name: handedness of the kit (right-hand rules must use physCross)
         run: node scripts/handed-check.mjs
       - name: the topic scaffold still compiles and audits clean

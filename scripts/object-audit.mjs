@@ -28,6 +28,44 @@ const walk = (dir) =>
     return statSync(p).isDirectory() ? walk(p) : name.endsWith('.parts.ts') ? [p] : [];
   });
 
+// --selftest: the deliberately broken objects of scripts/fixtures/lint-broken.parts.ts must each be caught by
+// Assembly.lint() under its own keyword, a markup without a shape must throw, a `touch` string must not crash and a
+// short or doubled owner name must resolve. Root-cause guards (docs/root-causes.md) prove they still bite.
+if (args.includes('--selftest')) {
+  const {Assembly: Asm} = await tsImport(pathToFileURL(join(root, 'src/lib/assembly.ts')).href, import.meta.url);
+  const {anatomyProjection} = await tsImport(pathToFileURL(join(root, 'src/lib/anatomy.tsx')).href, import.meta.url);
+  const fx = await tsImport(pathToFileURL(join(root, 'scripts/fixtures/lint-broken.parts.ts')).href, import.meta.url);
+  const fails = [];
+  const objects = Object.entries(fx).filter(([, o]) => typeof o?.lint === 'function');
+  for (const [key, obj] of objects) {
+    const found = obj.lint();
+    const word = key === 'selfOverlap' ? 'self-overlap' : key;
+    if (!found.some((l) => l.startsWith(`${word}:`))) fails.push(`«${key}» not caught (lint said: ${found.join(' | ') || 'nothing'})`);
+  }
+  const P = anatomyProjection(10);
+  const m = new Asm('m', P);
+  try {
+    m.markup('seam', [0, 0, 0], '<path d="M0 0"/>', []);
+    fails.push('markup without a shape did not throw');
+  } catch {
+    /* expected */
+  }
+  const t = new Asm('t', P);
+  t.slab('base', {x: 0, y: 0, w: 4, d: 4, r: 0.4}, 0, 1, {ground: true});
+  t.slab('monitor.column', {x: 0, y: 0, w: 2, d: 2, r: 0.2}, 1, 4, {meta: {touch: 'base'}});
+  t.cyl('cap', 1, 1, 0.5, 5, 0.5, {meta: {owner: 'monitor.column'}});
+  const cap = t.R.solids.find((s) => s.name === 't.cap');
+  if (cap?.owner !== 't.monitor.column') fails.push(`doubled owner name resolved to «${cap?.owner}», expected «t.monitor.column»`);
+  const col = t.R.solids.find((s) => s.name === 't.monitor.column');
+  if (!Array.isArray(col?.touch) || col.touch[0] !== 't.base') fails.push(`touch string became ${JSON.stringify(col?.touch)}, expected ["t.base"]`);
+  if (fails.length) {
+    console.log(`object-audit --selftest: ${fails.length} guard(s) failed\n  ${fails.join('\n  ')}`);
+    process.exit(1);
+  }
+  console.log(`object-audit --selftest: ${objects.length} lint guards and 3 Assembly guards bite`);
+  process.exit(0);
+}
+
 const files = given.length ? given.map((f) => resolve(f)) : walk(join(root, 'src'));
 const {isAssembly, PART_NORM, ENV_HERO_SHARE, A} = await tsImport(pathToFileURL(join(root, 'src/lib/assembly.ts')).href, import.meta.url);
 

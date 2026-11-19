@@ -28,6 +28,13 @@ try {
     `src/projects/${slug}/scenes/OldWay.tsx`,
     `import React from 'react';\nimport {useCurrentFrame} from 'remotion';\nimport {Kit} from '../../../lib/anatomy';\nimport {camOn, lerpCam} from '../../../lib/camera';\nexport const OldWay: React.FC = () => {\n  const f = useCurrentFrame();\n  const a = camOn([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]);\n  const c = lerpCam(a, a, f / 10);\n  return <Kit svg={String(c.zoom)} />;\n};\n`,
   );
+  // a solid drawn straight from the kit, past Assembly, escapes the detail norm (§22.2): it must fail the topic audit
+  fs.writeFileSync(
+    `src/projects/${slug}/scenes/RawSolid.tsx`,
+    `import * as K from '../../../vendor/anatomy/iso-kit';\nimport {anatomyProjection} from '../../../lib/anatomy';\nexport const RAW = K.solidSvg(K.slabOf({x: 0, y: 0, w: 4, d: 4, r: 1}, 0, 4, anatomyProjection(10)));\n`,
+  );
+  // a finished object of another topic imported without consent (§4) must fail the topic audit
+  fs.writeFileSync(`src/projects/${slug}/scenes/Borrowed.ts`, `import {STAND} from '../../elektromotor/stand.parts';\nexport const B = STAND.name;\n`);
   let refused = '';
   try {
     sh('node', ['scripts/audit.mjs', '--only', 'motion', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`]);
@@ -35,6 +42,8 @@ try {
     refused = String(e.stdout || '');
   }
   if (!/motion: .*camOn/.test(refused) || !/motion: .*no state from a \*\.motion\.ts/.test(refused)) throw new Error(`the topic audit did not refuse the old way of animating:\n${refused}`);
+  if (!/reuse: .*Borrowed\.ts imports src\/projects\/elektromotor\/stand\.parts/.test(refused)) throw new Error(`the topic audit accepted another topic's object without consent:\n${refused}`);
+  if (!/detail: .*RawSolid\.tsx draws kit solids directly/.test(refused)) throw new Error(`the topic audit accepted a solid drawn past Assembly:\n${refused}`);
   // a note closed without its root cause and guard (docs/root-causes.md) must fail the topic audit too
   fs.mkdirSync(`projects/${slug}/content/reviews`, {recursive: true});
   fs.writeFileSync(`projects/${slug}/content/reviews/notes.json`, JSON.stringify([{id: 'T1', status: 'fixed', text: 'arrow in the air', fix: 'moved it'}]));

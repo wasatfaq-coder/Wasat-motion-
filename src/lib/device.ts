@@ -41,8 +41,15 @@ export const phone = (A: Assembly, [x, y, z]: Point3, o: {w?: number; d?: number
   A.slab('phone.mute', {x: x - 0.35, y: y + 3.6, w: 0.35, d: 1.2, r: 0.15}, z + 0.6, 0.6, {tone: 'mid', bevel: 0.05});
   // bottom edge: port, speaker holes, mic holes (seated in the frame band)
   A.slab('phone.port', {x: x + w / 2 - 1.2, y: y + d - 0.1, w: 2.4, d: 0.15, r: 0.3}, z + 0.65, 0.5, {tone: 'lo', bevel: 0});
-  for (let i = 0; i < 6; i++) A.slab(`phone.speaker${i}`, {x: x + w / 2 + 2 + i * 0.7, y: y + d - 0.1, w: 0.4, d: 0.15, r: 0.15}, z + 0.75, 0.35, {tone: 'lo', bevel: 0});
-  for (let i = 0; i < 6; i++) A.slab(`phone.mic${i}`, {x: x + w / 2 - 6.2 + i * 0.7, y: y + d - 0.1, w: 0.4, d: 0.15, r: 0.15}, z + 0.75, 0.35, {tone: 'lo', bevel: 0});
+  // holes only on the straight part of the edge (beyond the corner radius they would float off the rounded frame)
+  for (let i = 0; i < 6; i++) A.slab(`phone.speaker${i}`, {x: x + w / 2 + 1.6 + i * 0.55, y: y + d - 0.1, w: 0.35, d: 0.15, r: 0.15}, z + 0.75, 0.35, {tone: 'lo', bevel: 0});
+  for (let i = 0; i < 6; i++) A.slab(`phone.mic${i}`, {x: x + w / 2 - 4.8 + i * 0.55, y: y + d - 0.1, w: 0.35, d: 0.15, r: 0.15}, z + 0.75, 0.35, {tone: 'lo', bevel: 0});
+  for (const [i, sx] of [x + w / 2 - 2, x + w / 2 + 1.6].entries()) A.cyl(`phone.screw${i}`, sx, y + d + 0.02, 0.2, z + 0.85, 0.05, {tone: 'mid', bevel: 0});
+  // SIM tray with its eject hole on the −x side, proximity and light sensors by the earpiece
+  A.slab('phone.sim', {x: x - 0.12, y: y + 15, w: 0.12, d: 4.2, r: 0.1}, z + 0.65, 0.5, {tone: 'mid', bevel: 0});
+  A.cyl('phone.simhole', x - 0.13, y + 15.6, 0.12, z + 0.8, 0.05, {tone: 'lo', bevel: 0});
+  A.cyl('phone.proximity', x + w / 2 - 3.2, y + 0.85, 0.2, z + T, 0.05, {tone: 'lo', bevel: 0});
+  A.cyl('phone.light', x + w / 2 - 3.9, y + 0.85, 0.2, z + T, 0.05, {tone: 'lo', bevel: 0});
   // antenna breaks in the frame band
   for (const [i, by] of [2.4, d - 2.4].entries()) A.slab(`phone.band${i}`, {x: x + w, y: y + by, w: 0.12, d: 0.4, r: 0}, z + 0.4, T - 0.6, {tone: 'lo', bevel: 0});
   // camera module on the back is under the phone (screen up): its bump is shown by a raised ring round the back plate edge
@@ -64,7 +71,7 @@ export const monitor = (A: Assembly, [x, y, z]: Point3, o: {w?: number; h?: numb
   A.slab('monitor.foot', {x: cx - 11, y: y - 8, w: 22, d: 14, r: 3}, z, 1.4, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero'});
   for (const [i, fx] of [cx - 9, cx + 9].entries()) A.cyl(`monitor.pad${i}`, fx, y - 2, 1, z + 1.4, 0.2, {tone: 'lo', bevel: 0});
   A.slab('monitor.column', {x: cx - 2.5, y: y - 6, w: 5, d: 2.4, r: 0.8}, z + 1.4, 16, {tone: 'mid', bevel: 0.4});
-  A.slab('monitor.cablehole', {x: cx - 1.2, y: y - 6.05, w: 2.4, d: 0.1, r: 0.5}, z + 6, 2, {tone: 'lo', bevel: 0});
+  A.slab('monitor.clip', {x: cx - 1.4, y: y - 6.6, w: 2.8, d: 0.6, r: 0.3}, z + 6, 2, {tone: 'lo', bevel: 0.1});
   A.turned('monitor.hinge', [[-4, 1.4], [4, 1.4]], G.frameAlong([cx, y - 4.8, z + 17.4], [1, 0, 0]), {tone: 'lo', meta: {owner: 'monitor.column'}});
   const bz = z + 10;
   A.slab('monitor.housing', {x: x + 1, y: y - 3.4, w: w - 2, d: 3, r: 1.6}, bz + 1, h - 2, {tone: 'mid', bevel: 0.6});
@@ -84,9 +91,11 @@ export const monitor = (A: Assembly, [x, y, z]: Point3, o: {w?: number; h?: numb
     [cx - 3.5, bz + h / 2 + 3.5],
     [cx + 3.5, bz + h / 2 + 3.5],
   ].entries())
-    A.turned(`monitor.screw${i}`, [[0, 0.5], [0.3, 0.5], [0.45, 0.0001]], G.frameAlong([vx, y - 3.8, vz], [0, -1, 0]), {tone: 'hi', meta: {owner: 'monitor.vesa'}});
+    A.turned(`monitor.screw${i}`, [[0, 0.5], [0.3, 0.5], [0.45, 0.0001]], G.frameAlong([vx, y - 3.6, vz], [0, -1, 0]), {tone: 'hi', meta: {owner: 'monitor.vesa'}});
   // the power cable from the back, down the column, out over the foot to the floor
-  A.pipe('monitor.cable', [[cx, y - 3.6, bz + 5], [cx, y - 6.6, bz + 5], [cx, y - 6.6, z + 3], [cx, y - 12, z + 0.5], [cx, y - 30, z + 0.5]], 0.5, {bend: 2.2, limp: true, ends: [true, false]});
+  // the power cable from the back, down behind the column through its clip, out over the foot to the floor
+  A.pipe('monitor.cable', [[cx + 4.5, y - 3.4, bz + 5], [cx + 4.5, y - 7.8, bz + 5], [cx, y - 7.8, bz - 2], [cx, y - 7.8, z + 3], [cx, y - 14, z + 1.4], [cx, y - 30, z + 0.5]], 0.5, {bend: 2.2, limp: true, ends: [true, false], maxLength: 5, meta: {touch: ['monitor.clip', 'monitor.foot']}});
+  // short chunks: a long chunk beside the column is in front of it at one end and behind at the other (no paint order)
   void up;
   return {o: [x + 1.2, y + 0.56, bz + 2.6 + h - 3.8] as Point3, u: [w - 2.4, 0, 0] as Point3, v: [0, 0, -(h - 3.8)] as Point3};
 };

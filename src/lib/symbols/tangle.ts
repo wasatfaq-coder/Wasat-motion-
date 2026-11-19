@@ -48,10 +48,14 @@ export const tangle = (name: string, P: K.Projection, c: Point3, o: TangleOpts =
     A.pipe(`loop${i}`, circle(c, n, r, 28, i * 0.7).slice(0, -1), cord, {closed: true, limp: true, maxLength: 10, meta: {owner: `${name}.core`, touch: [`${name}.*`]}});
   });
   // the free end: out of the wound ball (from the core surface, under the loops), down and away
-  const out: Point3 = [0.62, 0.62, -0.48];
-  const at = (k: number): Point3 => [c[0] + out[0] * k, c[1] + out[1] * k, c[2] + out[2] * k];
-  const endPts: Point3[] = [at(R - cord), at(R + 3), [c[0] + out[0] * (R + 7), c[1] + out[1] * (R + 7), c[2] - R * 0.6], [c[0] + out[0] * (R + 12), c[1] + out[1] * (R + 12), c[2] - R + cord]];
-  A.pipe('end', endPts, cord, {bend: 3, limp: true, ends: [true, false], lit: o.lit, meta: {touch: [`${name}.*`]}});
+  // the end leaves sideways on screen (+x −y) and lies down on the floor: a run towards the viewer (+x +y) reads as a
+  // vertical stick on screen and the ball as a lollipop
+  const side: Point3 = [Math.SQRT1_2, -Math.SQRT1_2, 0];
+  const go = (k: number, z: number): Point3 => [c[0] + side[0] * k, c[1] + side[1] * k, z];
+  const floor = c[2] - R + cord;
+  const endPts: Point3[] = [go(R - cord, c[2] - 2), go(R + 3, c[2] - 3), go(R + 6, floor + 1.5), go(R + 9, floor), go(R + 20, floor)];
+  A.pipe('end', endPts, cord, {bend: 3, limp: true, ends: [false, false], // it comes out from under the loops: its start is wound in, not mounted
+    lit: o.lit, meta: {touch: [`${name}.*`]}});
   return {
     A,
     /** state = load 0..1: the first round(N·state) loops are on (the first wound stays on longest) */

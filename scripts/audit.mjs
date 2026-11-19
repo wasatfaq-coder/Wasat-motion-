@@ -183,6 +183,43 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2h) detail norm everywhere (§22.2, §24): object-audit counts parts only of objects built with Assembly in *.parts.ts.
+// Root cause of the gap: a scene could draw a solid straight from the kit (solidSvg, slabOf, cylinder…) and the object
+// was never counted or checked, so a topic could look detailed in one place and bare in another. In topic code every
+// solid goes through an Assembly; moving parts live in *.motion.ts (dynSolid), covers in covers.ts.
+{
+  const raw = /\b(solidSvg|slabOf|sphereOf|prismOf|solidOf|extrude|cylinder|tubePieces)\(/g;
+  const topicCode = srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && (topicDir ? under(f, topicDir) : true) && /\.tsx?$/.test(f) && !/\.(parts|motion)\.ts$/.test(f) && !f.endsWith('covers.ts'));
+  for (const f of topicCode) {
+    const code = fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    const hits = [...new Set(code.match(raw) ?? [])];
+    if (hits.length) add('error', `detail: ${f} draws kit solids directly (${hits.map((x) => x.slice(0, -1)).join(', ')}); build the object with Assembly in a *.parts.ts so object-audit counts and checks it (§22.2), moving parts with dynSolid in a *.motion.ts`);
+  }
+}
+
+// 2i) reuse with consent (§4, §24): a topic builds its own objects from the kit builders in src/lib. Importing another
+// topic's code (src/projects/<other>) or the demo samples (src/samples) is allowed only for a catalog entry
+// (src/lib/catalog.json) whose `consent` lists this topic. Root cause: nothing stopped a topic from quietly reusing a
+// finished object or location of another topic.
+{
+  const catalog = readJson('src/lib/catalog.json').objects;
+  const topicFiles = srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && (topicDir ? under(f, topicDir) : true) && /\.tsx?$/.test(f));
+  for (const f of topicFiles) {
+    const slug = f.split(`${path.sep}projects${path.sep}`)[1].split(path.sep)[0];
+    const code = fs.readFileSync(f, 'utf8');
+    for (const m of code.matchAll(/from ['"]([^'"]+)['"]/g)) {
+      const target = path.normalize(path.join(path.dirname(f), m[1]));
+      const rel = path.relative(process.cwd(), target).split(path.sep).join('/');
+      const other = rel.match(/^src\/projects\/([^/]+)\//);
+      const sample = rel.startsWith('src/samples/');
+      if (!(other && other[1] !== slug) && !sample) continue;
+      const entry = Object.values(catalog).find((e) => rel.startsWith(String(e.module).replace(/\.tsx?$/, '')));
+      if (!entry || !(entry.consent ?? []).includes(slug))
+        add('error', `reuse: ${f} imports ${rel}; build the object from the kit (src/lib) or record the user's consent for «${slug}» in src/lib/catalog.json (§4)`);
+    }
+  }
+}
+
 // 2g) root cause every time (docs/root-causes.md): a review note closed as fixed or verified names its root cause and
 // the automatic guard that now catches it (an existing scripts/… or src/… path). Without that the same defect comes
 // back in the next topic and the gate finds it again. Notes closed before this rule carry legacy: true.
@@ -308,7 +345,21 @@ if (!fs.existsSync(regFile)) {
     const n = idx + 1;
     const sc = scenes[s.id];
     if (!sc) return add('error', `register: ${s.id} is not declared in ${regFile}`);
-    if (!['literal', 'schematic', 'metaphor'].includes(sc.mode)) add('error', `register: ${s.id} mode must be literal | schematic | metaphor`);
+    if (!['literal', 'schematic', 'metaphor', 'symbol'].includes(sc.mode)) add('error', `register: ${s.id} mode must be literal | schematic | metaphor | symbol`);
+    // §24.1 symbol mode: a state of a person shown by a symbol from src/lib/symbols/catalog.json. The symbol stands for
+    // the CAUSE, so it needs the cause, the beat it appears on and the beat it leaves on; never over an interface or data.
+    if (sc.mode === 'symbol') {
+      const catalog = readJson('src/lib/symbols/catalog.json').symbols;
+      const beats = new Set((s.beats ?? []).map((b) => b.id));
+      if (!(sc.symbols ?? []).length) add('error', `register: ${s.id} is a symbol scene without symbols [{id, state, cause, appearsOn, leavesOn}] (§24.1)`);
+      for (const y of sc.symbols ?? []) {
+        if (!catalog[y.id]) add('error', `register: ${s.id} symbol «${y.id}» is not in src/lib/symbols/catalog.json (${Object.keys(catalog).join(', ')}); a new row needs the user's approval (§24.1)`);
+        const miss = ['state', 'cause', 'appearsOn', 'leavesOn'].filter((k) => !String(y[k] ?? '').trim());
+        if (miss.length) add('error', `register: ${s.id} symbol «${y.id}» misses ${miss.join(', ')} (a symbol shows a cause: it appears on an event and leaves when the cause is removed, §24.1)`);
+        for (const k of ['appearsOn', 'leavesOn']) if (y[k] && beats.size && !beats.has(y[k]) && y[k] !== 'after') add('error', `register: ${s.id} symbol «${y.id}» ${k} «${y[k]}» is not a beat of this scene (or «after» for a later scene)`);
+      }
+      if (sc.interface === 'real' || sc.data) add('error', `register: ${s.id} shows an interface or data: these stay literal, never symbolic (§20.1, §24.1)`);
+    }
     if (sc.interface === 'real' && sc.mode !== 'literal') add('error', `register: ${s.id} real interface requires literal mode (§20.1)`);
     if (sc.leadingMetaphor) {
       const later = tl.scenes.slice(idx + 1).some((entry) => entry.id === sc.schemeScene);

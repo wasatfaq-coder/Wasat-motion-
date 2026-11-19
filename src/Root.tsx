@@ -8,6 +8,7 @@ import {ElektromotorCover} from './projects/elektromotor/Cover';
 import {episodeSchema} from './components/Episode';
 import {AnatomyStyleSample} from './samples/AnatomyStyleSample';
 import {AnatomyKitSample} from './samples/AnatomyKitSample';
+import {KIT_PAGES, UniversalKitSample} from './samples/UniversalKitSample';
 import {AnatomyCoverSample} from './samples/AnatomyCoverSample';
 import {anatomyCoverSchema} from './components/AnatomyCover';
 import {AnatomyCastSample, AnatomyCharacterSample, AnatomyGaitSample} from './samples/AnatomyCharacterSample';
@@ -31,6 +32,7 @@ export const RemotionRoot: React.FC = () => (
   {/* style sample for new topics (MASTER_PROMPT_FINAL §22) */}
   <Composition id="AnatomyStyle" component={AnatomyStyleSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={240} />
   <Composition id="AnatomyKit" component={AnatomyKitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={240} />
+  <Composition id="AnatomyUniversal" component={UniversalKitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={KIT_PAGES.length} />
   <Composition id="AnatomyCharacter" component={AnatomyCharacterSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={420} />
   <Composition id="AnatomyGait" component={AnatomyGaitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={300} />
   <Composition id="AnatomyCoverSample" component={AnatomyCoverSample} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />

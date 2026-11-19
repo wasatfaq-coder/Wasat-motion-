@@ -21,8 +21,7 @@ const perSec = Number(arg('fps', '2'));
 const scale = Number(arg('scale', '0.25'));
 const keyScale = Number(arg('key-scale', '0.5'));
 fs.mkdirSync(path.join(outDir, 'key'), {recursive: true});
-const shell = '/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell';
-const browserExecutable = fs.existsSync(shell) ? shell : null;
+const browserExecutable = findBrowser();
 const serveUrl = await bundle({entryPoint: path.resolve('src/index.ts')});
 const comp = await selectComposition({serveUrl, id: compId, browserExecutable});
 const timeline = JSON.parse(fs.readFileSync(timelineFile, 'utf8'));
@@ -39,6 +38,7 @@ for (const sc of timeline.scenes) {
   // tile with python/PIL (6 columns), label each tile with its global frame number
   execFileSync('python3', ['-I', '-c', `
 import sys
+import {findBrowser} from './lib/browser.mjs';
 from PIL import Image, ImageDraw
 fs=sys.argv[2:]; ims=[Image.open(f) for f in fs]; w,h=ims[0].size; c=6; r=(len(ims)+c-1)//c
 s=Image.new('RGB',(w*c,h*r),'white'); d=ImageDraw.Draw(s)

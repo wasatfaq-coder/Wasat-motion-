@@ -11,7 +11,7 @@ src/lib/character.ts (the faceless mannequin, poses, walkTo, reach, holdInFront)
 
 Write projects/<slug>/content/parts-plan.md in Russian:
 1. PARTS: every object of every scene with its role (hero 80–150 parts, secondary ≥ 40, environment detailed too) as a table.
-   You may set Assembly `detail` to complex, simple or schematic to record how the object is read. The count above does not drop.
+   You may set Assembly `detail` to complex or schematic to record how the object is read (there is no simple). The count above does not drop.
    «группа (основание → конструкция → механизм → объект показа) | деталь | кол-во | примитив Assembly | опирается на | досье».
    Every part rests on another; nothing floats; crossing parts share an owner or are split (a ring round a body is cut into slices).
 2. World plan: kit units per room unit, the layout of each location, the camera per beat (what fills ≥ 35–40 % of the frame, §19.2).

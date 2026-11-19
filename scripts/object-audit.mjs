@@ -170,9 +170,13 @@ for (const file of files) {
       for (const m of [...res.sunk].slice(0, 8)) report += `\n      dynamic ${m}`;
       report += `\n    dynamic sweep: ${res.doubles.size} part(s) drawn twice, ${res.sunk.size} part(s) sink into the static stand`;
     }
-    const failures = audited.failures + (unsettled.length ? 1 : 0) + (notApplied ? 1 : 0) + sweepProblems;
+    let failures = audited.failures + (unsettled.length ? 1 : 0) + (notApplied ? 1 : 0) + sweepProblems;
     const detail = value.detail ?? 'complex';
-    // detail is recorded only. simple/schematic does not lower the §22.2 count.
+    // §22.2 (2.9): detail is complex or schematic, recorded only; it never lowers the count. Any other value is an error.
+    if (!['complex', 'schematic'].includes(detail)) {
+      report += `\n    detail «${detail}» is not allowed: use complex or schematic (§22.2)`;
+      failures++;
+    }
     const norm = PART_NORM[value.role];
     const short = value.role !== 'environment' && value.parts < norm;
     results.push({swept, file: relative(root, file), export: exportName, name: value.name, role: value.role, detail, parts: value.parts, norm, failures, short, seconds: (Date.now() - started) / 1000, report});

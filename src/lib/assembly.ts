@@ -27,7 +27,7 @@ export type Point3 = K.Point3;
 export type Frame = {o: Point3; a: Point3; u: Point3; v: Point3};
 export type Role = 'hero' | 'secondary' | 'environment';
 /** How the object is meant to be read. The part-count norm does not change with this flag (§22.2). */
-export type Detail = 'complex' | 'simple' | 'schematic';
+export type Detail = 'complex' | 'schematic'; // no «simple» exemption (§22.2, 2.9)
 
 /** §22.2 detail norm: recorded parts per role. Environment is a warning in object-audit, not an error. */
 export const PART_NORM: Record<Role, number> = {hero: 80, secondary: 40, environment: 15};

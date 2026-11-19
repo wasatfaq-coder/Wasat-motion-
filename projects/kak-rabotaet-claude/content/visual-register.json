@@ -1,7 +1,19 @@
 {
-  "_choose": "Way of showing, per scene, first that carries the idea (§20.1, §24): literal (real objects, interfaces, data) → schematic (structure, steps, scale) → metaphor (a machine for what has no form; approved at STOP 1) → symbol (a person's state only: a symbol from src/lib/symbols/catalog.json, with cause, appearsOn and leavesOn beats). Interfaces and data are never metaphor or symbol.",
-  "_doc": "MASTER_PROMPT_FINAL §20: every scene declares location and mode; every metaphor is justified and approved at STOP 1; measured data sits on a frontal plate. A leading metaphor sets leadingMetaphor (metaphor id) and schemeScene (a later schematic scene id). interface: real requires literal mode. whyNotLiteral and rationale are the same slot.",
-  "scenes": {},
-  "locationReuse": [],
+  "_doc": "MASTER_PROMPT_FINAL §20: every scene declares location and mode. No metaphors: interface literal; tokens, candidates and the inside-model graph are schematic (the graph follows the attribution-graph figures of S1).",
+  "coralMeaning": "выбранный токен — кусочек, который модель выдаёт или выбрала заранее",
+  "scenes": {
+    "scene-01": {"location": "desk-phone", "mode": "literal", "interface": "real", "metaphors": [], "coral": "последний выданный токен в ответе"},
+    "scene-02": {"location": "token-board", "mode": "schematic", "metaphors": [], "whyNotLiteral": "токенизация не видна в интерфейсе; схема плиток показывает границы токенов, которые глоссарий S6 описывает словами"},
+    "scene-03": {"location": "token-board", "mode": "schematic", "metaphors": [], "coral": "выбранный следующий токен", "whyNotLiteral": "распределение вероятностей не показывается пользователю; полоски без чисел — порядок, не измерение"},
+    "scene-04": {"location": "inside-model", "mode": "schematic", "metaphors": [], "whyNotLiteral": "внутренние вычисления не имеют формы; схема узлов-понятий по рисункам S1"},
+    "scene-05": {"location": "inside-model", "mode": "schematic", "metaphors": [], "coral": "узел «rabbit» — выбранное заранее слово", "whyNotLiteral": "как scene-04"},
+    "scene-06": {"location": "inside-model", "mode": "schematic", "metaphors": [], "coral": "текущее выбранное слово конца строки (habit, затем green)", "whyNotLiteral": "как scene-04"},
+    "scene-07": {"location": "desk-phone", "mode": "literal", "interface": "real", "metaphors": [], "coral": "последний выданный токен в ответе"}
+  },
+  "locationReuse": [
+    {"location": "desk-phone", "scenes": [1, 7], "reason": "петля: ответ на вопрос хука в том же кадре"},
+    {"location": "token-board", "scenes": [2, 3], "reason": "одна строка: нарезка и выбор следующего токена продолжают друг друга"},
+    {"location": "inside-model", "scenes": [4, 5, 6], "reason": "одна схема: открытие, план, вмешательство на тех же узлах"}
+  ],
   "metaphors": {}
 }

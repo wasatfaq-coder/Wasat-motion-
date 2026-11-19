@@ -21,9 +21,11 @@ export type Cam = {focus: [number, number]; zoom: number; screen?: [number, numb
 /** Full-frame SVG with a camera: the focus point is shown at `screen` with `zoom`.
  *  `bottom` is where the graphics band ends (default: the caption zone; a reel without captions passes
  *  FRAME_BOTTOM). `sides` softens the left and right edges over that many pixels, so environment that runs past the
- *  frame (a bench, a floor) fades out instead of being cut by the frame edge. The hero must still stay inside the
- *  safe rect (camFit, motion-check). */
-export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: number; bottom?: number; sides?: number}> = ({cam, children, top = GRAPHICS_TOP, bottom = ZONES.captionsTop, sides = 0}) => {
+ *  frame (a bench, a floor) fades out instead of being cut by the frame edge. `fade` is the same for the top and the
+ *  bottom of the band: a close-up whose environment runs past the band's bottom needs a long fade (≥ 80 px), or the
+ *  band cuts it in a flat edge (motion-check --video reports it as a horizontal cut). The hero must still stay inside
+ *  the safe rect (camFit, motion-check). */
+export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: number; bottom?: number; sides?: number; fade?: number}> = ({cam, children, top = GRAPHICS_TOP, bottom = ZONES.captionsTop, sides = 0, fade = 30}) => {
   const [fx, fy] = cam.focus;
   const [sx, sy] = cam.screen ?? [540, 760];
   return (
@@ -33,7 +35,7 @@ export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: numbe
         <linearGradient id="graphicsBand" x1="0" y1="0" x2="0" y2="1920" gradientUnits="userSpaceOnUse">
           <stop offset={top / 1920} stopColor="white" stopOpacity={0} />
           <stop offset={(top + 50) / 1920} stopColor="white" stopOpacity={1} />
-          <stop offset={(bottom - 40) / 1920} stopColor="white" stopOpacity={1} />
+          <stop offset={(bottom - 10 - fade) / 1920} stopColor="white" stopOpacity={1} />
           <stop offset={(bottom - 10) / 1920} stopColor="white" stopOpacity={0} />
         </linearGradient>
         <linearGradient id="graphicsSides" x1="0" y1="0" x2="1080" y2="0" gradientUnits="userSpaceOnUse">

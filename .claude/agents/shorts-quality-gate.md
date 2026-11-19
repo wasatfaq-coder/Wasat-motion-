@@ -40,7 +40,7 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
 4. Shape animation: every scene has morphing / assembly / line drawing / cascades / secondary motion visible on the sheet.
 5. Retention checklist (§19.4), each item PASS/FAIL: hook (0–2 s), suspense & micro-intrigues (every 8–12 s),
    visual graphics (story readable without sound), dynamic editing, sound design & editing to sound
-   (sfx on all transitions and transformations, silence before the main answer), visual re-hook at 40–50 %.
+   (sfx on all transitions and transformations, silence before the main answer; §25.3: at least two real silences and at least two sound-as-transition moments, one acceleration or slowdown and one held breath), visual re-hook at 40–50 %.
 5b. Projection, detail, physics, colour (§19.7): one isometric projection everywhere (no flat frontal cut-out scenes);
    every object detailed on three levels (silhouette, construction, micro-details); no object intersections or wrong placement
    (e.g. items cutting through each other on a desk, a thrown item landing off target); motion with physics (anticipation, arcs,

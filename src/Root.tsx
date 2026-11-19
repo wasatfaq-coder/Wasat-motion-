@@ -13,6 +13,7 @@ import {AnatomyCoverSample} from './samples/AnatomyCoverSample';
 import {anatomyCoverSchema} from './components/AnatomyCover';
 import {AnatomyCastSample, AnatomyCharacterSample, AnatomyGaitSample} from './samples/AnatomyCharacterSample';
 import {ElektromotorReel, ElektromotorStand, REEL_FRAMES} from './projects/elektromotor/StandFrames';
+import {ElektromotorMotor} from './projects/elektromotor/MotorFrames';
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -49,6 +50,7 @@ export const RemotionRoot: React.FC = () => (
     calculateMetadata={({props}) => ({durationInFrames: Math.max(1, ElektromotorSelected(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0))})}
   />
   <Composition id="ElektromotorCover" component={ElektromotorCover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
+  <Composition id="ElektromotorMotor" component={ElektromotorMotor} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={4} />
   <Composition id="ElektromotorStand" component={ElektromotorStand} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={4} />
   <Composition id="ElektromotorReel" component={ElektromotorReel} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={REEL_FRAMES} />
   {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}

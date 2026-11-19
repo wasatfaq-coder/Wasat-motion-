@@ -11,7 +11,9 @@
 //      layout     the hero filling too little of the rect, or sitting in its top or bottom part (an empty half)
 //      jerk       a point that jumps or changes speed abruptly between two frames (not on a declared cut)
 //      pop        a part, arrow or plate that appears or vanishes within a frame or two instead of fading
+//      read       a plate with text that is fully visible for less than the time to read it (chars ÷ readCps + readPad)
 //      seam       a looping reel whose last frame does not lead into the first
+//      small      a drawn inset (plate kind 'inset') smaller than LIMITS.insetMin on its short side
 //    node scripts/motion-check.mjs [files…]            (default: every src/**/*.motion.ts)
 //
 // 2) PIXELS of a rendered video (review-video, the quality gate): any mp4 of any topic.
@@ -43,10 +45,21 @@ export const LIMITS = {
   sink: 0.6, // kit units a moving part may press into a static one
   air: 0.35, // room units between an arrow tail and its owner's surface
   fillMin: 0.55, // the hero spans at least this share of the rect's width or height
+  tallMin: 0.75, // a vertical frame: the hero and its plates span at least this share of the rect's HEIGHT (a wide, low
+  // picture fitted by width leaves empty bands above and below, R1 2026-11-19)
   offCentre: 0.18, // the hero centre may sit this share of the rect height off its centre
   jump: 40, // px a point may move in one frame
   accel: 8, // px/frame² a point may change speed by
   fade: 0.34, // opacity a part may gain or lose in one frame
+  outline: 2.5, // px of dark outline a LIGHT-filled arrow head needs to read on the light solids of the house style (R7)
+  still: 1, // px/frame below which a settling part reads as stopped
+  late: 8, // frames an arrow may stay hidden after its owner has stopped (it annotates the pose it stops in, R6)
+  tipOn: 14, // px from an arrow tip to the axis of a moving body that is not its owner (the head lands on it, R4)
+  readCps: 13, // characters per second a viewer reads a label at (Cyrillic and Latin alike; spaces do not count)
+  readPad: 1.2, // seconds to find the label and its leader before reading starts
+  readMin: 1.5, // seconds any label stays, however short (a single letter still has to be found)
+  tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
+  insetMin: 320, // px: the shorter side of a drawn inset (kind 'inset'); a 240 px inset left a 35 px current dot (N6)
 };
 
 const walk = (dir) =>
@@ -139,6 +152,39 @@ export const checkSpec = async (spec) => {
         }
       }
     }
+    // heads: two visible arrows whose heads meet read as one bar; an arrow head on a field-line head reads as one
+    // figure. A head is sampled from its tip back along the shaft (HEAD_LEN kit units), not by its tip alone (R5).
+    const tipped = pose.arrows.filter((x) => x.opacity > 0.05 && x.tip);
+    const headPts = (tip, tail) => {
+      const v = tail.map((c, k) => c - tip[k]);
+      const l = Math.hypot(...v) || 1;
+      return [0, 0.5, 1].map((s) => tip.map((c, k) => c + (v[k] / l) * Math.min(l, HEAD_LEN) * s));
+    };
+    const near = (pa, pb) => Math.min(...pa.flatMap((a) => pb.map((b) => Math.hypot(scr(a)[0] - scr(b)[0], scr(a)[1] - scr(b)[1]))));
+    for (let i = 0; i < tipped.length; i++)
+      for (let j = i + 1; j < tipped.length; j++) {
+        const d = near(headPts(tipped[i].tip, tipped[i].tail), headPts(tipped[j].tip, tipped[j].tail));
+        if (d < LIMITS.tips) addOnce('arrows', `${tipped[i].name}|${tipped[j].name}`, f, `the heads of ${tipped[i].name} and ${tipped[j].name} are ${d.toFixed(0)} px apart at frame ${f} (≥ ${LIMITS.tips}); shorten them so they do not read as one bar`);
+      }
+    for (const a of tipped)
+      for (const h of (pose.heads ?? []).filter((x) => x.opacity > 0.05)) {
+        const d = near(headPts(a.tip, a.tail), h.base ? headPts(h.at, h.base) : [h.at]);
+        if (d < LIMITS.tips) addOnce('arrows', `${a.name}|${h.name}`, f, `the head of ${a.name} is ${d.toFixed(0)} px from the head of ${h.name} at frame ${f} (≥ ${LIMITS.tips}); the two heads read as one figure`);
+      }
+    // a light-filled head (paper, shade, top) must carry a dark outline, or it vanishes on a cream body (R7)
+    for (const a of tipped) {
+      for (const m of String(a.svg ?? '').matchAll(/fill:var\(--anatomy-(shade-\d|paper|top)\);stroke:([^;]+);stroke-width:([\d.]+)px/g))
+        if (Number(m[3]) < LIMITS.outline || !/anatomy-(hi|lit|lo)/.test(m[2])) addOnce('arrows', `${a.name}|outline`, f, `${a.name}: a light head (${m[1]}) with a ${m[3]} px ${m[2]} outline at frame ${f}; give it a dark outline ≥ ${LIMITS.outline} px so it reads on light solids`);
+    }
+    // a head that lands on another moving body (a bar, a wire that is not its owner) reads as touching it
+    for (const a of tipped) {
+      const [tx, ty] = scr(a.tip);
+      for (const d of pose.extra) {
+        if (d.annotation || (d.opacity ?? 1) <= 0.05 || d.name.startsWith(a.owner) || (a.along ?? []).some((x) => d.name.startsWith(x)) || !d.shapes?.length) continue;
+        const hit = d.shapes.flatMap((sh) => insidePoints(A, sh)).some((p) => Math.hypot(scr(p)[0] - tx, scr(p)[1] - ty) < LIMITS.tipOn);
+        if (hit) addOnce('arrows', `${a.name}|${d.name.split(':')[0]}`, f, `the head of ${a.name} lands on ${d.name.split(':')[0]} at frame ${f} (< ${LIMITS.tipOn} px); move or shorten the arrow`);
+      }
+    }
     // air: arrow tails on their owners
     for (const a of pose.arrows.filter((x) => x.opacity > 0.05)) {
       const own = [...pose.extra.filter((d) => d.name.startsWith(a.owner)).flatMap((d) => d.shapes), ...pose.assembly.R.solids.filter((s) => nameOf(s).includes(a.owner))];
@@ -156,6 +202,9 @@ export const checkSpec = async (spec) => {
     if (out.length) addOnce('crop', 'keep', f, `${out.length} hero point(s) outside the safe rect at frame ${f} (${out.map((k) => k.name).slice(0, 4).join(', ')})`);
     for (const p of pose.plates.filter((x) => x.opacity > 0.05))
       if (p.x < r.x0 - 1 || p.y < r.y0 - 1 || p.x + p.w > r.x1 + 1 || p.y + p.h > r.y1 + 1) addOnce('crop', p.name, f, `plate ${p.name} leaves the safe rect at frame ${f}`);
+    // small: a drawn inset below the floor (its marks are read on a phone, N6)
+    for (const p of pose.plates.filter((x) => x.opacity > 0.05 && x.kind === 'inset'))
+      if (Math.min(p.w, p.h) < LIMITS.insetMin) addOnce('small', p.name, f, `inset ${p.name} is ${Math.round(Math.min(p.w, p.h))} px on its short side at frame ${f} (≥ ${LIMITS.insetMin})`);
     // layout: the hero fills the rect and sits in its middle
     if (xy.length) {
       const xs = xy.map((p) => p[0]);
@@ -166,6 +215,9 @@ export const checkSpec = async (spec) => {
       const bottom = Math.max(...ys, ...plateYs);
       const off = ((top + bottom) / 2 - (r.y0 + r.y1) / 2) / (r.y1 - r.y0);
       if (fill < LIMITS.fillMin) addOnce('layout', 'fill', f, `the hero spans ${(fill * 100).toFixed(0)} % of the safe rect at frame ${f} (≥ ${LIMITS.fillMin * 100} %)`);
+      const tall = (bottom - top) / (r.y1 - r.y0);
+      if (r.y1 - r.y0 > r.x1 - r.x0 && tall < LIMITS.tallMin)
+        addOnce('layout', 'tall', f, `the picture spans ${(tall * 100).toFixed(0)} % of the safe rect's height at frame ${f} (≥ ${LIMITS.tallMin * 100} %): a wide, low composition leaves empty bands above and below; frame closer on the hero (camFit on its core) and let the environment run past the sides`);
       if (Math.abs(off) > LIMITS.offCentre) addOnce('layout', 'centre', f, `the picture sits in the ${off < 0 ? 'top' : 'bottom'} part of the frame at frame ${f} (centre ${(off * 100).toFixed(0)} % off; the other part is empty)`);
     }
     // tracks for jerk / pop / seam
@@ -181,6 +233,53 @@ export const checkSpec = async (spec) => {
     }
     for (const p of pose.plates) t.set(`plate:${p.name}`, {x: p.x, y: p.y, o: p.opacity});
     tracks.push(t);
+  }
+  // read: a plate with text must stay fully visible (opacity ≥ 0.95) for long enough to be read, counted from the
+  // first frame it is fully visible; in a looping reel a plate that is still up at the last frame goes on from frame 0.
+  // Root cause: only caption pages had a hold rule (check-text); a label could flash for a few frames and pass.
+  if (!spec.stills) {
+    const texts = new Map();
+    for (let f = 0; f < spec.frames; f++) for (const p of spec.pose(f).plates) if (p.text) texts.set(p.name, p.text);
+    for (const [name, text] of texts) {
+      const full = (f) => (tracks[f].get(`plate:${name}`)?.o ?? 0) >= 0.95;
+      const start = Array.from({length: spec.frames}, (_, f) => f).find(full);
+      if (start === undefined) continue; // never fully visible: the crop and pop checks speak for it
+      let end = start;
+      while (end < spec.frames && full(end)) end++;
+      let run = end - start;
+      if (spec.loop && end >= spec.frames) for (let f = 0; f < start && full(f); f++) run++;
+      const need = Math.max(LIMITS.readMin, [...text].filter((c) => !/\s/.test(c)).length / LIMITS.readCps + LIMITS.readPad);
+      if (run / spec.fps < need - 1e-6) add('read', start, `plate ${name} «${text}» is fully visible for ${(run / spec.fps).toFixed(2)} s from frame ${start}; reading it needs ${need.toFixed(2)} s`);
+    }
+  }
+  // late: an arrow that comes back after its owner stopped leaves the pose bare (the owner settles, the note lags)
+  const owners = new Map();
+  for (let f = 0; f < spec.frames; f++) for (const a of spec.pose(f).arrows) owners.set(a.name, a.owner);
+  const ownerMove = (f, owner) => {
+    let m = 0;
+    for (const [k, q] of tracks[f]) {
+      if (!k.startsWith(`part:${owner}`)) continue;
+      const p = tracks[f - 1].get(k);
+      if (p && p.x !== undefined) m = Math.max(m, Math.hypot(q.x - p.x, q.y - p.y));
+    }
+    return m;
+  };
+  for (const [name, owner] of owners) {
+    let run = 0;
+    let afterMove = false;
+    let prevMoved = false;
+    for (let f = 1; f < tracks.length; f++) {
+      const o = tracks[f].get(`arrow:${name}`)?.o ?? 0;
+      const moved = ownerMove(f, owner) >= LIMITS.still;
+      if (o >= 0.5) {
+        if (run > LIMITS.late && afterMove) addOnce('late', name, f, `${name} comes back ${run} frames after «${owner}» stopped (frame ${f}; ≤ ${LIMITS.late}): fade it in on the owner's eased motion, not on the linear share of the move`);
+        run = 0;
+      } else if (!moved) {
+        if (run === 0) afterMove = prevMoved;
+        run++;
+      } else run = 0;
+      prevMoved = moved;
+    }
   }
   // continuity between consecutive frames (and last → first for a loop)
   const pairs = [];
@@ -238,6 +337,7 @@ const geometry = async (files) => {
 };
 
 // ───────────────────────────── pixel layer ─────────────────────────────
+const HEAD_LEN = 3.5; // kit units of an arrow head, sampled from its tip back along the shaft
 const W = 270;
 const H = 480;
 const BAND = {top: 290 / 1920, captions: 1170 / 1920, full: 1430 / 1920};
@@ -286,7 +386,25 @@ export const checkFrames = (frames, {loop = false, cuts = [], captions = false} 
     // a horizontal cut: the picture ends in a wide flat edge (the graphics band or the frame cut through it), not in
     // the corner of an object. A plate's outline is one thin line: two rows inside it the ink is narrow again.
     const flat = (a, b) => a >= 0.14 * W && b >= 0.14 * W;
-    if (flat(width[bottom - 1] ?? 0, width[bottom - 3] ?? 0) || flat(width[top + 1] ?? 0, width[top + 3] ?? 0)) hcutFrames.push(i);
+    // a soft edge is not a cut: environment that runs past the band and FADES out (RoomSvg fade ≥ 80 px) keeps its
+    // its full contrast FADE_ROWS and more from its last ink row and almost none in the last rows; a hard cut keeps it
+    // to the edge
+    const peak = (y) => {
+      let sum = 0;
+      let n = 0;
+      for (let x = 0; x < W; x++) {
+        const d = Math.abs(fr[y * W + x] - bg);
+        if (d > 14) (sum += d), n++;
+      }
+      return n ? sum / n : 0;
+    };
+    const FADE_ROWS = Math.round((80 / 1920) * H);
+    const hard = (edge, dir) => {
+      const full = Math.max(...Array.from({length: 2 * FADE_ROWS}, (_, k) => peak(Math.min(H - 1, Math.max(0, edge + dir * (FADE_ROWS + k))))));
+      const near = Math.max(...Array.from({length: 3}, (_, k) => peak(Math.min(H - 1, Math.max(0, edge + dir * (1 + k))))));
+      return near > 0.6 * full;
+    };
+    if ((flat(width[bottom - 1] ?? 0, width[bottom - 3] ?? 0) && hard(bottom, -1)) || (flat(width[top + 1] ?? 0, width[top + 3] ?? 0) && hard(top, 1))) hcutFrames.push(i);
     const span = (bottom - top) / (y1 - y0);
     const off = ((top + bottom) / 2 - (y0 + y1) / 2) / (y1 - y0);
     if (span < 0.45) layoutBad.push([i, `the picture spans ${(span * 100).toFixed(0)} % of the band height`]);
@@ -380,6 +498,13 @@ const selftest = async () => {
   expect('pixels crop', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i) - 80, 130, 200, 260)), {}), ['crop']);
   expect('pixels empty bottom', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 150, 150, 110)), {}), ['layout']);
   expect('pixels cut by the band', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 200, 150, 400)), {}), ['crop']);
+  // the same block, but the band FADES it out over 30 rows (≈ 120 px): environment running past the band is allowed
+  const faded = (f) => {
+    const yb = Math.round(BAND.full * H);
+    for (let y = yb - 30; y < H; y++) for (let x = 0; x < W; x++) f[y * W + x] = Math.round(bg + (f[y * W + x] - bg) * Math.max(0, (yb - y) / 30));
+    return f;
+  };
+  expect('pixels soft fade at the band', checkFrames(Array.from({length: N}, (_, i) => faded(frame(smooth(i), 130, 150, 400))), {}), []);
   expect('pixels pop', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 130, 150, 260, i < 60 ? [[20, 300, 40, 40, 30]] : [])), {}), ['pop']);
   expect('pixels jump', checkFrames(Array.from({length: N}, (_, i) => frame(i < 60 ? 40 : 80, 130, 150, 260)), {}), ['pop']);
   expect('pixels declared cut', checkFrames(Array.from({length: N}, (_, i) => frame(i < 60 ? 40 : 80, 130, 150, 260)), {cuts: [60]}), []);

@@ -17,6 +17,7 @@ import {tsImport} from 'tsx/esm/api';
 
 const root = resolve(import.meta.dirname, '..');
 const args = process.argv.slice(2);
+const {isAssembly, PART_NORM, ENV_HERO_SHARE, A} = await tsImport(pathToFileURL(join(root, 'src/lib/assembly.ts')).href, import.meta.url);
 const json = args.includes('--json');
 const quiet = args.includes('--quiet');
 const settleKeys = args.includes('--settle');
@@ -28,6 +29,54 @@ const walk = (dir) =>
     if (name === 'node_modules' || name === 'vendor') return [];
     return statSync(p).isDirectory() ? walk(p) : name.endsWith('.parts.ts') ? [p] : [];
   });
+
+// parts that turn are rebuilt every frame and are not in the assembly. Swept through a half turn they must not sink
+// into the static solids (a part and its own owner excepted). `double`: a turning part ALSO drawn in the static object
+// (at 0° its shape coincides with a static solid): it sinks into itself at every angle, hundreds of problems with one
+// cause (motor 130 armature, 2026-11-19). Build it per frame and keep it out of the static Assembly.
+export const sweepDynamic = (R, dynamicShapes) => {
+  const sunk = new Set();
+  const doubles = new Set();
+  let swept = 0;
+  for (const {name, shape} of dynamicShapes(0)) {
+    const b = A.boundsOf(shape);
+    for (const solid of R.solids) {
+      const c = A.boundsOf(solid);
+      if ([0, 1, 2].every((k) => Math.abs(b.min[k] - c.min[k]) < 0.3 && Math.abs(b.max[k] - c.max[k]) < 0.3)) doubles.add(`${name} = ${solid.name}`);
+    }
+  }
+  if (doubles.size) return {sunk, doubles, swept};
+  for (let deg = 0; deg <= 180; deg += 10) {
+    swept++;
+    const th = (deg * Math.PI) / 180;
+        for (const {name, shape} of dynamicShapes(th)) {
+          const alongTube = (points) => {
+            const out = [];
+            for (let i = 1; i < points.length; i++) {
+              const a = points[i - 1];
+              const b = points[i];
+              const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / 0.8)); // a sample every 0.8 units
+              for (let k = 0; k <= n; k++) out.push(a.map((v, j) => v + ((b[j] - v) * k) / n));
+            }
+            return out;
+          };
+          const pts =
+            shape.kind === 'tube'
+              ? alongTube(shape.points)
+              : (() => {
+                  const b = A.boundsOf(shape);
+                  const out = [];
+                  for (const x of [0, 0.5, 1]) for (const y of [0, 0.5, 1]) for (const z of [0, 0.5, 1]) out.push([b.min[0] + (b.max[0] - b.min[0]) * x, b.min[1] + (b.max[1] - b.min[1]) * y, b.min[2] + (b.max[2] - b.min[2]) * z]);
+                  return out;
+                })();
+          for (const solid of R.solids) {
+            if ((solid.owner && /axis|brush/.test(solid.owner)) || /bearing|brush/.test(solid.name ?? '')) continue; // attached by design
+            if (pts.some((p) => A.sdf(solid, p) < -0.6)) sunk.add(`${name} × ${solid.name} (at ${deg}°)`);
+          }
+        }
+      }
+  return {sunk, doubles, swept};
+};
 
 // --selftest: the deliberately broken objects of scripts/fixtures/lint-broken.parts.ts must each be caught by
 // Assembly.lint() under its own keyword, a markup without a shape must throw, a `touch` string must not crash and a
@@ -50,6 +99,13 @@ if (args.includes('--selftest')) {
     fails.push('markup without a shape did not throw');
   } catch {
     /* expected */
+  }
+  {
+    const d = new Asm('d', P);
+    d.cyl('base', 0, 0, 6, 0, 2, {ground: true});
+    d.cyl('blade', 0, 0, 4, 2, 1, {meta: {touch: ['base']}});
+    const blade = d.R.solids.find((x) => x.name === 'd.blade');
+    if (!sweepDynamic(d.R, () => [{name: 'blade', shape: blade}]).doubles.size) fails.push('a turning part also drawn in the static object was not caught (double)');
   }
   const t = new Asm('t', P);
   t.slab('base', {x: 0, y: 0, w: 4, d: 4, r: 0.4}, 0, 1, {ground: true});
@@ -75,7 +131,6 @@ if (args.includes('--selftest')) {
 }
 
 const files = given.length ? given.map((f) => resolve(f)) : walk(join(root, 'src'));
-const {isAssembly, PART_NORM, ENV_HERO_SHARE, A} = await tsImport(pathToFileURL(join(root, 'src/lib/assembly.ts')).href, import.meta.url);
 
 const results = [];
 for (const file of files) {
@@ -108,39 +163,12 @@ for (const file of files) {
     let sweepProblems = 0;
     let swept = 0;
     if (typeof mod.dynamicShapes === 'function') {
-      const sunk = new Set();
-      for (let deg = 0; deg <= 180; deg += 10) {
-        swept++;
-        const th = (deg * Math.PI) / 180;
-        for (const {name, shape} of mod.dynamicShapes(th)) {
-          const alongTube = (points) => {
-            const out = [];
-            for (let i = 1; i < points.length; i++) {
-              const a = points[i - 1];
-              const b = points[i];
-              const n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / 0.8)); // a sample every 0.8 units
-              for (let k = 0; k <= n; k++) out.push(a.map((v, j) => v + ((b[j] - v) * k) / n));
-            }
-            return out;
-          };
-          const pts =
-            shape.kind === 'tube'
-              ? alongTube(shape.points)
-              : (() => {
-                  const b = A.boundsOf(shape);
-                  const out = [];
-                  for (const x of [0, 0.5, 1]) for (const y of [0, 0.5, 1]) for (const z of [0, 0.5, 1]) out.push([b.min[0] + (b.max[0] - b.min[0]) * x, b.min[1] + (b.max[1] - b.min[1]) * y, b.min[2] + (b.max[2] - b.min[2]) * z]);
-                  return out;
-                })();
-          for (const solid of value.R.solids) {
-            if ((solid.owner && /axis|brush/.test(solid.owner)) || /bearing|brush/.test(solid.name ?? '')) continue; // attached by design
-            if (pts.some((p) => A.sdf(solid, p) < -0.6)) sunk.add(`${name} × ${solid.name} (at ${deg}°)`);
-          }
-        }
-      }
-      sweepProblems = sunk.size;
-      for (const m of [...sunk].slice(0, 8)) report += `\n      dynamic ${m}`;
-      report += `\n    dynamic sweep: ${sweepProblems} part(s) sink into the static stand`;
+      const res = sweepDynamic(value.R, mod.dynamicShapes);
+      swept = res.swept;
+      sweepProblems = res.sunk.size + res.doubles.size;
+      for (const m of [...res.doubles].slice(0, 8)) report += `\n      double ${m}: the turning part is also drawn in the static object; build it per frame and leave it out of the Assembly`;
+      for (const m of [...res.sunk].slice(0, 8)) report += `\n      dynamic ${m}`;
+      report += `\n    dynamic sweep: ${res.doubles.size} part(s) drawn twice, ${res.sunk.size} part(s) sink into the static stand`;
     }
     const failures = audited.failures + (unsettled.length ? 1 : 0) + (notApplied ? 1 : 0) + sweepProblems;
     const detail = value.detail ?? 'complex';

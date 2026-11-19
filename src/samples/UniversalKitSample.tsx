@@ -27,10 +27,18 @@ import {BALANCE, DATA} from './kit/data.parts';
 import {MONITOR, MONITOR_SCREEN, PHONE, PHONE_SCREEN} from './kit/device.parts';
 import {DOCS} from './kit/docs.parts';
 import {FRUIT} from './kit/fruit.parts';
-import {MAP_TABLE} from './kit/map.parts';
+import {MAP_INFO, MAP_TABLE} from './kit/map.parts';
 import {SWATCHES} from './kit/materials.parts';
 import {CASH} from './kit/money.parts';
 import {LAB, SINK_BOX, SPOUT} from './kit/nature.parts';
+
+/** the archive cabinet in room units (the cutaway page is a close-up on it: at the docs page's framing the section
+ *  measured 1.4 % different from the whole object) */
+const CABINET_ROOM = (): [P3, P3] => {
+  const lo = toRoom([64, -10, 0], UNI_U);
+  const hi = toRoom([111, 20, 45], UNI_U);
+  return [lo, [hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]]];
+};
 
 /** the sink and faucet box in room units (the drops page frames it) */
 const sinkRoom = (): [P3, P3] => {
@@ -113,8 +121,8 @@ export const KIT_PAGES: Page[] = [
   {id: 'tangle', coral: NO_CORAL, A: TANGLE.A, svg: () => TANGLE.svg(SHOW('tangle'))},
   // the flower in its catalog show state, with a burst of sparks (they join the flower's depth order as moving parts)
   {id: 'bloom', coral: 'the opened heart of the flower', A: BLOOM, svg: () => BLOOM.svg({}, {extra: sparks(P, [0, 0, 46], SHOW('sparks'))})},
-  // the same flower barely opening (0.25; the show state is nearly open, so 0.5 looked the same): a state build, framed by the open flower's box (each page frames what it shows)
-  {id: 'bloomhalf', coral: 'the heart of the flower', A: BLOOM, svg: () => bloomStates('bloomHalf', P, [0, 0, 0], {lit: true})(0.25)},
+  // the same flower as a closed bud (state 0; at 0.25 the page measured 2.6 % different from the open flower): a state build, framed by the open flower's box (each page frames what it shows)
+  {id: 'bloomhalf', coral: 'the bud', A: BLOOM, svg: () => bloomStates('bloomHalf', P, [0, 0, 0], {lit: true})(0)},
   // the hatch open (closed, it reads as plain floor): the state the catalog shows
   {id: 'trapdoor', coral: 'the opened leaves', A: BLOOM, svg: () => trapdoorStates('trapdoor', P, [0, 0, 0], {lit: true})(Math.min(SHOW('trapdoor'), sink(1.2, 0, 9, 10).open))},
   plain('crowd', CROWD, 'the one person picked out'),
@@ -131,12 +139,12 @@ export const KIT_PAGES: Page[] = [
   // transitions: the archive with its near side wall cut away (the plane takes only that wall: cutaway refuses a cut
   // that drops most of an object), the drawer with the coral folder peeled out; a zoom into the burner (the pull-out page
   // shows the start of the way back)
-  {id: 'cutaway', coral: 'the drawer pulled out', A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [1, 0, 0], 113, 109, 1), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
+  {id: 'cutaway', coral: 'the drawer pulled out', bleed: 'a section close-up on the cabinet: the sheet runs past the frame', cam: () => camFit(boxCorners(...CABINET_ROOM()), {rect: safeRect(), fill: 0.9}), A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [1, 0, 0], 113, 109, 1), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
   {id: 'zoom', coral: 'the flame', bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => zoomInto(boxOf(LAB), burner, 1).cam},
   {id: 'pullout', coral: 'none: the flame shrinks as the camera pulls back to the whole bench; the zoom page carries it', bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4)), cam: () => pullOut(burner, boxOf(LAB), 0.65).cam},
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},
   // the map helpers: a plan point of the projection and a simplified ring drawn on the table top
-  {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, 29.4], annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), 29.4, P, true), {tone: 'lo'})}]})},
+  {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, MAP_INFO.top + 0.05], annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), MAP_INFO.top + 0.05, P, true), {tone: 'lo'})}]})},
 ];
 
 export const UniversalKitSample: React.FC = () => {

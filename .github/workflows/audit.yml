@@ -32,6 +32,8 @@ jobs:
         run: node scripts/motion-check.mjs --selftest
       - name: object lint catches every root cause on broken objects (through, encircled, mount, terminal, fold, self-overlap, owner)
         run: node scripts/object-audit.mjs --selftest
+      - name: house style has not drifted (showcase stills against styles/anatomy/refs, no colour but coral)
+        run: node scripts/style-check.mjs
       - name: handedness of the kit (right-hand rules must use physCross)
         run: node scripts/handed-check.mjs
       - name: the topic scaffold still compiles and audits clean

@@ -1,47 +1,59 @@
 {
-  "_doc": "MASTER_PROMPT_FINAL §24.1: the table «state → symbol → appears / leaves». audit.mjs checks every symbol a scene uses against this list. A symbol stands for the CAUSE of a state: it appears on the event that causes it and leaves when the cause is removed. Add a row only with the user's approval (the rules change goes to docs/CHANGELOG.md).",
+  "_doc": "MASTER_PROMPT_FINAL §24.1: the table «state → symbol → appears / leaves». audit.mjs checks every symbol a scene uses against this list. A symbol stands for the CAUSE of a state: it appears on the event that causes it and leaves when the cause is removed. Add a row only with the user's approval (the rules change goes to docs/CHANGELOG.md). `show` is the state (0..1, or seconds for sparks) a still, a cover or the showcase uses: the one in which the symbol reads (a closed hatch reads as floor); scripts/regress-checks.mjs requires it.",
   "symbols": {
     "storm": {
       "state": "гнев, раздражение, нарастающее напряжение",
       "builder": "src/lib/symbols/storm.ts",
       "appears": "на событии, которое вызвало гнев (слово голоса или действие в кадре)",
       "leaves": "когда причина снята: туча светлеет, молнии стихают, блоки расходятся",
-      "coral": "молнии — только если гнев и есть коралловый смысл темы"
+      "coral": "молнии — только если гнев и есть коралловый смысл темы",
+      "show": 1,
+      "showWhy": "туча собрана, молнии бьют"
     },
     "tangle": {
       "state": "стресс, тревога, путаница мыслей",
       "builder": "src/lib/symbols/tangle.ts",
       "appears": "когда появляется нерешённая задача; витки добавляются по мере роста нагрузки",
       "leaves": "по шагу решения: витки разматываются по одному, свободный конец уходит",
-      "coral": "свободный конец — только если решение и есть коралловый смысл темы"
+      "coral": "свободный конец — только если решение и есть коралловый смысл темы",
+      "show": 1,
+      "showWhy": "все витки на месте"
     },
     "bloom": {
       "state": "радость, облегчение, удовольствие",
       "builder": "src/lib/symbols/bloom.ts",
       "appears": "на событии радости: пружины распрямляются, лепестки раскрываются",
       "leaves": "когда радость проходит или сменяется: лепестки складываются",
-      "coral": "сердцевина — только если радость и есть коралловый смысл темы"
+      "coral": "сердцевина — только если радость и есть коралловый смысл темы",
+      "show": 1,
+      "showWhy": "лепестки раскрыты"
     },
     "sparks": {
       "state": "вспышка: озарение, удивление, восторг",
       "builder": "src/lib/symbols/sparks.ts",
       "appears": "в момент события, одной вспышкой",
       "leaves": "сами, по баллистике за 0,6–1,2 с; не висят в кадре",
-      "coral": "не коралловые (короткий акцент, не смысловая деталь)"
+      "coral": "не коралловые (короткий акцент, не смысловая деталь)",
+      "show": 0.25,
+      "showWhy": "0,25 с после вспышки, искры в полёте"
     },
     "trapdoor": {
       "state": "стыд, провал, потеря опоры",
       "builder": "src/lib/symbols/trapdoor.ts",
       "appears": "на событии провала: створки люка раскрываются, персонаж проседает",
       "leaves": "когда опора возвращается: створки закрываются, персонаж поднимается",
-      "coral": "створки — только если провал и есть коралловый смысл темы"
+      "coral": "створки — только если провал и есть коралловый смысл темы",
+      "show": 0.75,
+      "showWhy": "створки раскрыты: закрытый люк читается как пол"
     },
     "levitation": {
       "state": "счастье, лёгкость, свобода",
       "builder": "src/lib/symbols/gravity.ts",
       "appears": "на событии: персонаж отрывается от пола, тень сжимается",
       "leaves": "когда состояние проходит: мягкое приземление с осадкой",
-      "coral": "нет (движение, а не деталь)"
+      "coral": "нет (движение, а не деталь)",
+      "show": 0.6,
+      "showWhy": "персонаж в воздухе, тень сжата"
     }
   }
 }

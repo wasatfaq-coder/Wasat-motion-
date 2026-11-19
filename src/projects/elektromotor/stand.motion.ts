@@ -24,43 +24,58 @@ const len = (a: Point3) => Math.hypot(a[0], a[1], a[2]);
 const unit = (a: Point3): Point3 => a.map((v) => v / (len(a) || 1)) as Point3;
 const back = (p: Point3, u: Point3, d: number): Point3 => [p[0] - u[0] * d, p[1] - u[1] * d, p[2] - u[2] * d];
 const along = (p: Point3, u: Point3, s: number): Point3 => [p[0] + u[0] * s, p[1] + u[1] * s, p[2] + u[2] * s];
-const tri = (tip: Point3, u: Point3, size: number, wide: Point3, fill: string, stroke = fill) => {
+const tri = (tip: Point3, u: Point3, size: number, wide: Point3, fill: string, stroke = fill, outline = 1.5) => {
   const base = along(tip, u, -size);
   const w = (k: number): Point3 => along(base, wide, size * 0.5 * k);
-  return `<path d="${K.pathOf([at(tip), at(w(1)), at(w(-1))], true)}" style="fill:${fill};stroke:${stroke};stroke-width:1.5px;stroke-linejoin:round"/>`;
+  return `<path d="${K.pathOf([at(tip), at(w(1)), at(w(-1))], true)}" style="fill:${fill};stroke:${stroke};stroke-width:${outline}px;stroke-linejoin:round"/>`;
 };
 const line = (a: Point3, b: Point3, width: number, color: string, dash = '') =>
   `<path d="${K.pathOf([at(a), at(b)])}" style="fill:none;stroke:${color};stroke-width:${width}px;stroke-linecap:round;${dash ? `stroke-dasharray:${dash};` : ''}"/>`;
+
+/** force arrow length on the loop sides: at the dead position (90°) both point along the radius, so they stop well
+ *  short of the axis (LOOP_R) and never meet over it (R4) */
+const LOOP_FORCE = 5;
+const FORCE_DZ = 5;
+/** the current arrows run along the side between these heights (kit units) */
+const CUR_LO = LOOP_Z0 + 2;
+const CUR_HI = LOOP_Z1 - 6;
 
 export type Arrow = ArrowProbe & {svg: string};
 /** current: thin dark shaft with a small head */
 const currentArrow = (name: string, owner: string, from: Point3, to: Point3, wide: Point3, opacity: number): Arrow => {
   const u = unit(sub(to, from));
-  return {name, owner, tail: from, opacity, svg: line(from, back(to, u, 2.5), 3.2, 'var(--anatomy-hi)') + tri(to, u, 3.6, wide, 'var(--anatomy-hi)')};
+  return {name, owner, tail: from, tip: to, along: [owner.split('.')[0]], opacity, svg: line(from, back(to, u, 2.5), 3.2, 'var(--anatomy-hi)') + tri(to, u, 3.6, wide, 'var(--anatomy-hi)')};
 };
 /** force: a thick flat arrow, dark outline and a light body; the tail starts on the conductor */
 const forceArrow = (name: string, owner: string, from: Point3, dir: Point3, reach: number, wide: Point3, opacity: number): Arrow => {
   const to = along(from, dir, reach);
   const neck = back(to, dir, 3);
-  return {name, owner, tail: from, opacity, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, dir, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
+  return {name, owner, tail: from, tip: to, opacity, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, dir, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)', 3)};
 };
 /** field: dashed lines from the N pole face to the S pole face, with two heads each (no shapes: an annotation) */
+const FIELD_YS = [AY - 9, AY + 9];
+const FIELD_Z = PLATE_TOP + 24;
+const FIELD_HEADS = [24, 69];
+/** the heads of the field lines (motion-check keeps arrow tips off them) */
+export const fieldHeads = (opacity: number) => FIELD_YS.flatMap((y, i) => FIELD_HEADS.map((x, k) => ({name: `field${i}.head${k}`, at: [x, y, FIELD_Z] as Point3, base: [x - 3.4, y, FIELD_Z] as Point3, opacity})));
 const fieldLines = (ys: number[], z: number, opacity: number): Dyn[] =>
   ys.map((y, i) => {
-    const heads = [31, 59].map((x) => tri([x, y, z], [1, 0, 0], 3.4, [0, 0, 1], 'var(--anatomy-mid)'));
+    const heads = FIELD_HEADS.map((x) => tri([x, y, z], [1, 0, 0], 3.4, [0, 0, 1], 'var(--anatomy-mid)'));
     return {name: `field${i}`, at: [AX, y, z] as Point3, svg: line([21, y, z], [69, y, z], 2.4, 'var(--anatomy-mid)', '7 6') + heads.join(''), shapes: [], opacity, annotation: true};
   });
 
 /** One beat of the stand. theta is the loop angle; wire/loop/field/inset/labels are opacities 0…1. */
-export type StandState = {theta: number; wire: number; loop: number; field: number; inset: number; labels: number; cam: Cam};
+export type StandState = {theta: number; wire: number; loop: number; forces: number; field: number; inset: number; labels: number; cam: Cam};
 
-// What the camera must hold on EVERY pose (the hero of scenes 2–5 is the conductor in the gap): both pole pieces with
-// their faces, the loop's full sweep with the commutator and brushes, and the arch (kit units). The outer halves of
-// the magnet bodies, the plate, rails and terminals are environment: past the frame they fade out (RoomSvg sides),
-// they are never cut by a hard edge. The labels С / Ю stand on the pole pieces, so they always point at a visible part.
-const HERO_MIN: Point3 = [17, 18, PLATE_TOP + 2];
-const HERO_SIZE: Point3 = [56, 24, 31.4];
-export const LABEL_ANCHORS = {N: [18.75, AY, PLATE_TOP + 21] as Point3, S: [71.25, AY, PLATE_TOP + 21] as Point3};
+// What the camera must hold on EVERY pose (the hero of scenes 2–5 is the conductor in the gap): a CLOSE-UP of the
+// loop's full sweep with the commutator, the brushes and the arch (kit units), and the pole pieces' inner faces with
+// their labels (decisions.md: variant Б, 2026-11-19). The magnet bodies, the plate, rails and terminals are
+// environment: past the frame they fade out (RoomSvg sides), they are never cut by a hard edge. The labels С / Ю
+// stand on the pole pieces (N at its back corner, S at its front corner, so both plates sit inside the close-up),
+// so they always point at a visible part.
+const HERO_MIN: Point3 = [31, 8, PLATE_TOP];
+const HERO_SIZE: Point3 = [28, 36, 33.4];
+export const LABEL_ANCHORS = {N: [20, AY - 8, PLATE_TOP + 21] as Point3, S: [70, AY + 8, PLATE_TOP + 21] as Point3};
 export const LABEL_LIFT = 70; // px from the anchor to the plate centre
 export const LABEL_SIZE = 66;
 /** the plate drawn by Frontal Plate for one letter at LABEL_SIZE (textWidth + padding, 1.55 em high) */
@@ -78,19 +93,29 @@ export const beats = (rect: Rect): StandState[] => {
   const pins = [LABEL_ANCHORS.N, LABEL_ANCHORS.S].map((a) => ({at: toRoom(a, STAND_U), box: [-PLATE_W / 2, -LABEL_LIFT - PLATE_H / 2, PLATE_W / 2, 0] as [number, number, number, number]}));
   const wide = camFit(room(heroPoints()), {rect, pins});
   return [
-    {theta: Math.PI / 6, wire: 1, loop: 0, field: 1, inset: 1, labels: 1, cam: wide},
-    {theta: Math.PI / 6, wire: 0, loop: 1, field: 1, inset: 0, labels: 1, cam: wide},
-    {theta: Math.PI / 2, wire: 0, loop: 1, field: 1, inset: 0, labels: 1, cam: wide},
-    {theta: 0.35 + Math.PI, wire: 0, loop: 1, field: 0, inset: 0, labels: 1, cam: wide},
+    {theta: Math.PI / 6, wire: 1, loop: 0, forces: 1, field: 1, inset: 1, labels: 1, cam: wide},
+    {theta: Math.PI / 6, wire: 0, loop: 1, forces: 1, field: 1, inset: 0, labels: 1, cam: wide},
+    {theta: Math.PI / 2, wire: 0, loop: 1, forces: 1, field: 1, inset: 0, labels: 1, cam: wide},
+    {theta: 0.35 + Math.PI, wire: 0, loop: 1, forces: 1, field: 0, inset: 0, labels: 1, cam: wide},
   ];
 };
 
+/** The loop's current and force arrows annotate a BEAT (current and force at that angle): during a turn they fade out
+ *  early and come back at the end, so a head never sweeps over the bars, the commutator or a field-line head
+ *  (motion-check `arrows`, R4/R5). Placement on the sides: current low, force high, field heads at the pole faces. */
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+/** out: on the linear share (an eased t rushes at the start, a fade on it pops); back in: on the eased t, i.e. on the
+ *  loop's own settling, so the arrows return as the loop comes to rest, not after it (R6) */
+const between = (raw: number, eased: number) => (raw < 0.5 ? clamp01(1 - raw / 0.08) : clamp01((eased - IN_FROM) / (1 - IN_FROM - 0.005)));
+const IN_FROM = 0.96;
+
 /** The state between two beats. A loop that is invisible on one side takes the angle of the other side (it fades in
  *  or out where it is; it does not spin while hidden). */
-export const blend = (a: StandState, b: StandState, t: number): StandState => ({
+export const blend = (a: StandState, b: StandState, t: number, raw = t): StandState => ({
   theta: a.loop === 0 ? b.theta : b.loop === 0 ? a.theta : lerp(a.theta, b.theta, t),
   wire: handOver(a.wire, b.wire, t),
   loop: handOver(a.loop, b.loop, t),
+  forces: Math.min(a.forces, b.forces) * between(raw, t),
   field: lerp(a.field, b.field, t),
   inset: handOver(a.inset, b.inset, t),
   labels: lerp(a.labels, b.labels, t),
@@ -104,12 +129,12 @@ export const insetRect = (rect: Rect) => ({x: rect.x0, y: rect.y1 - INSET.h, ...
 export const partsOf = (s: StandState): {extra: Dyn[]; arrows: Arrow[]} => {
   const extra: Dyn[] = [];
   const arrows: Arrow[] = [];
-  if (s.field > 0) extra.push(...fieldLines([AY - 9, AY + 9], PLATE_TOP + 24, s.field));
+  if (s.field > 0) extra.push(...fieldLines(FIELD_YS, FIELD_Z, s.field));
   if (s.wire > 0) {
     // scene 2: the wire (coral) in the field; current up, force along +y (I·L×B with B along +x)
     extra.push(...wireItems(0, s.wire));
     arrows.push(currentArrow('wire.current', 'sceneWire.drop', [AX + 2.4, WIRE_Y, PLATE_TOP + 9], [AX + 2.4, WIRE_Y, PLATE_TOP + 27], [0, 1, 0], s.wire));
-    arrows.push(forceArrow('wire.force', 'sceneWire.drop', [AX, WIRE_Y + 1.4, PLATE_TOP + 18], forceDir([0, 0, 1]), 14, [0, 0, 1], s.wire));
+    arrows.push(forceArrow('wire.force', 'sceneWire.drop', [AX, WIRE_Y + 1.4, PLATE_TOP + 14], forceDir([0, 0, 1]), 11, [0, 0, 1], s.wire));
   }
   if (s.loop > 0) {
     const th = s.theta;
@@ -118,12 +143,12 @@ export const partsOf = (s: StandState): {extra: Dyn[]; arrows: Arrow[]} => {
     const sd = (k: number, z: number): Point3 => [AX + d[0] * k, AY + d[1] * k, z];
     extra.push(...loopItems(th, s.loop), ...commutatorItems(th, s.loop));
     // the current runs up the side at +direction and down the other: the commutator keeps it so whatever the angle
-    arrows.push(currentArrow('loop.current+', 'loop.plus', sd(LOOP_R + 2.2, LOOP_Z0 + 3), sd(LOOP_R + 2.2, LOOP_Z1 - 3), wide, s.loop));
-    arrows.push(currentArrow('loop.current-', 'loop.minus', sd(-LOOP_R - 2.2, LOOP_Z1 - 3), sd(-LOOP_R - 2.2, LOOP_Z0 + 3), wide, s.loop));
+    arrows.push(currentArrow('loop.current+', 'loop.plus', sd(LOOP_R + 2.2, CUR_LO), sd(LOOP_R + 2.2, CUR_HI), wide, s.loop * s.forces));
+    arrows.push(currentArrow('loop.current-', 'loop.minus', sd(-LOOP_R - 2.2, CUR_HI), sd(-LOOP_R - 2.2, CUR_LO), wide, s.loop * s.forces));
     // the force on each vertical side follows from ITS current (up on the + side, down on the − side): I·L × B
-    const mz = (LOOP_Z0 + LOOP_Z1) / 2;
-    arrows.push(forceArrow('loop.force+', 'loop.plus', sd(LOOP_R, mz), forceDir([0, 0, 1]), 11, [0, 0, 1], s.loop));
-    arrows.push(forceArrow('loop.force-', 'loop.minus', sd(-LOOP_R, mz), forceDir([0, 0, -1]), 11, [0, 0, 1], s.loop));
+    const mz = (LOOP_Z0 + LOOP_Z1) / 2 + FORCE_DZ;
+    arrows.push(forceArrow('loop.force+', 'loop.plus', sd(LOOP_R, mz), forceDir([0, 0, 1]), LOOP_FORCE, [0, 0, 1], s.loop * s.forces));
+    arrows.push(forceArrow('loop.force-', 'loop.minus', sd(-LOOP_R, mz), forceDir([0, 0, -1]), LOOP_FORCE, [0, 0, 1], s.loop * s.forces));
   }
   return {extra, arrows};
 };
@@ -149,6 +174,7 @@ const poseOf = (s: StandState, rect: Rect): MotionPose => {
     arrows,
     keep: heroPoints().map((p, i) => ({name: `hero${i}`, at: p})),
     plates: platesOf(s, rect),
+    heads: fieldHeads(s.field),
     // the loop's leads end in the half-rings; the brushes press on the commutator; the hub sits on the axis
     touch: [
       ['loop.lead', 'commutator'],
@@ -174,7 +200,7 @@ export const REEL_FRAMES = reelFrames(REEL_TIMING);
 const REEL_BEATS = beats(REEL_RECT);
 export const reelState = (frame: number) => {
   const c = beatClock(frame, REEL_TIMING);
-  return c.moving ? blend(REEL_BEATS[c.from], REEL_BEATS[c.to], c.t) : REEL_BEATS[c.from];
+  return c.moving ? blend(REEL_BEATS[c.from], REEL_BEATS[c.to], c.t, c.raw) : REEL_BEATS[c.from];
 };
 
 /** Motion specs walked by scripts/motion-check.mjs (no rendering). */

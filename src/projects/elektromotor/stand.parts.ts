@@ -1,5 +1,5 @@
 import * as K from '../../vendor/anatomy/iso-kit';
-import {Assembly, G, Point3} from '../../lib/assembly';
+import {A, Assembly, Dyn, dynBall, dynSolid, dynTube, G, Point3} from '../../lib/assembly';
 import {anatomyProjection} from '../../lib/anatomy';
 import KEYS from './stand.parts.keys.json';
 
@@ -19,6 +19,8 @@ export const PLATE_TOP = 10;
 export const LOOP_R = 12; // half width of the loop
 export const LOOP_Z0 = 21; // bottom bar (above the commutator)
 export const LOOP_Z1 = 37; // top bar
+/** radius of the loop's bar: thick enough to read as the one coral conductor on a phone (§19.2) */
+export const LOOP_T = 1.8;
 const up = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, 1]);
 
 export const STAND = new Assembly('stand', P, {
@@ -128,53 +130,35 @@ for (const x of [18, 36, 52, 72]) S.slab(`clip${x}`, {x, y: 55.6, w: 3, d: 1.6, 
 // scene 2: two posts whose clamps grip the supply cable (the cable itself is drawn by wireItems, only on that beat)
 export const WIRE_POST_X = [AX - 18, AX + 18] as const;
 export const WIRE_Z = PLATE_TOP + 28.8; // centre of the clamp, where the cable runs
+/** the scene-2 wire runs 4 units in front of the loop's axle (on the axis it would pass through the axle) */
+export const WIRE_Y = AY + 4;
 for (const x of WIRE_POST_X) {
-  S.slab(`wire.post${x}`, {x: x - 1.5, y: AY - 1.5, w: 3, d: 3, r: 0.4}, PLATE_TOP, 28, {tone: 'mid', bevel: 0.4});
-  S.slab(`wire.clamp${x}`, {x: x - 2.2, y: AY - 2.2, w: 4.4, d: 4.4, r: 0.4}, PLATE_TOP + 28, 1.6, {tone: 'mid', bevel: 0.4});
+  S.slab(`wire.post${x}`, {x: x - 1.5, y: WIRE_Y - 1.5, w: 3, d: 3, r: 0.4}, PLATE_TOP, 28, {tone: 'mid', bevel: 0.4});
+  S.slab(`wire.clamp${x}`, {x: x - 2.2, y: WIRE_Y - 2.2, w: 4.4, d: 4.4, r: 0.4}, PLATE_TOP + 28, 1.6, {tone: 'mid', bevel: 0.4});
 }
 
 // paint order solved by `node scripts/object-audit.mjs --settle` (re-run after any change of the static parts)
 STAND.applyKeys((KEYS as Record<string, Record<string, number>>).STAND);
 
-// ── dynamic parts, rebuilt every frame: they return {at, svg} items for Assembly.svg({}, {extra})
-type Item = {at: Point3; svg: string; bias?: number};
+// ── dynamic parts, rebuilt every frame: moving parts (Dyn) with their 3D shapes, for Assembly.svg({}, {extra}).
+// Each carries its shape, so the paint order against the stand is solved from the geometry every frame (src/lib/depth.ts)
+// and the long bars are split into short pieces (dynTube): a bar can pass behind the arch and in front of a brush.
 const dirOf = (theta: number): Point3 => [Math.cos(theta), Math.sin(theta), 0];
-const mid = (a: Point3, b: Point3): Point3 => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
-const bar = (a: Point3, b: Point3, r: number, lit: boolean): Item => {
-  const F = G.frameAlong(a, G.sub3(b, a));
-  const L = G.len3(G.sub3(b, a));
-  return {
-    at: mid(a, b),
-    svg: K.solidSvg(
-      G.solidOf(
-        [
-          [0, r],
-          [L, r],
-        ],
-        F,
-        P,
-      ),
-      {tone: 'hi', lit},
-    ),
-  };
-};
-/** The one-turn loop at angle theta (the loop's plane contains the vertical axis and the direction theta): coral. */
-export const loopItems = (theta: number): Item[] => {
+/** The one-turn loop at angle theta (the loop's plane contains the vertical axis and the direction theta): coral.
+ *  Names: loop.top / loop.bottom / loop.plus (the side at +direction) / loop.minus / loop.corner* / loop.lead*. */
+export const loopItems = (theta: number, opacity?: number): Dyn[] => {
   const d = dirOf(theta);
   const at = (s: number, z: number): Point3 => [AX + d[0] * s, AY + d[1] * s, z];
-  const out: Item[] = [
-    bar(at(-LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z0), 1.4, true),
-    bar(at(-LOOP_R, LOOP_Z1), at(LOOP_R, LOOP_Z1), 1.4, true),
-    bar(at(-LOOP_R, LOOP_Z0), at(-LOOP_R, LOOP_Z1), 1.4, true),
-    bar(at(LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z1), 1.4, true),
+  const bar = (name: string, a: Point3, b: Point3, r: number) => dynTube(name, [a, b], r, P, {lit: true, caps: false, opacity});
+  const out: Dyn[] = [
+    ...bar('loop.bottom', at(-LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z0), LOOP_T),
+    ...bar('loop.top', at(-LOOP_R, LOOP_Z1), at(LOOP_R, LOOP_Z1), LOOP_T),
+    ...bar('loop.minus', at(-LOOP_R, LOOP_Z0), at(-LOOP_R, LOOP_Z1), LOOP_T),
+    ...bar('loop.plus', at(LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z1), LOOP_T),
   ];
-  for (const s of [-LOOP_R, LOOP_R]) for (const z of [LOOP_Z0, LOOP_Z1]) out.push({at: at(s, z), svg: K.solidSvg(G.sphereOf(at(s, z), 1.7, P), {tone: 'hi', lit: true})});
+  for (const s of [-LOOP_R, LOOP_R]) for (const z of [LOOP_Z0, LOOP_Z1]) out.push(dynBall(`loop.corner${s > 0 ? 'P' : 'M'}${z}`, at(s, z), LOOP_T + 0.3, P, {tone: 'hi', lit: true}, opacity));
   // leads: from the bottom bar down to the two half-rings of the commutator (current paths: coral)
-  for (const k of [-1, 1]) {
-    const top = at(k * 3.2, LOOP_Z0);
-    const low = at(k * 4.4, PLATE_TOP + 7.4);
-    out.push(bar(top, low, 0.9, true));
-  }
+  for (const k of [-1, 1]) out.push(...bar(`loop.lead${k > 0 ? 'P' : 'M'}`, at(k * 3.2, LOOP_Z0), at(k * 4.4, PLATE_TOP + 7.4), 0.9));
   return out;
 };
 const span = (pts: Point3[]) => pts.reduce((s, p, i) => (i ? s + Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1], p[2] - pts[i - 1][2]) : 0), 0);
@@ -182,30 +166,30 @@ const span = (pts: Point3[]) => pts.reduce((s, p, i) => (i ? s + Math.hypot(p[0]
 /** Scene 2 conductor, coral. A bus runs through both clamps (the gaps hide it inside the clamp blocks)
  *  and a straight drop hangs from the middle — that drop is the wire the force acts on. `bow` bends the
  *  middle in +y; the ends stay in the clamps. Built with Assembly.pipe (tube.mjs), not a chain of cylinders.
- *  It is not part of STAND: on the other beats the loop occupies this volume. */
-export const wireItems = (bow = 0): Item[] => {
+ *  It is not part of STAND: on the other beats the loop occupies this volume. Names: sceneWire.bus:*, sceneWire.drop:*. */
+export const wireItems = (bow = 0, opacity?: number): Dyn[] => {
   const zBot = PLATE_TOP + 8;
-  const yMid = AY + bow;
+  const yMid = WIRE_Y + bow;
   const bus: Point3[] = [
-    [WIRE_POST_X[0], AY, WIRE_Z],
-    [WIRE_POST_X[0] + 4.2, AY, WIRE_Z],
+    [WIRE_POST_X[0], WIRE_Y, WIRE_Z],
+    [WIRE_POST_X[0] + 4.2, WIRE_Y, WIRE_Z],
     [AX, yMid, WIRE_Z],
-    [WIRE_POST_X[1] - 4.2, AY, WIRE_Z],
-    [WIRE_POST_X[1], AY, WIRE_Z],
+    [WIRE_POST_X[1] - 4.2, WIRE_Y, WIRE_Z],
+    [WIRE_POST_X[1], WIRE_Y, WIRE_Z],
   ];
   const drop: Point3[] = [
-    [AX, AY, WIRE_Z],
+    [AX, WIRE_Y, WIRE_Z],
     [AX, yMid, (WIRE_Z + zBot) / 2],
-    [AX, AY, zBot],
+    [AX, WIRE_Y, zBot],
   ];
   const busLen = span(bus);
   const wire = new Assembly('sceneWire', P, {role: 'secondary'});
-  wire.pipe('bus', bus, 1.25, {bend: 3.4, limp: true, lit: true, gaps: [[0, 2.6], [Math.max(2.6, busLen - 2.6), busLen]]});
-  wire.pipe('drop', drop, 1.25, {bend: 3.6, limp: true, lit: true, gaps: [[0, 1.4]]});
-  return [{at: [AX, AY, (WIRE_Z + zBot) / 2], svg: wire.svg()}];
+  wire.pipe('bus', bus, 1.7, {bend: 3.4, limp: true, lit: true, maxLength: 4, gaps: [[0, 2.6], [Math.max(2.6, busLen - 2.6), busLen]]});
+  wire.pipe('drop', drop, 1.7, {bend: 3.6, limp: true, lit: true, maxLength: 4, gaps: [[0, 1.4]]});
+  return wire.dyn(opacity);
 };
 /** Commutator: a hub and two half-rings (and the gaps between them) at angle theta, below the loop. */
-export const commutatorItems = (theta: number): Item[] => {
+export const commutatorItems = (theta: number, opacity?: number): Dyn[] => {
   const z = PLATE_TOP + 4;
   const h = 3.4; // z 14 … 17.4: below the loop's bottom bar
   const r0 = 3.2;
@@ -216,53 +200,27 @@ export const commutatorItems = (theta: number): Item[] => {
     for (let i = 16; i >= 0; i--) ring.push([AX + r0 * Math.cos(a0 + (i / 16) * (Math.PI - 0.5)), AY + r0 * Math.sin(a0 + (i / 16) * (Math.PI - 0.5))]);
     return ring;
   };
-  const out: Item[] = [];
+  const out: Dyn[] = [];
   for (const k of [0, 1]) {
     const a0 = theta + 0.25 + k * Math.PI;
-    out.push({at: [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], svg: K.solidSvg(K.extrude(half(a0), z, h, P), {tone: 'hi'}), bias: 8}); // both halves are the subject (hi); the gap between them is the split, not a clothing tone
+    const ring = half(a0);
+    // both halves are the subject (hi); the gap between them is the split, not a clothing tone
+    out.push(dynSolid(`commutator.${k}`, [AX + 4.2 * Math.cos(a0 + 1.5), AY + 4.2 * Math.sin(a0 + 1.5), z + h / 2], K.solidSvg(K.extrude(ring, z, h, P), {tone: 'hi'}), A.extruded(ring, z, h, {name: `commutator.${k}`}), opacity));
   }
-  out.push({
-    at: [AX, AY, z + h / 2],
-    svg: K.solidSvg(
-      G.solidOf(
-        [
-          [0, 3.4],
-          [h, 3.4],
-        ],
-        G.frameAlong([AX, AY, z], [0, 0, 1]),
-        P,
-      ),
-      {tone: 'mid'},
-    ),
-    bias: -4, // the hub is drawn first: the half-rings stand round it
-  });
+  const hubF = G.frameAlong([AX, AY, z], [0, 0, 1]);
+  const hubProfile = [
+    [0, 3.4],
+    [h, 3.4],
+  ];
+  out.push(dynSolid('commutator.hub', [AX, AY, z + h / 2], K.solidSvg(G.solidOf(hubProfile, hubF, P), {tone: 'mid'}), A.solid(hubF, hubProfile, {name: 'commutator.hub'}), opacity));
   return out;
 };
 
 /** Shapes of the parts that turn (loop, leads, commutator) at angle theta, for the dynamic audit in scripts/object-audit.mjs:
- *  swept through a half turn they must not sink into the static stand (magnets, poles, arch, brushes, bearings). */
-import {A} from '../../lib/assembly';
-export const dynamicShapes = (theta: number): {name: string; shape: unknown}[] => {
-  const d = dirOf(theta);
-  const at = (s: number, z: number): Point3 => [AX + d[0] * s, AY + d[1] * s, z];
-  const bars: [string, Point3, Point3][] = [
-    ['loop.bottom', at(-LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z0)],
-    ['loop.top', at(-LOOP_R, LOOP_Z1), at(LOOP_R, LOOP_Z1)],
-    ['loop.left', at(-LOOP_R, LOOP_Z0), at(-LOOP_R, LOOP_Z1)],
-    ['loop.right', at(LOOP_R, LOOP_Z0), at(LOOP_R, LOOP_Z1)],
-    ['lead.1', at(3.2, LOOP_Z0), at(4.4, PLATE_TOP + 7.4)],
-    ['lead.2', at(-3.2, LOOP_Z0), at(-4.4, PLATE_TOP + 7.4)],
-  ];
-  const out = bars.map(([name, a, b]) => ({name, shape: A.tube([a, b], [name.startsWith('lead') ? 0.9 : 1.4, name.startsWith('lead') ? 0.9 : 1.4], {name})}));
-  for (const k of [0, 1]) {
-    const a0 = theta + 0.25 + k * Math.PI;
-    const ring: [number, number][] = [];
-    for (let i = 0; i <= 8; i++) ring.push([AX + 5.2 * Math.cos(a0 + (i / 8) * (Math.PI - 0.5)), AY + 5.2 * Math.sin(a0 + (i / 8) * (Math.PI - 0.5))]);
-    for (let i = 8; i >= 0; i--) ring.push([AX + 3.2 * Math.cos(a0 + (i / 8) * (Math.PI - 0.5)), AY + 3.2 * Math.sin(a0 + (i / 8) * (Math.PI - 0.5))]);
-    out.push({name: `commutator.${k}`, shape: A.extruded(ring, PLATE_TOP + 4, 3.4, {name: `commutator.${k}`})});
-  }
-  return out;
-};
+ *  swept through a half turn they must not sink into the static stand (magnets, poles, arch, brushes, bearings).
+ *  Built from the same items the scene draws, so the audit and the picture cannot drift apart. */
+export const dynamicShapes = (theta: number): {name: string; shape: unknown}[] =>
+  [...loopItems(theta), ...commutatorItems(theta)].filter((d) => d.name !== 'commutator.hub').flatMap((d) => d.shapes.map((shape) => ({name: d.name, shape})));
 
 export const STAND_CORNERS: Point3[] = [
   [0, 0, 0],

@@ -2,7 +2,8 @@
 // Self-test of the topic scaffold (root cause of a past miss: scripts/new-topic.mjs lagged behind the cover and
 // style rules, so a fresh topic did not even compile). Creates a throw-away topic, then checks that it type-checks,
 // lints, passes its own audit and cover-check with ERRORS = 0 (placeholders are warnings), does not report files
-// of the root topic, and removes it again.
+// of the root topic, refuses a scene animated the old way (camOn, lerpCam, state outside a *.motion.ts), and removes
+// it again; also refuses a review note closed without rootCause and guard.
 import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 
@@ -21,6 +22,29 @@ try {
     throw new Error(`topic audit reported files of the root topic:\n${auditOut}`);
   }
   if (!fs.readFileSync('src/Root.tsx', 'utf8').includes(`id="${pascal}Cover"`)) throw new Error('the scaffold did not register the cover composition');
+  if (!fs.existsSync(`src/projects/${slug}/scenes.motion.ts`)) throw new Error('the scaffold did not create scenes.motion.ts');
+  // the old way of animating (root cause of the motor-stand reel defects) must fail the topic audit
+  fs.writeFileSync(
+    `src/projects/${slug}/scenes/OldWay.tsx`,
+    `import React from 'react';\nimport {useCurrentFrame} from 'remotion';\nimport {Kit} from '../../../lib/anatomy';\nimport {camOn, lerpCam} from '../../../lib/camera';\nexport const OldWay: React.FC = () => {\n  const f = useCurrentFrame();\n  const a = camOn([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]);\n  const c = lerpCam(a, a, f / 10);\n  return <Kit svg={String(c.zoom)} />;\n};\n`,
+  );
+  let refused = '';
+  try {
+    sh('node', ['scripts/audit.mjs', '--only', 'motion', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`]);
+  } catch (e) {
+    refused = String(e.stdout || '');
+  }
+  if (!/motion: .*camOn/.test(refused) || !/motion: .*no state from a \*\.motion\.ts/.test(refused)) throw new Error(`the topic audit did not refuse the old way of animating:\n${refused}`);
+  // a note closed without its root cause and guard (docs/root-causes.md) must fail the topic audit too
+  fs.mkdirSync(`projects/${slug}/content/reviews`, {recursive: true});
+  fs.writeFileSync(`projects/${slug}/content/reviews/notes.json`, JSON.stringify([{id: 'T1', status: 'fixed', text: 'arrow in the air', fix: 'moved it'}]));
+  let noted = '';
+  try {
+    sh('node', ['scripts/audit.mjs', '--only', 'motion', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`]);
+  } catch (e) {
+    noted = String(e.stdout || '');
+  }
+  if (!/notes: T1 is fixed without rootCause/.test(noted)) throw new Error(`the topic audit accepted a note closed without its root cause:\n${noted}`);
 } catch (e) {
   failed = String(e.stdout || '') + String(e.stderr || '') + String(e.message || '');
 } finally {

@@ -94,6 +94,19 @@ const moov = head.indexOf('moov');
 const mdat = head.indexOf('mdat');
 check('faststart', moov >= 0 && (mdat < 0 || moov < mdat), 'moov before mdat');
 report.files.final = {path: final, bytes: fs.statSync(final).size, seconds: +probe.format.duration};
+// motion (pixels of the delivered file): crop, an empty half, pops/jumps; scene starts of the timeline are cuts
+{
+  const {decode, checkFrames} = await import('./motion-check.mjs');
+  let at = 0;
+  const cuts = [];
+  for (const sc of tl.scenes ?? []) {
+    if (at > 0) cuts.push(at);
+    at += sc.durationInFrames - (sc.transitionInFrames ?? 0);
+  }
+  const motion = checkFrames(decode(final), {captions: true, cuts});
+  report.motion = motion;
+  check('motion', motion.length === 0, motion.length ? motion.map((m) => `${m.kind}: ${m.text}`).join('; ') : 'no crop, empty half, pop or jump (scripts/motion-check.mjs)');
+}
 
 // 4) cover
 log('render cover');

@@ -5,7 +5,8 @@
 // repeats a pre-gate finding is wasted.
 //   node scripts/pregate.mjs <slug>            all checks for a topic (src/projects/<slug>, projects/<slug>/content)
 //   node scripts/pregate.mjs --kit             the shared kit only (no topic)
-// Runs: tsc, eslint, handedness, audit (topic flags), object-audit and rig-check (cached by input hash), cover-check,
+// Runs: tsc, eslint, handedness, audit (topic flags; it includes motion-check of the topic's *.motion.ts), object-audit
+// and rig-check (cached by input hash), cover-check,
 // still-check (projects/<slug>/content/stills.json, when present). The slow geometry checks are skipped when their
 // inputs did not change since the last pass. Exit code 1 on any failure.
 import {spawn} from 'node:child_process';

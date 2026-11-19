@@ -156,6 +156,58 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2e) motion (§19.3, §22): every *.motion.ts walks its reel/scene frame by frame without rendering — paint-order
+// cycles, moving parts through static ones, arrows off their owners, the hero out of the safe rect or off centre,
+// jumps, jolts, pops and a broken loop. scripts/motion-check.mjs; cached by input hash like object-audit.
+{
+  const motions = srcFiles.filter((f) => f.endsWith('.motion.ts') && (topicDir ? under(f, topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
+  if (motions.length) {
+    const dirs = [...new Set(motions.map((f) => path.dirname(f)))];
+    runCached(`motion-check (${motions.length} file${motions.length === 1 ? '' : 's'})`, `node scripts/motion-check.mjs --quiet ${motions.map((f) => JSON.stringify(f)).join(' ')}`, [...dirs, 'src/lib', 'src/theme', 'src/vendor/anatomy', 'scripts/motion-check.mjs']);
+  }
+}
+
+// 2f) motion architecture (root cause of the motor-stand reel defects, closed for every topic): a topic file that
+// animates house-style objects keeps its state in a *.motion.ts (so motion-check sees every frame), frames with camFit
+// (hero + labels inside the safe rect) and moves with beatClock/blendCam. The old hand-tuned helpers are not allowed in
+// src/projects: camOn/camOnBox (zoom numbers that crop the hero), lerpCam between pictures (a cross-fade, not a move).
+{
+  const topicCode = srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && (topicDir ? under(f, topicDir) : true) && /\.tsx?$/.test(f) && !f.endsWith('.motion.ts'));
+  for (const f of topicCode) {
+    const text = fs.readFileSync(f, 'utf8');
+    const code = text.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    const old = [...new Set(code.match(/\b(camOn|camOnBox|lerpCam)\(/g) ?? [])];
+    if (old.length) add('error', `motion: ${f} uses ${old.map((x) => x.slice(0, -1)).join(', ')}; frame with camFit(hero corners, {rect: safeRect(), pins}) and move with beatClock/blendCam (src/lib/motion.ts)`);
+    const animates = /useCurrentFrame\(/.test(code) && /(\.parts['"]|lib\/assembly['"]|<Kit\b)/.test(code);
+    if (f.endsWith('.tsx') && animates && !/from '\.\/[^']+\.motion'/.test(code)) add('error', `motion: ${f} animates house-style objects but takes no state from a *.motion.ts; put the per-frame state (camera, angles, opacities, arrows) in a *.motion.ts exporting MOTION so motion-check walks every frame`);
+  }
+}
+
+// 2g) root cause every time (docs/root-causes.md): a review note closed as fixed or verified names its root cause and
+// the automatic guard that now catches it (an existing scripts/… or src/… path). Without that the same defect comes
+// back in the next topic and the gate finds it again. Notes closed before this rule carry legacy: true.
+{
+  const notesFile = path.join(contentDir, 'reviews', 'notes.json');
+  if (topicDir && fs.existsSync(notesFile)) {
+    let raw = null;
+    try {
+      raw = readJson(notesFile);
+    } catch (e) {
+      add('error', `notes: ${notesFile} is not valid JSON (${e.message})`);
+    }
+    const notes = Array.isArray(raw) ? raw : (raw?.notes ?? []);
+    for (const n of notes) {
+      if (!n || n.legacy || !['fixed', 'verified'].includes(n.status)) continue;
+      const missing = [];
+      if (!String(n.rootCause ?? '').trim()) missing.push('rootCause');
+      const guards = String(n.guard ?? '').match(/(?:scripts|src)\/[\w./-]+/g) ?? [];
+      if (!guards.length) missing.push('guard (a scripts/… or src/… path)');
+      for (const g of guards) if (!fs.existsSync(g.replace(/[.,;:)]+$/, ''))) missing.push(`guard path ${g} does not exist`);
+      if (missing.length) add('error', `notes: ${n.id} is ${n.status} without ${missing.join(', ')} (docs/root-causes.md): name why the shared code let it happen and the check that now catches it`);
+    }
+  }
+}
+
 // 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques.
 // A topic run checks its own covers.ts; the root run checks covers outside src/projects (the style samples).
 {

@@ -27,3 +27,5 @@ Output protocol (root cause of repeated manual work: subagents in this environme
 Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
 as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
 from memory. Report only what you verified in the files you were given.
+
+Rules: read only the sections you need from `docs/rules/NN.md` (index `docs/rules/INDEX.md`, generated from MASTER_PROMPT_FINAL.md), not the whole master; project rules by area: `docs/claude/{style,motion,qa}.md`.

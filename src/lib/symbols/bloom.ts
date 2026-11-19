@@ -52,7 +52,8 @@ export const bloom = (name: string, P: K.Projection, [x, y, z]: Point3, open = 1
     }
   };
   ringPetals('sepal', 5, 4, 2.6, 0.2, 0.3, 1.2, 1.9);
-  ringPetals('petal', 8, 11, 5.4, 1.2, 0, 0.18, 1.25);
+  // lit lights both petal rings: a closed bud shows only its outer petals (the heart alone left the bud page bare)
+  ringPetals('petal', 8, 11, 5.4, 1.2, 0, 0.18, 1.25, !!o.lit);
   // `lit`: the heart (hub and inner petals) is the coral part: the hub alone was too small to read on a phone
   ringPetals('petalIn', 6, 8, 4.2, 2.2, 0.4, 0.1, 0.8, !!o.lit);
   // stamens round the hub top

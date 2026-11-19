@@ -143,8 +143,9 @@ export const KIT_PAGES: Page[] = [
   {id: 'zoom', coral: 'the flame', bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => zoomInto(boxOf(LAB), burner, 1).cam},
   {id: 'pullout', coral: 'none: the flame shrinks as the camera pulls back to the whole bench; the zoom page carries it', bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4)), cam: () => pullOut(burner, boxOf(LAB), 0.65).cam},
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},
-  // the map helpers: a plan point of the projection and a simplified ring drawn on the table top
-  {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, MAP_INFO.top + 0.05], annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), MAP_INFO.top + 0.05, P, true), {tone: 'lo'})}]})},
+  // the map helpers: a plan point of the projection and a simplified ring drawn on the table top round the islands
+  // (a ring under a raised island has no one depth: it lies on the table, over the sea and under the land)
+  {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, MAP_INFO.top + 0.05], bias: 3, annotation: true, svg: K.lineSvg(K.onTop(simplify([[0.4, 0.4], [15, 0.6], [29.6, 0.4], [29.6, 19.6], [0.4, 19.6]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), MAP_INFO.top + 0.05, P, true), {tone: 'lo'})}]})},
 ];
 
 export const UniversalKitSample: React.FC = () => {

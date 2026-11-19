@@ -44,6 +44,11 @@ export const cutaway = (obj: Assembly, axis: Point3, from: number, to: number, t
     centre.set(i.name, c[0] * axis[0] + c[1] * axis[1] + c[2] * axis[2]);
   }
   const plane = from + (to - from) * settle(t);
+  // a section removes the near shell, not the object: a cut that drops more than 40 % of the parts leaves a wall and a
+  // hanging bar (gate rounds 1–2 of the showcase: a plane through the middle of the cabinet). Root cause in
+  // docs/root-causes.md; scripts/regress-checks.mjs proves the refusal.
+  const cut = [...centre].filter(([n, c]) => !o.keep?.(n) && c > plane).length;
+  if (centre.size && cut / centre.size > 0.4) throw new Error(`cutaway: the plane at ${plane.toFixed(1)} removes ${cut} of ${centre.size} parts; cut only the near shell (a wall, a lid)`);
   return (name: string) => !o.keep?.(name) && (centre.get(name) ?? -Infinity) > plane;
 };
 

@@ -12,7 +12,7 @@ const rand = (seed: number) => {
   return s - Math.floor(s);
 };
 
-export type Figure = {at: Point3; yaw: number; scale?: number; step?: number; lit?: boolean; dark?: boolean};
+export type Figure = {at: Point3; yaw: number; scale?: number; step?: number; lit?: boolean; dark?: boolean; floor?: number};
 
 /** One crowd figure standing at `at` facing `yaw` (radians, 0 = +x). `step` 0..1 is the walk phase (legs swing,
  *  body bobs); the figure is ~17 kit units tall at scale 1, the mannequin's proportions. */
@@ -28,6 +28,10 @@ export const figure = (A: Assembly, name: string, f: Figure) => {
   const P = (s: number, fwd: number, up: number): Point3 => [x + side[0] * s + fx * fwd, y + side[1] * s + fy * fwd, z + up + bob];
   const own = {meta: {owner: `${name}.pelvis`}};
   const cloth = f.dark ? {className: 'cl-dark'} : {className: 'cl-mid'};
+  // a figure lifted off the floor (levitation, a jump) leaves its contact patch on the floor: without it the gap does
+  // not read and a lifted figure looks like one standing further back (gate round 1 of the showcase)
+  const floor = f.floor ?? 0;
+  if (z - floor > 0.3) A.cyl(`${name}.floor`, x, y, 2.4 * k, floor, 0.05, {tone: 'lo', ground: true, bevel: 0});
   // the figure stands on its shoes: they are its ground
   ([-1, 1] as const).forEach((s, i) => {
     const fwd = s * swing;

@@ -54,7 +54,7 @@ export const tangle = (name: string, P: K.Projection, c: Point3, o: TangleOpts =
   const go = (k: number, z: number): Point3 => [c[0] + side[0] * k, c[1] + side[1] * k, z];
   const floor = c[2] - R + cord;
   const endPts: Point3[] = [go(R - cord, c[2] - 2), go(R + 3, c[2] - 3), go(R + 6, floor + 1.5), go(R + 9, floor), go(R + 20, floor)];
-  A.pipe('end', endPts, cord, {bend: 3, limp: true, ends: [false, false], // it comes out from under the loops: its start is wound in, not mounted
+  A.pipe('end', endPts, cord, {bend: 3, limp: true, ends: [false, false], free: 'a thread tail: wound in at one end, cut at the other', // it comes out from under the loops: its start is wound in, not mounted
     lit: o.lit, meta: {touch: [`${name}.*`]}});
   return {
     A,

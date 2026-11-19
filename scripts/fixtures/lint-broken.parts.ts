@@ -33,12 +33,12 @@ terminal.pipe('hose', [[12, 0, 5], [1.05, 0, 5]], 0.9);
 // a tight right-angle corner whose outline folds over itself on screen
 export const selfOverlap = make('selfOverlap');
 selfOverlap.slab('base', {x: 0, y: 0, w: 20, d: 20, r: 1}, 0, 1, {ground: true});
-selfOverlap.pipe('cable', [[2, 2, 1.4], [2, 16, 1.4], [16, 16, 1.4]], 0.7, {bend: 0.2, limp: true, ends: [false, false]});
+selfOverlap.pipe('cable', [[2, 2, 1.4], [2, 16, 1.4], [16, 16, 1.4]], 0.7, {bend: 0.2, limp: true, ends: [false, false], free: 'fixture'});
 
 // a rise followed by a run towards the viewer: the line turns back on itself on screen (a step along the line of sight)
 export const fold = make('fold');
 fold.slab('base', {x: 0, y: 0, w: 20, d: 20, r: 1}, 0, 1, {ground: true});
-fold.pipe('cable', [[2, 2, 1.4], [2, 2, 12], [14, 14, 12]], 0.5, {bend: 1.3, limp: true, ends: [false, false]});
+fold.pipe('cable', [[2, 2, 1.4], [2, 2, 12], [14, 14, 12]], 0.5, {bend: 1.3, limp: true, ends: [false, false], free: 'fixture'});
 
 // an owner name that names no part (a builder name that already starts with the object's own name)
 export const owner = make('owner');
@@ -48,7 +48,12 @@ owner.cyl('hinge', 2, 2, 1, 10, 1, {meta: {owner: 'owner.colum'}});
 // a cable lying on the floor that runs straight at the viewer: on screen it is a vertical stick
 export const view = make('view');
 view.slab('base', {x: 0, y: 0, w: 24, d: 24, r: 1}, 0, 1, {ground: true});
-view.pipe('cable', [[2, 2, 1.5], [18, 18, 1.5]], 0.5, {limp: true, ends: [false, false]});
+view.pipe('cable', [[2, 2, 1.5], [18, 18, 1.5]], 0.5, {limp: true, ends: [false, false], free: 'fixture'});
+
+// a cable that stops in the open with no reason: a cut end hangs in the air once the frame holds the whole object
+export const loose = make('loose');
+loose.slab('base', {x: 0, y: 0, w: 20, d: 20, r: 1}, 0, 1, {ground: true});
+loose.pipe('cable', [[4, 4, 1.5], [16, 4, 1.5]], 0.5, {limp: true, ends: [true, false]});
 
 // a piece that never moves, and an order entry no part uses (each multiplies the audited share states)
 export const piece = new Assembly('piece', P, {role: 'environment', order: ['lid', 'cap']});

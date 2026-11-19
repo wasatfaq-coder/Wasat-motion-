@@ -63,7 +63,7 @@ export const stamp = (A: Assembly, [x, y, z]: Point3, o: {lift?: number} = {}) =
 
 /** An archive cabinet of `rows` × `cols` drawers along +x, each with a handle and a label slot; drawer `open`
  *  (index) slides out along +y as piece `drawer` (share from the scene). The open drawer shows its folders. */
-export const archive = (A: Assembly, [x, y, z]: Point3, o: {rows?: number; cols?: number; open?: number; litFolder?: number}) => {
+export const archive = (A: Assembly, [x, y, z]: Point3, o: {rows?: number; cols?: number; open?: number; litFolder?: number; litDrawer?: boolean}) => {
   const rows = o.rows ?? 3;
   const cols = o.cols ?? 2;
   const dw = 22;
@@ -97,7 +97,8 @@ export const archive = (A: Assembly, [x, y, z]: Point3, o: {rows?: number; cols?
       const id = `drawer${k}`;
       const own = {meta: {owner: `${A.name}.${id}`}};
       // the front stands on the shelf below it; the label slot and the handle are fixed to the front
-      A.slab(`${id}`, {x: dx + 0.3, y: y + D - 1.4, w: cw - 0.6, d: 1.4, r: 0.4}, dz, ch, {tone: 'hi', bevel: 0.3, ...pc});
+      // `litDrawer`: the open drawer's front is the coral part (a folder inside is too small on a phone)
+      A.slab(`${id}`, {x: dx + 0.3, y: y + D - 1.4, w: cw - 0.6, d: 1.4, r: 0.4}, dz, ch, {tone: 'hi', bevel: 0.3, lit: open && o.litDrawer, ...pc});
       A.slab(`${id}.slot`, {x: dx + cw / 2 - 4, y: y + D, w: 8, d: 0.4, r: 0.2}, dz + ch - 4.5, 2.4, {tone: 'mid', bevel: 0.05, ...pc, ...own});
       const hz = dz + 3;
       // a bar handle on two posts (a bent tube handle folds on screen: its corners turn towards the viewer)

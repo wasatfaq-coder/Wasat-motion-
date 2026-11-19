@@ -5,6 +5,9 @@
 //            palette, stroke weight, tone or framing in shared code shows up as changed pixels. Expected changes are
 //            accepted with --update (the new stills become the references, reviewed in the PR diff).
 //   palette  no saturated colour except the one coral accent: a pixel with saturation > 0.35 must have the coral hue.
+//   frame    scripts/lib/frame-checks.mjs on the full frame: the drawn content fills the safe rect, nothing outside it
+//            (unless the page declares `bleed`), exactly one visible coral region (unless `coral: 'none: …'`). The
+//            references were taken from frames with exactly these defects, so drift alone passed them (gate round 1).
 // Root cause it guards (docs/root-causes.md): a change in src/lib or src/theme altered the look of every object, and
 // nothing compared pictures, so it was found by eye one topic later.
 //   node scripts/style-check.mjs [--comp AnatomyUniversal] [--frames 15] [--update] [--keep <dir>]
@@ -17,12 +20,14 @@ import {pathToFileURL} from 'node:url';
 import {tsImport} from 'tsx/esm/api';
 import {findBrowser} from './lib/browser.mjs';
 import {readPng, shrink, writePng} from './lib/png.mjs';
+import {checkFrame, frameDiff, MIN_PAGE_DIFF} from './lib/frame-checks.mjs';
 
 const args = process.argv.slice(2);
 const arg = (k, d) => (args.includes(`--${k}`) ? args[args.indexOf(`--${k}`) + 1] : d);
 const comp = arg('comp', 'AnatomyUniversal');
 // the page count comes from the showcase itself (a hard-coded count missed every page added later)
-const pages = comp === 'AnatomyUniversal' ? (await tsImport(pathToFileURL(path.resolve('src/samples/UniversalKitSample.tsx')).href, import.meta.url)).KIT_PAGES.length : 1;
+const KIT = comp === 'AnatomyUniversal' ? (await tsImport(pathToFileURL(path.resolve('src/samples/UniversalKitSample.tsx')).href, import.meta.url)).KIT_PAGES : null;
+const pages = KIT ? KIT.length : 1;
 const frames = Number(arg('frames', String(pages)));
 const update = args.includes('--update');
 const keep = arg('keep', null);
@@ -79,12 +84,22 @@ for (let f = 0; f < frames; f++) {
   const small = path.join(dir, `s${f}.png`);
   const r = measure(png, !update && fs.existsSync(ref) ? ref : null, small);
   const notes = [];
+  const page = KIT?.[f];
+  const fc = checkFrame(readPng(png), {coral: page?.coral?.startsWith('none') ? page.coral : true, bleed: page?.bleed ?? null});
+  for (const e of fc.errors) (errors++, notes.push(`ERROR ${page ? page.id + ': ' : ''}${e}`));
   if (r.foreign > 0.0005) (errors++, notes.push(`ERROR ${(r.foreign * 100).toFixed(2)} % saturated pixels that are not coral: a colour outside the palette (§22.1)`));
   if (update || !fs.existsSync(ref)) {
     fs.copyFileSync(small, ref);
     notes.push(`reference ${update ? 'updated' : 'created'}: ${ref}`);
   } else if (r.changed > 0.004) (errors++, notes.push(`ERROR ${(r.changed * 100).toFixed(2)} % of the phone-size frame changed against ${ref}: if the change is intended, run with --update and review the stills in the PR`));
   console.log(`${comp} frame ${f}: foreign ${(r.foreign * 100).toFixed(3)} %${r.changed === null ? '' : `, changed ${(r.changed * 100).toFixed(2)} %`}${notes.length ? '\n  ' + notes.join('\n  ') : ' — ok'}`);
+}
+// pages of one showcase must show different pictures (zoom and pull-out came out as one frame, gate round 3)
+if (KIT && frames === pages) {
+  const small = Array.from({length: frames}, (_, f) => readPng(path.join(dir, `s${f}.png`)));
+  for (let a = 0; a < frames; a++)
+    for (let b = a + 1; b < frames; b++)
+      if (frameDiff(small[a], small[b]) < MIN_PAGE_DIFF) (errors++, console.log(`ERROR pages ${KIT[a].id} and ${KIT[b].id} show the same picture (${(frameDiff(small[a], small[b]) * 100).toFixed(1)} % differ)`));
 }
 if (!keep) fs.rmSync(dir, {recursive: true, force: true});
 process.exitCode = errors ? 1 : 0;

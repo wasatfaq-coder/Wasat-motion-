@@ -11,6 +11,53 @@ starts the next session itself; this file is the hand-over; the rule is in `CLAU
 4. [ ] Frames changed → `node scripts/style-check.mjs --update`; PR; merge on green CI.
 5. [ ] Rules numbering (§23 of PR #19 vs §24 in main): waits until PR #19 is merged (open on 19.11.2026).
 
+## Gate round 2 (19.11.2026, last round): FAIL → escalated to the user (§15)
+Machine checks green (audit 0 errors, regress, frame checks on 24 frames). Verified: U-01, U-03 bolts, U-10, U-17,
+U-18, U-21. Escalated majors (open two rounds): U-16 cutaway (page 19: the cut drops whole parts, a bar hangs),
+U-12 drops (page 15: grey beads, no drop shape), U-13 flow (page 16: 8 px dots, no route line).
+(A) minors: U-11 monitor cable plug in the air, U-14 flame only on the zoom page, U-04 tube gaps, U-06 bloom ring,
+U-20 map post ring, U-19 plan line over a raised island (needs a numeric check), U-22 grape bunch on its tip,
+U-23 plate maybe under the glass on page 22, U-24 floor patch reads as a hatch, U-25 ticks on island outlines.
+(B) user's design calls: U-27 13 of 24 pages without coral, U-07 trapdoor reads as a pallet, U-02, U-05, U-08, U-15,
+U-26 drops and cash on the same object, U-28 flame shape, U-29 cloud outline, U-30 balance level with a coral pan,
+U-31 faded plate on the scale page, U-09 small figures.
+
+## DONE (19.11.2026): final gate PASS, sheet sent to the user, references updated, PR #29 merged on green CI
+Open minors for a later pass (no blocker/major): N1 route dots still pale on a phone, N2 pullout page lost its coral
+(declared none), N3 scale ghost bowl over the tripod legs and the flask cut by the top mask, N4 the sheet cut by the
+left edge on the cutaway close-up, N5 a pale loop at the bud's stem, N6 the flame mostly behind the tripod on the
+zoom page; earlier: U-04 tube gaps, U-06 bloom ring, U-20 map post ring, U-25 island ticks, U-22 grapes on their tip,
+U-24 floor patch reads as a hatch, U-10/A10 pan height. Design calls for the user: U-07, U-02, U-05, U-08, U-15,
+U-28, U-29, U-30, U-31, U-09. The elektromotor stand reel must be re-checked (svgFaded change) before its STOP 2.
+
+## User decisions after gate round 2 (19.11.2026)
+U-16: cabinet without its near side wall, drawer out with a coral folder (done). U-12: drops from a faucet over a sink
+on the lab bench, drop shape, one coral drop (done). U-13: a visible dotted arc with coins running along it (done).
+U-27: coral by meaning on every page except neutral ones (fruit, tangle, swatches; scale keeps none) (done).
+Also done: U-11 monitor cable into a socket on the foot, U-14 flame on lab and pullout pages.
+Next: one check run, gate on the result, stamp, send the sheet, `style-check --update`, merge PR #29.
+
+## Where to continue (paused 19.11.2026 by the user; one session from now on)
+1. Run the one consolidated check (it was stopped before it finished): `node scripts/object-audit.mjs --selftest`
+   (passed), `node scripts/audit.mjs`, `node scripts/regress-checks.mjs`, `node scripts/style-check.mjs --keep <dir>`
+   (drift against the old refs is expected: the frames changed on purpose; every frame-check ERROR must be zero), then
+   tile the sheet.
+2. ONE shorts-quality-gate round on the sheet and frames, giving it this file's open list; design items it still
+   flags go to the user in one list (do not iterate per fix: user's rule).
+3. PASS → `node scripts/gate-stamp.mjs`, send the sheet, `node scripts/style-check.mjs --update`, commit the refs: CI
+   style-check stays red until then, so the PR waits for this step.
+4. The svgFaded fix changes every topic that fades moving parts: re-check the elektromotor stand reel
+   (`node scripts/motion-check.mjs`, contact sheet) before its STOP 2.
+5. Rules numbering (§23 of PR #19 vs §24): still waits for PR #19.
+Design items left for the gate/user: trapdoor (#1), swatches (#3), chron gear board (#4), tangle joints (#5), bloom
+sparks/ring (#6), crowd heads (#7), map post ring (#10).
+
+## Status after the consolidated fix pass (user: fix every finding at once, then one gate round)
+Fixed in shared code with guards: S1, S2, S3, S4 (bleed pages declared), S5, U-01, U-03 (bolts wide + coral), U-09,
+U-11 (screen ui), U-12, U-13, U-14 (svgFaded layers, tripod height, flame), U-17, U-18, U-19 (plan line in depth order).
+Still open going into gate round 2: U-02 chron gear board, U-04 tube gaps, U-05/06 bloom sparks and ring, U-07 trapdoor
+hinges, U-08 heads, U-10 phone cable end, U-15 swatches, U-16 cutaway, U-20 map post ring, U-21 doc touching cabinet.
+
 ## Gate round 1 (19.11.2026): FAIL
 style-check was green: the refs recorded the same defects (root cause of «style-check passed»: refs were taken without a
 gate; guard idea: `style-check --update` refuses unless the frames are gate-stamped).

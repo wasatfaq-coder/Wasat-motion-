@@ -1,6 +1,7 @@
 import React from 'react';
 import {useCurrentFrame} from 'remotion';
 import {AnatomyStage, Kit, toRoom} from '../../lib/anatomy';
+import {onTop} from '../../lib/assembly';
 import {Rect, RoomSvg, screenOf} from '../../lib/camera';
 import {screenDir} from '../../lib/handed';
 import {COLORS, STROKE} from '../../theme/tokens';
@@ -49,7 +50,7 @@ const Inset: React.FC<{x: number; y: number; opacity: number}> = ({x, y, opacity
 
 const StandView: React.FC<{state: StandState; rect: Rect; bottom: number}> = ({state, rect, bottom}) => {
   const {extra, arrows} = partsOf(state);
-  const picture = STAND.svgFaded(extra) + arrows.map((a) => (a.opacity < 0.999 ? `<g opacity="${a.opacity.toFixed(3)}">${a.svg}</g>` : a.svg)).join('');
+  const picture = onTop(STAND.svgFaded(extra), arrows.map((a) => (a.opacity < 0.999 ? `<g opacity="${a.opacity.toFixed(3)}">${a.svg}</g>` : a.svg)), 'force arrows are never hidden behind a part (motion-check ties them to their owners)');
   const nPos = screenOf(state.cam, toRoom(LABEL_ANCHORS.N, STAND_U));
   const sPos = screenOf(state.cam, toRoom(LABEL_ANCHORS.S, STAND_U));
   const ins = insetRect(rect);

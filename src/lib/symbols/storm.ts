@@ -38,7 +38,8 @@ export const storm = (name: string, P: K.Projection, [cx, cy, cz]: Point3, o: St
   const bolts: string[] = [];
   const side: Point3 = [Math.SQRT1_2, -Math.SQRT1_2, 0];
   [-8, 0, 8].forEach((bx, j) => {
-    const pts: Point3[] = [[cx + bx * k, cy + (j - 1) * 2 * k, cz]];
+    // the bolt starts a little under the belly: the wider wedge (1.6) tilted with its first zig sank 0.65 into it
+    const pts: Point3[] = [[cx + bx * k, cy + (j - 1) * 2 * k, cz - 0.55 * k]];
     for (let s = 1; s <= 5; s++) {
       const zig = (s % 2 ? 2.4 : -2.4) * (j === 1 ? -1 : 1) * k;
       const prev = pts[s - 1];
@@ -47,7 +48,8 @@ export const storm = (name: string, P: K.Projection, [cx, cy, cz]: Point3, o: St
     for (let s = 0; s < 5; s++) {
       const F = G.frameAlong(pts[s], G.sub3(pts[s + 1], pts[s]));
       const len = G.len3(G.sub3(pts[s + 1], pts[s]));
-      const w = (0.9 - s * 0.12) * k;
+      // 0.9 read as a hairline zigzag on a phone; a bolt is a wedge as wide as a finger at the cloud
+      const w = (1.6 - s * 0.2) * k;
       const id = `bolt${j}.${s}`;
       A.prism(id, F, [[-w, 0], [0, w * 0.6], [w, 0], [0, -w * 0.6]], -0.2 * k, len + 0.2 * k, {tone: 'hi', lit: o.lit, meta: {owner: `${name}.bolt${j}`, touch: [`${name}.*`]}});
       bolts.push(`${name}.${id}`);

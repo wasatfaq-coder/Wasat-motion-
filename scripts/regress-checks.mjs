@@ -85,6 +85,51 @@ for (const [id, row] of Object.entries(JSON.parse(fs.readFileSync('src/lib/symbo
 for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))
   if (fs.readFileSync(path.join('scripts', f), 'utf8').includes('/opt/pw-' + 'browsers')) fail(`scripts/${f} names the browser directory itself; use findBrowser() from scripts/lib/browser.mjs`);
 
+// the frame checks of style-check / still-check bite on broken frames (a tiny hero, a part outside the safe rect, a
+// body cut by the band's fade, two or no coral meanings) and pass a clean one
+for (const m of (await import('./lib/frame-checks.mjs')).selftest()) fail(m);
+// the audit rule against markup glued to an Assembly picture as a string bites on broken code and passes clean code
+for (const m of (await import('./lib/code-rules.mjs')).selftest()) fail(m);
+// a nested scale model may stand on a solid of the outer level, never inside one (the bowl stood in a glass)
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {intrusions} = await tsImport(new URL('../src/lib/scale.tsx', import.meta.url).href, import.meta.url);
+  const glass = [[[0, 0, 0], [2, 2, 3]]];
+  if (!intrusions([[0.5, 0.5, 1], [1, 1, 1]], glass).length) fail('scale: a model inside a solid was not caught (intrusions)');
+  if (intrusions([[0.5, 0.5, 3], [1, 1, 1]], glass).length) fail('scale: a model standing on a solid was refused (intrusions)');
+}
+// svgFaded: parts of several fade layers each end at their own opacity (later pictures used to wash earlier ones out)
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {layerAlphas} = await tsImport(new URL('../src/lib/assembly.ts', import.meta.url).href, import.meta.url);
+  const o = [0.98, 0.87, 0.6, 0.44];
+  const a = layerAlphas(o);
+  o.forEach((oj, j) => {
+    const shown = 1 - a.slice(j).reduce((p, ak) => p * (1 - ak), 1);
+    if (Math.abs(shown - oj) > 1e-9) fail(`assembly: svgFaded layer ${j} ends at ${shown.toFixed(3)}, not its opacity ${oj}`);
+  });
+}
+// a cutaway that would remove most of an object is refused (it left one wall and a hanging bar)
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {cutaway} = await tsImport(new URL('../src/lib/transitions.ts', import.meta.url).href, import.meta.url);
+  const {LAB} = await tsImport(new URL('../src/samples/kit/nature.parts.ts', import.meta.url).href, import.meta.url);
+  let refused = false;
+  try {
+    cutaway(LAB, [1, 0, 0], 0, 0, 1);
+  } catch {
+    refused = true;
+  }
+  if (!refused) fail('transitions: a cutaway through the whole object was not refused');
+}
+// camFitSvg frames by the drawn points only: markup under a transform (a screen interface) is in its own pixel space
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {svgPoints} = await tsImport(new URL('../src/lib/camera.tsx', import.meta.url).href, import.meta.url);
+  const pts = svgPoints('<path d="M0 0L10 10Z"/><g transform="matrix(1,0,0,1,0,0)"><path d="M600 900L700 900"/></g>');
+  if (pts.length !== 2) fail(`camera: svgPoints counted markup under a transform (${pts.length} points, expected 2)`);
+}
+
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wasat-regress-'));
 const bad = path.join(dir, 'bad.json');
 const good = path.join(dir, 'good.json');

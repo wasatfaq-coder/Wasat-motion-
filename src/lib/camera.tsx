@@ -89,8 +89,39 @@ export const camFit = (
   {rect = safeRect(), fill = 0.94, margin = {}, pins = []}: {rect?: Rect; fill?: number; margin?: Partial<Record<'top' | 'bottom' | 'left' | 'right', number>>; pins?: Pin[]} = {},
 ): Cam => {
   if (points.length < 4) throw new Error(`camFit: ${points.length} point(s); pass the corners of a box (boxCorners) or every extreme point`);
+  return fitXY(points.map((p) => roomPoint(p)), {rect, fill, margin, pins});
+};
+
+/** The screen points (camera scale 1) of everything an SVG string of kit markup draws: every coordinate pair of its
+ *  paths (the kit draws with M/L/Z only). Root cause it serves (docs/root-causes.md): the showcase framed an object by
+ *  the axis box of its solids, wider than the drawn outline (round bodies), and missed what was added beside it
+ *  (extras, a loose note): heroes came out small or cut. */
+export const svgPoints = (svg: string): [number, number][] => {
+  const out: [number, number][] = [];
+  // markup under a transform (an interface mapped onto a screen with faceMatrix) is in its own pixel space and lies on
+  // a part whose outline is measured anyway: it is left out (counted raw, it shrank the monitor to a speck)
+  const flat = svg.replace(/<g transform="[^"]*">[\s\S]*?<\/g>/g, '');
+  for (const m of flat.matchAll(/\sd="([^"]*)"/g)) {
+    if (/[^MLZmlz0-9.\-\s,e]/.test(m[1])) throw new Error('svgPoints: only absolute M/L/Z paths are measured; draw through the kit');
+    const n = m[1].match(/-?[\d.]+(?:e-?\d+)?/g) ?? [];
+    for (let i = 0; i + 1 < n.length; i += 2) out.push([ROOM_ORIGIN[0] + Number(n[i]), ROOM_ORIGIN[1] + Number(n[i + 1])]);
+  }
+  return out;
+};
+
+/** camFit by what is drawn: the camera that fits every point the SVG markup draws inside the rect. Prefer it to
+ *  boxCorners for a still frame or a page; a moving shot still fits every pose (camFit with the corners of all poses). */
+export const camFitSvg = (svg: string, opts: Parameters<typeof camFit>[1] = {}): Cam => {
+  const xy = svgPoints(svg);
+  if (xy.length < 2) throw new Error('camFitSvg: the markup draws nothing');
+  return fitXY(xy, {rect: safeRect(), fill: 0.94, margin: {}, pins: [], ...opts});
+};
+
+const fitXY = (
+  room: [number, number][],
+  {rect = safeRect(), fill = 0.94, margin = {}, pins = []}: {rect?: Rect; fill?: number; margin?: Partial<Record<'top' | 'bottom' | 'left' | 'right', number>>; pins?: Pin[]},
+): Cam => {
   const m = {top: 0, bottom: 0, left: 0, right: 0, ...margin};
-  const room = points.map((p) => roomPoint(p));
   const pinned = pins.map((p) => ({xy: roomPoint(p.at), box: p.box}));
   const rw = (rect.x1 - rect.x0 - m.left - m.right) * fill;
   const rh = (rect.y1 - rect.y0 - m.top - m.bottom) * fill;

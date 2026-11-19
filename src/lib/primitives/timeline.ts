@@ -29,11 +29,14 @@ export const station = (A: Assembly, s: Station, xOf: (year: number) => number, 
   const x = xOf(s.year);
   const p = `station.${s.id}`;
   const own = {meta: {owner: `${A.name}.${p}`}};
-  A.slab(p, {x: x - 6, y: y0 + 15, w: 12, d: 8, r: 0.8}, z0, 3, {tone: 'mid', ground: true, bevel: 0.4});
-  A.slab(`${p}.edge`, {x: x - 6, y: y0 + 15, w: 12, d: 1, r: 0.2}, z0 + 3, 0.4, {tone: 'hi', bevel: 0.1, ...own});
-  A.cyl(`${p}.post`, x, y0 + 20, 0.8, z0 + 3, 14, {tone: 'hi', bevel: 0.2, ...own});
-  A.slab(`${p}.sign`, {x: x - 4, y: y0 + 20.8, w: 8, d: 1.2, r: 0.4}, z0 + 12, 5, {tone: 'hi', bevel: 0.3, lit: s.lit, ...own});
-  A.ball(`${p}.lamp`, [x, y0 + 20, z0 + 17.8], 1.2, {tone: 'mid', ...own});
+  // the lit station is coral as a whole (platform, edge, post, sign, lamp: one region): the sign alone was too small
+  A.slab(p, {x: x - 6, y: y0 + 15, w: 12, d: 8, r: 0.8}, z0, 3, {tone: 'mid', ground: true, bevel: 0.4, lit: s.lit});
+  A.slab(`${p}.edge`, {x: x - 6, y: y0 + 15, w: 12, d: 1, r: 0.2}, z0 + 3, 0.4, {tone: 'hi', bevel: 0.1, lit: s.lit, ...own});
+  A.cyl(`${p}.post`, x, y0 + 20, 0.8, z0 + 3, 14, {tone: 'hi', bevel: 0.2, lit: s.lit, ...own});
+  // the event's sign is larger (12 × 7): it carries the coral meaning on a long timeline
+  const [sw, sh] = s.lit ? [12, 7] : [8, 5];
+  A.slab(`${p}.sign`, {x: x - sw / 2, y: y0 + 20.8, w: sw, d: 1.2, r: 0.4}, z0 + 17 - sh, sh, {tone: 'hi', bevel: 0.3, lit: s.lit, ...own});
+  A.ball(`${p}.lamp`, [x, y0 + 20, z0 + 17.8], 1.2, {tone: 'mid', lit: s.lit, ...own});
   return {sign: [x, y0 + 22, z0 + 14.5] as Point3, top: [x, y0 + 20, z0 + 17.8] as Point3, at: [x, y0 + 19, z0 + 3] as Point3};
 };
 

@@ -15,8 +15,15 @@ export type ScaleLevel = {
   box: [P3, P3];
   /** where the NEXT level sits in this level's room units (its origin) and how many times smaller it is */
   inner?: {at: P3; factor: number};
+  /** boxes [min, size] of this level's solids in its room units: the next level's model must not stand inside one
+   *  (root cause, docs/root-causes.md: the showcase put the fruit bowl model inside a glass on the bench) */
+  occupied?: [P3, P3][];
   draw: () => React.ReactNode;
 };
+
+/** The solids of `occupied` that the box [min, size] cuts into (touching a face, such as standing on a top, is fine). */
+export const intrusions = ([min, size]: [P3, P3], occupied: [P3, P3][], eps = 0.05): number[] =>
+  occupied.flatMap(([o, os], idx) => ([0, 1, 2].every((k) => min[k] + size[k] > o[k] + eps && o[k] + os[k] > min[k] + eps) ? [idx] : []));
 
 const roomPx = (p: P3) => iso(ROOM_S)(p);
 
@@ -40,6 +47,8 @@ export const scaleView = (levels: ScaleLevel[], s: number, o: {rect?: Rect; fill
   const [imin, isize] = inner.box;
   // the inner box mapped into the outer room space
   const mapped: [P3, P3] = [[at[0] + imin[0] / factor, at[1] + imin[1] / factor, at[2] + imin[2] / factor], [isize[0] / factor, isize[1] / factor, isize[2] / factor]];
+  const hit = intrusions(mapped, outer.occupied ?? []);
+  if (hit.length) throw new Error(`scaleView: the «${inner.id}» model at ${JSON.stringify(at)} stands inside ${hit.length} solid(s) of «${outer.id}»; move inner.at to a free spot`);
   const a = frame(...outer.box);
   const b = frame(...mapped);
   const zoom = a.zoom * Math.pow(b.zoom / a.zoom, f);

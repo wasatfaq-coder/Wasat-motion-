@@ -2,7 +2,7 @@ import * as K from '../vendor/anatomy/iso-kit';
 import * as LatheKit from '../vendor/anatomy/lathe.mjs';
 import {CoverSpec} from '../lib/coverLayout';
 import {toRoom} from '../lib/anatomy';
-import {Point3} from '../lib/assembly';
+import {onTop, Point3} from '../lib/assembly';
 import {P3} from '../lib/iso';
 import {MOTOR, MOTOR_AXIS, MOTOR_HUM, MOTOR_OPEN, MOTOR_P, MOTOR_U} from './motor.parts';
 
@@ -96,7 +96,7 @@ export const COVERS: Record<'a' | 'b' | 'c', CoverSpec> = {
     hook: 'крышка коробки приоткрыта, в узкой щели светится сплошная коралловая полоса',
     lines: ['Что под', 'крышкой?'],
     layout: 'top',
-    art: MOTOR_OPEN.svg() + GLOW + LID + screws,
+    art: onTop(MOTOR_OPEN.svg(), [GLOW, LID, screws], 'the lid and its screws are lifted above the whole motor, the glow is the hook'),
     frame: room([[7, 5, 30], [67, 45, 30], [7, 45, 30], [67, 5, 30], [37, 25, 72], [37, 25, 30]]), // centred on the box, with the motor round it
     hero: room([29.5, 44.5].flatMap((x) => [17.5, 32.5].flatMap((y) => [44, 54].map((z) => [x, y, z] as Point3)))),
     floor: FLOOR,

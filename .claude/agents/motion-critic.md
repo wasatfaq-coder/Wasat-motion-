@@ -19,3 +19,6 @@ Output protocol (root cause of repeated manual work: subagents in this environme
 Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
 as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
 from memory. Report only what you verified in the files you were given.
+
+For every finding also write «Почему машина не поймала» and «Страж» (docs/root-causes.md): the shared check that should
+catch this kind of defect in any topic.

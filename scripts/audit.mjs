@@ -183,6 +183,31 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2g) root cause every time (docs/root-causes.md): a review note closed as fixed or verified names its root cause and
+// the automatic guard that now catches it (an existing scripts/… or src/… path). Without that the same defect comes
+// back in the next topic and the gate finds it again. Notes closed before this rule carry legacy: true.
+{
+  const notesFile = path.join(contentDir, 'reviews', 'notes.json');
+  if (topicDir && fs.existsSync(notesFile)) {
+    let raw = null;
+    try {
+      raw = readJson(notesFile);
+    } catch (e) {
+      add('error', `notes: ${notesFile} is not valid JSON (${e.message})`);
+    }
+    const notes = Array.isArray(raw) ? raw : (raw?.notes ?? []);
+    for (const n of notes) {
+      if (!n || n.legacy || !['fixed', 'verified'].includes(n.status)) continue;
+      const missing = [];
+      if (!String(n.rootCause ?? '').trim()) missing.push('rootCause');
+      const guards = String(n.guard ?? '').match(/(?:scripts|src)\/[\w./-]+/g) ?? [];
+      if (!guards.length) missing.push('guard (a scripts/… or src/… path)');
+      for (const g of guards) if (!fs.existsSync(g.replace(/[.,;:)]+$/, ''))) missing.push(`guard path ${g} does not exist`);
+      if (missing.length) add('error', `notes: ${n.id} is ${n.status} without ${missing.join(', ')} (docs/root-causes.md): name why the shared code let it happen and the check that now catches it`);
+    }
+  }
+}
+
 // 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques.
 // A topic run checks its own covers.ts; the root run checks covers outside src/projects (the style samples).
 {

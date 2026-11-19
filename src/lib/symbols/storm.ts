@@ -38,7 +38,8 @@ export const storm = (name: string, P: K.Projection, [cx, cy, cz]: Point3, o: St
   const bolts: string[] = [];
   const side: Point3 = [Math.SQRT1_2, -Math.SQRT1_2, 0];
   [-8, 0, 8].forEach((bx, j) => {
-    const pts: Point3[] = [[cx + bx * k, cy + (j - 1) * 2 * k, cz]];
+    // the bolt starts a little under the belly: the wider wedge (1.6) tilted with its first zig sank 0.65 into it
+    const pts: Point3[] = [[cx + bx * k, cy + (j - 1) * 2 * k, cz - 0.55 * k]];
     for (let s = 1; s <= 5; s++) {
       const zig = (s % 2 ? 2.4 : -2.4) * (j === 1 ? -1 : 1) * k;
       const prev = pts[s - 1];

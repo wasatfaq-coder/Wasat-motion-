@@ -33,8 +33,11 @@ export const beatClock = (frame: number, {count, hold, move, loop = true}: {coun
   const from = Math.min(count - 1, Math.floor(f / slot));
   const local = f - from * slot;
   const last = from === count - 1;
-  if (local < hold || (last && !loop)) return {from, to: from, t: 0, moving: false, total};
-  return {from, to: (from + 1) % count, t: settle((local - hold) / move), moving: true, total};
+  if (local < hold || (last && !loop)) return {from, to: from, t: 0, raw: 0, moving: false, total};
+  // t is eased (the object's motion); raw is the plain share of the move, for annotations that fade out and back in
+  // during it (an eased t rushes at the start, a fade on it pops)
+  const raw = (local - hold) / move;
+  return {from, to: (from + 1) % count, t: settle(raw), raw, moving: true, total};
 };
 
 /** Frames of a reel built by beatClock. */
@@ -48,8 +51,10 @@ export const blendCam = (a: Cam, b: Cam, t: number): Cam => ({
 });
 
 /** An arrow (current, force, field) as the motion check sees it: its tail must sit on its owner part. */
-/** `tip` (optional): where the head ends; motion-check keeps the tips of two arrows apart (they must not read as one bar). */
-export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3};
+/** `tip` (optional): where the head ends; motion-check keeps the tips of two arrows apart (they must not read as one
+ *  bar) and off moving bodies other than the owner. `along`: name prefixes the head may run onto (a current arrow
+ *  that follows its conductor round a corner). */
+export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3; along?: string[]};
 /** A frontal plate or inset in screen pixels. */
 export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number};
 
@@ -70,6 +75,9 @@ export type MotionPose = {
   keep: {name: string; at: Point3}[];
   /** frontal plates and insets in screen pixels */
   plates: PlateProbe[];
+  /** heads of annotation arrows that are not ArrowProbes (the heads of field lines): motion-check keeps every arrow
+   *  head (tip back to `base`) at least LIMITS.tips px away from them, so two heads never fuse into one figure (R5) */
+  heads?: {name: string; at: Point3; base?: Point3; opacity: number}[];
   /** moving × static name prefixes allowed to touch or sink (an axle in its bearing, a brush on the commutator) */
   touch?: [string, string][];
 };

@@ -49,6 +49,7 @@ export const LIMITS = {
   jump: 40, // px a point may move in one frame
   accel: 8, // px/frame² a point may change speed by
   fade: 0.34, // opacity a part may gain or lose in one frame
+  tipOn: 14, // px from an arrow tip to the axis of a moving body that is not its owner (the head lands on it, R4)
   tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
 };
 
@@ -142,15 +143,34 @@ export const checkSpec = async (spec) => {
         }
       }
     }
-    // tips: two visible arrows whose heads meet read as one bar
+    // heads: two visible arrows whose heads meet read as one bar; an arrow head on a field-line head reads as one
+    // figure. A head is sampled from its tip back along the shaft (HEAD_LEN kit units), not by its tip alone (R5).
     const tipped = pose.arrows.filter((x) => x.opacity > 0.05 && x.tip);
+    const headPts = (tip, tail) => {
+      const v = tail.map((c, k) => c - tip[k]);
+      const l = Math.hypot(...v) || 1;
+      return [0, 0.5, 1].map((s) => tip.map((c, k) => c + (v[k] / l) * Math.min(l, HEAD_LEN) * s));
+    };
+    const near = (pa, pb) => Math.min(...pa.flatMap((a) => pb.map((b) => Math.hypot(scr(a)[0] - scr(b)[0], scr(a)[1] - scr(b)[1]))));
     for (let i = 0; i < tipped.length; i++)
       for (let j = i + 1; j < tipped.length; j++) {
-        const [ax, ay] = scr(tipped[i].tip);
-        const [bx, by] = scr(tipped[j].tip);
-        const d = Math.hypot(ax - bx, ay - by);
-        if (d < LIMITS.tips) addOnce('arrows', `${tipped[i].name}|${tipped[j].name}`, f, `the tips of ${tipped[i].name} and ${tipped[j].name} are ${d.toFixed(0)} px apart at frame ${f} (≥ ${LIMITS.tips}); shorten them so they do not read as one bar`);
+        const d = near(headPts(tipped[i].tip, tipped[i].tail), headPts(tipped[j].tip, tipped[j].tail));
+        if (d < LIMITS.tips) addOnce('arrows', `${tipped[i].name}|${tipped[j].name}`, f, `the heads of ${tipped[i].name} and ${tipped[j].name} are ${d.toFixed(0)} px apart at frame ${f} (≥ ${LIMITS.tips}); shorten them so they do not read as one bar`);
       }
+    for (const a of tipped)
+      for (const h of (pose.heads ?? []).filter((x) => x.opacity > 0.05)) {
+        const d = near(headPts(a.tip, a.tail), h.base ? headPts(h.at, h.base) : [h.at]);
+        if (d < LIMITS.tips) addOnce('arrows', `${a.name}|${h.name}`, f, `the head of ${a.name} is ${d.toFixed(0)} px from the head of ${h.name} at frame ${f} (≥ ${LIMITS.tips}); the two heads read as one figure`);
+      }
+    // a head that lands on another moving body (a bar, a wire that is not its owner) reads as touching it
+    for (const a of tipped) {
+      const [tx, ty] = scr(a.tip);
+      for (const d of pose.extra) {
+        if (d.annotation || (d.opacity ?? 1) <= 0.05 || d.name.startsWith(a.owner) || (a.along ?? []).some((x) => d.name.startsWith(x)) || !d.shapes?.length) continue;
+        const hit = d.shapes.flatMap((sh) => insidePoints(A, sh)).some((p) => Math.hypot(scr(p)[0] - tx, scr(p)[1] - ty) < LIMITS.tipOn);
+        if (hit) addOnce('arrows', `${a.name}|${d.name.split(':')[0]}`, f, `the head of ${a.name} lands on ${d.name.split(':')[0]} at frame ${f} (< ${LIMITS.tipOn} px); move or shorten the arrow`);
+      }
+    }
     // air: arrow tails on their owners
     for (const a of pose.arrows.filter((x) => x.opacity > 0.05)) {
       const own = [...pose.extra.filter((d) => d.name.startsWith(a.owner)).flatMap((d) => d.shapes), ...pose.assembly.R.solids.filter((s) => nameOf(s).includes(a.owner))];
@@ -253,6 +273,7 @@ const geometry = async (files) => {
 };
 
 // ───────────────────────────── pixel layer ─────────────────────────────
+const HEAD_LEN = 3.5; // kit units of an arrow head, sampled from its tip back along the shaft
 const W = 270;
 const H = 480;
 const BAND = {top: 290 / 1920, captions: 1170 / 1920, full: 1430 / 1920};

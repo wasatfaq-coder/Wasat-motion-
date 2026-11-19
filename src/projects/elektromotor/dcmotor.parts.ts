@@ -21,9 +21,9 @@ const RI = 13.6; // inner radius
 const Z0 = 4; // plate top
 const ZB = 8; // back shield top
 export const ZT = 58; // housing top
-const POLE_ANGLES = [90, 210, 330].map((a) => (a * Math.PI) / 180);
+export const POLE_ANGLES = [90, 210, 330].map((a) => (a * Math.PI) / 180);
 const FRONT = Math.PI / 4; // toward the viewer: azimuth 45°
-const SPLIT = FRONT + Math.PI / 3;
+export const SPLIT = FRONT + Math.PI / 3;
 const HALF_DIR = SPLIT - Math.PI / 2;
 /** the front half slides out along its own centre line: every point of it moves away from the armature */
 export const HALF_MOVE: Point3 = [48 * Math.cos(HALF_DIR), 48 * Math.sin(HALF_DIR), 0];
@@ -193,6 +193,8 @@ export const rotorItems = (theta: number, opacity?: number, litCoil: number | nu
   Rt.turned('shaft.a', [[ZB + 2, 1], [STACK.comm[0], 1]], AXIS, {tone: 'hi', ...sh});
   Rt.turned('commutator.hub', [[STACK.comm[0], 2.6], [STACK.comm[1], 2.6]], AXIS, {tone: 'mid', ...sh});
   Rt.turned('shaft.b', [[STACK.comm[1], 1], [STACK.plateLow[0], 1]], AXIS, {tone: 'hi', ...sh});
+  // a thrust washer on the shaft above the back shield's boss
+  Rt.ring('washer.back', ZB + 2, ZB + 2.5, 1, 2.2, AXIS, {tone: 'mid', meta: {owner: 'shaft'}});
   Rt.disc('core.plate.low', STACK.plateLow[0], STACK.plateLow[1], 5.2, AXIS, {tone: 'mid', meta: {owner: 'core'}});
   Rt.turned('core.hub', [[STACK.core[0], 3.2], [STACK.core[1], 3.2]], AXIS, {tone: 'mid', meta: {owner: 'core'}});
   Rt.disc('core.plate.top', STACK.plateTop[0], STACK.plateTop[1], 5.2, AXIS, {tone: 'mid', meta: {owner: 'core'}});
@@ -202,7 +204,14 @@ export const rotorItems = (theta: number, opacity?: number, litCoil: number | nu
     const t = (r: number, lat: number) => [CX + r * Math.cos(a) - lat * Math.sin(a), CY + r * Math.sin(a) + lat * Math.cos(a)] as [number, number];
     Rt.extruded(`pole${i}.neck`, [t(COIL.r1, -1.3), t(8.9, -1.3), t(8.9, 1.3), t(COIL.r1, 1.3)], STACK.core[0], 16, {tone: 'mid', meta: {owner: 'core'}});
     Rt.arc(`pole${i}.shoe`, C, 8.6, 12.2, a - 0.62, a + 0.62, STACK.core[0], 16, {tone: 'hi', meta: {owner: 'core'}});
-    Rt.extruded(`coil${i}`, [t(COIL.r0, -COIL.h0), t(COIL.r1, -COIL.h1), t(COIL.r1, COIL.h1), t(COIL.r0, COIL.h0)], STACK.core[0] + 1, 14, {tone: 'hi', lit: i === litCoil, meta: {owner: `coil${i}`}});
+    const wedge = [t(COIL.r0, -COIL.h0), t(COIL.r1, -COIL.h1), t(COIL.r1, COIL.h1), t(COIL.r0, COIL.h0)];
+    Rt.extruded(`coil${i}`, wedge, STACK.core[0] + 1, 14, {tone: 'hi', lit: i === litCoil, meta: {owner: `coil${i}`}});
+    // the end turn: the winding crosses over the top end plate (a real armature's coils bulge past the stack); it is
+    // the part of the coil seen from above, between and over the shoes
+    Rt.extruded(`coil${i}.end`, wedge, STACK.plateTop[1], 2, {tone: 'hi', lit: i === litCoil, meta: {owner: `coil${i}`}});
+    // the tang: the riser on the segment's top where the coil's lead is welded
+    const [gx, gy] = t(3.4, 0);
+    Rt.slab(`commutator.tang${i}`, {x: gx - 0.6, y: gy - 0.6, w: 1.2, d: 1.2, r: 0.3}, STACK.comm[1], 0.8, {tone: 'hi', bevel: 0.05, meta: {owner: 'commutator'}});
     Rt.arc(`commutator.seg${i}`, C, 2.6, 4.2, a - 0.95, a + 0.95, STACK.comm[0], STACK.comm[1] - STACK.comm[0], {tone: 'hi', className: 'cl-mid', meta: {owner: 'commutator'}});
   });
   // the pulley above the top shield

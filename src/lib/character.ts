@@ -395,3 +395,17 @@ export const paintOrder = (items: DrawnItem[], P: K.Projection) => {
 };
 const dot3 = (a: V3, b: V3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const lerp3v = (a: V3, b: V3, t: number): V3 => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+
+/** Projection that draws rig space into a scene of another scale: the rig point x lands where the scene point
+ *  `at + k·x` would (the projection is linear, so this is a similarity). For a scaled-up model on a bench (a teaching
+ *  motor) the person's hands come in at the model's scale while the rest of the person stays out of the frame. */
+export const scaledProjection = (P: K.Projection, k: number, at: V3): K.Projection => ({...P, scale: (P.scale ?? 1) * k, origin: K.iso(at, P)});
+
+/** Only the arms and hands of a solved pose (sleeves, forearms, hands, in the character's own paint order), drawn into
+ *  a scene of projection P at scale k (scaledProjection). The rest of the body is not drawn: use it when the person is
+ *  outside the frame and only the hands reach in (decisions of a topic, e.g. elektromotor scenes 1 and 7). */
+export const drawArms = (s: Skel, P: K.Projection, k: number, at: V3, outfit: Outfit = {}, sides: Side[] = ['L', 'R']) => {
+  const drawn = drawCharacter(s, scaledProjection(P, k, at), outfit);
+  const keep = drawn.items.filter((i) => /^(arm|hand)[LR]$/.test(i.name) && sides.includes(i.name.slice(-1) as Side));
+  return {svg: keep.map((i) => i.svg).join(''), items: keep};
+};

@@ -1,9 +1,9 @@
-import * as K from '../../vendor/anatomy/iso-kit';
 import {Dyn, Point3} from '../../lib/assembly';
 import {toRoom} from '../../lib/anatomy';
 import {boxCorners, Cam, camFit, Rect, safeRect, screenOf} from '../../lib/camera';
 import {forceOnWire} from '../../lib/handed';
-import {ArrowProbe, beatClock, blendCam, handOver, lerp, MotionPose, MotionSpec, PlateProbe, reelFrames} from '../../lib/motion';
+import {Arrow, arrowKit} from '../../lib/arrows';
+import {beatClock, blendCam, handOver, lerp, MotionPose, MotionSpec, PlateProbe, reelFrames} from '../../lib/motion';
 import {FORMAT} from '../../theme/format';
 import {AX, AY, commutatorItems, LOOP_R, LOOP_Z0, LOOP_Z1, loopItems, PLATE_TOP, STAND, STAND_P, STAND_U, WIRE_Y, wireItems} from './stand.parts';
 
@@ -14,23 +14,11 @@ import {AX, AY, commutatorItems, LOOP_R, LOOP_Z0, LOOP_Z1, loopItems, PLATE_TOP,
 // (dark outline, light body) · field — dashed with heads. Arrows are annotations drawn over the object (§20.4); their
 // tails sit on the conductor they belong to (motion-check verifies it).
 const P = STAND_P;
-const at = (p: Point3) => K.iso(p, P);
+const {tri, line, currentArrow, forceArrow} = arrowKit(P);
 const FIELD: Point3 = [1, 0, 0]; // N → S, along +x
 /** the force on a conductor segment with the given current direction: I·L × B by the right-hand rule (src/lib/handed.ts) */
 export const forceDir = (current: Point3): Point3 => forceOnWire(current, FIELD);
 export {FIELD};
-const sub = (a: Point3, b: Point3): Point3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-const len = (a: Point3) => Math.hypot(a[0], a[1], a[2]);
-const unit = (a: Point3): Point3 => a.map((v) => v / (len(a) || 1)) as Point3;
-const back = (p: Point3, u: Point3, d: number): Point3 => [p[0] - u[0] * d, p[1] - u[1] * d, p[2] - u[2] * d];
-const along = (p: Point3, u: Point3, s: number): Point3 => [p[0] + u[0] * s, p[1] + u[1] * s, p[2] + u[2] * s];
-const tri = (tip: Point3, u: Point3, size: number, wide: Point3, fill: string, stroke = fill, outline = 1.5) => {
-  const base = along(tip, u, -size);
-  const w = (k: number): Point3 => along(base, wide, size * 0.5 * k);
-  return `<path d="${K.pathOf([at(tip), at(w(1)), at(w(-1))], true)}" style="fill:${fill};stroke:${stroke};stroke-width:${outline}px;stroke-linejoin:round"/>`;
-};
-const line = (a: Point3, b: Point3, width: number, color: string, dash = '') =>
-  `<path d="${K.pathOf([at(a), at(b)])}" style="fill:none;stroke:${color};stroke-width:${width}px;stroke-linecap:round;${dash ? `stroke-dasharray:${dash};` : ''}"/>`;
 
 /** force arrow length on the loop sides: at the dead position (90°) both point along the radius, so they stop well
  *  short of the axis (LOOP_R) and never meet over it (R4) */
@@ -40,18 +28,7 @@ const FORCE_DZ = 5;
 const CUR_LO = LOOP_Z0 + 2;
 const CUR_HI = LOOP_Z1 - 6;
 
-export type Arrow = ArrowProbe & {svg: string};
-/** current: thin dark shaft with a small head */
-const currentArrow = (name: string, owner: string, from: Point3, to: Point3, wide: Point3, opacity: number): Arrow => {
-  const u = unit(sub(to, from));
-  return {name, owner, tail: from, tip: to, along: [owner.split('.')[0]], opacity, svg: line(from, back(to, u, 2.5), 3.2, 'var(--anatomy-hi)') + tri(to, u, 3.6, wide, 'var(--anatomy-hi)')};
-};
-/** force: a thick flat arrow, dark outline and a light body; the tail starts on the conductor */
-const forceArrow = (name: string, owner: string, from: Point3, dir: Point3, reach: number, wide: Point3, opacity: number): Arrow => {
-  const to = along(from, dir, reach);
-  const neck = back(to, dir, 3);
-  return {name, owner, tail: from, tip: to, opacity, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, dir, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)', 3)};
-};
+export type {Arrow};
 /** field: dashed lines from the N pole face to the S pole face, with two heads each (no shapes: an annotation) */
 const FIELD_YS = [AY - 9, AY + 9];
 const FIELD_Z = PLATE_TOP + 24;

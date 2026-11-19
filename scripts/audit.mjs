@@ -156,6 +156,17 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2e) motion (§19.3, §22): every *.motion.ts walks its reel/scene frame by frame without rendering — paint-order
+// cycles, moving parts through static ones, arrows off their owners, the hero out of the safe rect or off centre,
+// jumps, jolts, pops and a broken loop. scripts/motion-check.mjs; cached by input hash like object-audit.
+{
+  const motions = srcFiles.filter((f) => f.endsWith('.motion.ts') && (topicDir ? under(f, topicDir) : !f.includes(`${path.sep}projects${path.sep}`)));
+  if (motions.length) {
+    const dirs = [...new Set(motions.map((f) => path.dirname(f)))];
+    runCached(`motion-check (${motions.length} file${motions.length === 1 ? '' : 's'})`, `node scripts/motion-check.mjs --quiet ${motions.map((f) => JSON.stringify(f)).join(' ')}`, [...dirs, 'src/lib', 'src/theme', 'src/vendor/anatomy', 'scripts/motion-check.mjs']);
+  }
+}
+
 // 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques.
 // A topic run checks its own covers.ts; the root run checks covers outside src/projects (the style samples).
 {

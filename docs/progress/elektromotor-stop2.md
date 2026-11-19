@@ -26,3 +26,8 @@
 - `node scripts/object-audit.mjs --settle src/projects/elektromotor/dcmotor.parts.ts` (≈2 мин), верстак ≈5 мин.
 - `node scripts/motion-check.mjs src/projects/elektromotor/motor.motion.ts`
 - кадры: `node scripts/still-check.mjs <spec с comp ElektromotorMotor> --keep <dir>`
+
+## Открыто на паузе (19.11.2026, ветка `claude/elektromotor-stop2b`)
+- Пушено: цепь (батарейка, коралловые провода), руки в масштабе, общие стрелки `src/lib/arrows.ts`, лобовые части катушек, страж покрытия в `still-check`.
+- Кадр 2 (сцена 6): камера наведена на катушку с током (`COIL_BOX` в `motor.motion.ts`). Не доделано: `motion-check` даёт crop на кадре 2 (ключевые точки вне безопасной зоны); коралл ~11 % ширины при норме ≥ 30 %. Следующий шаг: подогнать `COIL_BOX` (размер или центр) так, чтобы crop ушёл и коралл вырос, затем `still-check` и `motion-check`.
+- Не начато: пункты 2–7 из списка (дособрать мотор до 112 деталей, верстак, stills.json, pregate, гейт, СТОП 2).

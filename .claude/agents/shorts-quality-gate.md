@@ -85,3 +85,5 @@ Root cause every time (docs/root-causes.md): for every FAIL add two lines — «
 (audit, motion-check, still-check, cover-check, object-audit, review-video) should have caught it, or that none covers this
 kind; and «Страж»: what automatic check would catch it next time in any topic. The main session fixes the cause in shared
 code and adds that guard before closing the note.
+
+Rules: read only the sections you need from `docs/rules/NN.md` (index `docs/rules/INDEX.md`, generated from MASTER_PROMPT_FINAL.md), not the whole master; project rules by area: `docs/claude/{style,motion,qa}.md`.

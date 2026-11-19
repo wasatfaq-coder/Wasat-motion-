@@ -32,3 +32,5 @@ of state — the numbers that change (angles, shares, opacities) and which parts
 fades out, then the new fades in) — plus the hero box (kit units) the camera must hold on every beat with its label
 anchors (camFit), the arrows with the part each one sits on, and which moving parts are long enough to need dynTube
 pieces. Never plan a move as a cross-fade between two pictures, and never give zoom numbers.
+
+Rules: read only the sections you need from `docs/rules/NN.md` (index `docs/rules/INDEX.md`, generated from MASTER_PROMPT_FINAL.md), not the whole master; project rules by area: `docs/claude/{style,motion,qa}.md`.

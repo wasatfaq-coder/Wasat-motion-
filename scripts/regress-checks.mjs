@@ -28,6 +28,10 @@ const has = (bin) => {
   }
 };
 
+// one browser lookup (scripts/lib/browser.mjs): a script with its own copy pinned a version path that stopped matching
+for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))
+  if (fs.readFileSync(path.join('scripts', f), 'utf8').includes('/opt/pw-' + 'browsers')) fail(`scripts/${f} names the browser directory itself; use findBrowser() from scripts/lib/browser.mjs`);
+
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wasat-regress-'));
 const bad = path.join(dir, 'bad.json');
 const good = path.join(dir, 'good.json');

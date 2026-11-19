@@ -23,8 +23,7 @@ const scale = Number(arg('scale', '0.3'));
 const cols = Number(arg('cols', '10'));
 fs.mkdirSync(path.dirname(out), {recursive: true});
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'strip-'));
-const shell = '/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell';
-const browserExecutable = fs.existsSync(shell) ? shell : null;
+const browserExecutable = findBrowser();
 const serveUrl = await bundle({entryPoint: path.resolve('src/index.ts')});
 const comp = await selectComposition({serveUrl, id: arg('comp', 'Main'), browserExecutable});
 const files = [];
@@ -35,6 +34,7 @@ for (let f = from; f <= to; f++) {
 }
 execFileSync('python3', ['-I', '-c', `
 import sys
+import {findBrowser} from './lib/browser.mjs';
 from PIL import Image, ImageDraw
 c=int(sys.argv[2]); fs=sys.argv[3:]; ims=[Image.open(f) for f in fs]; w,h=ims[0].size; r=(len(ims)+c-1)//c
 s=Image.new('RGB',(w*c,h*r),'white'); d=ImageDraw.Draw(s)

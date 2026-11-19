@@ -278,6 +278,22 @@ export class Assembly {
       out.push(
         `terminal: the ${t.end} of «${t.tube}» does not seat on «${t.nearest}» (centre ${t.d.toFixed(2)}, rim ${t.low.toFixed(2)}…${t.high.toFixed(2)}, all must be within ±0.15)${t.at ? ` at [${t.at.map((v) => v.toFixed(1)).join(', ')}]` : ''}; move the end along its axis, square it to the face, or end on a flatter mount`,
       );
+    // a long horizontal run of a pipe that goes along the line of sight: on screen it is a vertical stroke, so a cable
+    // lying on the floor reads as a stick standing up (the tangle's free end read as a lollipop's stick). Mark a run
+    // that is meant to point at the viewer with meta {alongView: true}.
+    for (const r of this.R.routes as {name: string; points: Point3[]}[]) {
+      const tube = (this.R.tubes as {name: string; alongView?: boolean}[]).find((t) => t.name === r.name);
+      if (tube?.alongView) continue;
+      for (let i = 0; i < r.points.length - 1; i++) {
+        const [p, q] = [r.points[i], r.points[i + 1]];
+        const d = G.sub3(q, p) as Point3;
+        const len = Math.hypot(d[0], d[1]);
+        if (len < 6 || Math.abs(d[2]) > 0.15 * len) continue;
+        const [sx, sy] = K.iso(d, {...this.P, origin: [0, 0]});
+        if (Math.abs(sx) < Math.tan((8 * Math.PI) / 180) * Math.abs(sy))
+          out.push(`view: a ${len.toFixed(1)}-unit level run of «${r.name}» goes along the line of sight and reads as a vertical stroke on screen at [${p.map((v) => v.toFixed(1)).join(', ')}]; turn it sideways on screen (along +x−y or −x+y) or mark meta {alongView: true}`);
+      }
+    }
     // a tube chunk whose outline crosses itself on screen (a tight corner seen along the line of sight)
     for (const s of A.selfOverlaps(this.R.items, this.P) as {item?: string; name?: string; at?: number[]}[])
       out.push(`self-overlap: «${s.item ?? s.name}» folds over itself on screen${s.at ? ` at [${s.at.map((v) => v.toFixed(1)).join(', ')}]` : ''}; widen the bend or turn the corner across the view`);

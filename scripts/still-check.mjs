@@ -15,20 +15,13 @@ import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {findBrowser} from './lib/browser.mjs';
 
 const spec = JSON.parse(fs.readFileSync(process.argv[2] ?? '', 'utf8'));
 const keep = process.argv.includes('--keep') ? process.argv[process.argv.indexOf('--keep') + 1] : null;
 const dir = keep ?? fs.mkdtempSync(path.join(os.tmpdir(), 'still-check-'));
 fs.mkdirSync(dir, {recursive: true});
-const browser = (() => {
-  const base = '/opt/pw-browsers';
-  if (!fs.existsSync(base)) return null;
-  // a directory, not the `chromium_headless_shell` symlink some images add next to it
-  const d = fs.readdirSync(base).find((n) => n.startsWith('chromium_headless_shell') && fs.statSync(path.join(base, n)).isDirectory());
-  if (!d) return null;
-  const sub = fs.readdirSync(path.join(base, d)).find((n) => n.startsWith('chrome-'));
-  return sub ? path.join(base, d, sub, 'chrome-headless-shell') : null;
-})();
+const browser = findBrowser();
 
 const analyse = `
 import json, sys

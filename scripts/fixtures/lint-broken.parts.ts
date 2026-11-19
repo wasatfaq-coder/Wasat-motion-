@@ -44,3 +44,8 @@ fold.pipe('cable', [[2, 2, 1.4], [2, 2, 12], [14, 14, 12]], 0.5, {bend: 1.3, lim
 export const owner = make('owner');
 owner.slab('owner.column', {x: 0, y: 0, w: 4, d: 4, r: 0.4}, 0, 10, {ground: true});
 owner.cyl('hinge', 2, 2, 1, 10, 1, {meta: {owner: 'owner.colum'}});
+
+// a cable lying on the floor that runs straight at the viewer: on screen it is a vertical stick
+export const view = make('view');
+view.slab('base', {x: 0, y: 0, w: 24, d: 24, r: 1}, 0, 1, {ground: true});
+view.pipe('cable', [[2, 2, 1.5], [18, 18, 1.5]], 0.5, {limp: true, ends: [false, false]});

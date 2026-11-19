@@ -3,7 +3,7 @@
 // style rules, so a fresh topic did not even compile). Creates a throw-away topic, then checks that it type-checks,
 // lints, passes its own audit and cover-check with ERRORS = 0 (placeholders are warnings), does not report files
 // of the root topic, refuses a scene animated the old way (camOn, lerpCam, state outside a *.motion.ts), and removes
-// it again.
+// it again; also refuses a review note closed without rootCause and guard.
 import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 
@@ -35,6 +35,16 @@ try {
     refused = String(e.stdout || '');
   }
   if (!/motion: .*camOn/.test(refused) || !/motion: .*no state from a \*\.motion\.ts/.test(refused)) throw new Error(`the topic audit did not refuse the old way of animating:\n${refused}`);
+  // a note closed without its root cause and guard (docs/root-causes.md) must fail the topic audit too
+  fs.mkdirSync(`projects/${slug}/content/reviews`, {recursive: true});
+  fs.writeFileSync(`projects/${slug}/content/reviews/notes.json`, JSON.stringify([{id: 'T1', status: 'fixed', text: 'arrow in the air', fix: 'moved it'}]));
+  let noted = '';
+  try {
+    sh('node', ['scripts/audit.mjs', '--only', 'motion', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`]);
+  } catch (e) {
+    noted = String(e.stdout || '');
+  }
+  if (!/notes: T1 is fixed without rootCause/.test(noted)) throw new Error(`the topic audit accepted a note closed without its root cause:\n${noted}`);
 } catch (e) {
   failed = String(e.stdout || '') + String(e.stderr || '') + String(e.message || '');
 } finally {

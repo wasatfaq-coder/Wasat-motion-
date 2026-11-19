@@ -208,7 +208,10 @@ export class Assembly {
 
   /** The object as SVG markup, painted back to front. `shares` moves pieces (0 = home, 1 = at `move`). */
   svg(shares: Record<string, number> = {}, opts: {hide?: (name: string) => boolean; extra?: Extra[]} = {}) {
-    return this.paintPlan(shares, opts).svg;
+    // a moving solid that is fading is always drawn as one layer (svgFaded): faded piece by piece, the overlapping
+    // pieces of a tube read as dark joints. Root cause closed here, so no scene can draw it the wrong way.
+    const fading = (opts.extra ?? []).some((e) => (e.shapes?.length ?? 0) > 0 && (e.opacity ?? 1) > 0.001 && (e.opacity ?? 1) < 0.999);
+    return fading ? this.svgFaded(opts.extra ?? [], shares, {hide: opts.hide}) : this.paintPlan(shares, opts).svg;
   }
 
   /** svg() plus the diagnostics the motion check reads: the painted order and any depth conflicts.

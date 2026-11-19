@@ -49,3 +49,9 @@ owner.cyl('hinge', 2, 2, 1, 10, 1, {meta: {owner: 'owner.colum'}});
 export const view = make('view');
 view.slab('base', {x: 0, y: 0, w: 24, d: 24, r: 1}, 0, 1, {ground: true});
 view.pipe('cable', [[2, 2, 1.5], [18, 18, 1.5]], 0.5, {limp: true, ends: [false, false]});
+
+// a piece that never moves, and an order entry no part uses (each multiplies the audited share states)
+export const piece = new Assembly('piece', P, {role: 'environment', order: ['lid', 'cap']});
+piece.cyl('box', 0, 0, 5, 0, 4, {ground: true});
+piece.cyl('lid', 0, 0, 5, 4, 1, {piece: 'lid', move: [0, 0, 0]});
+

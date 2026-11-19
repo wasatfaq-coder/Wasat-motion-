@@ -112,6 +112,7 @@ export class Assembly {
   private put(name: string, at: Point3, svg: string, shapes: unknown[], c: Common, extra: Record<string, unknown> = {}): Item {
     const item = this.R.put({name, at, bias: c.bias ?? 0, piece: c.piece ?? '', move: c.move ?? [0, 0, 0], svg: svg + (c.over ?? ''), shapes, ...extra});
     item.baseKey = item.key;
+    item.pos = at; // kept for lint (the recorder keeps only the depth key)
     return item as Item;
   }
 
@@ -300,6 +301,14 @@ export class Assembly {
     const at = (p?: number[]) => (p ? ` at [${p.map((v) => v.toFixed(1)).join(', ')}]` : '');
     for (const f of A.folds(this.R.routes, this.P, {items: this.R.items}) as {name: string; flatTurn: number; at?: number[]}[])
       out.push(`fold: «${f.name}» turns ${Math.round(f.flatTurn)}° on screen${at(f.at)}; widen the bend (≥ 2.6·r), turn the corner across the view, or use a ramp instead of a vertical step`);
+    // piece: a piece that does not move, or an `order` entry no part uses. Every piece multiplies the share states
+    // the audit walks; a dead one turned 90 real problems into 3000 repeats (motor 130, 2026-11-19)
+    type PItem = {name: string; pos: Point3; piece: string; move: Point3};
+    const items = this.R.items as PItem[];
+    const pieces = new Map<string, PItem[]>();
+    for (const it of items) if (it.piece) pieces.set(it.piece, [...(pieces.get(it.piece) ?? []), it]);
+    for (const [piece, list] of pieces) if (list.every((it) => Math.hypot(...it.move) < 1e-6)) out.push(`piece: «${piece}» never moves (move [0, 0, 0]); drop the piece, a part that turns is a dynamicShapes part`);
+    for (const name of this.opts.order ?? []) if (!pieces.has(name)) out.push(`piece: the order names «${name}», but no part belongs to it`);
     return [...new Set(out)];
   }
 

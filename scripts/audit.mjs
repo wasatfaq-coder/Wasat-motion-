@@ -183,6 +183,20 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2h) detail norm everywhere (§22.2, §24): object-audit counts parts only of objects built with Assembly in *.parts.ts.
+// Root cause of the gap: a scene could draw a solid straight from the kit (solidSvg, slabOf, cylinder…) and the object
+// was never counted or checked, so a topic could look detailed in one place and bare in another. In topic code every
+// solid goes through an Assembly; moving parts live in *.motion.ts (dynSolid), covers in covers.ts.
+{
+  const raw = /\b(solidSvg|slabOf|sphereOf|prismOf|solidOf|extrude|cylinder|tubePieces)\(/g;
+  const topicCode = srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && (topicDir ? under(f, topicDir) : true) && /\.tsx?$/.test(f) && !/\.(parts|motion)\.ts$/.test(f) && !f.endsWith('covers.ts'));
+  for (const f of topicCode) {
+    const code = fs.readFileSync(f, 'utf8').replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    const hits = [...new Set(code.match(raw) ?? [])];
+    if (hits.length) add('error', `detail: ${f} draws kit solids directly (${hits.map((x) => x.slice(0, -1)).join(', ')}); build the object with Assembly in a *.parts.ts so object-audit counts and checks it (§22.2), moving parts with dynSolid in a *.motion.ts`);
+  }
+}
+
 // 2g) root cause every time (docs/root-causes.md): a review note closed as fixed or verified names its root cause and
 // the automatic guard that now catches it (an existing scripts/… or src/… path). Without that the same defect comes
 // back in the next topic and the gate finds it again. Notes closed before this rule carry legacy: true.

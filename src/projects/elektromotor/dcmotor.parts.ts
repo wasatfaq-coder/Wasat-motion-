@@ -158,16 +158,24 @@ for (const [side, dx] of [
   S.slab(`brush${side}.leaf`, {x: x0, y: CY - 1.4, w: x1 - x0, d: 2.8, r: 0.2}, BRUSH_Z, 0.5, {tone: 'mid', bevel: 0.1, meta: {owner: `brush${side}`}});
   S.cyl(`brush${side}.pad`, CX + dx * 4.9, CY, 0.9, 12.4, BRUSH_Z - 12.4, {tone: 'hi', meta: {owner: `brush${side}`}});
 }
-// terminals on the side of the back shield: pins, lugs, solder drops
-for (const [side, dx] of [
-  ['L', -1],
-  ['R', 1],
+// terminals: radial pins out of the back shield's rim (a round pin seats on a round rim; a box seated by one corner
+// sank 1.1 into it), a lug disc and a solder drop on each
+for (const [side, a] of [
+  ['L', FRONT + 0.55],
+  ['R', FRONT - 0.55],
 ] as const) {
-  const tx = CX + dx * 9;
-  const y0 = CY + Math.sqrt(R * R - (Math.abs(tx - CX) + 0.9) ** 2) - 0.15; // the pin's inner corners on the shield's rim
-  S.slab(`terminal${side}.pin`, {x: tx - 0.9, y: y0, w: 1.8, d: 4, r: 0.3}, Z0 + 1, 2, {tone: 'hi', meta: {owner: `terminal${side}`, touch: ['shield.back']}});
-  S.slab(`terminal${side}.lug`, {x: tx - 1.4, y: y0 + 4, w: 2.8, d: 3, r: 0.4}, Z0 + 1.6, 0.8, {tone: 'mid', meta: {owner: `terminal${side}`}});
-  S.ball(`terminal${side}.solder`, [tx, y0 + 5.5, Z0 + 2.9], 0.5, {tone: 'hi', meta: {owner: `terminal${side}`}});
+  const F = G.frameAlong([...polar(R - 0.15, a), Z0 + 2], [Math.cos(a), Math.sin(a), 0]);
+  S.turned(
+    `terminal${side}.pin`,
+    [
+      [0, 0.8],
+      [4, 0.8],
+    ],
+    F,
+    {tone: 'hi', meta: {owner: `terminal${side}`, touch: ['shield.back']}},
+  );
+  S.disc(`terminal${side}.lug`, 4, 4.6, 1.5, F, {tone: 'mid', meta: {owner: `terminal${side}`}});
+  S.ball(`terminal${side}.solder`, [...polar(R + 4.9, a), Z0 + 2], 0.6, {tone: 'hi', meta: {owner: `terminal${side}`}});
 }
 
 DC.applyKeys((KEYS as Record<string, Record<string, number>>).DC);
@@ -175,8 +183,10 @@ DC.applyKeys((KEYS as Record<string, Record<string, number>>).DC);
 // ── the armature (rebuilt at angle theta every frame): shaft in slices, commutator (hub, three segments, three leads),
 // core (end plates, hub, three poles = neck + shoe), three coils (coil 0 lit), the pulley with its screw and a mark
 export const STACK = {comm: [12, 19] as const, plateLow: [20.5, 22] as const, core: [22, 38] as const, plateTop: [38, 39.5] as const};
-/** coil block: radii from the axis and half width (its corners stay inside the shoe's arc) */
-export const COIL = {r0: 3.2, r1: 7.6, half: 3.4};
+/** coil: a wedge round the neck, narrow at the hub (half width h0) and wider than the shoe outside (h1): the winding
+ *  bulges past the shoe's edges into the gaps between poles, where it is seen (a coil narrower than the shoe hid
+ *  behind it). Its outer corners stay below the shoe's arc (radius < 8.6) or outside its angle (> 0.62 rad). */
+export const COIL = {r0: 3.2, r1: 7.6, h0: 2.6, h1: 5.9};
 export const rotorItems = (theta: number, opacity?: number, litCoil: number | null = 0): Dyn[] => {
   const Rt = new Assembly('rotor', P, {role: 'secondary'});
   const sh = {meta: {owner: 'shaft'}};
@@ -192,7 +202,7 @@ export const rotorItems = (theta: number, opacity?: number, litCoil: number | nu
     const t = (r: number, lat: number) => [CX + r * Math.cos(a) - lat * Math.sin(a), CY + r * Math.sin(a) + lat * Math.cos(a)] as [number, number];
     Rt.extruded(`pole${i}.neck`, [t(COIL.r1, -1.3), t(8.9, -1.3), t(8.9, 1.3), t(COIL.r1, 1.3)], STACK.core[0], 16, {tone: 'mid', meta: {owner: 'core'}});
     Rt.arc(`pole${i}.shoe`, C, 8.6, 12.2, a - 0.62, a + 0.62, STACK.core[0], 16, {tone: 'hi', meta: {owner: 'core'}});
-    Rt.extruded(`coil${i}`, [t(COIL.r0, -COIL.half), t(COIL.r1, -COIL.half), t(COIL.r1, COIL.half), t(COIL.r0, COIL.half)], STACK.core[0] + 1, 14, {tone: 'hi', lit: i === litCoil, meta: {owner: `coil${i}`}});
+    Rt.extruded(`coil${i}`, [t(COIL.r0, -COIL.h0), t(COIL.r1, -COIL.h1), t(COIL.r1, COIL.h1), t(COIL.r0, COIL.h0)], STACK.core[0] + 1, 14, {tone: 'hi', lit: i === litCoil, meta: {owner: `coil${i}`}});
     Rt.arc(`commutator.seg${i}`, C, 2.6, 4.2, a - 0.95, a + 0.95, STACK.comm[0], STACK.comm[1] - STACK.comm[0], {tone: 'hi', className: 'cl-mid', meta: {owner: 'commutator'}});
   });
   // the pulley above the top shield

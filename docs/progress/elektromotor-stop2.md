@@ -1,0 +1,28 @@
+# Электромотор: до СТОП 2 (ветка `claude/elektromotor-stop2`)
+
+Обновлено 19.11.2026. Тема `elektromotor`; сначала прочитать `projects/elektromotor/content/progress.md`, `decisions.md`, `reviews/notes.json`.
+
+## Решения пользователя в этой сессии
+- Мотор (герой А) собирается в ЭТОЙ ветке, сессию «Электромотор: герой А» не продолжать (её черновик взят отсюда и переписан).
+- Порядок работы: один полный прогон автоматики → весь список ошибок → у каждой корневая причина и страж в общем коде → исправления одним заходом → один повторный прогон. Гейт — только на СТОП 2 по всему набору.
+
+## Сделано
+- Стенд: N6 (вставка 320 px, страж `motion-check small`), M2 fixed, M5 wontfix до гейта.
+- Верстак `src/projects/elektromotor/workbench.parts.ts`: 43 детали, environment, 0 проблем аудита.
+- Мотор `dcmotor.parts.ts`: статичный объект DC 82 детали, 0 проблем; якорь `rotorItems(theta)` (на кадр), `dynamicShapes` чистый; все дуги через `Assembly.arc`.
+- Кадры: композиция `ElektromotorMotor` (`MotorFrames.tsx`, `motor.motion.ts`): 0 закрытый мотор на верстаке, 1 разрез, 2 сцена 6 (якорь крупно, лицевая половина скрыта), 3 сцена 7. motion-check 0.
+- Стражи (общий код, selftest): `lint piece`, `lint arc` + `Assembly.arc()`, `object-audit double` (`sweepDynamic`), `motion-check small`. Строки в `docs/root-causes.md`.
+
+## Открыто (следующий прогон — пачкой)
+1. Кадр 0 (сцена 1 до разреза): нет коралла — нужна цепь: батарейка в держателе (secondary ≥ 40 деталей) и два коралловых провода к клеммам мотора (`terminalL/R`, радиальные штыри у заднего щита, азимуты FRONT ± 0.55). Сцены 1 и 7 по раскадровке также с руками манекена (`character.ts`, `rig-check`).
+2. Коралл в кадрах 1, 3 мал (still-check WARN, катушка 0 ≈ 4 % ширины): крупнее камера на разрез или катушка с током ближе к проёму; кадр 2 — 10 % × 29 %.
+3. Стрелки тока и силы на катушках в сценах 6, 7 (те же три вида, что на стенде), подсветка «хоть одна катушка вне мёртвого положения» в сцене 6.
+4. Верстак читается полосами (стол почти сверху), перфопанель вне кадра — после цепи проверить композицию.
+5. Мотор 82 из 112 по плану: добавить детали (выводы катушек к сегментам, усики сегментов, шайбы и т.п.) в `rotorItems`/DC.
+6. `stills.json` темы: добавить кадры `ElektromotorMotor` (сейчас там только стенд); затем `node scripts/pregate.mjs elektromotor`, `node scripts/audit.mjs`.
+7. Затем один пакетный гейт `shorts-quality-gate` по всему набору (стенд + мотор), исправления пачкой, повторный круг, `gate-stamp`, СТОП 2 пользователю (кадры файлами).
+
+## Команды
+- `node scripts/object-audit.mjs --settle src/projects/elektromotor/dcmotor.parts.ts` (≈2 мин), верстак ≈5 мин.
+- `node scripts/motion-check.mjs src/projects/elektromotor/motor.motion.ts`
+- кадры: `node scripts/still-check.mjs <spec с comp ElektromotorMotor> --keep <dir>`

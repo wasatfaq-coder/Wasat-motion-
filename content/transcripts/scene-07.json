@@ -6,217 +6,245 @@
       "startMs": 30,
       "endMs": 70,
       "timestampMs": 0,
-      "confidence": 0.351089
+      "confidence": 0.323753
     },
     {
       "text": "Н",
       "startMs": 70,
       "endMs": 140,
       "timestampMs": 80,
-      "confidence": 0.928677
+      "confidence": 0.926636
     },
     {
       "text": "о",
       "startMs": 140,
       "endMs": 210,
       "timestampMs": 260,
-      "confidence": 0.998769
+      "confidence": 0.998831
     },
     {
       "text": " вот",
       "startMs": 210,
       "endMs": 420,
       "timestampMs": 400,
-      "confidence": 0.998126
+      "confidence": 0.998064
     },
     {
       "text": " стран",
       "startMs": 420,
       "endMs": 780,
       "timestampMs": 700,
-      "confidence": 0.999531
+      "confidence": 0.999533
     },
     {
       "text": "ность",
       "startMs": 780,
       "endMs": 1090,
       "timestampMs": 1080,
-      "confidence": 0.999479
+      "confidence": 0.999436
     },
     {
       "text": ".",
       "startMs": 1090,
       "endMs": 1260,
       "timestampMs": 1300,
-      "confidence": 0.678536
+      "confidence": 0.690525
     },
     {
       "text": " В",
       "startMs": 1260,
       "endMs": 1340,
       "timestampMs": 1760,
-      "confidence": 0.998584
+      "confidence": 0.536072
     },
     {
       "text": " отп",
       "startMs": 1340,
       "endMs": 1700,
       "timestampMs": 1980,
-      "confidence": 0.999861
+      "confidence": 0.999781
     },
     {
       "text": "уск",
       "startMs": 1700,
       "endMs": 1890,
       "timestampMs": 2120,
-      "confidence": 0.992954
+      "confidence": 0.985889
     },
     {
       "text": "е",
       "startMs": 1890,
       "endMs": 2000,
       "timestampMs": 2300,
-      "confidence": 0.999962
+      "confidence": 0.999954
     },
     {
       "text": " д",
       "startMs": 2000,
       "endMs": 2070,
       "timestampMs": 2380,
-      "confidence": 0.999129
+      "confidence": 0.992369
     },
     {
       "text": "ни",
       "startMs": 2070,
       "endMs": 2250,
       "timestampMs": 2540,
-      "confidence": 0.99999
+      "confidence": 0.999989
     },
     {
       "text": " быстро",
       "startMs": 2250,
       "endMs": 2790,
       "timestampMs": 2900,
-      "confidence": 0.998382
+      "confidence": 0.998352
     },
     {
       "text": " пр",
       "startMs": 2790,
       "endMs": 2980,
       "timestampMs": 3140,
-      "confidence": 0.998018
+      "confidence": 0.998708
     },
     {
       "text": "олет",
       "startMs": 2980,
       "endMs": 3330,
-      "timestampMs": 3320,
-      "confidence": 0.999699
+      "timestampMs": 3300,
+      "confidence": 0.999586
     },
     {
       "text": "ают",
       "startMs": 3330,
       "endMs": 3590,
-      "timestampMs": 3700,
-      "confidence": 0.999977
+      "timestampMs": 3640,
+      "confidence": 0.999947
     },
     {
       "text": ",",
       "startMs": 3590,
       "endMs": 3720,
       "timestampMs": 3720,
-      "confidence": 0.727347
+      "confidence": 0.827082
     },
     {
       "text": " а",
       "startMs": 3720,
-      "endMs": 4140,
+      "endMs": 3830,
       "timestampMs": 4200,
-      "confidence": 0.998353
+      "confidence": 0.781841
     },
     {
       "text": " дома",
-      "startMs": 4140,
-      "endMs": 4220,
+      "startMs": 3830,
+      "endMs": 4140,
       "timestampMs": 4480,
-      "confidence": 0.998186
+      "confidence": 0.995906
     },
     {
       "text": " кажется",
-      "startMs": 4220,
-      "endMs": 4910,
+      "startMs": 4140,
+      "endMs": 4720,
       "timestampMs": 4900,
-      "confidence": 0.998201
+      "confidence": 0.998711
     },
     {
       "text": ",",
-      "startMs": 4910,
-      "endMs": 5010,
+      "startMs": 4720,
+      "endMs": 4800,
       "timestampMs": 4920,
-      "confidence": 0.999935
+      "confidence": 0.999255
     },
     {
       "text": " что",
-      "startMs": 5010,
-      "endMs": 5260,
+      "startMs": 4800,
+      "endMs": 5050,
       "timestampMs": 5240,
-      "confidence": 0.981422
+      "confidence": 0.99557
     },
     {
       "text": " вы",
-      "startMs": 5260,
-      "endMs": 5420,
+      "startMs": 5050,
+      "endMs": 5240,
       "timestampMs": 5400,
-      "confidence": 0.999047
+      "confidence": 0.999512
     },
     {
       "text": " у",
-      "startMs": 5420,
-      "endMs": 5500,
+      "startMs": 5240,
+      "endMs": 5300,
       "timestampMs": 5500,
-      "confidence": 0.998618
+      "confidence": 0.99996
     },
     {
       "text": "ех",
-      "startMs": 5500,
-      "endMs": 5660,
+      "startMs": 5300,
+      "endMs": 5460,
       "timestampMs": 5680,
-      "confidence": 0.999763
+      "confidence": 0.999922
     },
     {
       "text": "али",
-      "startMs": 5660,
-      "endMs": 5920,
+      "startMs": 5460,
+      "endMs": 5710,
       "timestampMs": 5820,
-      "confidence": 0.999947
+      "confidence": 0.999979
     },
     {
       "text": " над",
-      "startMs": 5920,
-      "endMs": 6120,
+      "startMs": 5710,
+      "endMs": 5960,
       "timestampMs": 6040,
-      "confidence": 0.937351
+      "confidence": 0.999495
     },
     {
       "text": "ол",
-      "startMs": 6120,
-      "endMs": 6250,
+      "startMs": 5960,
+      "endMs": 6120,
       "timestampMs": 6260,
-      "confidence": 0.999987
+      "confidence": 0.999981
     },
     {
       "text": "го",
-      "startMs": 6250,
-      "endMs": 6370,
+      "startMs": 6120,
+      "endMs": 6280,
       "timestampMs": 6420,
-      "confidence": 0.999983
+      "confidence": 0.999989
     },
     {
       "text": ".",
-      "startMs": 6370,
-      "endMs": 6500,
+      "startMs": 6280,
+      "endMs": 6460,
       "timestampMs": 6500,
-      "confidence": 0.925721
+      "confidence": 0.951203
+    },
+    {
+      "text": " Как",
+      "startMs": 6460,
+      "endMs": 7120,
+      "timestampMs": 7180,
+      "confidence": 0.951671
+    },
+    {
+      "text": " так",
+      "startMs": 7120,
+      "endMs": 7440,
+      "timestampMs": 7440,
+      "confidence": 0.999914
+    },
+    {
+      "text": "?",
+      "startMs": 7440,
+      "endMs": 7660,
+      "timestampMs": 7660,
+      "confidence": 0.99942
+    },
+    {
+      "text": "»",
+      "startMs": 7660,
+      "endMs": 7840,
+      "timestampMs": 7740,
+      "confidence": 0.994061
     }
   ]
 }

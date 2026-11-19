@@ -54,6 +54,22 @@ try {
     noted = String(e.stdout || '');
   }
   if (!/notes: T1 is fixed without rootCause/.test(noted)) throw new Error(`the topic audit accepted a note closed without its root cause:\n${noted}`);
+  // §25.2: a filled distinct.json with only three of six axes different must fail; four must pass
+  const dfile = `projects/${slug}/content/distinct.json`;
+  const axes = (n) => Object.fromEntries(['structure', 'opening', 'signatureShot', 'camera', 'soundShape', 'ending'].map((a, i) => [a, {this: 'x', previous: 'y', differs: i < n}]));
+  const auditDistinct = () => {
+    try {
+      return {code: 0, out: sh('node', ['scripts/audit.mjs', '--only', 'distinct', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`])};
+    } catch (e) {
+      return {code: e.status ?? 1, out: String(e.stdout || '')};
+    }
+  };
+  fs.writeFileSync(dfile, JSON.stringify({status: 'filled', against: 'previous topic', axes: axes(3)}));
+  const few = auditDistinct();
+  if (few.code === 0 || !/distinct: only 3 of 6/.test(few.out)) throw new Error(`the topic audit accepted a topic that differs on 3 axes of 6:\n${few.out}`);
+  fs.writeFileSync(dfile, JSON.stringify({status: 'filled', against: 'previous topic', axes: axes(4)}));
+  const enough = auditDistinct();
+  if (enough.code !== 0) throw new Error(`the topic audit refused a topic that differs on 4 axes of 6:\n${enough.out}`);
 } catch (e) {
   failed = String(e.stdout || '') + String(e.stderr || '') + String(e.message || '');
 } finally {

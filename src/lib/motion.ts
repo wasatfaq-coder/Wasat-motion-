@@ -55,8 +55,9 @@ export const blendCam = (a: Cam, b: Cam, t: number): Cam => ({
  *  bar) and off moving bodies other than the owner. `along`: name prefixes the head may run onto (a current arrow
  *  that follows its conductor round a corner). */
 export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3; along?: string[]; svg?: string};
-/** A frontal plate or inset in screen pixels. */
-export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number};
+/** A frontal plate or inset in screen pixels. `text` is the label the plate shows (omit it for an inset without words):
+ *  motion-check keeps every plate with text fully visible long enough to be read (kind `read`, LIMITS.read*). */
+export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; text?: string};
 
 /** Everything scripts/motion-check.mjs needs to judge one frame without rendering it. */
 export type MotionPose = {
@@ -82,5 +83,6 @@ export type MotionPose = {
   touch?: [string, string][];
 };
 
-/** A reel or scene the motion check walks frame by frame. `cuts` are frames where a hard cut is intended. */
-export type MotionSpec = {id: string; frames: number; fps: number; loop: boolean; cuts?: number[]; pose: (frame: number) => MotionPose};
+/** A reel or scene the motion check walks frame by frame. `cuts` are frames where a hard cut is intended.
+ *  `stills`: the frames are separate style frames (one per beat), not a timeline, so no time-based rule (read) applies. */
+export type MotionSpec = {id: string; frames: number; fps: number; loop: boolean; cuts?: number[]; stills?: boolean; pose: (frame: number) => MotionPose};

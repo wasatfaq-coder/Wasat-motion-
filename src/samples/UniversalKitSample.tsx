@@ -102,8 +102,8 @@ export const KIT_PAGES: Page[] = [
   {id: 'tangle', coral: NO_CORAL, A: TANGLE.A, svg: () => TANGLE.svg(SHOW('tangle'))},
   // the flower in its catalog show state, with a burst of sparks (they join the flower's depth order as moving parts)
   {id: 'bloom', coral: NO_CORAL, A: BLOOM, svg: () => BLOOM.svg({}, {extra: sparks(P, [0, 0, 46], SHOW('sparks'))})},
-  // the same flower half open: a state build, framed by the open flower's box (each page frames what it shows)
-  {id: 'bloomhalf', coral: NO_CORAL, A: BLOOM, svg: () => bloomStates('bloomHalf', P, [0, 0, 0])(0.5)},
+  // the same flower barely opening (0.25; the show state is nearly open, so 0.5 looked the same): a state build, framed by the open flower's box (each page frames what it shows)
+  {id: 'bloomhalf', coral: NO_CORAL, A: BLOOM, svg: () => bloomStates('bloomHalf', P, [0, 0, 0])(0.25)},
   // the hatch open (closed, it reads as plain floor): the state the catalog shows
   {id: 'trapdoor', coral: NO_CORAL, A: BLOOM, svg: () => trapdoorStates('trapdoor', P, [0, 0, 0])(Math.min(SHOW('trapdoor'), sink(1.2, 0, 9, 10).open))},
   plain('crowd', CROWD, 'the one person picked out'),
@@ -117,8 +117,10 @@ export const KIT_PAGES: Page[] = [
   // fire under the flask and steam above it, ordered against the bench by ray tests
   {id: 'lab', coral: 'none: a burner flame is a few pixels when the whole bench is framed; the zoom page shows it', A: LAB, svg: () => LAB.svgFaded([...particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4), ...particles(P, 'steam', {at: [52, 16, T + 31], spread: 1.5}, 1.4), ...particles(P, 'gas', {at: [30, 24, T + 6]}, 1)])},
   {id: 'swatches', coral: NO_CORAL, A: SWATCHES, svg: () => SWATCHES.svg({}, {extra: [{name: 'title', at: [0, 0, 0], svg: `<title>${describe(['wood', 'metal', 'glass'])}</title>`, annotation: true}]})},
-  // transitions: a section of the archive half cut away with its drawer peeled out; a zoom most of the way into the burner (the pull-out page shows the start of the way back)
-  {id: 'cutaway', coral: NO_CORAL, A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [0, 0, 1], 48, 6, 0.3), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
+  // transitions: the archive cut across its width (the plane sweeps along x through the cabinet only, so the sheet and
+  // the stamp stay whole; a cut along z took the lid's walls and the stamp's handle), its drawer peeled out; a zoom into
+  // the burner (the pull-out page shows the start of the way back)
+  {id: 'cutaway', coral: NO_CORAL, A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [1, 0, 0], 92, 64, 0.5), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
   {id: 'zoom', coral: 'the flame', bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => zoomInto(boxOf(LAB), burner, 1).cam},
   {id: 'pullout', coral: NO_CORAL, bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svg(), cam: () => pullOut(burner, boxOf(LAB), 0.75).cam},
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},

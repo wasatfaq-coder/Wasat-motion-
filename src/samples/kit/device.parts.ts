@@ -10,7 +10,9 @@ const ph = new Assembly('phone', P, {role: 'secondary'});
 ph.cyl('pad', 7, 14.5, 10, 0, 1.2, {tone: 'mid', ground: true, bevel: 0.4, shadow: 'hero'});
 ph.ring('pad.rim', 0, 0.3, 8.8, 10, G.frameAlong([7, 14.5, 1.2], [0, 0, 1]), {tone: 'lo'});
 ph.cyl('pad.led', 7, 24.2, 0.3, 0.5, 0.2, {tone: 'hi', bevel: 0});
-ph.pipe('pad.cable', [[17, 14.5, 0.6], [24, 14.5, 0.6], [40, 20, 0.6]], 0.5, {bend: 3, limp: true, ends: [true, false]});
+// the cable ends in a plug on the table (a cut end hung in the air on the showcase)
+ph.slab('pad.plug', {x: 39.4, y: 18.4, w: 4, d: 3, r: 0.6}, 0, 1.2, {tone: 'lo', ground: true, bevel: 0.2});
+ph.pipe('pad.cable', [[17, 14.5, 0.6], [24, 14.5, 0.6], [32, 19.9, 0.6], [39.4, 19.9, 0.6]], 0.5, {bend: 3, limp: true});
 export const PHONE_SCREEN = phone(ph, [0, 0, 1.2], {ui: (s) => screenUi(P, s)});
 export const PHONE = keyed(ph, 'PHONE');
 const mo = new Assembly('monitor', P, {role: 'secondary'});

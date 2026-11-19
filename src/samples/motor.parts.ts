@@ -198,7 +198,7 @@ const build = (name: string, lit: 'pulley' | 'terminals' | 'stator', withLid = t
       [37, -90, 1.6], // runs off the cover's frame instead of ending in the air
     ],
     1.6,
-    {bend: 6, limp: true, ends: [true, false], tone: 'hi'},
+    {bend: 6, limp: true, ends: [true, false], free: 'runs off the cover frame to the supply', tone: 'hi'},
   );
 
   // detail (hero norm, §22.2): end-shield bolt circles, grease nipples, a lifting eye, nameplate rivets, terminal nuts

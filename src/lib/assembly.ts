@@ -52,6 +52,8 @@ export class Assembly {
   readonly R: any;
   readonly V: Point3;
 
+  /** pipes with an unchecked end and no `free` reason (lint «loose») */
+  private loose: string[] = [];
   constructor(
     readonly name: string,
     readonly P: K.Projection,
@@ -189,9 +191,12 @@ export class Assembly {
     name: string,
     points: Point3[],
     r: number,
-    c: Common & {bend?: number; closed?: boolean; gaps?: [number, number][]; caps?: boolean | [boolean, boolean]; maxLength?: number; tone?: K.Tone; limp?: boolean; lit?: boolean; rings?: Record<string, unknown>; ends?: [boolean, boolean]} = {},
+    c: Common & {bend?: number; closed?: boolean; gaps?: [number, number][]; caps?: boolean | [boolean, boolean]; maxLength?: number; tone?: K.Tone; limp?: boolean; lit?: boolean; rings?: Record<string, unknown>; ends?: [boolean, boolean]; free?: string} = {},
   ) {
     const n = this.full(name);
+    // an unchecked end (ends false) must say why it is free (a thread tail, a cable that runs out of the frame); a cable
+    // that simply stops shows a cut in the air once the frame holds the whole object (lint «loose»)
+    if ((c.ends ?? [true, true]).includes(false) && !c.free?.trim()) this.loose.push(n);
     const route = (c.bend ? G.fillet(points, c.bend, 7, {P: this.P, tube: r}) : points) as Point3[];
     const pieces = T.tubePieces(route, r, this.P, {maxLength: c.maxLength ?? 14, closed: c.closed ?? false, gaps: c.gaps ?? [], caps: c.closed ? false : (c.caps ?? true), rings: c.rings ?? null});
     this.R.route(n, route, r, {gaps: c.gaps ?? [], closed: c.closed ?? false, limp: c.limp ?? false, ends: c.ends ?? [true, true], piece: c.piece ?? '', move: c.move ?? [0, 0, 0], ...this.meta(c)});
@@ -220,6 +225,7 @@ export class Assembly {
    *  - a pipe bend folds back on screen (handles, arches and steps turned in a plane that holds the line of sight). */
   lint(): string[] {
     const out: string[] = [];
+    for (const n of this.loose) out.push(`loose: «${n}» has a free end with no reason; end it at a part (a plug, a socket, a clip) or pass free: '<why the end is free>'`);
     type Body = {name: string; F: Frame; poly: number[][]; owner?: string};
     const bodies = (this.R.solids as Body[]).filter((b) => (b as unknown as {kind: string}).kind === 'body');
     const span = (b: Body) => {

@@ -2,7 +2,7 @@
 topic: "Как работает Claude"
 source: sources.md          # primary sources found by web research (S1…), see sources.md
 research_mode: web          # user gave no source; topic researched from Anthropic primary pages and papers
-angle: null                 # to choose with the user before the analysis (see progress.md)
+angle: word_by_word    # tokens → next-token choice by probabilities → yet the rhyme is planned ahead (S1). User decision 19.11.2026
 audience: general_adults
 goal: understand_main_idea
 duration_sec: 60

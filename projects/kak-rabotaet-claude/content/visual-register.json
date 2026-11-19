@@ -1,0 +1,7 @@
+{
+  "_choose": "Way of showing, per scene, first that carries the idea (§20.1, §24): literal (real objects, interfaces, data) → schematic (structure, steps, scale) → metaphor (a machine for what has no form; approved at STOP 1) → symbol (a person's state only: a symbol from src/lib/symbols/catalog.json, with cause, appearsOn and leavesOn beats). Interfaces and data are never metaphor or symbol.",
+  "_doc": "MASTER_PROMPT_FINAL §20: every scene declares location and mode; every metaphor is justified and approved at STOP 1; measured data sits on a frontal plate. A leading metaphor sets leadingMetaphor (metaphor id) and schemeScene (a later schematic scene id). interface: real requires literal mode. whyNotLiteral and rationale are the same slot.",
+  "scenes": {},
+  "locationReuse": [],
+  "metaphors": {}
+}

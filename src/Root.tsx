@@ -3,6 +3,8 @@ import {Composition} from 'remotion';
 import {FORMAT} from './theme/format';
 import {Main, mainSchema, MainProps, selectedScenes} from './Main';
 import {Cover, coverSchema} from './Cover';
+import {KakRabotaetClaudeMain, KakRabotaetClaudeSelected} from './projects/kak-rabotaet-claude/Main';
+import {KakRabotaetClaudeCover} from './projects/kak-rabotaet-claude/Cover';
 import {ElektromotorMain, ElektromotorSelected} from './projects/elektromotor/Main';
 import {ElektromotorCover} from './projects/elektromotor/Cover';
 import {episodeSchema} from './components/Episode';
@@ -53,6 +55,18 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="ElektromotorMotor" component={ElektromotorMotor} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={4} />
   <Composition id="ElektromotorStand" component={ElektromotorStand} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={4} />
   <Composition id="ElektromotorReel" component={ElektromotorReel} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={REEL_FRAMES} />
+  <Composition
+    id="KakRabotaetClaudeMain"
+    component={KakRabotaetClaudeMain}
+    schema={episodeSchema}
+    width={FORMAT.width}
+    height={FORMAT.height}
+    fps={FORMAT.fps}
+    durationInFrames={1}
+    defaultProps={{muteVoice: false, hideCaptions: false, onlyScenes: []}}
+    calculateMetadata={({props}) => ({durationInFrames: Math.max(1, KakRabotaetClaudeSelected(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0))})}
+  />
+  <Composition id="KakRabotaetClaudeCover" component={KakRabotaetClaudeCover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}
   <Composition id="Cover" component={Cover} schema={coverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   </>

@@ -1,0 +1,20 @@
+# MASTER_PROMPT_FINAL §3. Fill before the analysis; defaults are named, not assumed.
+topic: "Как работает Claude"
+source: sources.md          # primary sources found by web research (S1…), see sources.md
+research_mode: web          # user gave no source; topic researched from Anthropic primary pages and papers
+angle: null                 # to choose with the user before the analysis (see progress.md)
+audience: general_adults
+goal: understand_main_idea
+duration_sec: 60
+duration_tolerance: 0.10
+language: ru
+style: anatomy_toned_solids    # §22: toned solids in our palette, thick contour, one coral part
+accent_colors: 1            # coral; a second accent only by the user's decision
+metaphor_policy: accuracy_first   # §20: literal > schematic > metaphor; a leading metaphor needs a later schematic scene
+voice_provider: elevenlabs
+voice_id: 3EuKHIEZbSzrHGNmdYsx
+voice_model: eleven_v4
+voice_budget: null
+captions: on
+music: forbidden
+cover: on

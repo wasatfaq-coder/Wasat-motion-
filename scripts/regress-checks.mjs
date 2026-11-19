@@ -93,7 +93,11 @@ if (!has('ffmpeg') || !has('ffprobe')) {
   if (liveRun.code !== 0) fail(`review-video на тестовой картинке упал\n${liveRun.out.slice(-800)}`);
   const liveReport = JSON.parse(fs.readFileSync(path.join(live, 'video-review.json'), 'utf8'));
   if (liveReport.checks.nearBlackFrames !== 0 || liveReport.checks.emptyFrames !== 0) fail(`живая картинка не должна давать чёрные или пустые кадры: ${JSON.stringify(liveReport.checks)}`);
-  if (fs.existsSync(path.join(live, 'notes.json'))) fail('review-video создал notes.json без замечаний');
+  // the test pattern fills the whole frame, so the motion check rightly notes a crop; black or empty notes are the defect here
+  const liveNotesFile = path.join(live, 'notes.json');
+  const liveNotes = fs.existsSync(liveNotesFile) ? JSON.parse(fs.readFileSync(liveNotesFile, 'utf8')).notes ?? [] : [];
+  if (liveNotes.some((n) => /-(b|e)-/.test(n.id))) fail('review-video записал чёрный или пустой кадр на живой картинке');
+  if (!liveReport.checks.motion) fail('review-video не записал строку motion в video-review.json');
 }
 
 fs.rmSync(dir, {recursive: true, force: true});

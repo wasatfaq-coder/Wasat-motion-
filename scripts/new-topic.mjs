@@ -89,6 +89,18 @@ import {COVERS} from './covers';
 
 export const ${pascal}Cover: React.FC<AnatomyCoverProps> = ({variant}) => <AnatomyCover spec={COVERS[variant]} />;
 `);
+write(path.join(srcDir, 'scenes.motion.ts'), `import {MotionSpec} from '../../lib/motion';
+
+// Per-frame state of every moving scene of «${title}» (CLAUDE.md «Motion», src/lib/motion.ts). For each scene or reel:
+// - beats are STATES (angles, shares, opacities, a camera), moves between them with beatClock + settle, never a
+//   cross-fade of two pictures; a part that turns is rebuilt at its angle every frame;
+// - moving parts are dynTube / dynBall / dynSolid (src/lib/assembly.ts) with shapes, drawn with Assembly.svgFaded:
+//   the depth order against the static object is ray-tested every frame (src/lib/depth.ts);
+// - the camera is camFit(hero box corners, {rect: safeRect({captions}), pins: labels}), not zoom numbers;
+// - arrows carry tail + owner, labels and insets carry screen rects.
+// The scene .tsx only draws pose(frame). scripts/motion-check.mjs (audit, CI, pregate) walks every frame of MOTION.
+export const MOTION: MotionSpec[] = [];
+`);
 write(path.join(srcDir, 'Main.tsx'), `import React from 'react';
 import timelineJson from './data/timeline.json';
 import {Timeline} from '../../lib/timeline';
@@ -131,5 +143,6 @@ console.log(`Topic ${slug} created:
   ${content}/        brief.yaml, storyboard.md, metaphor-prep.md, series-plan.md, visual-register.json, timing.json, sound-map.json, progress.md, decisions.md
   public/${slug}/audio/vo/
   ${srcDir}/Main.tsx  composition ${pascal}Main registered in src/Root.tsx
+  ${srcDir}/scenes.motion.ts  per-frame state of moving scenes (motion-check walks it)
   ${srcDir}/covers.ts, Cover.tsx  composition ${pascal}Cover (variants a/b/c: placeholders to replace)
 Next: fill brief.yaml and sources.md, run topic-analyst. Timeline: node scripts/build-timeline.mjs --content ${content} --public-prefix ${slug} --out ${srcDir}/data/timeline.json`);

@@ -47,7 +47,7 @@ const Inset: React.FC<{x: number; y: number; opacity: number}> = ({x, y, opacity
 
 const StandView: React.FC<{state: StandState; rect: Rect; bottom: number}> = ({state, rect, bottom}) => {
   const {extra, arrows} = partsOf(state);
-  const picture = STAND.svg({}, {extra}) + arrows.map((a) => (a.opacity < 0.999 ? `<g opacity="${a.opacity.toFixed(3)}">${a.svg}</g>` : a.svg)).join('');
+  const picture = STAND.svgFaded(extra) + arrows.map((a) => (a.opacity < 0.999 ? `<g opacity="${a.opacity.toFixed(3)}">${a.svg}</g>` : a.svg)).join('');
   const nPos = screenOf(state.cam, toRoom(LABEL_ANCHORS.N, STAND_U));
   const sPos = screenOf(state.cam, toRoom(LABEL_ANCHORS.S, STAND_U));
   const ins = insetRect(rect);

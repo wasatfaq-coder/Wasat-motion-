@@ -98,8 +98,14 @@ export const camFit = (
     let x1 = -Infinity;
     let y0 = Infinity;
     let y1 = -Infinity;
-    for (const [x, y] of room) (x0 = Math.min(x0, z * x)), (x1 = Math.max(x1, z * x)), (y0 = Math.min(y0, z * y)), (y1 = Math.max(y1, z * y));
-    for (const {xy, box} of pinned) (x0 = Math.min(x0, z * xy[0] + box[0])), (x1 = Math.max(x1, z * xy[0] + box[2])), (y0 = Math.min(y0, z * xy[1] + box[1])), (y1 = Math.max(y1, z * xy[1] + box[3]));
+    const take = (ax: number, bx: number, ay: number, by: number) => {
+      x0 = Math.min(x0, ax);
+      x1 = Math.max(x1, bx);
+      y0 = Math.min(y0, ay);
+      y1 = Math.max(y1, by);
+    };
+    for (const [x, y] of room) take(z * x, z * x, z * y, z * y);
+    for (const {xy, box} of pinned) take(z * xy[0] + box[0], z * xy[0] + box[2], z * xy[1] + box[1], z * xy[1] + box[3]);
     return {x0, x1, y0, y1};
   };
   const fits = (z: number) => {

@@ -260,6 +260,26 @@ export class Assembly {
     return {svg, order: sorted.map((k) => k.item.name), conflicts};
   }
 
+  /** svg() for a frame where moving parts fade in or out. A part split into pieces (dynTube) must not fade piece by
+   *  piece: the pieces overlap at their joints, and two half-transparent pieces over each other read as dark spots.
+   *  Parts that share one opacity form a layer: the picture with that layer at full strength is drawn over the
+   *  picture without it, at the layer's opacity. Depth order inside each picture stays the ray-tested one.
+   *  Parts without shapes (field lines, annotations) keep their own opacity in the base picture. */
+  svgFaded(extra: Extra[], shares: Record<string, number> = {}, opts: {hide?: (name: string) => boolean} = {}) {
+    const solid = (e: Extra) => (e.shapes?.length ?? 0) > 0;
+    const full = extra.filter((e) => !solid(e) || (e.opacity ?? 1) >= 0.999);
+    const layers = new Map<number, Extra[]>();
+    for (const e of extra)
+      if (solid(e) && (e.opacity ?? 1) < 0.999 && (e.opacity ?? 1) > 0.001) {
+        const k = Math.round((e.opacity ?? 1) * 1e4) / 1e4;
+        layers.set(k, [...(layers.get(k) ?? []), {...e, opacity: undefined}]);
+      }
+    let svg = this.paintPlan(shares, {...opts, extra: full}).svg;
+    const solidFull = full.filter(solid);
+    for (const [o, group] of [...layers].sort((a, b) => b[0] - a[0])) svg += `<g opacity="${o.toFixed(3)}">${this.paintPlan(shares, {...opts, extra: [...solidFull, ...group]}).svg}</g>`;
+    return svg;
+  }
+
   /** The recorded items as moving parts (Dyn), for an assembly rebuilt every frame and drawn inside another one
    *  (a wire that bends, a lid that is a separate object). Each keeps its own shapes for the depth order. */
   dyn(opacity?: number): Dyn[] {
@@ -288,8 +308,9 @@ export class Assembly {
 
 /** A part drawn outside the static assembly (rebuilt every frame) and passed to Assembly.svg({}, {extra}).
  *  With `shapes` it is ordered by the true 3D geometry (src/lib/depth.ts); without, by one depth key at `at`. */
-export type Extra = {at: Point3; svg: string; bias?: number; name?: string; shapes?: unknown[]; opacity?: number};
-/** A moving part with its shapes: what the depth order and scripts/motion-check.mjs need. */
+export type Extra = {at: Point3; svg: string; bias?: number; name?: string; shapes?: unknown[]; opacity?: number; annotation?: boolean};
+/** A moving part with its shapes: what the depth order and scripts/motion-check.mjs need. A part with no shapes must
+ *  say `annotation: true` (a field line, a marker): motion-check refuses a solid it cannot order. */
 export type Dyn = Extra & {name: string; shapes: unknown[]};
 
 /** A moving bar, pipe or wire split into short pieces (≤ maxLength kit units). Each piece gets its own place in the

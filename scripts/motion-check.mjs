@@ -122,6 +122,8 @@ export const checkSpec = async (spec) => {
       const open = ring.map((a, i) => [a, ring[(i + 1) % ring.length]]).filter(([a, b]) => !joined(a, b));
       if (open.length) addOnce('depth', ring.slice().sort().join('|'), f, `paint-order cycle ${c} at frame ${f} (${open.map(([a, b]) => `${a} / ${b}`).join(', ')} are not joined): split the moving part into shorter pieces (dynTube maxLength)`);
     }
+    // a moving part without shapes cannot be ordered by depth: only annotations may go without
+    for (const d of pose.extra) if (!d.shapes?.length && !d.annotation) addOnce('depth', `noshape|${d.name}`, f, `${d.name} has no shapes and is not marked annotation: build it with dynTube / dynBall / dynSolid so its depth can be solved`);
     // through: moving parts against static solids, in this very pose
     const touch = pose.touch ?? [];
     for (const d of live) {

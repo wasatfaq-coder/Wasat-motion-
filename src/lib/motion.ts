@@ -19,6 +19,10 @@ export const settle = (x: number, seconds = 0.6) => {
 
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+/** Opacity across a move where one part gives way to another: what leaves fades in the first half, what arrives in
+ *  the second, so two meanings are never seen on top of each other. */
+export const handOver = (a: number, b: number, t: number) => (b < a ? lerp(a, b, Math.min(1, 2 * t)) : lerp(a, b, Math.max(0, 2 * t - 1)));
+
 /** Where a reel of beats stands at a frame: beat `from`, beat `to` and the eased share t between them.
  *  Each beat holds for `hold` frames, then moves to the next over `move` frames. With `loop` the last beat moves back
  *  to the first, so the last frame leads straight into the first (a seamless loop). */

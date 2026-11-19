@@ -3,7 +3,7 @@ import {Dyn, Point3} from '../../lib/assembly';
 import {toRoom} from '../../lib/anatomy';
 import {boxCorners, Cam, camFit, Rect, safeRect, screenOf} from '../../lib/camera';
 import {forceOnWire} from '../../lib/handed';
-import {ArrowProbe, beatClock, blendCam, lerp, MotionPose, MotionSpec, PlateProbe, reelFrames} from '../../lib/motion';
+import {ArrowProbe, beatClock, blendCam, handOver, lerp, MotionPose, MotionSpec, PlateProbe, reelFrames} from '../../lib/motion';
 import {FORMAT} from '../../theme/format';
 import {AX, AY, commutatorItems, LOOP_R, LOOP_Z0, LOOP_Z1, loopItems, PLATE_TOP, STAND, STAND_P, STAND_U, WIRE_Y, wireItems} from './stand.parts';
 
@@ -48,7 +48,7 @@ const forceArrow = (name: string, owner: string, from: Point3, dir: Point3, reac
 const fieldLines = (ys: number[], z: number, opacity: number): Dyn[] =>
   ys.map((y, i) => {
     const heads = [31, 59].map((x) => tri([x, y, z], [1, 0, 0], 3.4, [0, 0, 1], 'var(--anatomy-mid)'));
-    return {name: `field${i}`, at: [AX, y, z] as Point3, svg: line([21, y, z], [69, y, z], 2.4, 'var(--anatomy-mid)', '7 6') + heads.join(''), shapes: [], opacity};
+    return {name: `field${i}`, at: [AX, y, z] as Point3, svg: line([21, y, z], [69, y, z], 2.4, 'var(--anatomy-mid)', '7 6') + heads.join(''), shapes: [], opacity, annotation: true};
   });
 
 /** One beat of the stand. theta is the loop angle; wire/loop/field/inset/labels are opacities 0…1. */
@@ -89,10 +89,10 @@ export const beats = (rect: Rect): StandState[] => {
  *  or out where it is; it does not spin while hidden). */
 export const blend = (a: StandState, b: StandState, t: number): StandState => ({
   theta: a.loop === 0 ? b.theta : b.loop === 0 ? a.theta : lerp(a.theta, b.theta, t),
-  wire: lerp(a.wire, b.wire, t),
-  loop: lerp(a.loop, b.loop, t),
+  wire: handOver(a.wire, b.wire, t),
+  loop: handOver(a.loop, b.loop, t),
   field: lerp(a.field, b.field, t),
-  inset: lerp(a.inset, b.inset, t),
+  inset: handOver(a.inset, b.inset, t),
   labels: lerp(a.labels, b.labels, t),
   cam: blendCam(a.cam, b.cam, t),
 });

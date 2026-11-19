@@ -167,6 +167,22 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2f) motion architecture (root cause of the motor-stand reel defects, closed for every topic): a topic file that
+// animates house-style objects keeps its state in a *.motion.ts (so motion-check sees every frame), frames with camFit
+// (hero + labels inside the safe rect) and moves with beatClock/blendCam. The old hand-tuned helpers are not allowed in
+// src/projects: camOn/camOnBox (zoom numbers that crop the hero), lerpCam between pictures (a cross-fade, not a move).
+{
+  const topicCode = srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && (topicDir ? under(f, topicDir) : true) && /\.tsx?$/.test(f) && !f.endsWith('.motion.ts'));
+  for (const f of topicCode) {
+    const text = fs.readFileSync(f, 'utf8');
+    const code = text.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    const old = [...new Set(code.match(/\b(camOn|camOnBox|lerpCam)\(/g) ?? [])];
+    if (old.length) add('error', `motion: ${f} uses ${old.map((x) => x.slice(0, -1)).join(', ')}; frame with camFit(hero corners, {rect: safeRect(), pins}) and move with beatClock/blendCam (src/lib/motion.ts)`);
+    const animates = /useCurrentFrame\(/.test(code) && /(\.parts['"]|lib\/assembly['"]|<Kit\b)/.test(code);
+    if (f.endsWith('.tsx') && animates && !/from '\.\/[^']+\.motion'/.test(code)) add('error', `motion: ${f} animates house-style objects but takes no state from a *.motion.ts; put the per-frame state (camera, angles, opacities, arrows) in a *.motion.ts exporting MOTION so motion-check walks every frame`);
+  }
+}
+
 // 2d) covers (§19.5): every covers.ts — title words and size, image share, safe column, 4:5 crop, techniques.
 // A topic run checks its own covers.ts; the root run checks covers outside src/projects (the style samples).
 {

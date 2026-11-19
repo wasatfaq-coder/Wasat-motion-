@@ -76,6 +76,7 @@ export const CASES: [string, MotionSpec, string[]][] = [
   ['arrow vanishes', spec('pop', {hideArrowAt: 30}), ['pop']],
   ['loop does not close', spec('seam', {halfTurn: true}), ['seam']],
   ['three sticks over each other', spec('depth', {extra: sticks}), ['depth']],
+  ['a solid without shapes', spec('noshape', {extra: () => [{name: 'lid', at: [10, 10, 10] as Point3, svg: '<path/>', shapes: []}]}), ['depth']],
   ['declared cut is allowed', spec('cut', {jumpAt: 30}, {cuts: [30], loop: false}), []],
   ['held beat, then an eased move', {id: 'eased', frames: FRAMES, fps: 60, loop: false, pose: (f) => pose(f < 20 ? 0 : 20 * ease((f - 20) / 40), {})}, []],
 ];

@@ -25,7 +25,8 @@ const B = BENCH;
 const boardD = (TOP.y1 - TOP.y0) / 5;
 for (let k = 0; k < 5; k++)
   B.slab(`top.board${k}`, {x: TOP.x0, y: TOP.y0 + k * boardD + 0.3, w: TOP.x1 - TOP.x0, d: boardD - 0.6, r: 0.4}, TOP.z - TOP.t, TOP.t, {tone: 'lo', bevel: 0.6, meta: {touch: ['apron.front', 'apron.back', 'apron.left', 'apron.right']}});
-B.slab('top.edge', {x: TOP.x0, y: TOP.y1, w: TOP.x1 - TOP.x0, d: 3, r: 0.4}, TOP.z - TOP.t - 4, TOP.t + 4, {tone: 'mid', bevel: 0.6, meta: {touch: ['top.board4']}});
+// the edge rail is glued to the front board's face (boards are inset 0.3 on each side for the seams)
+B.slab('top.edge', {x: TOP.x0, y: TOP.y1 - 0.3, w: TOP.x1 - TOP.x0, d: 3, r: 0.4}, TOP.z - TOP.t - 4, TOP.t + 4, {tone: 'mid', bevel: 0.6, meta: {touch: ['top.board4']}});
 const LEG = 7;
 const LEG_Z = -90;
 for (const [n, x, y] of [

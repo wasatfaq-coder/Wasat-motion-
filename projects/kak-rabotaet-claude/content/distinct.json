@@ -1,37 +1,12 @@
 {
-  "_why": "MASTER_PROMPT_FINAL §25.2: after the script, compare this topic with the last finished one on six axes; at least four must differ. Replace status with against + axes.",
-  "status": "pending",
-  "against": "",
+  "_why": "MASTER_PROMPT_FINAL §25.2: compared with the last topic (elektromotor) on six axes; at least four must differ.",
+  "against": "elektromotor",
   "axes": {
-    "structure": {
-      "this": "",
-      "previous": "",
-      "differs": null
-    },
-    "opening": {
-      "this": "",
-      "previous": "",
-      "differs": null
-    },
-    "signatureShot": {
-      "this": "",
-      "previous": "",
-      "differs": null
-    },
-    "camera": {
-      "this": "",
-      "previous": "",
-      "differs": null
-    },
-    "soundShape": {
-      "this": "",
-      "previous": "",
-      "differs": null
-    },
-    "ending": {
-      "this": "",
-      "previous": "",
-      "differs": null
-    }
+    "structure": {"this": "снаружи → жёсткая склейка внутрь → доказательство вмешательством → ответ с оговоркой", "previous": "предмет → упрощённый стенд по шагам физики → реальный мотор → ответ", "differs": true},
+    "opening": {"this": "интерфейс: ответ печатается кусочками на экране телефона, вопрос о мышлении", "previous": "действие с предметом: батарейка подключена, вал закрутился", "differs": true},
+    "signatureShot": {"this": "пустое место в конце строки и уже горящий узел «rabbit» до первого токена строки", "previous": "рамка с током поворачивается между магнитами", "differs": true},
+    "camera": {"this": "наезд на экран → плоская доска токенов → спуск «под» доску к схеме → отъезд к первому кадру", "previous": "верстак → стенд поля → внутрь мотора → верстак", "differs": false},
+    "soundShape": {"this": "щелчки токенов с ускорением; две тишины перед «Но» и перед «Ещё до…»; диссонанс через склейку", "previous": "механические звуки мотора и щелчки переключения", "differs": true},
+    "ending": {"this": "ответ плюс явный предел знания: большая часть схемы остаётся тёмной", "previous": "ответ-резюме механизма на том же предмете", "differs": true}
   }
 }

@@ -92,7 +92,9 @@ export const checkFrame = (img, {rect = SAFE_RECT, minFill = 0.7, coral = true, 
   if (fill < minFill) errors.push(`fill: the drawn content is ${(fill * 100).toFixed(0)} % of the safe rect on its tighter side (< ${minFill * 100} %): the object is too small on a phone; frame it by what is drawn (camFitSvg), not by a wider box`);
   // 20 sampled pixels (≈ 80 px²) is anti-aliasing; more is a part outside
   if (!bleed && out > 20) errors.push(`bounds: ${out * S * S} px of content outside the safe rect (x ${rect.x0}–${rect.x1}, y ${rect.y0}–${rect.y1}): cut by the frame edge or the band's fade, or under the button column; frame everything the page draws (camFitSvg)`);
-  const regs = regions(cor, gw, gh, 3).map((n) => (n * G * G) / (W * H));
+  // gap 5 cells (20 px): one coral part crossed by a cord or a pin stays one region (a close-up of the map split the
+  // coral island in two at 3 cells)
+  const regs = regions(cor, gw, gh, 5).map((n) => (n * G * G) / (W * H));
   const big = regs.filter((a) => a >= coralMin / 6);
   if (coral === true) {
     if (!big.length || big[0] < coralMin) errors.push(`coral: ${big.length ? `the coral region is ${(big[0] * 100).toFixed(2)} % of the frame` : 'no coral'} (< ${(coralMin * 100).toFixed(1)} %): the one meaning is missing or invisible on a phone; or declare coral: 'none' with a reason`);

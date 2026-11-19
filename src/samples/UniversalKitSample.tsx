@@ -40,6 +40,10 @@ const CABINET_ROOM = (): [P3, P3] => {
   return [lo, [hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]]];
 };
 
+/** the near-left half of a box (a close-up page; at the whole-table framing the plan ring on the table edge measured
+ *  0.3 % different from the map page) */
+const halfOf = ([lo, size]: [P3, P3]): [P3, P3] => [lo, [size[0] / 2, size[1], size[2]]];
+
 /** the sink and faucet box in room units (the drops page frames it) */
 const sinkRoom = (): [P3, P3] => {
   const lo = toRoom(SINK_BOX[0], UNI_U);
@@ -145,7 +149,7 @@ export const KIT_PAGES: Page[] = [
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},
   // the map helpers: a plan point of the projection and a simplified ring drawn on the table top round the islands
   // (a ring under a raised island has no one depth: it lies on the table, over the sea and under the land)
-  {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, MAP_INFO.top + 0.05], bias: 3, annotation: true, svg: K.lineSvg(K.onTop(simplify([[0.4, 0.4], [15, 0.6], [29.6, 0.4], [29.6, 19.6], [0.4, 19.6]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), MAP_INFO.top + 0.05, P, true), {tone: 'lo'})}]})},
+  {id: 'mapplan', coral: 'the one region', bleed: 'a close-up on half of the table: its far end runs past the frame', cam: () => camFit(boxCorners(...halfOf(boxOf(MAP_TABLE))), {rect: safeRect(), fill: 0.9}), A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, MAP_INFO.top + 0.05], bias: 3, annotation: true, svg: K.lineSvg(K.onTop(simplify([[0.4, 0.4], [15, 0.6], [29.6, 0.4], [29.6, 19.6], [0.4, 19.6]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), MAP_INFO.top + 0.05, P, true), {tone: 'lo'})}]})},
 ];
 
 export const UniversalKitSample: React.FC = () => {

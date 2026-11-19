@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import {spawnSync} from 'node:child_process';
+import crypto from 'node:crypto';
 // Regressions for the P0 text gate and the phone-size preview.
 //   «в» on screen for 0.02 s must fail check-text; a correct page must pass.
 //   A correct root timeline passes audit --only captions. The same audit with a
@@ -47,6 +49,19 @@ const has = (bin) => {
 // every symbol names the state it is shown in (a closed hatch read as plain floor on the showcase)
 for (const [id, row] of Object.entries(JSON.parse(fs.readFileSync('src/lib/symbols/catalog.json', 'utf8')).symbols))
   if (typeof row.show !== 'number' || !String(row.showWhy ?? '').trim()) fail(`src/lib/symbols/catalog.json: «${id}» has no show state with showWhy`);
+
+// the gate hook blocks an image the shorts-quality-gate has not passed, and lets it through once stamped
+{
+  const img = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'gate-')), 'frame.png');
+  fs.writeFileSync(img, Buffer.from(`not-a-real-png-${Date.now()}`));
+  const hook = (env) => spawnSync(process.execPath, ['.claude/hooks/require-gate.mjs'], {input: JSON.stringify({tool_input: {files: [img]}}), encoding: 'utf8', env: {...process.env, ...env}});
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'gate-root-'));
+  fs.mkdirSync(path.join(tmpRoot, '.claude'));
+  if (hook({CLAUDE_PROJECT_DIR: tmpRoot}).status !== 2) fail('require-gate: an unstamped image was not blocked');
+  const sha = crypto.createHash('sha256').update(fs.readFileSync(img)).digest('hex');
+  fs.writeFileSync(path.join(tmpRoot, '.claude', 'gate-pass.json'), JSON.stringify({[sha]: {verdict: 'PASS'}}));
+  if (hook({CLAUDE_PROJECT_DIR: tmpRoot}).status !== 0) fail('require-gate: a stamped image was blocked');
+}
 
 // one browser lookup (scripts/lib/browser.mjs): a script with its own copy pinned a version path that stopped matching
 for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))

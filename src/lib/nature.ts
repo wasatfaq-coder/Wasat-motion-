@@ -86,7 +86,8 @@ export const particles = (P: K.Projection, kind: Kind, e: Emitter, t: number, o:
       out.push({...dynSolid(name, p, K.solidSvg(G.prismOf(F, poly, 0, k * 4, P), {tone: 'hi', lit: o.lit}), A.prism(F, poly, 0, k * 4, {name})), opacity: 1 - age * 0.6});
     } else if (kind === 'drops' || kind === 'drip') {
       const F = G.frameAlong(p, [0, 0, 1]);
-      const s = kind === 'drip' ? 1.2 : 0.7;
+      // a drip is the subject of its shot: 1.4 (3.4 tall) reads on a phone, 1.2 measured 0.1 % of the frame
+      const s = kind === 'drip' ? 1.4 : 0.7;
       const prof = DROP.map(([a, r, sm]) => (sm ? [a * s, r * s, sm] : [a * s, r * s]));
       // `lit` lights ONE drop (the leading one): one coral meaning, not a coral shower
       const lit = !!o.lit && age === Math.max(...all.map((q) => q.age));

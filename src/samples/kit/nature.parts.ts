@@ -67,6 +67,6 @@ lab.slab('faucet.lever', {x: 27.4, y: 26.6, w: 0.8, d: 0.8, r: 0.3}, T + 12.8, 3
 lab.turned('faucet.spout', [[0, 0.5], [7.2, 0.5]], G.frameAlong([29.8, 27, T + 11.2], [1, 0, 0]), {tone: 'hi', meta: {owner: 'faucet.base'}});
 lab.turned('faucet.aerator', [[0, 0.65], [1.4, 0.65]], G.frameAlong([36.3, 27, T + 10.7], [0, 0, -1]), {tone: 'mid', meta: {owner: 'faucet.base'}});
 /** where the drips leave the faucet (kit units) and the box round the sink and faucet, for the drops page */
-export const SPOUT: [number, number, number] = [36.3, 27, T + 6.3]; // a drop's base: the drop is 2.9 tall, its tip at the aerator
-export const SINK_BOX: [[number, number, number], [number, number, number]] = [[27, 20, T], [17, 14, 16]];
+export const SPOUT: [number, number, number] = [36.3, 27, T + 5.9]; // a drop's base: the drop is 3.4 tall, its tip at the aerator
+export const SINK_BOX: [[number, number, number], [number, number, number]] = [[28, 21, T], [12, 12, 13]]; // the basin and the spout: a close shot
 export const LAB = keyed(lab, 'LAB');

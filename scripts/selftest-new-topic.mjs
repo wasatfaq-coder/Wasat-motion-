@@ -33,6 +33,8 @@ try {
     `src/projects/${slug}/scenes/RawSolid.tsx`,
     `import * as K from '../../../vendor/anatomy/iso-kit';\nimport {anatomyProjection} from '../../../lib/anatomy';\nexport const RAW = K.solidSvg(K.slabOf({x: 0, y: 0, w: 4, d: 4, r: 1}, 0, 4, anatomyProjection(10)));\n`,
   );
+  // a finished object of another topic imported without consent (§4) must fail the topic audit
+  fs.writeFileSync(`src/projects/${slug}/scenes/Borrowed.ts`, `import {STAND} from '../../elektromotor/stand.parts';\nexport const B = STAND.name;\n`);
   let refused = '';
   try {
     sh('node', ['scripts/audit.mjs', '--only', 'motion', '--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`]);
@@ -40,6 +42,7 @@ try {
     refused = String(e.stdout || '');
   }
   if (!/motion: .*camOn/.test(refused) || !/motion: .*no state from a \*\.motion\.ts/.test(refused)) throw new Error(`the topic audit did not refuse the old way of animating:\n${refused}`);
+  if (!/reuse: .*Borrowed\.ts imports src\/projects\/elektromotor\/stand\.parts/.test(refused)) throw new Error(`the topic audit accepted another topic's object without consent:\n${refused}`);
   if (!/detail: .*RawSolid\.tsx draws kit solids directly/.test(refused)) throw new Error(`the topic audit accepted a solid drawn past Assembly:\n${refused}`);
   // a note closed without its root cause and guard (docs/root-causes.md) must fail the topic audit too
   fs.mkdirSync(`projects/${slug}/content/reviews`, {recursive: true});

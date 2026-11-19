@@ -197,6 +197,29 @@ for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) 
   }
 }
 
+// 2i) reuse with consent (§4, §24): a topic builds its own objects from the kit builders in src/lib. Importing another
+// topic's code (src/projects/<other>) or the demo samples (src/samples) is allowed only for a catalog entry
+// (src/lib/catalog.json) whose `consent` lists this topic. Root cause: nothing stopped a topic from quietly reusing a
+// finished object or location of another topic.
+{
+  const catalog = readJson('src/lib/catalog.json').objects;
+  const topicFiles = srcFiles.filter((f) => f.includes(`${path.sep}projects${path.sep}`) && (topicDir ? under(f, topicDir) : true) && /\.tsx?$/.test(f));
+  for (const f of topicFiles) {
+    const slug = f.split(`${path.sep}projects${path.sep}`)[1].split(path.sep)[0];
+    const code = fs.readFileSync(f, 'utf8');
+    for (const m of code.matchAll(/from ['"]([^'"]+)['"]/g)) {
+      const target = path.normalize(path.join(path.dirname(f), m[1]));
+      const rel = path.relative(process.cwd(), target).split(path.sep).join('/');
+      const other = rel.match(/^src\/projects\/([^/]+)\//);
+      const sample = rel.startsWith('src/samples/');
+      if (!(other && other[1] !== slug) && !sample) continue;
+      const entry = Object.values(catalog).find((e) => rel.startsWith(String(e.module).replace(/\.tsx?$/, '')));
+      if (!entry || !(entry.consent ?? []).includes(slug))
+        add('error', `reuse: ${f} imports ${rel}; build the object from the kit (src/lib) or record the user's consent for «${slug}» in src/lib/catalog.json (§4)`);
+    }
+  }
+}
+
 // 2g) root cause every time (docs/root-causes.md): a review note closed as fixed or verified names its root cause and
 // the automatic guard that now catches it (an existing scripts/… or src/… path). Without that the same defect comes
 // back in the next topic and the gate finds it again. Notes closed before this rule carry legacy: true.

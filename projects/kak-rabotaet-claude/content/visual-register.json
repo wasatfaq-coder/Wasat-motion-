@@ -23,26 +23,40 @@
       "whyNotLiteral": "распределение вероятностей не показывается пользователю; полоски без чисел — порядок, не измерение"
     },
     "scene-04": {
+      "location": "token-board",
+      "mode": "schematic",
+      "metaphors": [],
+      "coral": "кусочек, которым продолжится ответ (выбран и встаёт в ряд)",
+      "whyNotLiteral": "распределение вероятностей не показывается пользователю; полоски без чисел — порядок, не измерение"
+    },
+    "scene-05": {
       "location": "плашка-схема",
       "mode": "schematic",
       "metaphors": [],
       "whyNotLiteral": "внутренние вычисления не имеют формы; схема узлов-понятий по рисункам S1"
     },
-    "scene-05": {
+    "scene-06": {
       "location": "плашка-схема",
       "mode": "schematic",
       "metaphors": [],
       "coral": "слово «rabbit» в конце выданной строки",
       "whyNotLiteral": "как scene-04"
     },
-    "scene-06": {
+    "scene-07": {
       "location": "плашка-схема",
       "mode": "schematic",
       "metaphors": [],
-      "coral": "слово в конце строки после выдачи (habit, затем green)",
+      "coral": "слово «habit» в конце строки после выдачи",
       "whyNotLiteral": "как scene-04"
     },
-    "scene-07": {
+    "scene-08": {
+      "location": "плашка-схема",
+      "mode": "schematic",
+      "metaphors": [],
+      "coral": "слово «green» в конце строки после выдачи",
+      "whyNotLiteral": "как scene-04"
+    },
+    "scene-09": {
       "location": "desk-phone + врезка-плашка",
       "mode": "literal+schematic",
       "interface": "real",
@@ -56,7 +70,7 @@
       "location": "desk-phone",
       "scenes": [
         1,
-        7
+        9
       ],
       "reason": "петля: ответ на вопрос хука в том же кадре"
     },
@@ -64,16 +78,18 @@
       "location": "token-board",
       "scenes": [
         2,
-        3
+        3,
+        4
       ],
       "reason": "одна строка: нарезка и выбор следующего токена продолжают друг друга"
     },
     {
       "location": "плашка-схема",
       "scenes": [
-        4,
         5,
-        6
+        6,
+        7,
+        8
       ],
       "reason": "одна схема: открытие, план, вмешательство на тех же узлах"
     }

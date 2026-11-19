@@ -18,4 +18,4 @@
 ## Состояние (19.11.2026)
 - Тема заведена (`node scripts/new-topic.mjs kak-rabotaet-claude`), ветка `ccr-883fd033-jhayer`.
 - Бриф: research_mode web, источники S1–S5 в `sources.md`.
-- Ракурс выбран (decisions.md). analysis.md готов, C1–C7 сверены с S1 и S6. Дальше: concept.md (структура A рекомендована), сценарий, раскадровка, object-researcher/architect, metaphor-auditor, fact-checker → СТОП 1.
+- Ракурс выбран; analysis, сценарий (9 сцен), раскадровка, реестр, фактчек и аудит метафор готовы, правки применены. Идут: object-architect (parts-plan.md) и сверка рисунков S1. Дальше: стайлфреймы и тестовый фрагмент → СТОП 2; голос и платное — только по команде.

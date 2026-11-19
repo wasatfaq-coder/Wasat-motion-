@@ -34,7 +34,7 @@ export const station = (A: Assembly, s: Station, xOf: (year: number) => number, 
   A.cyl(`${p}.post`, x, y0 + 20, 0.8, z0 + 3, 14, {tone: 'hi', bevel: 0.2, ...own});
   A.slab(`${p}.sign`, {x: x - 4, y: y0 + 20.8, w: 8, d: 1.2, r: 0.4}, z0 + 12, 5, {tone: 'hi', bevel: 0.3, lit: s.lit, ...own});
   A.ball(`${p}.lamp`, [x, y0 + 20, z0 + 17.8], 1.2, {tone: 'mid', ...own});
-  return {sign: [x, y0 + 22, z0 + 14.5] as Point3, top: [x, y0 + 20, z0 + 19] as Point3, at: [x, y0 + 19, z0 + 3] as Point3};
+  return {sign: [x, y0 + 22, z0 + 14.5] as Point3, top: [x, y0 + 20, z0 + 17.8] as Point3, at: [x, y0 + 19, z0 + 3] as Point3};
 };
 
 /** A carriage on the rail at kit x: a body, a cab roof, four wheels on two axles. Build it once at x0; the scene moves
@@ -85,4 +85,9 @@ export const gearPlate = (A: Assembly, name: string, [x, y, z]: Point3, w: numbe
 /** A causal link between two stations: a straight rod resting on the lamps on top of their posts (`station().top`).
  *  An arched tube was tried and folds on screen at its corners. The rod is the one coral part when the link is the
  *  subject. */
-export const link = (A: Assembly, name: string, a: Point3, b: Point3, o: {lit?: boolean} = {}) => A.pipe(name, [a, b], 0.6, {lit: o.lit, tone: 'hi'});
+export const link = (A: Assembly, name: string, a: Point3, b: Point3, o: {lit?: boolean; lamp?: number} = {}) => {
+  // the ends go INTO the lamps along the rod (an end lying on top of a ball is not a mount)
+  const d = G.unit3(G.sub3(b, a)) as Point3;
+  const r = o.lamp ?? 1.2;
+  return A.pipe(name, [G.add3(a, G.mul3(d, r * 0.8)) as Point3, G.sub3(b, G.mul3(d, r * 0.8)) as Point3], 0.6, {lit: o.lit, tone: 'hi'});
+};

@@ -15,14 +15,14 @@ export const bloom = (name: string, P: K.Projection, [x, y, z]: Point3, open = 1
   const A = new Assembly(name, P, {role: 'secondary', allow: [[`${name}.petal*`, `${name}.petal*`], [`${name}.petal*`, `${name}.hub`], [`${name}.sepal*`, `${name}.hub`], [`${name}.stamen*`, `${name}.hub`], [`${name}.sepal*`, `${name}.sepal*`], [`${name}.leaf*`, `${name}.stem*`]]});
   // pot: foot, body, rim, soil
   A.turned('pot.foot', [[0, 7], [1.2, 7.2]], up(x, y, z), {tone: 'lo', ground: true, shadow: 'hero'});
-  loft(A, 'pot', [x, y, z + 1.2], [0, 0, 1], [[0, 7], [5, 8.4], [10, 9.6], [12, 10]], {tone: 'mid'});
-  A.ring('pot.rim', 12, 13.6, 8.6, 10.8, up(x, y, z + 1.2), {tone: 'hi'});
-  A.disc('pot.soil', 12, 12.8, 8.4, up(x, y, z + 1.2), {tone: 'lo', meta: {owner: `${name}.pot`}});
+  // the rim is part of the pot's profile and the soil is a mound on top (a rim ring round the soil has no paint order)
+  loft(A, 'pot', [x, y, z + 1.2], [0, 0, 1], [[0, 7], [5, 8.4], [10, 9.6], [12, 10], [12.2, 10.8], [13.6, 10.8]], {tone: 'mid'});
+  A.turned('pot.soil', [[13.6, 9.4], [14.2, 8.6, 1], [14.6, 6, 1], [14.8, 0.0001]], up(x, y, z + 1.2), {tone: 'lo', meta: {owner: `${name}.pot`}});
   const base = z + 13.4;
   const top = base + 26;
   // stem in four slices with a collar disc between each (a ring round a whole rod cannot be painted in order)
   const cuts = [6, 13, 20];
-  let s0 = z + 1.2 + 12.8; // on the soil
+  let s0 = z + 1.2 + 14.6; // in the soil mound
   [...cuts, top - base].forEach((s, i) => {
     const s1 = base + s;
     A.turned(i ? `stem.${i}` : 'stem', [[0, 1.1], [s1 - s0, 1.1]], up(x, y, s0), {tone: 'mid', meta: {owner: `${name}.pot`}});

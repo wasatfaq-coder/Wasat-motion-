@@ -1,5 +1,5 @@
 import * as K from '../../vendor/anatomy/iso-kit';
-import {Assembly, Point3} from '../assembly';
+import {Assembly, G, Point3} from '../assembly';
 
 // A map as a relief model on a table (MASTER_PROMPT_FINAL §24.3): regions are plates of different heights cut from
 // their outlines, a route is a tube laid over their surface, a zoom is a camera move to a node (boxCorners). The
@@ -115,66 +115,33 @@ export const mapTable = (
   return {surface, toKit, top: seaTop, size: [o.w + 4, o.d + 4, legs + Math.max(...o.regions.map((r) => r.height)) + base] as Point3};
 };
 
-/** A marker pin standing on the relief at a route stop: a foot disc, a post and a head ball. */
-export const pin = (A: Assembly, name: string, at: Point3, o: {h?: number; lit?: boolean} = {}) => {
-  const h = o.h ?? 5;
-  A.cyl(`${name}.foot`, at[0], at[1], 1.2, at[2], 0.4, {tone: 'mid', bevel: 0.1});
-  A.cyl(`${name}`, at[0], at[1], 0.35, at[2] + 0.4, h, {tone: 'hi', bevel: 0.05, meta: {owner: `${A.name}.${name}.foot`}});
-  A.ball(`${name}.head`, [at[0], at[1], at[2] + 0.4 + h + 0.9], 1.1, {tone: 'hi', lit: o.lit, meta: {owner: `${A.name}.${name}.foot`}});
-  return [at[0], at[1], at[2] + h + 2.4] as Point3;
-};
-
-/** A route laid over the relief, `lift` above the surface. At a coast the tube rises (or drops) a clear distance before
- *  the edge on the low side, so it never cuts a plate corner; the corners are filleted. Stops are flat discs on the
- *  surface under the route when `lift` clears them (off by default: pins beside the route mark the stops); the scene draws progress by `show` on the frontal layer or
- *  by hiding chunks (svg({}, {hide})). */
+/** A route as a cord stretched from pin to pin over the relief: at each stop a pin stands on the surface, and a
+ *  straight tube runs from pin head to pin head, above every plate. Root cause of the earlier design: a route laid ON
+ *  the relief had to step up and down at every coast, and a step taken along the line of sight folds on screen
+ *  whatever its bend; straight spans have no corners. `lit` makes the cord the coral part. Returns the head points
+ *  (pin the frontal labels of the stops to them). */
 export const route = (
   A: Assembly,
   name: string,
-  map: {toKit: (lon: number, lat: number, lift?: number) => Point3},
-  path: [number, number][],
-  o: {r?: number; lift?: number; samples?: number; lit?: boolean; stops?: boolean} = {},
+  map: {toKit: (lon: number, lat: number, lift?: number) => Point3; size: Point3; top: number},
+  stops: [number, number][],
+  o: {r?: number; lit?: boolean; above?: number} = {},
 ) => {
-  const r = o.r ?? 0.7;
-  const lift = o.lift ?? r;
-  const n = o.samples ?? 48;
-  const at = (i: number, t: number) => [path[i][0] + (path[i + 1][0] - path[i][0]) * t, path[i][1] + (path[i + 1][1] - path[i][1]) * t] as [number, number];
-  const pts: Point3[] = [];
-  for (let i = 0; i < path.length - 1; i++) {
-    let prev = map.toKit(...at(i, 0), lift);
-    if (!i) pts.push(prev);
-    for (let j = 1; j <= n; j++) {
-      const t = j / n;
-      const cur = map.toKit(...at(i, t), lift);
-      if (Math.abs(cur[2] - prev[2]) > 1e-6) {
-        // find the edge between the two samples, then step at a clear distance on the low side
-        let [lo, hi] = [(j - 1) / n, t];
-        for (let k = 0; k < 18; k++) {
-          const mid = (lo + hi) / 2;
-          if (Math.abs(map.toKit(...at(i, mid), lift)[2] - prev[2]) < 1e-6) lo = mid;
-          else hi = mid;
-        }
-        const edge = map.toKit(...at(i, lo), lift);
-        const dirx = cur[0] - prev[0];
-        const diry = cur[1] - prev[1];
-        const dl = Math.hypot(dirx, diry) || 1;
-        const clear = r + 3.5;
-        const up = cur[2] > prev[2];
-        const foot: Point3 = up ? [edge[0] - (dirx / dl) * clear, edge[1] - (diry / dl) * clear, prev[2]] : [edge[0] + (dirx / dl) * clear, edge[1] + (diry / dl) * clear, cur[2]];
-        // a ramp from the foot on the low side to the edge at the high level (a vertical step folds on screen)
-        const top: Point3 = [edge[0], edge[1], Math.max(cur[2], prev[2])];
-        if (up) pts.push(foot, top);
-        else pts.push(top, foot);
-      }
-      if (j === n || Math.abs(cur[2] - prev[2]) > 1e-6) pts.push(cur);
-      prev = cur;
-    }
+  const r = o.r ?? 0.6;
+  const head = 1.1;
+  const highest = Math.max(...stops.map(([lon, lat]) => map.toKit(lon, lat)[2]));
+  const z = Math.max(highest, map.top) + (o.above ?? 7);
+  const heads: Point3[] = stops.map(([lon, lat], i) => {
+    const g = map.toKit(lon, lat);
+    A.cyl(`${name}.pin${i}.foot`, g[0], g[1], 1.2, g[2], 0.4, {tone: 'mid', bevel: 0.1});
+    A.cyl(`${name}.pin${i}`, g[0], g[1], 0.35, g[2] + 0.4, z - g[2] - 0.4 - head, {tone: 'hi', bevel: 0.05, meta: {owner: `${name}.pin${i}.foot`}});
+    const h: Point3 = [g[0], g[1], z];
+    A.ball(`${name}.pin${i}.head`, h, head, {tone: 'hi', meta: {owner: `${name}.pin${i}.foot`}});
+    return h;
+  });
+  for (let i = 0; i < heads.length - 1; i++) {
+    const d = G.unit3(G.sub3(heads[i + 1], heads[i])) as Point3;
+    A.pipe(`${name}.${i}`, [G.add3(heads[i], G.mul3(d, head * 0.8)) as Point3, G.sub3(heads[i + 1], G.mul3(d, head * 0.8)) as Point3], r, {lit: o.lit ?? true, tone: 'hi'});
   }
-  const clean = pts.filter((p, i) => i === 0 || Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1], p[2] - pts[i - 1][2]) > 0.05);
-  if (o.stops ?? false)
-    path.forEach(([lon, lat], i) => {
-      const g = map.toKit(lon, lat, 0);
-      A.cyl(`${name}.stop${i}`, g[0], g[1], r * 2.4, g[2], 0.4, {tone: 'mid', bevel: 0.1, lit: o.lit ?? true});
-    });
-  return A.pipe(name, clean, r, {lit: o.lit ?? true, tone: 'hi', bend: r * 4, ends: [false, false], meta: {touch: [`${A.name}.region.*`, `${A.name}.table.sea`]}});
+  return heads;
 };

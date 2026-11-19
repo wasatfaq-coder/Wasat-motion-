@@ -1,6 +1,6 @@
 import {Assembly} from '../../lib/assembly';
 import {UNI_P as P} from './projection';
-import {mapTable, pin, route} from '../../lib/primitives/mapTable';
+import {mapTable, route} from '../../lib/primitives/mapTable';
 import KEYS from './map.parts.keys.json';
 const keyed = <T extends Assembly>(A: T, k: string) => A.applyKeys((KEYS as Record<string, Record<string, number>>)[k]) as T;
 
@@ -32,9 +32,7 @@ const STOPS: [number, number][] = [
   [15, 13],
   [21, 5],
 ];
-route(map, 'route', MAP, STOPS);
-// pins mark the stops from beside the route (a pin on the route would pierce it)
-STOPS.forEach(([lon, lat], i) => pin(map, `pin${i}`, MAP.toKit(lon, lat - 1.6), {}));
+export const ROUTE_HEADS = route(map, 'route', MAP, STOPS);
 export const MAP_TABLE = keyed(map, 'MAP_TABLE');
 export const MAP_INFO = MAP;
 

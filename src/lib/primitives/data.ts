@@ -57,6 +57,8 @@ export const bars = (A: Assembly, [x0, y0, z0]: Point3, o: BarsOpts) => {
     const h = Math.max(0.6, value * o.perUnit * (o.grow?.[i] ?? 1));
     const lit = o.lit === i;
     // socket in the lip, the bar with a cap plate
+    // a label tab on the plinth front under each bar: the frontal value label is pinned to it (§20.4)
+    A.slab(`bar${i}.tab`, {x: bx + w / 2 - 2.5, y: y0 + D - 0.2, w: 5, d: 0.6, r: 0.2}, z0 + 2, 2, {tone: 'hi', bevel: 0.1, meta: {owner: `${A.name}.plinth`}});
     A.slab(`bar${i}.socket`, {x: bx - 1, y: by - 1, w: w + 2, d: w + 2, r: 0.8}, floor, 0.8, {tone: 'lo', bevel: 0.2});
     // a seam ring every 10 kit units of height, drawn on the bar's own faces
     let seams = '';
@@ -154,7 +156,8 @@ export const balance = (A: Assembly, [cx, cy, z0]: Point3, o: {arm: number; tilt
   ([-1, 1] as const).forEach((s, i) => {
     // an end cap, a hook under it and a hanger ball; three chains from the hanger to the pan rim
     const e = along(s * (o.arm - 0.9));
-    A.ball(`balance.cap${i}`, along(s * o.arm, 0.9), 1.3, {tone: 'mid', ...own('balance.beam')});
+    // an end block flush with the beam end (a ball on the end overlaps the beam: no paint order)
+    A.prism(`balance.cap${i}`, beamF, [[-1.1, -0.2], [1.1, -0.2], [1.1, 2], [-1.1, 2]], s < 0 ? -o.arm - 1.2 : o.arm, s < 0 ? -o.arm : o.arm + 1.2, {tone: 'mid', ...own('balance.beam')});
     const hanger: Point3 = [e[0], e[1], e[2] - 3.6];
     A.pipe(`balance.hook${i}`, [e, [hanger[0], hanger[1], hanger[2] + 0.9]], 0.4, {meta: {touch: [`${A.name}.balance.*`]}});
     A.ball(`balance.hanger${i}`, hanger, 0.9, {tone: 'lo', ...own('balance.beam')});

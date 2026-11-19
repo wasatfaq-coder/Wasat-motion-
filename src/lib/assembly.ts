@@ -209,6 +209,7 @@ export class Assembly {
    *    paint order exists; slice the rod at the collar or seat the hub under the gear;
    *  - a pipe end sits on a part that shares the pipe's owner (or is owned by the pipe): the audit never counts a
    *    part of the same owner as a mount, so the end reads as loose; leave the owner off;
+   *  - a ring (a hollow body) round a smaller coaxial body inside its span (soil in a pot rim): same paint cycle;
    *  - a pipe bend folds back on screen (handles, arches and steps turned in a plane that holds the line of sight). */
   lint(): string[] {
     const out: string[] = [];
@@ -233,7 +234,11 @@ export class Assembly {
         if (S.r >= B.r - 1e-6) continue;
         const inside = Math.min(B.s1, S.s1) - Math.max(B.s0, S.s0);
         const pokes = S.s0 < B.s0 - 0.05 && S.s1 > B.s1 + 0.05;
+        // a hollow body (a ring: every radius of its profile > 0) round a smaller coaxial body: its front arc is in
+        // front of that body and its back arc behind, which no single paint key can say
+        const hollow = Math.min(...big.poly.map((p) => p[1])) > 1e-3 && S.r < Math.min(...big.poly.map((p) => p[1]));
         if (inside > 0.05 && pokes) out.push(`through: «${small.name}» runs through the coaxial «${big.name}»; slice it at «${big.name}» (no paint order exists for a rod through a collar)`);
+        else if (inside > 0.05 && hollow) out.push(`encircled: the ring «${big.name}» goes round the coaxial «${small.name}»; make the ring part of one profile, or keep the inner body out of the ring's span`);
       }
     type Route = {name: string; points: Point3[]; r: number};
     type Tube = {name: string; owner?: string; tips: (Point3 | null)[]};
@@ -252,8 +257,9 @@ export class Assembly {
       }
     }
     // a bend that folds back on screen (a corner turned in a plane that holds the line of sight): cheap to find now
-    for (const f of A.folds(this.R.routes, this.P, {items: this.R.items}) as {name: string; flatTurn: number}[])
-      out.push(`fold: «${f.name}» turns ${Math.round(f.flatTurn)}° on screen; widen the bend (≥ 2.6·r), turn the corner across the view, or use a ramp instead of a vertical step`);
+    const at = (p?: number[]) => (p ? ` at [${p.map((v) => v.toFixed(1)).join(', ')}]` : '');
+    for (const f of A.folds(this.R.routes, this.P, {items: this.R.items}) as {name: string; flatTurn: number; at?: number[]}[])
+      out.push(`fold: «${f.name}» turns ${Math.round(f.flatTurn)}° on screen${at(f.at)}; widen the bend (≥ 2.6·r), turn the corner across the view, or use a ramp instead of a vertical step`);
     return [...new Set(out)];
   }
 

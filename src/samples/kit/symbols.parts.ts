@@ -13,3 +13,9 @@ keyed(TANGLE.A, 'TANGLE_A');
 export const TANGLE_A = TANGLE.A;
 export const BLOOM = keyed(bloom('bloom', P, [0, 0, 0], 1), 'BLOOM');
 export const TRAPDOOR = keyed(trapdoor('trapdoor', P, [0, 0, 0], 0), 'TRAPDOOR');
+
+// shapes that change with the state are checked at every step of it (object-audit: stateSweep)
+export const stateSweep = {
+  bloom: (s: number) => bloom('bloom', P, [0, 0, 0], s),
+  trapdoor: (s: number) => trapdoor('trapdoor', P, [0, 0, 0], s),
+};

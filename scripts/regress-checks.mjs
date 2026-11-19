@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import {spawnSync} from 'node:child_process';
+import crypto from 'node:crypto';
 // Regressions for the P0 text gate and the phone-size preview.
 //   «в» on screen for 0.02 s must fail check-text; a correct page must pass.
 //   A correct root timeline passes audit --only captions. The same audit with a
@@ -27,6 +29,55 @@ const has = (bin) => {
     return false;
   }
 };
+
+// every builder the kit exports is run by a sample (src/samples): code no sample runs is code nobody has seen, and the
+// ruler that drew markup without a shape sat in main until the showcase called it (docs/root-causes.md). The mannequin
+// (character.ts) has its own guard, scripts/rig-check.mjs.
+{
+  const kit = JSON.parse(fs.readFileSync('src/lib/catalog.json', 'utf8')).objects;
+  const modules = [...new Set(Object.values(kit).filter((e) => e.kind === 'kit' && !e.module.endsWith('character.ts')).map((e) => e.module)), 'src/lib/transitions.ts', 'src/lib/scale.tsx', 'src/theme/materials.ts'];
+  const extra = fs.readdirSync('src/lib/primitives').map((f) => `src/lib/primitives/${f}`).concat(fs.readdirSync('src/lib/symbols').filter((f) => f.endsWith('.ts')).map((f) => `src/lib/symbols/${f}`));
+  const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(d, e.name)] : []));
+  const samples = walk('src/samples').map((f) => fs.readFileSync(f, 'utf8')).join('\n');
+  for (const m of [...new Set([...modules, ...extra])]) {
+    if (!fs.existsSync(m) || !/\.tsx?$/.test(m) || m.endsWith('index.ts')) continue;
+    for (const [, name] of fs.readFileSync(m, 'utf8').matchAll(/^export (?:const|function) ([A-Za-z0-9_]+)/gm))
+      if (!new RegExp(`\\b${name}\\b`).test(samples)) fail(`${m}: ${name} is exported but no sample in src/samples runs it; call it in src/samples/UniversalKitSample.tsx`);
+  }
+}
+
+// every symbol names the state it is shown in (a closed hatch read as plain floor on the showcase)
+for (const [id, row] of Object.entries(JSON.parse(fs.readFileSync('src/lib/symbols/catalog.json', 'utf8')).symbols))
+  if (typeof row.show !== 'number' || !String(row.showWhy ?? '').trim()) fail(`src/lib/symbols/catalog.json: «${id}» has no show state with showWhy`);
+
+// the gate hook blocks an image the shorts-quality-gate has not passed, and lets it through once stamped
+{
+  const img = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'gate-')), 'frame.png');
+  fs.writeFileSync(img, Buffer.from(`not-a-real-png-${Date.now()}`));
+  const hook = (env) => spawnSync(process.execPath, ['.claude/hooks/require-gate.mjs'], {input: JSON.stringify({tool_input: {files: [img]}}), encoding: 'utf8', env: {...process.env, ...env}});
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'gate-root-'));
+  fs.mkdirSync(path.join(tmpRoot, '.claude'));
+  if (hook({CLAUDE_PROJECT_DIR: tmpRoot}).status !== 2) fail('require-gate: an unstamped image was not blocked');
+  const sha = crypto.createHash('sha256').update(fs.readFileSync(img)).digest('hex');
+  fs.writeFileSync(path.join(tmpRoot, '.claude', 'gate-pass.json'), JSON.stringify({[sha]: {verdict: 'PASS'}}));
+  if (hook({CLAUDE_PROJECT_DIR: tmpRoot}).status !== 0) fail('require-gate: a stamped image was blocked');
+}
+
+// a script CI runs must not need python3 (the runner has no Pillow; style-check failed only in CI): every
+// `node scripts/…` step of the workflow, and the scripts/lib modules it imports, stays plain Node
+{
+  const wf = fs.readFileSync('.github/workflows/audit.yml', 'utf8');
+  const steps = [...new Set([...wf.matchAll(/node (scripts\/[\w./-]+\.mjs)/g)].map((m) => m[1]))];
+  const seen = new Set();
+  const visit = (f) => {
+    if (seen.has(f) || !fs.existsSync(f)) return;
+    seen.add(f);
+    const code = fs.readFileSync(f, 'utf8');
+    if (/['"]python3?['"]/.test(code)) fail(`${f} runs python in CI; use plain Node (scripts/lib/png.mjs for images)`);
+    for (const m of code.matchAll(/from '\.\/(lib\/[\w.-]+\.mjs)'/g)) visit(path.join('scripts', m[1]));
+  };
+  steps.forEach(visit);
+}
 
 // one browser lookup (scripts/lib/browser.mjs): a script with its own copy pinned a version path that stopped matching
 for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))

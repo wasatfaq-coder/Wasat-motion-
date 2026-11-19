@@ -23,3 +23,5 @@ from memory. Report only what you verified in the files you were given.
 
 For every finding also write «Почему машина не поймала» and «Страж» (docs/root-causes.md): the shared check that should
 catch this kind of defect in any topic.
+
+Rules: read only the sections you need from `docs/rules/NN.md` (index `docs/rules/INDEX.md`, generated from MASTER_PROMPT_FINAL.md), not the whole master; project rules by area: `docs/claude/{style,motion,qa}.md`.

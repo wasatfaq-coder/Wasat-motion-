@@ -38,3 +38,5 @@ jobs:
         run: node scripts/handed-check.mjs
       - name: the topic scaffold still compiles and audits clean
         run: node scripts/selftest-new-topic.mjs
+      - name: docs/rules is in sync with MASTER_PROMPT_FINAL.md (and the splitter catches stale/missing sections)
+        run: node scripts/rules-split.mjs --selftest && node scripts/rules-split.mjs --check

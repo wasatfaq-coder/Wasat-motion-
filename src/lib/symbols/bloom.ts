@@ -40,7 +40,7 @@ export const bloom = (name: string, P: K.Projection, [x, y, z]: Point3, open = 1
   });
   // hub (the coral heart when joy is the topic's coral meaning), sepals, two rings of petals on pins
   A.turned('hub', [[0, 2.6], [1.6, 3.6, 1], [3.2, 3, 1], [4, 0.0001]], up(x, y, top - 0.6), {tone: 'hi', lit: o.lit, meta: {owner: `${name}.pot`}});
-  const ringPetals = (prefix: string, n: number, len: number, w: number, zOff: number, phase: number, closed: number, opened: number) => {
+  const ringPetals = (prefix: string, n: number, len: number, w: number, zOff: number, phase: number, closed: number, opened: number, lit = false) => {
     for (let i = 0; i < n; i++) {
       const a = phase + (i / n) * Math.PI * 2;
       const out: Point3 = [Math.cos(a), Math.sin(a), 0];
@@ -48,12 +48,13 @@ export const bloom = (name: string, P: K.Projection, [x, y, z]: Point3, open = 1
       const dir: Point3 = [out[0] * Math.sin(tilt), out[1] * Math.sin(tilt), Math.cos(tilt)];
       const o0: Point3 = [x + out[0] * 2.6, y + out[1] * 2.6, top + zOff];
       A.ball(`${prefix}${i}.pin`, o0, 0.55, {tone: 'lo', meta: {owner: `${name}.hub`}});
-      petal(A, `${prefix}${i}`, planeFrame(o0, dir, out), len, w, 0.45, {tone: 'hi', meta: {owner: `${name}.hub`}});
+      petal(A, `${prefix}${i}`, planeFrame(o0, dir, out), len, w, 0.45, {tone: 'hi', lit, meta: {owner: `${name}.hub`}});
     }
   };
   ringPetals('sepal', 5, 4, 2.6, 0.2, 0.3, 1.2, 1.9);
   ringPetals('petal', 8, 11, 5.4, 1.2, 0, 0.18, 1.25);
-  ringPetals('petalIn', 6, 8, 4.2, 2.2, 0.4, 0.1, 0.8);
+  // `lit`: the heart (hub and inner petals) is the coral part: the hub alone was too small to read on a phone
+  ringPetals('petalIn', 6, 8, 4.2, 2.2, 0.4, 0.1, 0.8, !!o.lit);
   // stamens round the hub top
   for (let i = 0; i < 8; i++) {
     const a = (i / 8) * Math.PI * 2;

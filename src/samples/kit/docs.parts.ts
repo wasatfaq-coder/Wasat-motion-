@@ -10,6 +10,6 @@ const docs = new Assembly('docs', P, {role: 'secondary', order: ['sheet.line', '
 export const SHEET = sheet(docs, [0, 0, 0], {mark: false});
 stamp(docs, [32, 22.5, 0.6]);
 // a clear gap between the sheet and the cabinet (at 60 the sheet touched its corner on screen)
-archive(docs, [64, -10, 0], {rows: 3, cols: 2, open: 2, litFolder: 2});
+archive(docs, [64, -10, 0], {rows: 3, cols: 2, open: 2, litDrawer: true});
 export const DOCS = keyed(docs, 'DOCS');
 

@@ -88,7 +88,7 @@ const people = (() => {
 const SCREEN_OK = screenCorners(PHONE_SCREEN).length === 4 && screenCorners(MONITOR_SCREEN).length === 4;
 
 // the free spot on the bench top for the inner model (scaleView refuses a spot inside a solid)
-export const SCALE_SPOT: P3 = toRoom([30, 14, T], UNI_U);
+export const SCALE_SPOT: P3 = toRoom([32, 4, T], UNI_U);
 // scaleView also refuses it; the sample shows how a topic tests a candidate spot before using it
 export const SCALE_SPOT_FREE = intrusions([SCALE_SPOT, [1, 1, 1]], solidBoxes(LAB)).length === 0;
 
@@ -104,8 +104,8 @@ export const KIT_PAGES: Page[] = [
   plain('fruit', FRUIT),
   plain('data', DATA, 'the one bar the voice would name'),
   plain('balance', BALANCE, 'the heavier pan'),
-  // the drawer pulled out with the needed folder in coral
-  {id: 'docs', coral: 'the needed folder', A: DOCS, svg: () => DOCS.svg(peel(['drawer'], 1))},
+  // the drawer pulled out, its front in coral
+  {id: 'docs', coral: 'the drawer pulled out', A: DOCS, svg: () => DOCS.svg(peel(['drawer'], 1))},
   plain('map', MAP_TABLE, 'the one region'),
   plain('chron', CHRON, 'the event the voice is about'),
   // t = 0.06 s: two of the three bolts strike at once (each flickers in its own window)
@@ -122,18 +122,18 @@ export const KIT_PAGES: Page[] = [
   {id: 'phone', coral: 'the screen', A: PHONE, svg: () => (SCREEN_OK ? PHONE.svg() : '')},
   {id: 'monitor', coral: 'the screen', A: MONITOR, svg: () => MONITOR.svg()},
   // water dripping from the faucet into the sink; the leading drop is coral (drops have the shape of a drop)
-  {id: 'drops', coral: 'the falling drop', bleed: 'a close shot of the sink: the bench runs past the frame', A: LAB, svg: () => LAB.svg({}, {extra: particles(P, 'drip', {at: SPOUT}, 1.3, {lit: true})}), cam: () => camFit(boxCorners(...sinkRoom()), {rect: safeRect(), fill: 0.86})},
+  {id: 'drops', coral: 'the falling drop', bleed: 'a close shot of the sink: the bench runs past the frame', A: LAB, svg: () => LAB.svg({}, {extra: particles(P, 'drip', {at: SPOUT, life: 0.3}, 1.05, {lit: true})}), cam: () => camFit(boxCorners(...sinkRoom()), {rect: safeRect(), fill: 0.86})},
   // money moving: coins run along a dotted arc from the bundle of notes to the coral stack
   {id: 'cash', coral: 'the coin stack', A: CASH, svg: () => CASH.svg({}, {extra: [{name: 'flow.route', at: [15, 10, 10], annotation: true, svg: flowDots(P, MONEY_ARC, 0, {spacing: 1.6, size: 1.1, speed: 0})}, ...coinFlow(P, MONEY_ARC, 0.5)]})},
   // fire under the flask and steam above it, ordered against the bench by ray tests
-  {id: 'lab', coral: 'the flame', A: LAB, svg: () => LAB.svgFaded([...particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true}), ...particles(P, 'steam', {at: [52, 16, T + 31], spread: 1.5}, 1.4), ...particles(P, 'gas', {at: [30, 24, T + 6]}, 1)])},
+  {id: 'lab', coral: 'none: the flame is a few pixels when the whole bench is framed (measured 0 %); the zoom and pull-out pages carry it', A: LAB, svg: () => LAB.svgFaded([...particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4), ...particles(P, 'steam', {at: [52, 16, T + 31], spread: 1.5}, 1.4), ...particles(P, 'gas', {at: [30, 24, T + 6]}, 1)])},
   {id: 'swatches', coral: NO_CORAL, A: SWATCHES, svg: () => SWATCHES.svg({}, {extra: [{name: 'title', at: [0, 0, 0], svg: `<title>${describe(['wood', 'metal', 'glass'])}</title>`, annotation: true}]})},
   // transitions: the archive with its near side wall cut away (the plane takes only that wall: cutaway refuses a cut
   // that drops most of an object), the drawer with the coral folder peeled out; a zoom into the burner (the pull-out page
   // shows the start of the way back)
-  {id: 'cutaway', coral: 'the needed folder', A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [1, 0, 0], 113, 109, 1), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
+  {id: 'cutaway', coral: 'the drawer pulled out', A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [1, 0, 0], 113, 109, 1), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
   {id: 'zoom', coral: 'the flame', bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => zoomInto(boxOf(LAB), burner, 1).cam},
-  {id: 'pullout', coral: 'the flame', bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => pullOut(burner, boxOf(LAB), 0.75).cam},
+  {id: 'pullout', coral: 'the flame', bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => pullOut(burner, boxOf(LAB), 0.25).cam},
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},
   // the map helpers: a plan point of the projection and a simplified ring drawn on the table top
   {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, 29.4], annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), 29.4, P, true), {tone: 'lo'})}]})},

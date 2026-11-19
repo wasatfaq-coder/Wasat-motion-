@@ -53,20 +53,20 @@ for (let i = 0; i < 3; i++) {
   lab.pipe(`tripod.leg${i}`, [[52 + Math.cos(a) * 5.8, 16 + Math.sin(a) * 5.8, RING], [52 + Math.cos(a) * 8.2, 16 + Math.sin(a) * 8.2, T]], 0.45);
 }
 vessel(lab, 'flask', [52, 16, RING + 0.8], {r: 4.6, h: 9, level: 6});
-// a small sink with a faucet on the bench (the drops page: water drips from the spout into the basin)
-lab.slab('sink.floor', {x: 31, y: 2, w: 12, d: 12, r: 1}, T, 0.8, {tone: 'lo', bevel: 0.2});
-lab.slab('sink.n', {x: 31, y: 2, w: 12, d: 0.8, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
-lab.slab('sink.s', {x: 31, y: 13.2, w: 12, d: 0.8, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
-lab.slab('sink.w', {x: 31, y: 2.8, w: 0.8, d: 10.4, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
-lab.slab('sink.e', {x: 42.2, y: 2.8, w: 0.8, d: 10.4, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
-lab.cyl('sink.drain', 37, 8, 1, T + 0.8, 0.1, {tone: 'lo', bevel: 0});
-lab.cyl('faucet.base', 29, 8, 1.4, T, 0.6, {tone: 'mid', bevel: 0.2});
-lab.cyl('faucet', 29, 8, 0.8, T + 0.6, 11.4, {tone: 'hi', bevel: 0.2, meta: {owner: 'faucet.base'}});
-lab.cyl('faucet.cap', 29, 8, 1.1, T + 12, 0.8, {tone: 'mid', bevel: 0.2, meta: {owner: 'faucet.base'}});
-lab.slab('faucet.lever', {x: 27.4, y: 7.6, w: 0.8, d: 0.8, r: 0.3}, T + 12.8, 3, {tone: 'lo', bevel: 0.1, meta: {owner: 'faucet.base'}});
-lab.turned('faucet.spout', [[0, 0.5], [7.2, 0.5]], G.frameAlong([29.8, 8, T + 11.2], [1, 0, 0]), {tone: 'hi', meta: {owner: 'faucet.base'}});
-lab.turned('faucet.aerator', [[0, 0.65], [1.4, 0.65]], G.frameAlong([36.3, 8, T + 10.7], [0, 0, -1]), {tone: 'mid', meta: {owner: 'faucet.base'}});
+// a small sink with a faucet on the near front of the bench (behind the burner the flask hid the drips) (the drops page: water drips from the spout into the basin)
+lab.slab('sink.floor', {x: 31, y: 21, w: 12, d: 12, r: 1}, T, 0.8, {tone: 'lo', bevel: 0.2});
+lab.slab('sink.n', {x: 31, y: 21, w: 12, d: 0.8, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
+lab.slab('sink.s', {x: 31, y: 32.2, w: 12, d: 0.8, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
+lab.slab('sink.w', {x: 31, y: 21.8, w: 0.8, d: 10.4, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
+lab.slab('sink.e', {x: 42.2, y: 21.8, w: 0.8, d: 10.4, r: 0.2}, T + 0.8, 5, {tone: 'mid', bevel: 0.2});
+lab.cyl('sink.drain', 37, 27, 1, T + 0.8, 0.1, {tone: 'lo', bevel: 0});
+lab.cyl('faucet.base', 29, 27, 1.4, T, 0.6, {tone: 'mid', bevel: 0.2});
+lab.cyl('faucet', 29, 27, 0.8, T + 0.6, 11.4, {tone: 'hi', bevel: 0.2, meta: {owner: 'faucet.base'}});
+lab.cyl('faucet.cap', 29, 27, 1.1, T + 12, 0.8, {tone: 'mid', bevel: 0.2, meta: {owner: 'faucet.base'}});
+lab.slab('faucet.lever', {x: 27.4, y: 26.6, w: 0.8, d: 0.8, r: 0.3}, T + 12.8, 3, {tone: 'lo', bevel: 0.1, meta: {owner: 'faucet.base'}});
+lab.turned('faucet.spout', [[0, 0.5], [7.2, 0.5]], G.frameAlong([29.8, 27, T + 11.2], [1, 0, 0]), {tone: 'hi', meta: {owner: 'faucet.base'}});
+lab.turned('faucet.aerator', [[0, 0.65], [1.4, 0.65]], G.frameAlong([36.3, 27, T + 10.7], [0, 0, -1]), {tone: 'mid', meta: {owner: 'faucet.base'}});
 /** where the drips leave the faucet (kit units) and the box round the sink and faucet, for the drops page */
-export const SPOUT: [number, number, number] = [36.3, 8, T + 9.2];
-export const SINK_BOX: [[number, number, number], [number, number, number]] = [[27, 1, T], [17, 14, 16]];
+export const SPOUT: [number, number, number] = [36.3, 27, T + 6.3]; // a drop's base: the drop is 2.9 tall, its tip at the aerator
+export const SINK_BOX: [[number, number, number], [number, number, number]] = [[27, 20, T], [17, 14, 16]];
 export const LAB = keyed(lab, 'LAB');

@@ -11,6 +11,17 @@ starts the next session itself; this file is the hand-over; the rule is in `CLAU
 4. [ ] Frames changed → `node scripts/style-check.mjs --update`; PR; merge on green CI.
 5. [ ] Rules numbering (§23 of PR #19 vs §24 in main): waits until PR #19 is merged (open on 19.11.2026).
 
+## Gate round 2 (19.11.2026, last round): FAIL → escalated to the user (§15)
+Machine checks green (audit 0 errors, regress, frame checks on 24 frames). Verified: U-01, U-03 bolts, U-10, U-17,
+U-18, U-21. Escalated majors (open two rounds): U-16 cutaway (page 19: the cut drops whole parts, a bar hangs),
+U-12 drops (page 15: grey beads, no drop shape), U-13 flow (page 16: 8 px dots, no route line).
+(A) minors: U-11 monitor cable plug in the air, U-14 flame only on the zoom page, U-04 tube gaps, U-06 bloom ring,
+U-20 map post ring, U-19 plan line over a raised island (needs a numeric check), U-22 grape bunch on its tip,
+U-23 plate maybe under the glass on page 22, U-24 floor patch reads as a hatch, U-25 ticks on island outlines.
+(B) user's design calls: U-27 13 of 24 pages without coral, U-07 trapdoor reads as a pallet, U-02, U-05, U-08, U-15,
+U-26 drops and cash on the same object, U-28 flame shape, U-29 cloud outline, U-30 balance level with a coral pan,
+U-31 faded plate on the scale page, U-09 small figures.
+
 ## Where to continue (paused 19.11.2026 by the user; one session from now on)
 1. Run the one consolidated check (it was stopped before it finished): `node scripts/object-audit.mjs --selftest`
    (passed), `node scripts/audit.mjs`, `node scripts/regress-checks.mjs`, `node scripts/style-check.mjs --keep <dir>`

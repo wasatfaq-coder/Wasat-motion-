@@ -96,7 +96,10 @@ export const camFit = (
  *  (extras, a loose note): heroes came out small or cut. */
 export const svgPoints = (svg: string): [number, number][] => {
   const out: [number, number][] = [];
-  for (const m of svg.matchAll(/\sd="([^"]*)"/g)) {
+  // markup under a transform (an interface mapped onto a screen with faceMatrix) is in its own pixel space and lies on
+  // a part whose outline is measured anyway: it is left out (counted raw, it shrank the monitor to a speck)
+  const flat = svg.replace(/<g transform="[^"]*">[\s\S]*?<\/g>/g, '');
+  for (const m of flat.matchAll(/\sd="([^"]*)"/g)) {
     if (/[^MLZmlz0-9.\-\s,e]/.test(m[1])) throw new Error('svgPoints: only absolute M/L/Z paths are measured; draw through the kit');
     const n = m[1].match(/-?[\d.]+(?:e-?\d+)?/g) ?? [];
     for (let i = 0; i + 1 < n.length; i += 2) out.push([ROOM_ORIGIN[0] + Number(n[i]), ROOM_ORIGIN[1] + Number(n[i + 1])]);

@@ -96,6 +96,13 @@ for (const m of (await import('./lib/code-rules.mjs')).selftest()) fail(m);
   if (!intrusions([[0.5, 0.5, 1], [1, 1, 1]], glass).length) fail('scale: a model inside a solid was not caught (intrusions)');
   if (intrusions([[0.5, 0.5, 3], [1, 1, 1]], glass).length) fail('scale: a model standing on a solid was refused (intrusions)');
 }
+// camFitSvg frames by the drawn points only: markup under a transform (a screen interface) is in its own pixel space
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {svgPoints} = await tsImport(new URL('../src/lib/camera.tsx', import.meta.url).href, import.meta.url);
+  const pts = svgPoints('<path d="M0 0L10 10Z"/><g transform="matrix(1,0,0,1,0,0)"><path d="M600 900L700 900"/></g>');
+  if (pts.length !== 2) fail(`camera: svgPoints counted markup under a transform (${pts.length} points, expected 2)`);
+}
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wasat-regress-'));
 const bad = path.join(dir, 'bad.json');

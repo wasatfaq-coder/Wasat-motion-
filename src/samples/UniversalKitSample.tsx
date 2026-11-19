@@ -1,12 +1,12 @@
 import React from 'react';
 import {useCurrentFrame} from 'remotion';
 import * as K from '../vendor/anatomy/iso-kit';
-import {A, Assembly, Extra, Point3} from '../lib/assembly';
+import {A, Assembly, Point3} from '../lib/assembly';
 import {AnatomyStage, Kit, toRoom} from '../lib/anatomy';
 import {Cam, camFitSvg, RoomSvg, safeRect} from '../lib/camera';
 import {P3} from '../lib/iso';
 import {crowd, figure, queue, stream} from '../lib/crowd';
-import {faceMatrix, screenCorners} from '../lib/device';
+import {screenCorners} from '../lib/device';
 import {flowDots} from '../lib/money';
 import {particles} from '../lib/nature';
 import {planOf, simplify} from '../lib/primitives/mapTable';
@@ -72,20 +72,9 @@ const people = (() => {
   return g;
 })();
 
-// the interface on a device screen: literal layout blocks (a status bar, three list rows, a button) mapped onto the
-// face; their text would go on a frontal panel pinned to the screen corners. It is an `extra` at the screen's centre,
-// so it takes its place in the device's depth order (a string glued after svg() is painted over everything).
-type Screen = {o: P3; u: P3; v: P3};
-const screenUi = (s: Screen, name: string, w = 360, h = 760): Extra => {
-  const m = faceMatrix(P, s.o, s.u, s.v, w, h);
-  const line = Math.max(w, h) / 150;
-  const rows = [0, 1, 2].map((i) => `<rect x="${w * 0.07}" y="${h * (0.16 + i * 0.16)}" width="${w * 0.86}" height="${h * 0.12}" rx="${line * 3}" fill="none" stroke="currentColor" stroke-width="${line}"/>`).join('');
-  const svg = `<g class="iso-line" style="color:var(--anatomy-mid)"><g transform="${m}"><rect x="${w * 0.07}" y="${h * 0.05}" width="${w * 0.86}" height="${h * 0.05}" rx="${line * 2}" fill="none" stroke="currentColor" stroke-width="${line}"/>${rows}<rect x="${w * 0.22}" y="${h * 0.82}" width="${w * 0.56}" height="${h * 0.09}" rx="${h * 0.045}" fill="none" stroke="currentColor" stroke-width="${line * 1.2}"/></g></g>`;
-  const at = s.o.map((c, k) => c + s.u[k] / 2 + s.v[k] / 2) as P3;
-  return {name, at, svg, bias: 0.5, annotation: true};
-};
-// the corners of the screen (screenCorners) bound the interface: it never leaves the face
-const SCREEN_OK = screenCorners(PHONE_SCREEN).length === 4;
+// the interface is drawn on each device's screen part (the `ui` option, src/lib/device.ts screenUi); the screen's
+// corners bound frontal text panels (screenCorners)
+const SCREEN_OK = screenCorners(PHONE_SCREEN).length === 4 && screenCorners(MONITOR_SCREEN).length === 4;
 
 // the free spot on the bench top for the inner model (scaleView refuses a spot inside a solid)
 export const SCALE_SPOT: P3 = toRoom([30, 14, T], UNI_U);
@@ -117,8 +106,8 @@ export const KIT_PAGES: Page[] = [
   {id: 'trapdoor', coral: NO_CORAL, A: BLOOM, svg: () => trapdoorStates('trapdoor', P, [0, 0, 0])(Math.min(SHOW('trapdoor'), sink(1.2, 0, 9, 10).open))},
   plain('crowd', CROWD, 'the one person picked out'),
   plain('people', people, 'the person lifted by happiness'),
-  {id: 'phone', coral: NO_CORAL, A: PHONE, svg: () => PHONE.svg({}, {extra: SCREEN_OK ? [screenUi(PHONE_SCREEN, 'phone.ui')] : []})},
-  {id: 'monitor', coral: NO_CORAL, A: MONITOR, svg: () => MONITOR.svg({}, {extra: [screenUi(MONITOR_SCREEN, 'monitor.ui', 760, 420)]})},
+  {id: 'phone', coral: NO_CORAL, A: PHONE, svg: () => (SCREEN_OK ? PHONE.svg() : '')},
+  {id: 'monitor', coral: NO_CORAL, A: MONITOR, svg: () => MONITOR.svg()},
   // drops thrown off a coin stack top (drops next to a body read as rivets: they are shown in open air)
   {id: 'drops', coral: 'the stack the drops come off', A: CASH, svg: () => CASH.svg({}, {extra: particles(P, 'drops', {at: [20, 0, 12], spread: 1}, 0.45)})},
   // money moving: dots run along a pipe route over the stacks
@@ -129,7 +118,7 @@ export const KIT_PAGES: Page[] = [
   // transitions: a section of the archive half cut away with its drawer peeled out; a zoom most of the way into the burner (the pull-out page shows the start of the way back)
   {id: 'cutaway', coral: NO_CORAL, A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [0, 0, 1], 48, 6, 0.3), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
   {id: 'zoom', coral: NO_CORAL, bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svg(), cam: () => zoomInto(boxOf(LAB), burner, 0.9).cam},
-  {id: 'pullout', coral: NO_CORAL, bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svg(), cam: () => pullOut(burner, boxOf(LAB), 0.3).cam},
+  {id: 'pullout', coral: NO_CORAL, bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svg(), cam: () => pullOut(burner, boxOf(LAB), 0.75).cam},
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},
   // the map helpers: a plan point of the projection and a simplified ring drawn on the table top
   {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, 29.4], bias: -1, annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), 29.4, P, true), {tone: 'lo'})}]})},

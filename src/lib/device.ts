@@ -8,6 +8,20 @@ import {Assembly, G, Point3} from './assembly';
 
 const up = (x: number, y: number, z: number) => G.frameAlong([x, y, z], [0, 0, 1]);
 
+export type ScreenRect = {o: Point3; u: Point3; v: Point3};
+
+/** A literal interface layout (a status bar, three list rows, a button) mapped onto a screen face, `w` × `h` px. Pass
+ *  it through the `ui` option of phone / monitor, which draws it as the `over` of the screen part: drawn with the screen, it keeps the
+ *  screen's place in the depth order. Glued after the picture it covered the housing; added as a loose extra the
+ *  housing covered it (docs/root-causes.md). */
+export const screenUi = (P: K.Projection, s: ScreenRect, w = 360, h = 760) => {
+  const m = faceMatrix(P, s.o, s.u, s.v, w, h);
+  const line = Math.max(w, h) / 150;
+  const box = (x: number, y: number, bw: number, bh: number, r: number, k = 1) => `<rect x="${(w * x).toFixed(1)}" y="${(h * y).toFixed(1)}" width="${(w * bw).toFixed(1)}" height="${(h * bh).toFixed(1)}" rx="${r.toFixed(1)}" fill="none" stroke="currentColor" stroke-width="${(line * k).toFixed(2)}"/>`;
+  const rows = [0, 1, 2].map((i) => box(0.07, 0.16 + i * 0.16, 0.86, 0.12, line * 3)).join('');
+  return `<g class="iso-line" style="color:var(--anatomy-mid)"><g transform="${m}">${box(0.07, 0.05, 0.86, 0.05, line * 2)}${rows}${box(0.22, 0.82, 0.56, 0.09, h * 0.045, 1.2)}</g></g>`;
+};
+
 /** SVG matrix that maps 2D interface pixels (u right, v down; `w` × `h` px) onto a 3D rectangle with corner `o`, right
  *  edge `u` and down edge `v` (kit vectors). Wrap the interface markup in <g transform={faceMatrix(...)}>. */
 export const faceMatrix = (P: K.Projection, o: Point3, u: Point3, v: Point3, w: number, h: number) => {
@@ -20,7 +34,7 @@ export const faceMatrix = (P: K.Projection, o: Point3, u: Point3, v: Point3, w: 
 /** A smartphone lying on a surface at z (screen up), long side along +y: body, back plate, frame band, glass, screen,
  *  earpiece and speaker grilles, camera module with lenses and flash, side buttons, port, mics. ~45 parts.
  *  Returns the screen rectangle (o, u, v) for faceMatrix / screenCorners. */
-export const phone = (A: Assembly, [x, y, z]: Point3, o: {w?: number; d?: number; lit?: 'screen' | 'button'} = {}) => {
+export const phone = (A: Assembly, [x, y, z]: Point3, o: {w?: number; d?: number; lit?: 'screen' | 'button'; ui?: (screen: ScreenRect) => string} = {}) => {
   const w = o.w ?? 14;
   const d = o.d ?? 29;
   const T = 1.6;
@@ -31,7 +45,8 @@ export const phone = (A: Assembly, [x, y, z]: Point3, o: {w?: number; d?: number
   const sy = y + 1.6;
   const sw = w - 1.8;
   const sd = d - 3.2;
-  A.slab('phone.screen', {x: sx, y: sy, w: sw, d: sd, r: 1.6}, z + T, 0.06, {tone: 'hi', bevel: 0, lit: o.lit === 'screen'});
+  const rect: ScreenRect = {o: [sx, sy, z + T + 0.06], u: [sw, 0, 0], v: [0, sd, 0]};
+  A.slab('phone.screen', {x: sx, y: sy, w: sw, d: sd, r: 1.6}, z + T, 0.06, {tone: 'hi', bevel: 0, lit: o.lit === 'screen', over: o.ui ? o.ui(rect) : ''});
   // earpiece slot and front camera in the top bezel
   A.slab('phone.earpiece', {x: x + w / 2 - 2, y: y + 0.6, w: 4, d: 0.5, r: 0.25}, z + T, 0.06, {tone: 'lo', bevel: 0});
   A.cyl('phone.frontcam', x + w / 2 + 3, y + 0.85, 0.3, z + T, 0.06, {tone: 'lo', bevel: 0});
@@ -64,7 +79,7 @@ export const phone = (A: Assembly, [x, y, z]: Point3, o: {w?: number; d?: number
 
 /** A desktop monitor on a stand, screen facing +y (towards the viewer's left-front): foot, column, hinge, housing,
  *  bezel, screen, buttons, vents and ports on the back, a cable. ~48 parts. Returns the screen rectangle. */
-export const monitor = (A: Assembly, [x, y, z]: Point3, o: {w?: number; h?: number; lit?: 'screen' | 'power'} = {}) => {
+export const monitor = (A: Assembly, [x, y, z]: Point3, o: {w?: number; h?: number; lit?: 'screen' | 'power'; ui?: (screen: ScreenRect) => string} = {}) => {
   const w = o.w ?? 54;
   const h = o.h ?? 32;
   const cx = x + w / 2;
@@ -76,7 +91,8 @@ export const monitor = (A: Assembly, [x, y, z]: Point3, o: {w?: number; h?: numb
   const bz = z + 10;
   A.slab('monitor.housing', {x: x + 1, y: y - 3.4, w: w - 2, d: 3, r: 1.6}, bz + 1, h - 2, {tone: 'mid', bevel: 0.6});
   A.slab('monitor.bezel', {x, y: y - 0.4, w, d: 0.9, r: 1}, bz, h, {tone: 'lo', bevel: 0.3});
-  A.slab('monitor.screen', {x: x + 1.2, y: y + 0.5, w: w - 2.4, d: 0.06, r: 0.4}, bz + 2.6, h - 3.8, {tone: 'hi', bevel: 0, lit: o.lit === 'screen'});
+  const rect: ScreenRect = {o: [x + 1.2, y + 0.5, bz + 2.6 + h - 3.8], u: [w - 2.4, 0, 0], v: [0, 0, -(h - 3.8)]};
+  A.slab('monitor.screen', {x: x + 1.2, y: y + 0.5, w: w - 2.4, d: 0.06, r: 0.4}, bz + 2.6, h - 3.8, {tone: 'hi', bevel: 0, lit: o.lit === 'screen', over: o.ui ? o.ui(rect) : ''});
   A.slab('monitor.chin', {x: x + 1, y: y + 0.5, w: w - 2, d: 0.06, r: 0.2}, bz + 0.6, 1.6, {tone: 'mid', bevel: 0});
   // power and menu buttons under the chin, a status light
   for (let i = 0; i < 4; i++) A.cyl(`monitor.button${i}`, x + w - 4 - i * 2.4, y + 0.1, 0.5, bz - 0.3, 0.3, {tone: 'mid', bevel: 0.05, lit: o.lit === 'power' && i === 0});

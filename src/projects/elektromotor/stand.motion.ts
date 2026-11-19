@@ -54,13 +54,15 @@ const fieldLines = (ys: number[], z: number, opacity: number): Dyn[] =>
 /** One beat of the stand. theta is the loop angle; wire/loop/field/inset/labels are opacities 0…1. */
 export type StandState = {theta: number; wire: number; loop: number; field: number; inset: number; labels: number; cam: Cam};
 
-// What the camera must hold on EVERY pose (the hero of scenes 2–5 is the conductor in the gap): both pole pieces with
-// their faces, the loop's full sweep with the commutator and brushes, and the arch (kit units). The outer halves of
-// the magnet bodies, the plate, rails and terminals are environment: past the frame they fade out (RoomSvg sides),
-// they are never cut by a hard edge. The labels С / Ю stand on the pole pieces, so they always point at a visible part.
-const HERO_MIN: Point3 = [17, 18, PLATE_TOP + 2];
-const HERO_SIZE: Point3 = [56, 24, 31.4];
-export const LABEL_ANCHORS = {N: [18.75, AY, PLATE_TOP + 21] as Point3, S: [71.25, AY, PLATE_TOP + 21] as Point3};
+// What the camera must hold on EVERY pose (the hero of scenes 2–5 is the conductor in the gap): a CLOSE-UP of the
+// loop's full sweep with the commutator, the brushes and the arch (kit units), and the pole pieces' inner faces with
+// their labels (decisions.md: variant Б, 2026-11-19). The magnet bodies, the plate, rails and terminals are
+// environment: past the frame they fade out (RoomSvg sides), they are never cut by a hard edge. The labels С / Ю
+// stand on the pole pieces (N at its back corner, S at its front corner, so both plates sit inside the close-up),
+// so they always point at a visible part.
+const HERO_MIN: Point3 = [31, 8, PLATE_TOP];
+const HERO_SIZE: Point3 = [28, 36, 33.4];
+export const LABEL_ANCHORS = {N: [20, AY - 8, PLATE_TOP + 21] as Point3, S: [70, AY + 8, PLATE_TOP + 21] as Point3};
 export const LABEL_LIFT = 70; // px from the anchor to the plate centre
 export const LABEL_SIZE = 66;
 /** the plate drawn by Frontal Plate for one letter at LABEL_SIZE (textWidth + padding, 1.55 em high) */

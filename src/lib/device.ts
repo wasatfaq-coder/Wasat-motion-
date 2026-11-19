@@ -110,9 +110,10 @@ export const monitor = (A: Assembly, [x, y, z]: Point3, o: {w?: number; h?: numb
     A.turned(`monitor.screw${i}`, [[0, 0.5], [0.3, 0.5], [0.45, 0.0001]], G.frameAlong([vx, y - 3.6, vz], [0, -1, 0]), {tone: 'hi', meta: {owner: 'monitor.vesa'}});
   // the power cable from the back, down the column, out over the foot to the floor
   // the power cable from the back, down behind the column through its clip, out over the foot to the floor
-  // it ends in a plug lying on the floor (a cable that stops in the open reads as a stub hanging off the monitor)
-  A.slab('monitor.plug', {x: cx - 1.2, y: y - 34, w: 2.4, d: 4, r: 0.5}, z, 1.4, {tone: 'lo', ground: true, bevel: 0.2});
-  A.pipe('monitor.cable', [[cx + 4.5, y - 3.4, bz + 5], [cx + 4.5, y - 7.8, bz + 5], [cx, y - 7.8, bz - 2], [cx, y - 7.8, z + 3], [cx, y - 14, z + 1.4], [cx, y - 30, z + 0.7]], 0.5, {bend: 2.2, limp: true, maxLength: 5, meta: {touch: ['monitor.clip', 'monitor.foot']}});
+  // it ends in a socket on the back of the foot: a cable led off to an undrawn floor ended in the air beside the
+  // monitor (gate rounds 1–2 of the showcase)
+  A.slab('monitor.socket', {x: cx - 1.4, y: y - 7.9, w: 2.8, d: 1.6, r: 0.4}, z + 1.4, 1, {tone: 'lo', bevel: 0.15, meta: {owner: 'monitor.foot'}});
+  A.pipe('monitor.cable', [[cx + 4.5, y - 3.4, bz + 5], [cx + 4.5, y - 7.1, bz + 5], [cx, y - 7.1, bz - 2], [cx, y - 7.1, z + 2.4]], 0.5, {bend: 2.2, limp: true, maxLength: 5, meta: {touch: ['monitor.clip', 'monitor.foot']}});
   // short chunks: a long chunk beside the column is in front of it at one end and behind at the other (no paint order)
   void up;
   return {o: [x + 1.2, y + 0.56, bz + 2.6 + h - 3.8] as Point3, u: [w - 2.4, 0, 0] as Point3, v: [0, 0, -(h - 3.8)] as Point3};

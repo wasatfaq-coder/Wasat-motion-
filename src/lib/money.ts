@@ -1,5 +1,5 @@
 import * as K from '../vendor/anatomy/iso-kit';
-import {Assembly, G, Point3} from './assembly';
+import {A, Assembly, Dyn, dynSolid, G, Point3} from './assembly';
 
 // Money and flows (MASTER_PROMPT_FINAL §24.3): coins, banknotes and stacks as solids; a flow between two nodes as a
 // pipe with dots moving along it (§22.3: flows are dots along routes). Counting objects follow §20.5: a stack either
@@ -61,4 +61,28 @@ export const flowDots = (P: K.Projection, route: Point3[], t: number, o: {speed?
   for (let s = shift; s <= total; s += gap) pts.push(K.iso(G.pointAlong(route, s), P));
   // 0.8 drew 2–3 px dots that no phone shows (gate round 1 of the showcase)
   return K.dotsSvg(pts, {size: o.size ?? 1.8, tone: o.tone ?? 'lo'});
+};
+
+/** An arc between two points (kit units), rising `lift` over the straight line: the visible route of a money flow. */
+export const arcRoute = (from: Point3, to: Point3, lift: number, n = 16): Point3[] =>
+  Array.from({length: n + 1}, (_, i) => {
+    const t = i / n;
+    return [from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t, from[2] + (to[2] - from[2]) * t + 4 * lift * t * (1 - t)] as Point3;
+  });
+
+/** Money moving: `n` coins (moving solids, ordered by depth) running along the route at time t; draw the route
+ *  as a dotted line by the caller (flowDots with spacing ≈ 1.6: the route must be visible). Root cause (docs/root-causes.md): a flow of 2–3 px dots with no route line did not show
+ *  a flow on a phone; coins a third of a stack wide and the route itself do. */
+export const coinFlow = (P: K.Projection, route: Point3[], t: number, o: {n?: number; r?: number; speed?: number} = {}): Dyn[] => {
+  const n = o.n ?? 4;
+  const r = o.r ?? 2.2;
+  const total = G.pathLength(route) as number;
+  const coins: Dyn[] = Array.from({length: n}, (_, i) => {
+    const s = ((((o.speed ?? 10) * t) / total + i / n) % 1) * total;
+    const p = G.pointAlong(route, s) as Point3;
+    const prof = [[0, r - 0.1], [0.08, r, 1], [0.52, r, 1], [0.6, r - 0.3]];
+    const F = up(p[0], p[1], p[2] - 0.3);
+    return dynSolid(`flow.coin${i}`, p, K.solidSvg(G.solidOf(prof, F, P, {}), {tone: 'hi'}), A.solid(F, prof));
+  });
+  return coins;
 };

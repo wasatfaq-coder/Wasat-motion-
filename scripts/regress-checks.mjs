@@ -107,6 +107,19 @@ for (const m of (await import('./lib/code-rules.mjs')).selftest()) fail(m);
     if (Math.abs(shown - oj) > 1e-9) fail(`assembly: svgFaded layer ${j} ends at ${shown.toFixed(3)}, not its opacity ${oj}`);
   });
 }
+// a cutaway that would remove most of an object is refused (it left one wall and a hanging bar)
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {cutaway} = await tsImport(new URL('../src/lib/transitions.ts', import.meta.url).href, import.meta.url);
+  const {LAB} = await tsImport(new URL('../src/samples/kit/nature.parts.ts', import.meta.url).href, import.meta.url);
+  let refused = false;
+  try {
+    cutaway(LAB, [1, 0, 0], 0, 0, 1);
+  } catch {
+    refused = true;
+  }
+  if (!refused) fail('transitions: a cutaway through the whole object was not refused');
+}
 // camFitSvg frames by the drawn points only: markup under a transform (a screen interface) is in its own pixel space
 {
   const {tsImport} = await import('tsx/esm/api');

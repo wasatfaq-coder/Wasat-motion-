@@ -22,6 +22,13 @@ U-23 plate maybe under the glass on page 22, U-24 floor patch reads as a hatch, 
 U-26 drops and cash on the same object, U-28 flame shape, U-29 cloud outline, U-30 balance level with a coral pan,
 U-31 faded plate on the scale page, U-09 small figures.
 
+## User decisions after gate round 2 (19.11.2026)
+U-16: cabinet without its near side wall, drawer out with a coral folder (done). U-12: drops from a faucet over a sink
+on the lab bench, drop shape, one coral drop (done). U-13: a visible dotted arc with coins running along it (done).
+U-27: coral by meaning on every page except neutral ones (fruit, tangle, swatches; scale keeps none) (done).
+Also done: U-11 monitor cable into a socket on the foot, U-14 flame on lab and pullout pages.
+Next: one check run, gate on the result, stamp, send the sheet, `style-check --update`, merge PR #29.
+
 ## Where to continue (paused 19.11.2026 by the user; one session from now on)
 1. Run the one consolidated check (it was stopped before it finished): `node scripts/object-audit.mjs --selftest`
    (passed), `node scripts/audit.mjs`, `node scripts/regress-checks.mjs`, `node scripts/style-check.mjs --keep <dir>`

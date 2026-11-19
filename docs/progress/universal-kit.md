@@ -11,6 +11,21 @@ starts the next session itself; this file is the hand-over; the rule is in `CLAU
 4. [ ] Frames changed → `node scripts/style-check.mjs --update`; PR; merge on green CI.
 5. [ ] Rules numbering (§23 of PR #19 vs §24 in main): waits until PR #19 is merged (open on 19.11.2026).
 
+## Where to continue (paused 19.11.2026 by the user; one session from now on)
+1. Run the one consolidated check (it was stopped before it finished): `node scripts/object-audit.mjs --selftest`
+   (passed), `node scripts/audit.mjs`, `node scripts/regress-checks.mjs`, `node scripts/style-check.mjs --keep <dir>`
+   (drift against the old refs is expected: the frames changed on purpose; every frame-check ERROR must be zero), then
+   tile the sheet.
+2. ONE shorts-quality-gate round on the sheet and frames, giving it this file's open list; design items it still
+   flags go to the user in one list (do not iterate per fix: user's rule).
+3. PASS → `node scripts/gate-stamp.mjs`, send the sheet, `node scripts/style-check.mjs --update`, commit the refs: CI
+   style-check stays red until then, so the PR waits for this step.
+4. The svgFaded fix changes every topic that fades moving parts: re-check the elektromotor stand reel
+   (`node scripts/motion-check.mjs`, contact sheet) before its STOP 2.
+5. Rules numbering (§23 of PR #19 vs §24): still waits for PR #19.
+Design items left for the gate/user: trapdoor (#1), swatches (#3), chron gear board (#4), tangle joints (#5), bloom
+sparks/ring (#6), crowd heads (#7), map post ring (#10).
+
 ## Status after the consolidated fix pass (user: fix every finding at once, then one gate round)
 Fixed in shared code with guards: S1, S2, S3, S4 (bleed pages declared), S5, U-01, U-03 (bolts wide + coral), U-09,
 U-11 (screen ui), U-12, U-13, U-14 (svgFaded layers, tripod height, flame), U-17, U-18, U-19 (plan line in depth order).

@@ -16,6 +16,11 @@ If contact sheets are not 2 fps or a scene in scope has no frames, mark pacing/p
 0. Static audit: the caller must pass the output of `node scripts/audit.mjs` (types, lint, palette, frontal scenes,
    visual register: locations, metaphors, data plane; timeline; sound map freshness). Missing output or any ERROR = FAIL.
    Also check on frames that no scene re-uses another scene's location as its main set (only the registered bridge).
+   Motion (§19.3, §22): the audit output must show `motion-check` ok for every `*.motion.ts` of the topic (paint-order
+   cycles, parts through parts in in-between poses, arrows off their owners, hero or plates out of the safe rect, an
+   empty half of the frame, jumps, jolts, pops, a broken loop). For a rendered video the caller also passes
+   `node scripts/review-video.mjs <mp4> <dir> [--timeline …] [--loop]` (its motion line). A motion finding there = FAIL;
+   do not re-find it on frames, judge what the machine cannot (meaning, taste, readability).
 0b. Meaning and accuracy (§20): every scene's picture matches its mode in visual-register.json; a metaphor scene shows the
    registered mapping and nothing that contradicts its «guard»; measured data is readable as data (no slope that reads as a
    decline, no values on a skewed plane unless the register records a waiver); a picture never claims more than the voice and never contradicts it

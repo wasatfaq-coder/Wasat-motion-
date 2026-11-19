@@ -25,3 +25,9 @@ Output protocol (root cause of repeated manual work: subagents in this environme
 Try to write your report to the path you were given. If writing fails, DO NOT retry and DO NOT claim it was saved: return the FULL report
 as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap
 from memory. Report only what you verified in the files you were given.
+
+Motion plan format (root cause of the motor-stand reel defects; CLAUDE.md «Motion»): write each scene's motion as BEATS
+of state — the numbers that change (angles, shares, opacities) and which parts change meaning (they hand over: the old
+fades out, then the new fades in) — plus the hero box (kit units) the camera must hold on every beat with its label
+anchors (camFit), the arrows with the part each one sits on, and which moving parts are long enough to need dynTube
+pieces. Never plan a move as a cross-fade between two pictures, and never give zoom numbers.

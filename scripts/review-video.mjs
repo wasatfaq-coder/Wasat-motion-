@@ -9,6 +9,10 @@
 // same id is not reopened. fixed means the fix is waiting for another check.
 // Decode or frame-count failure exits 1. Found frames are recorded and do not by
 // themselves fail the process: the note stays open for a person to judge.
+// Motion (scripts/motion-check.mjs, pixel layer): the picture cut by a frame edge or by the end of the graphics band,
+// the picture filling too little of the band or sitting in its top/bottom part, pops and jumps, and with --loop a
+// last frame that does not lead into the first. Scene cuts are not pops: pass --timeline <timeline.json> (scene
+// starts become cuts) or --cuts a,b. A reel without captions passes --no-captions.
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {createReadStream} from 'node:fs';
@@ -20,7 +24,12 @@ const NOTE_DOC =
   'Review notes tracker (shorts-quality-gate): {id, round, scene, frame, severity, rule, text, fix, status}. Status: open | fixed | verified | wontfix | escalate. verified stores evidence and the checked file version (sha256). fixed waits for a re-check.';
 const MAX_NOTES = 8;
 
-const [source, out] = process.argv.slice(2).filter((a) => a !== '--');
+const argv = process.argv.slice(2).filter((a) => a !== '--');
+const optOf = (name) => {
+  const i = argv.indexOf(`--${name}`);
+  return i >= 0 ? argv[i + 1] : undefined;
+};
+const [source, out] = argv.filter((a, i) => !a.startsWith('--') && !['--timeline', '--cuts'].includes(argv[i - 1]));
 if (!source || !out) {
   console.error('Usage: node scripts/review-video.mjs <master.mp4> <review-directory>');
   process.exit(1);
@@ -141,7 +150,33 @@ const picked = (list, kind) => {
   }
   return notes;
 };
-const fresh = [...picked(black, 'b'), ...picked(empty, 'e')];
+// motion: the same pixel checks the CI selftest proves on broken inputs
+const {decode, checkFrames} = await import('./motion-check.mjs');
+let cuts = (optOf('cuts') ?? '').split(',').filter(Boolean).map(Number);
+if (optOf('timeline')) {
+  const tl = JSON.parse(await readFile(resolve(optOf('timeline')), 'utf8'));
+  let at = 0;
+  cuts = [];
+  for (const sc of tl.scenes ?? []) {
+    if (at > 0) cuts.push(at);
+    at += sc.durationInFrames - (sc.transitionInFrames ?? 0);
+  }
+}
+const motion = checkFrames(decode(input), {loop: argv.includes('--loop'), captions: !argv.includes('--no-captions'), cuts});
+const motionNotes = motion.map((m, i) => ({
+  id: `RV-${sha256.slice(0, 8)}-m-${m.kind}-${i}`,
+  round: 1,
+  scene: 'master',
+  frame: m.frame,
+  severity: 'BLOCKER',
+  rule: '§19.3, §22',
+  text: `motion-check (${m.kind}): ${m.text}`,
+  fix: 'Найти причину в общем коде (camera camFit, depth, motion beatClock), исправить и прогнать node scripts/motion-check.mjs и review-video ещё раз.',
+  status: 'open',
+  evidence: 'scripts/motion-check.mjs',
+  version: sha256,
+}));
+const fresh = [...picked(black, 'b'), ...picked(empty, 'e'), ...motionNotes];
 
 const notesPath = join(outDir, 'notes.json');
 if (fresh.length) {
@@ -191,7 +226,7 @@ await writeFile(
       sha256,
       preview,
       frames,
-      checks: {decode: 'passed', nearBlackFrames: black.length, emptyFrames: empty.length, findings: findingsName},
+      checks: {decode: 'passed', nearBlackFrames: black.length, emptyFrames: empty.length, motion: motion.map((m) => `${m.kind}: ${m.text}`), findings: findingsName},
       visualReview: 'pending',
       viewerReview: 'pending',
       independentReview: 'pending',
@@ -200,5 +235,6 @@ await writeFile(
     2,
   ) + '\n',
 );
-console.log(`review-video: ${frames} frames, sha256 ${sha256.slice(0, 12)}…, near-black ${black.length}, empty ${empty.length}`);
+console.log(`review-video: ${frames} frames, sha256 ${sha256.slice(0, 12)}…, near-black ${black.length}, empty ${empty.length}, motion ${motion.length ? motion.map((m) => m.kind).join(', ') : 'clean'}`);
+for (const m of motion) console.log(`  motion ${m.kind}: ${m.text}`);
 console.log(`preview ${preview}`);

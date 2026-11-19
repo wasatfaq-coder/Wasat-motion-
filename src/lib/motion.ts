@@ -54,7 +54,7 @@ export const blendCam = (a: Cam, b: Cam, t: number): Cam => ({
 /** `tip` (optional): where the head ends; motion-check keeps the tips of two arrows apart (they must not read as one
  *  bar) and off moving bodies other than the owner. `along`: name prefixes the head may run onto (a current arrow
  *  that follows its conductor round a corner). */
-export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3; along?: string[]};
+export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3; along?: string[]; svg?: string};
 /** A frontal plate or inset in screen pixels. */
 export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number};
 

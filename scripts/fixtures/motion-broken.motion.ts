@@ -25,15 +25,15 @@ const CAM = camFit(room(CORE), {rect});
 const CAM_WIDE = camFit(room(HERO), {rect});
 const FRAMES = 60;
 
-type Opts = {fieldHead?: boolean; onBar?: boolean; meet?: boolean; wide?: boolean; reach?: number; tailOff?: number; cam?: Cam; jumpAt?: number; hideArrowAt?: number; halfTurn?: boolean; extra?: (f: number) => MotionPose['extra']};
+type Opts = {thinHead?: boolean; angle?: (f: number) => number; arrowO?: (f: number) => number; fieldHead?: boolean; onBar?: boolean; meet?: boolean; wide?: boolean; reach?: number; tailOff?: number; cam?: Cam; jumpAt?: number; hideArrowAt?: number; halfTurn?: boolean; extra?: (f: number) => MotionPose['extra']};
 const pose = (f: number, o: Opts): MotionPose => {
-  let theta = ((o.halfTurn ? Math.PI : 2 * Math.PI) * f) / FRAMES;
+  let theta = o.angle ? o.angle(f) : ((o.halfTurn ? Math.PI : 2 * Math.PI) * f) / FRAMES;
   if (o.jumpAt !== undefined && f >= o.jumpAt) theta += 1.2;
   const reach = o.reach ?? 7;
   const end: Point3 = [15 + reach * Math.cos(theta), 20 + reach * Math.sin(theta), 10];
   const bar = dynTube('arm', [[15, 20, 10], end], 1, P, {lit: true});
   const off = o.tailOff ?? 0;
-  const opacity = o.hideArrowAt !== undefined && f >= o.hideArrowAt ? 0 : 1;
+  const opacity = o.arrowO ? o.arrowO(f) : o.hideArrowAt !== undefined && f >= o.hideArrowAt ? 0 : 1;
   return {
     cam: o.cam ?? (o.wide ? CAM_WIDE : CAM),
     rect,
@@ -41,7 +41,7 @@ const pose = (f: number, o: Opts): MotionPose => {
     assembly: BASE,
     extra: [...bar, ...(o.extra?.(f) ?? [])],
     arrows: [
-      {name: 'arm.force', owner: 'arm', tail: [end[0], end[1], end[2] + off], tip: [end[0], end[1], end[2] + off + 3] as Point3, opacity},
+      {name: 'arm.force', owner: 'arm', tail: [end[0], end[1], end[2] + off], tip: [end[0], end[1], end[2] + off + 3] as Point3, opacity, svg: `<path d="M0 0" style="fill:var(--anatomy-shade-3);stroke:var(--anatomy-hi);stroke-width:${o.thinHead ? 1.5 : 3}px"/>`},
       // 'meet': two arrows from the arm's ends to the axis, their heads touch over it
       // 'onBar': an arrow from the arm whose head lands on a separate moving bar
       ...(o.onBar ? [{name: 'arm.push', owner: 'arm', tail: end, tip: [22, 32, 10] as Point3, opacity: 1}] : []),
@@ -85,6 +85,10 @@ export const CASES: [string, MotionSpec, string[]][] = [
   ['hero out of frame', spec('crop', {cam: {...CAM, zoom: CAM.zoom * 1.8}}), ['crop']],
   ['hero small in the top part', spec('layout', {cam: {...CAM, zoom: CAM.zoom * 0.45, screen: [CAM.screen![0], rect.y0 + 160]}}), ['layout']],
   ['wide low picture in a vertical frame', spec('wide', {wide: true}), ['layout']],
+  // the arm turns over frames 0–30 and stops; its arrow fades out at the start and back in long after the stop
+  ['a white head with a hairline outline', spec('thinhead', {thinHead: true}), ['arrows']],
+  ['arrow comes back late', spec('late', {angle: (f) => 1.2 * ease(Math.min(1, f / 30)), arrowO: (f) => (f < 2 ? 1 : f < 50 ? Math.max(0, 1 - (f - 2) / 4) : Math.min(1, (f - 50) / 4))}, {loop: false}), ['late']],
+  ['arrow comes back as the arm stops', spec('ontime', {angle: (f) => 1.2 * ease(Math.min(1, f / 30)), arrowO: (f) => (f < 2 ? 1 : f < 28 ? Math.max(0, 1 - (f - 2) / 4) : Math.min(1, (f - 28) / 4))}, {loop: false}), []],
   ['a force tip on the head of a field line', spec('fieldhead', {fieldHead: true, extra: () => []}), ['arrows']],
   ['an arrow head lands on another bar', spec('onbar', {onBar: true, extra: () => dynTube('bar', [[22, 28, 10], [22, 36, 10]], 1, P, {lit: true})}), ['arrows']],
   ['two arrow heads meet over the axis', spec('meet', {meet: true}), ['arrows']],

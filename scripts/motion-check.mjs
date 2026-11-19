@@ -49,6 +49,9 @@ export const LIMITS = {
   jump: 40, // px a point may move in one frame
   accel: 8, // px/frame² a point may change speed by
   fade: 0.34, // opacity a part may gain or lose in one frame
+  outline: 2.5, // px of dark outline a LIGHT-filled arrow head needs to read on the light solids of the house style (R7)
+  still: 1, // px/frame below which a settling part reads as stopped
+  late: 8, // frames an arrow may stay hidden after its owner has stopped (it annotates the pose it stops in, R6)
   tipOn: 14, // px from an arrow tip to the axis of a moving body that is not its owner (the head lands on it, R4)
   tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
 };
@@ -162,6 +165,11 @@ export const checkSpec = async (spec) => {
         const d = near(headPts(a.tip, a.tail), h.base ? headPts(h.at, h.base) : [h.at]);
         if (d < LIMITS.tips) addOnce('arrows', `${a.name}|${h.name}`, f, `the head of ${a.name} is ${d.toFixed(0)} px from the head of ${h.name} at frame ${f} (≥ ${LIMITS.tips}); the two heads read as one figure`);
       }
+    // a light-filled head (paper, shade, top) must carry a dark outline, or it vanishes on a cream body (R7)
+    for (const a of tipped) {
+      for (const m of String(a.svg ?? '').matchAll(/fill:var\(--anatomy-(shade-\d|paper|top)\);stroke:([^;]+);stroke-width:([\d.]+)px/g))
+        if (Number(m[3]) < LIMITS.outline || !/anatomy-(hi|lit|lo)/.test(m[2])) addOnce('arrows', `${a.name}|outline`, f, `${a.name}: a light head (${m[1]}) with a ${m[3]} px ${m[2]} outline at frame ${f}; give it a dark outline ≥ ${LIMITS.outline} px so it reads on light solids`);
+    }
     // a head that lands on another moving body (a bar, a wire that is not its owner) reads as touching it
     for (const a of tipped) {
       const [tx, ty] = scr(a.tip);
@@ -216,6 +224,35 @@ export const checkSpec = async (spec) => {
     }
     for (const p of pose.plates) t.set(`plate:${p.name}`, {x: p.x, y: p.y, o: p.opacity});
     tracks.push(t);
+  }
+  // late: an arrow that comes back after its owner stopped leaves the pose bare (the owner settles, the note lags)
+  const owners = new Map();
+  for (let f = 0; f < spec.frames; f++) for (const a of spec.pose(f).arrows) owners.set(a.name, a.owner);
+  const ownerMove = (f, owner) => {
+    let m = 0;
+    for (const [k, q] of tracks[f]) {
+      if (!k.startsWith(`part:${owner}`)) continue;
+      const p = tracks[f - 1].get(k);
+      if (p && p.x !== undefined) m = Math.max(m, Math.hypot(q.x - p.x, q.y - p.y));
+    }
+    return m;
+  };
+  for (const [name, owner] of owners) {
+    let run = 0;
+    let afterMove = false;
+    let prevMoved = false;
+    for (let f = 1; f < tracks.length; f++) {
+      const o = tracks[f].get(`arrow:${name}`)?.o ?? 0;
+      const moved = ownerMove(f, owner) >= LIMITS.still;
+      if (o >= 0.5) {
+        if (run > LIMITS.late && afterMove) addOnce('late', name, f, `${name} comes back ${run} frames after «${owner}» stopped (frame ${f}; ≤ ${LIMITS.late}): fade it in on the owner's eased motion, not on the linear share of the move`);
+        run = 0;
+      } else if (!moved) {
+        if (run === 0) afterMove = prevMoved;
+        run++;
+      } else run = 0;
+      prevMoved = moved;
+    }
   }
   // continuity between consecutive frames (and last → first for a loop)
   const pairs = [];

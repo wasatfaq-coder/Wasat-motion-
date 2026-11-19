@@ -24,10 +24,10 @@ const len = (a: Point3) => Math.hypot(a[0], a[1], a[2]);
 const unit = (a: Point3): Point3 => a.map((v) => v / (len(a) || 1)) as Point3;
 const back = (p: Point3, u: Point3, d: number): Point3 => [p[0] - u[0] * d, p[1] - u[1] * d, p[2] - u[2] * d];
 const along = (p: Point3, u: Point3, s: number): Point3 => [p[0] + u[0] * s, p[1] + u[1] * s, p[2] + u[2] * s];
-const tri = (tip: Point3, u: Point3, size: number, wide: Point3, fill: string, stroke = fill) => {
+const tri = (tip: Point3, u: Point3, size: number, wide: Point3, fill: string, stroke = fill, outline = 1.5) => {
   const base = along(tip, u, -size);
   const w = (k: number): Point3 => along(base, wide, size * 0.5 * k);
-  return `<path d="${K.pathOf([at(tip), at(w(1)), at(w(-1))], true)}" style="fill:${fill};stroke:${stroke};stroke-width:1.5px;stroke-linejoin:round"/>`;
+  return `<path d="${K.pathOf([at(tip), at(w(1)), at(w(-1))], true)}" style="fill:${fill};stroke:${stroke};stroke-width:${outline}px;stroke-linejoin:round"/>`;
 };
 const line = (a: Point3, b: Point3, width: number, color: string, dash = '') =>
   `<path d="${K.pathOf([at(a), at(b)])}" style="fill:none;stroke:${color};stroke-width:${width}px;stroke-linecap:round;${dash ? `stroke-dasharray:${dash};` : ''}"/>`;
@@ -50,7 +50,7 @@ const currentArrow = (name: string, owner: string, from: Point3, to: Point3, wid
 const forceArrow = (name: string, owner: string, from: Point3, dir: Point3, reach: number, wide: Point3, opacity: number): Arrow => {
   const to = along(from, dir, reach);
   const neck = back(to, dir, 3);
-  return {name, owner, tail: from, tip: to, opacity, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, dir, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)')};
+  return {name, owner, tail: from, tip: to, opacity, svg: line(from, neck, 10, 'var(--anatomy-hi)') + line(from, neck, 5.2, 'var(--anatomy-shade-3)') + tri(to, dir, 3.3, wide, 'var(--anatomy-shade-3)', 'var(--anatomy-hi)', 3)};
 };
 /** field: dashed lines from the N pole face to the S pole face, with two heads each (no shapes: an annotation) */
 const FIELD_YS = [AY - 9, AY + 9];
@@ -103,7 +103,11 @@ export const beats = (rect: Rect): StandState[] => {
 /** The loop's current and force arrows annotate a BEAT (current and force at that angle): during a turn they fade out
  *  early and come back at the end, so a head never sweeps over the bars, the commutator or a field-line head
  *  (motion-check `arrows`, R4/R5). Placement on the sides: current low, force high, field heads at the pole faces. */
-const between = (t: number) => Math.min(1, Math.max(0, (Math.abs(2 * t - 1) - 0.84) / 0.16));
+const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+/** out: on the linear share (an eased t rushes at the start, a fade on it pops); back in: on the eased t, i.e. on the
+ *  loop's own settling, so the arrows return as the loop comes to rest, not after it (R6) */
+const between = (raw: number, eased: number) => (raw < 0.5 ? clamp01(1 - raw / 0.08) : clamp01((eased - IN_FROM) / (1 - IN_FROM - 0.005)));
+const IN_FROM = 0.96;
 
 /** The state between two beats. A loop that is invisible on one side takes the angle of the other side (it fades in
  *  or out where it is; it does not spin while hidden). */
@@ -111,7 +115,7 @@ export const blend = (a: StandState, b: StandState, t: number, raw = t): StandSt
   theta: a.loop === 0 ? b.theta : b.loop === 0 ? a.theta : lerp(a.theta, b.theta, t),
   wire: handOver(a.wire, b.wire, t),
   loop: handOver(a.loop, b.loop, t),
-  forces: Math.min(a.forces, b.forces) * between(raw),
+  forces: Math.min(a.forces, b.forces) * between(raw, t),
   field: lerp(a.field, b.field, t),
   inset: handOver(a.inset, b.inset, t),
   labels: lerp(a.labels, b.labels, t),

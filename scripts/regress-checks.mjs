@@ -28,6 +28,26 @@ const has = (bin) => {
   }
 };
 
+// every builder the kit exports is run by a sample (src/samples): code no sample runs is code nobody has seen, and the
+// ruler that drew markup without a shape sat in main until the showcase called it (docs/root-causes.md). The mannequin
+// (character.ts) has its own guard, scripts/rig-check.mjs.
+{
+  const kit = JSON.parse(fs.readFileSync('src/lib/catalog.json', 'utf8')).objects;
+  const modules = [...new Set(Object.values(kit).filter((e) => e.kind === 'kit' && !e.module.endsWith('character.ts')).map((e) => e.module)), 'src/lib/transitions.ts', 'src/lib/scale.tsx', 'src/theme/materials.ts'];
+  const extra = fs.readdirSync('src/lib/primitives').map((f) => `src/lib/primitives/${f}`).concat(fs.readdirSync('src/lib/symbols').filter((f) => f.endsWith('.ts')).map((f) => `src/lib/symbols/${f}`));
+  const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : /\.tsx?$/.test(e.name) ? [path.join(d, e.name)] : []));
+  const samples = walk('src/samples').map((f) => fs.readFileSync(f, 'utf8')).join('\n');
+  for (const m of [...new Set([...modules, ...extra])]) {
+    if (!fs.existsSync(m) || !/\.tsx?$/.test(m) || m.endsWith('index.ts')) continue;
+    for (const [, name] of fs.readFileSync(m, 'utf8').matchAll(/^export (?:const|function) ([A-Za-z0-9_]+)/gm))
+      if (!new RegExp(`\\b${name}\\b`).test(samples)) fail(`${m}: ${name} is exported but no sample in src/samples runs it; call it in src/samples/UniversalKitSample.tsx`);
+  }
+}
+
+// every symbol names the state it is shown in (a closed hatch read as plain floor on the showcase)
+for (const [id, row] of Object.entries(JSON.parse(fs.readFileSync('src/lib/symbols/catalog.json', 'utf8')).symbols))
+  if (typeof row.show !== 'number' || !String(row.showWhy ?? '').trim()) fail(`src/lib/symbols/catalog.json: «${id}» has no show state with showWhy`);
+
 // one browser lookup (scripts/lib/browser.mjs): a script with its own copy pinned a version path that stopped matching
 for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))
   if (fs.readFileSync(path.join('scripts', f), 'utf8').includes('/opt/pw-' + 'browsers')) fail(`scripts/${f} names the browser directory itself; use findBrowser() from scripts/lib/browser.mjs`);

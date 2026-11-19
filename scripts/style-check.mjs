@@ -13,12 +13,16 @@ import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {tsImport} from 'tsx/esm/api';
 import {findBrowser} from './lib/browser.mjs';
 
 const args = process.argv.slice(2);
 const arg = (k, d) => (args.includes(`--${k}`) ? args[args.indexOf(`--${k}`) + 1] : d);
 const comp = arg('comp', 'AnatomyUniversal');
-const frames = Number(arg('frames', '15'));
+// the page count comes from the showcase itself (a hard-coded count missed every page added later)
+const pages = comp === 'AnatomyUniversal' ? (await tsImport(pathToFileURL(path.resolve('src/samples/UniversalKitSample.tsx')).href, import.meta.url)).KIT_PAGES.length : 1;
+const frames = Number(arg('frames', String(pages)));
 const update = args.includes('--update');
 const keep = arg('keep', null);
 const refs = path.join('styles', 'anatomy', 'refs');

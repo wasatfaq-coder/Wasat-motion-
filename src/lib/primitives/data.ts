@@ -105,10 +105,10 @@ export const pie = (A: Assembly, [cx, cy, z0]: Point3, o: {shares: number[]; r: 
 /** A ruler bar along +x with a tick every `step` units of length and a longer one every `every` ticks. */
 export const ruler = (A: Assembly, [x, y, z]: Point3, o: {length: number; step: number; every?: number; width?: number}) => {
   const w = o.width ?? 6;
-  A.slab('ruler', {x, y, w: o.length, d: w, r: 0.6}, z, 1.6, {tone: 'hi', bevel: 0.4, ground: true});
-  A.slab('ruler.edge', {x, y: y + w - 1, w: o.length, d: 1, r: 0.2}, z + 1.6, 0.4, {tone: 'mid', bevel: 0.1});
+  // the ticks are drawn on the ruler's own top (`over`): markup without a shape is refused by Assembly
   const ticks = K.topTicks(x + 1, x + o.length - 1, o.step, o.every ?? 5, y + 0.4, z + 1.6, [1.6, 3.2], A.P);
-  A.markup('ruler.ticks', [x + o.length / 2, y + w / 2, z + 1.6], K.lineSvg(ticks.minor, {tone: 'lo'}) + K.lineSvg(ticks.major, {tone: 'lo'}), []);
+  A.slab('ruler', {x, y, w: o.length, d: w, r: 0.6}, z, 1.6, {tone: 'hi', bevel: 0.4, ground: true, over: K.lineSvg(ticks.minor, {tone: 'lo'}) + K.lineSvg(ticks.major, {tone: 'lo'})});
+  A.slab('ruler.edge', {x, y: y + w - 1, w: o.length, d: 1, r: 0.2}, z + 1.6, 0.4, {tone: 'mid', bevel: 0.1});
 };
 
 /** A beam balance tilted by `tilt` radians (positive: the +x pan goes down). Rebuilt when the tilt changes; build it

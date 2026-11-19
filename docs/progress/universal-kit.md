@@ -22,6 +22,14 @@ U-23 plate maybe under the glass on page 22, U-24 floor patch reads as a hatch, 
 U-26 drops and cash on the same object, U-28 flame shape, U-29 cloud outline, U-30 balance level with a coral pan,
 U-31 faded plate on the scale page, U-09 small figures.
 
+## DONE (19.11.2026): final gate PASS, sheet sent to the user, references updated, PR #29 merged on green CI
+Open minors for a later pass (no blocker/major): N1 route dots still pale on a phone, N2 pullout page lost its coral
+(declared none), N3 scale ghost bowl over the tripod legs and the flask cut by the top mask, N4 the sheet cut by the
+left edge on the cutaway close-up, N5 a pale loop at the bud's stem, N6 the flame mostly behind the tripod on the
+zoom page; earlier: U-04 tube gaps, U-06 bloom ring, U-20 map post ring, U-25 island ticks, U-22 grapes on their tip,
+U-24 floor patch reads as a hatch, U-10/A10 pan height. Design calls for the user: U-07, U-02, U-05, U-08, U-15,
+U-28, U-29, U-30, U-31, U-09. The elektromotor stand reel must be re-checked (svgFaded change) before its STOP 2.
+
 ## User decisions after gate round 2 (19.11.2026)
 U-16: cabinet without its near side wall, drawer out with a coral folder (done). U-12: drops from a faucet over a sink
 on the lab bench, drop shape, one coral drop (done). U-13: a visible dotted arc with coins running along it (done).

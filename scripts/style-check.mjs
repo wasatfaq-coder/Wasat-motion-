@@ -20,7 +20,7 @@ import {pathToFileURL} from 'node:url';
 import {tsImport} from 'tsx/esm/api';
 import {findBrowser} from './lib/browser.mjs';
 import {readPng, shrink, writePng} from './lib/png.mjs';
-import {checkFrame} from './lib/frame-checks.mjs';
+import {checkFrame, frameDiff, MIN_PAGE_DIFF} from './lib/frame-checks.mjs';
 
 const args = process.argv.slice(2);
 const arg = (k, d) => (args.includes(`--${k}`) ? args[args.indexOf(`--${k}`) + 1] : d);
@@ -93,6 +93,13 @@ for (let f = 0; f < frames; f++) {
     notes.push(`reference ${update ? 'updated' : 'created'}: ${ref}`);
   } else if (r.changed > 0.004) (errors++, notes.push(`ERROR ${(r.changed * 100).toFixed(2)} % of the phone-size frame changed against ${ref}: if the change is intended, run with --update and review the stills in the PR`));
   console.log(`${comp} frame ${f}: foreign ${(r.foreign * 100).toFixed(3)} %${r.changed === null ? '' : `, changed ${(r.changed * 100).toFixed(2)} %`}${notes.length ? '\n  ' + notes.join('\n  ') : ' — ok'}`);
+}
+// pages of one showcase must show different pictures (zoom and pull-out came out as one frame, gate round 3)
+if (KIT && frames === pages) {
+  const small = Array.from({length: frames}, (_, f) => readPng(path.join(dir, `s${f}.png`)));
+  for (let a = 0; a < frames; a++)
+    for (let b = a + 1; b < frames; b++)
+      if (frameDiff(small[a], small[b]) < MIN_PAGE_DIFF) (errors++, console.log(`ERROR pages ${KIT[a].id} and ${KIT[b].id} show the same picture (${(frameDiff(small[a], small[b]) * 100).toFixed(1)} % differ)`));
 }
 if (!keep) fs.rmSync(dir, {recursive: true, force: true});
 process.exitCode = errors ? 1 : 0;

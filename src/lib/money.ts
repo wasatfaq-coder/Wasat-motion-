@@ -54,6 +54,8 @@ export const noteStack = (A: Assembly, name: string, [x, y, z]: Point3, n: numbe
 /** Dots moving along a route at `speed` kit units/s: the visible direction and rate of a flow (money, data, water,
  *  current). Draw them over the pipe they travel in. `spacing` is the gap between dots. */
 export const flowDots = (P: K.Projection, route: Point3[], t: number, o: {speed?: number; spacing?: number; size?: number; tone?: K.Tone} = {}) => {
+  // a route dot under 1.5 kit units is a 4 px speck on a phone: refused (gate round 3 of the showcase)
+  if ((o.size ?? 1.8) < 1.5) throw new Error(`flowDots: size ${o.size} is too small to read on a phone (≥ 1.5)`);
   const total = G.pathLength(route) as number;
   const gap = o.spacing ?? 6;
   const shift = (((o.speed ?? 12) * t) % gap + gap) % gap;

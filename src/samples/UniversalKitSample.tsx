@@ -10,7 +10,7 @@ import {screenCorners} from '../lib/device';
 import {arcRoute, coinFlow, flowDots} from '../lib/money';
 
 // the money flow route: from the bundle of notes up and over to the coral stack (kit units)
-const MONEY_ARC = arcRoute([10, 19, 3.2], [20, 0, 7], 7);
+const MONEY_ARC = arcRoute([10, 19, 3.2], [20, 0, 7], 13);
 import {particles} from '../lib/nature';
 import {planOf, simplify} from '../lib/primitives/mapTable';
 import {intrusions, ScaleLayers, scaleView} from '../lib/scale';
@@ -124,7 +124,7 @@ export const KIT_PAGES: Page[] = [
   // water dripping from the faucet into the sink; the leading drop is coral (drops have the shape of a drop)
   {id: 'drops', coral: 'the falling drop', bleed: 'a close shot of the sink: the bench runs past the frame', A: LAB, svg: () => LAB.svg({}, {extra: particles(P, 'drip', {at: SPOUT, life: 0.3}, 1.05, {lit: true})}), cam: () => camFit(boxCorners(...sinkRoom()), {rect: safeRect(), fill: 0.86})},
   // money moving: coins run along a dotted arc from the bundle of notes to the coral stack
-  {id: 'cash', coral: 'the coin stack', A: CASH, svg: () => CASH.svg({}, {extra: [{name: 'flow.route', at: [15, 10, 10], annotation: true, svg: flowDots(P, MONEY_ARC, 0, {spacing: 1.6, size: 1.1, speed: 0})}, ...coinFlow(P, MONEY_ARC, 0.5)]})},
+  {id: 'cash', coral: 'the coin stack', A: CASH, svg: () => CASH.svg({}, {extra: [{name: 'flow.route', at: [15, 10, 10], annotation: true, svg: flowDots(P, MONEY_ARC, 0, {spacing: 3, size: 2, speed: 0})}, ...coinFlow(P, MONEY_ARC, 0.5)]})},
   // fire under the flask and steam above it, ordered against the bench by ray tests
   {id: 'lab', coral: 'none: the flame is a few pixels when the whole bench is framed (measured 0 %); the zoom and pull-out pages carry it', A: LAB, svg: () => LAB.svgFaded([...particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4), ...particles(P, 'steam', {at: [52, 16, T + 31], spread: 1.5}, 1.4), ...particles(P, 'gas', {at: [30, 24, T + 6]}, 1)])},
   {id: 'swatches', coral: NO_CORAL, A: SWATCHES, svg: () => SWATCHES.svg({}, {extra: [{name: 'title', at: [0, 0, 0], svg: `<title>${describe(['wood', 'metal', 'glass'])}</title>`, annotation: true}]})},
@@ -133,7 +133,7 @@ export const KIT_PAGES: Page[] = [
   // shows the start of the way back)
   {id: 'cutaway', coral: 'the drawer pulled out', A: DOCS, svg: () => DOCS.svg(peel(['drawer', 'stamp'], 0.5), {hide: cutaway(DOCS, [1, 0, 0], 113, 109, 1), extra: [{name: 'swap', at: [0, 0, 0], svg: `<g opacity="${swap(0.5).in.toFixed(2)}"></g>`, annotation: true}]})},
   {id: 'zoom', coral: 'the flame', bleed: 'a zoom into the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => zoomInto(boxOf(LAB), burner, 1).cam},
-  {id: 'pullout', coral: 'the flame', bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4, {lit: true})), cam: () => pullOut(burner, boxOf(LAB), 0.2).cam},
+  {id: 'pullout', coral: 'none: the flame shrinks as the camera pulls back to the whole bench; the zoom page carries it', bleed: 'a pull-out from the burner: the bench runs past the frame', A: LAB, svg: () => LAB.svgFaded(particles(P, 'fire', {at: [52, 16, T + 11.6], spread: 1, rate: 24}, 1.4)), cam: () => pullOut(burner, boxOf(LAB), 0.65).cam},
   {id: 'scale', coral: NO_CORAL, bleed: 'a scale step: the outer bench runs past the frame', A: LAB, svg: () => '', node: () => <ScaleLayers layers={scaleView(SCALE, 0.6).layers} />, cam: () => scaleView(SCALE, 0.6).cam},
   // the map helpers: a plan point of the projection and a simplified ring drawn on the table top
   {id: 'mapplan', coral: 'the one region', A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, 29.4], annotation: true, svg: K.lineSvg(K.onTop(simplify([[0, 0], [10, 0.2], [20, 0], [20, 10], [0, 10]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), 29.4, P, true), {tone: 'lo'})}]})},

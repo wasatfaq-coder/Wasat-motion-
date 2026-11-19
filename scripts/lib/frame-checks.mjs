@@ -101,6 +101,17 @@ export const checkFrame = (img, {rect = SAFE_RECT, minFill = 0.7, coral = true, 
   return {errors, stats: {fill, out: out * S * S, coral: regs.slice(0, 3)}};
 };
 
+/** Share of pixels that differ between two same-size small frames (|ΔR|+|ΔG|+|ΔB| > 60). Two pages of one showcase
+ *  that differ by less than `minDiff` show the same picture (gate round 3: zoom and pull-out pages were one frame). */
+export const frameDiff = (a, b) => {
+  if (a.width !== b.width || a.height !== b.height) return 1;
+  let d = 0;
+  for (let i = 0; i < a.width * a.height; i++)
+    if (Math.abs(a.rgb[i * 3] - b.rgb[i * 3]) + Math.abs(a.rgb[i * 3 + 1] - b.rgb[i * 3 + 1]) + Math.abs(a.rgb[i * 3 + 2] - b.rgb[i * 3 + 2]) > 60) d++;
+  return d / (a.width * a.height);
+};
+export const MIN_PAGE_DIFF = 0.03;
+
 /** Synthetic broken frames: each check must bite, a clean frame must pass. Returns failure messages. */
 export const selftest = () => {
   const W = 1080;
@@ -150,5 +161,7 @@ export const selftest = () => {
   box(none, 400, 600, 520, 720, tone);
   expect('no coral without a reason', none, {}, /^coral/);
   expect('no coral with a reason', none, {coral: 'kit object, no meaning'}, null);
+  if (frameDiff(good(), good()) >= MIN_PAGE_DIFF) fails.push('frame-checks: two identical pages were not caught as the same picture');
+  if (frameDiff(good(), small) < MIN_PAGE_DIFF) fails.push('frame-checks: two different pages were taken for the same picture');
   return fails;
 };

@@ -38,6 +38,12 @@ for (const file of files) {
   for (const [exportName, value] of Object.entries(mod)) {
     if (!isAssembly(value)) continue;
     const started = Date.now();
+    // fast root-cause checks first (seconds): a finding here would only resurface after a slow settle
+    const linted = typeof value.lint === 'function' ? value.lint() : [];
+    if (linted.length) {
+      results.push({swept: 0, file: relative(root, file), export: exportName, name: value.name, role: value.role, detail: value.detail ?? 'complex', parts: value.parts, norm: PART_NORM[value.role], failures: linted.length, short: false, seconds: (Date.now() - started) / 1000, report: `    lint: ${linted.length} problem(s), fix before the audit runs\n${linted.map((l) => `      ${l}`).join('\n')}`});
+      continue;
+    }
     if (settleKeys) {
       solved[exportName] = value.settle();
       value.unsettled = [];

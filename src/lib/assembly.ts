@@ -84,8 +84,23 @@ export class Assembly {
     return {...c, className: [c.className, 'halo-hero'].filter(Boolean).join(' ')};
   }
 
+  /** Names in `meta.owner` / `meta.touch` are resolved inside this object, so a builder may write the short name
+   *  (`owner: 'core'`) and get `<object>.core`. Root cause of past failures: a short owner matched nothing and the
+   *  audit reported sunk or loose parts; a `touch` string instead of a list crashed the audit. A name that already
+   *  starts with this object's name, or a pattern that starts with it, is kept. */
+  private resolve(n: string) {
+    return n.startsWith(`${this.name}.`) || n === this.name ? n : `${this.name}.${n}`;
+  }
+
+  private meta(c: Common): Record<string, unknown> {
+    const m: Record<string, unknown> = {...(c.meta ?? {})};
+    if (typeof m.owner === 'string') m.owner = this.resolve(m.owner);
+    if (m.touch !== undefined) m.touch = (Array.isArray(m.touch) ? m.touch : [m.touch]).map((t) => this.resolve(String(t)));
+    return m;
+  }
+
   private shape<S extends object>(s: S, c: Common, name: string) {
-    return this.R.solid({...s, ...(c.meta ?? {}), ...(c.ground ? {ground: true} : {}), name});
+    return this.R.solid({...s, ...this.meta(c), ...(c.ground ? {ground: true} : {}), name});
   }
 
   private put(name: string, at: Point3, svg: string, shapes: unknown[], c: Common, extra: Record<string, unknown> = {}): Item {
@@ -158,27 +173,88 @@ export class Assembly {
   }
 
   /** A pipe, hose or cable along 3D control points. `bend` fillets the corners (≥ 2.6·r is safe); `gaps` are
-   *  arc-length spans hidden by a collar or clamp; `limp` for cables (they hold nothing up). Each chunk is painted at
+   *  arc-length spans hidden by a collar or clamp; `limp` for cables: a limp tube holds NOTHING up in the support check,
+   *  so a part that hangs on it (a pan on chains, a tip ball) is loose; use a rigid tube for a hanger. A ring of cord
+   *  (a loop, a coil turn, a hoop) is `closed`: an open pipe drawn round a loop has two ends that the audit checks
+   *  for mounts. The vendored crowding check still sees the seam of a closed loop as an end: give loops of one
+   *  object a `crowd` pair in the Assembly options. The pipe's owner defaults to its own name; a part owned by the pipe is never its mount. Each chunk is painted at
    *  its own depth, so a cable can weave between parts. */
   pipe(
     name: string,
     points: Point3[],
     r: number,
-    c: Common & {bend?: number; gaps?: [number, number][]; caps?: boolean | [boolean, boolean]; maxLength?: number; tone?: K.Tone; limp?: boolean; lit?: boolean; rings?: Record<string, unknown>; ends?: [boolean, boolean]} = {},
+    c: Common & {bend?: number; closed?: boolean; gaps?: [number, number][]; caps?: boolean | [boolean, boolean]; maxLength?: number; tone?: K.Tone; limp?: boolean; lit?: boolean; rings?: Record<string, unknown>; ends?: [boolean, boolean]} = {},
   ) {
     const n = this.full(name);
     const route = (c.bend ? G.fillet(points, c.bend, 7, {P: this.P, tube: r}) : points) as Point3[];
-    const pieces = T.tubePieces(route, r, this.P, {maxLength: c.maxLength ?? 14, gaps: c.gaps ?? [], caps: c.caps ?? true, rings: c.rings ?? null});
-    this.R.route(n, route, r, {gaps: c.gaps ?? [], limp: c.limp ?? false, ends: c.ends ?? [true, true], piece: c.piece ?? '', move: c.move ?? [0, 0, 0], ...(c.meta ?? {})});
+    const pieces = T.tubePieces(route, r, this.P, {maxLength: c.maxLength ?? 14, closed: c.closed ?? false, gaps: c.gaps ?? [], caps: c.closed ? false : (c.caps ?? true), rings: c.rings ?? null});
+    this.R.route(n, route, r, {gaps: c.gaps ?? [], closed: c.closed ?? false, limp: c.limp ?? false, ends: c.ends ?? [true, true], piece: c.piece ?? '', move: c.move ?? [0, 0, 0], ...this.meta(c)});
     const mark = (svg: string) => (c.lit ? svg.replace('<g class="tb">', '<g class="tb" data-lit="">') : svg);
     return pieces.map((piece: {mid: Point3; points: Point3[]; radii: number[]}, i: number) =>
       this.put(`${n}:${i}`, piece.mid, mark(T.tubeSvg(piece, {tone: c.tone ?? 'hi'})), [A.tube(piece.points, piece.radii, {name: n, limp: c.limp ?? false})], {...c, over: i === pieces.length - 1 ? c.over : ''}, {route: n, chunk: i}),
     );
   }
 
-  /** Markup with no body of its own (a label on a face, a seam): give the shape of what it sits on via `shapes`. */
+  /** Markup with no body of its own (a label on a face, a seam): give the shape of what it sits on via `shapes`.
+   *  Lines that belong to one part (seams, ticks, an outline traced on its top) go in that part's `over` instead:
+   *  markup with no shape is an «item with no shape» in the audit, so it is refused here at once. */
   markup(name: string, at: Point3, svg: string, shapes: unknown[], c: Common = {}) {
+    if (!shapes.length) throw new Error(`Assembly ${this.name}: markup «${name}» has no shape; draw it with the \`over\` option of the part it sits on`);
     return this.put(this.full(name), at, svg, shapes, c);
+  }
+
+  /** Fast checks of mistakes that the full audit finds only after a slow settle (object-audit runs this first and
+   *  stops on any finding). Each rule is a root cause seen while building the kit (§22.4, §24.5):
+   *  - a lathe body runs THROUGH a coaxial body of larger radius (a collar round a rod, a hub through a gear): no
+   *    paint order exists; slice the rod at the collar or seat the hub under the gear;
+   *  - a pipe end sits on a part that shares the pipe's owner (or is owned by the pipe): the audit never counts a
+   *    part of the same owner as a mount, so the end reads as loose; leave the owner off;
+   *  - a pipe bend folds back on screen (handles, arches and steps turned in a plane that holds the line of sight). */
+  lint(): string[] {
+    const out: string[] = [];
+    type Body = {name: string; F: Frame; poly: number[][]; owner?: string};
+    const bodies = (this.R.solids as Body[]).filter((b) => (b as unknown as {kind: string}).kind === 'body');
+    const span = (b: Body) => {
+      const s = b.poly.map((p) => p[0]);
+      return {s0: Math.min(...s), s1: Math.max(...s), r: Math.max(...b.poly.map((p) => p[1]))};
+    };
+    const cross = (a: Point3, b: Point3) => G.len3(G.cross3(a, b)) as number;
+    for (let i = 0; i < bodies.length; i++)
+      for (let j = 0; j < bodies.length; j++) {
+        if (i === j) continue;
+        const [big, small] = [bodies[i], bodies[j]];
+        if (cross(big.F.a, small.F.a) > 1e-3) continue; // not parallel
+        const d = G.sub3(small.F.o, big.F.o) as Point3;
+        if (cross(d, big.F.a) > 1e-3) continue; // not on one line
+        const shift = G.dot3(d, big.F.a) * Math.sign(G.dot3(small.F.a, big.F.a));
+        const B = span(big);
+        const S0 = span(small);
+        const S = {s0: S0.s0 + shift, s1: S0.s1 + shift, r: S0.r};
+        if (S.r >= B.r - 1e-6) continue;
+        const inside = Math.min(B.s1, S.s1) - Math.max(B.s0, S.s0);
+        const pokes = S.s0 < B.s0 - 0.05 && S.s1 > B.s1 + 0.05;
+        if (inside > 0.05 && pokes) out.push(`through: «${small.name}» runs through the coaxial «${big.name}»; slice it at «${big.name}» (no paint order exists for a rod through a collar)`);
+      }
+    type Route = {name: string; points: Point3[]; r: number};
+    type Tube = {name: string; owner?: string; tips: (Point3 | null)[]};
+    for (const t of this.R.tubes as Tube[]) {
+      if (!t.owner) continue;
+      const route = (this.R.routes as Route[]).find((x) => x.name === t.name);
+      for (const tip of t.tips) {
+        if (!tip) continue;
+        const near = (this.R.solids as (Body & {name: string})[]).filter((sh) => (sh.owner === t.owner || sh.name === t.owner) && (A.sdf(sh, tip) as number) <= (route?.r ?? 0) + 0.3);
+        if (near.length)
+          out.push(
+            t.owner === t.name
+              ? `mount: an end of «${t.name}» sits on «${near[0].name}», which is owned by the pipe itself; the audit never counts such a part as a mount; give that part another owner`
+              : `mount: an end of «${t.name}» sits on «${near[0].name}», which shares its owner «${t.owner}»; the audit never counts such a part as a mount; drop the owner from the pipe`,
+          );
+      }
+    }
+    // a bend that folds back on screen (a corner turned in a plane that holds the line of sight): cheap to find now
+    for (const f of A.folds(this.R.routes, this.P, {items: this.R.items}) as {name: string; flatTurn: number}[])
+      out.push(`fold: «${f.name}» turns ${Math.round(f.flatTurn)}° on screen; widen the bend (≥ 2.6·r), turn the corner across the view, or use a ramp instead of a vertical step`);
+    return [...new Set(out)];
   }
 
   /** Paint order solved from the recorded geometry (Anatomy orderKeys). Slow, so the audit runs it once

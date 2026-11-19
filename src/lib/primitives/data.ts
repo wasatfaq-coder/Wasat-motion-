@@ -157,7 +157,7 @@ export const balance = (A: Assembly, [cx, cy, z0]: Point3, o: {arm: number; tilt
     A.ball(`balance.cap${i}`, along(s * o.arm, 0.9), 1.3, {tone: 'mid', ...own('balance.beam')});
     const hanger: Point3 = [e[0], e[1], e[2] - 3.6];
     A.pipe(`balance.hook${i}`, [e, [hanger[0], hanger[1], hanger[2] + 0.9]], 0.4, {meta: {touch: [`${A.name}.balance.*`]}});
-    A.ball(`balance.hanger${i}`, hanger, 0.9, {tone: 'lo', ...own(`balance.hook${i}`)});
+    A.ball(`balance.hanger${i}`, hanger, 0.9, {tone: 'lo', ...own('balance.beam')});
     const panZ = hanger[2] - o.arm * 0.9;
     for (let c = 0; c < 3; c++) {
       const a = (c / 3) * Math.PI * 2 + 0.5;
@@ -165,11 +165,11 @@ export const balance = (A: Assembly, [cx, cy, z0]: Point3, o: {arm: number; tilt
       const d = G.unit3(G.sub3(rim, hanger)) as Point3;
       A.pipe(`balance.chain${i}.${c}`, [G.add3(hanger, G.mul3(d, 0.9)) as Point3, rim], 0.25, {meta: {touch: [`${A.name}.balance.*`]}});
     }
-    A.turned(`balance.pan${i}`, [[0, 0.0001], [0.5, 4.8, 1], [1.4, 6.2, 1], [1.6, 6.4]], up(hanger[0], hanger[1], panZ), {tone: 'hi', lit: o.litPan === i});
-    A.ring(`balance.rim${i}`, 1.6, 2.2, 5.8, 6.6, up(hanger[0], hanger[1], panZ), {tone: 'mid', ...own(`balance.pan${i}`)});
-    // weights stacked in the pan: cylinders of falling size
-    const n = (o.weights ?? [3, 2])[i];
-    let wz = panZ + 0.6;
+    // the pan with its rim in one profile (a separate rim ring would encircle the weights: no paint order)
+    A.turned(`balance.pan${i}`, [[0, 0.0001], [0.5, 4.8, 1], [1.4, 6.2, 1], [1.6, 6.4], [2.2, 6.6]], up(hanger[0], hanger[1], panZ), {tone: 'hi', lit: o.litPan === i});
+    // weights stacked on the pan: cylinders of falling size
+    const n = (o.weights ?? [3, 3])[i];
+    let wz = panZ + 2.2;
     for (let k = 0; k < n; k++) {
       const r = 3 - k * 0.6;
       A.turned(`balance.weight${i}.${k}`, [[0, r], [1.6, r], [1.9, r * 0.6], [2.4, r * 0.5]], up(hanger[0], hanger[1], wz), {tone: 'lo', ...own(`balance.pan${i}`)});

@@ -39,13 +39,13 @@ export const tangle = (name: string, P: K.Projection, c: Point3, o: TangleOpts =
   const R = o.r ?? 10;
   const cord = o.cord ?? 0.55;
   const N = o.loops ?? 40;
-  const A = new Assembly(name, P, {role: 'secondary', allow: [[`${name}.loop*`, `${name}.loop*`], [`${name}.loop*`, `${name}.core`], [`${name}.end*`, `${name}.loop*`]]});
+  const A = new Assembly(name, P, {role: 'secondary', crowd: [[`${name}.loop*`, `${name}.loop*`]], allow: [[`${name}.loop*`, `${name}.loop*`], [`${name}.loop*`, `${name}.core`], [`${name}.end*`, `${name}.loop*`]]});
   if (o.core ?? true) A.ball('core', c, R - cord, {tone: 'mid', ground: true, shadow: 'hero'});
   const ns = normals(N, A.V);
   ns.forEach((n, i) => {
     // successive loops sit a hair further out, the way a wound ball grows
     const r = R + (i / N) * cord * 1.2;
-    A.pipe(`loop${i}`, circle(c, n, r, 28, i * 0.7), cord, {caps: false, limp: true, ends: [false, false], maxLength: 10, meta: {owner: `${name}.core`, touch: [`${name}.*`]}});
+    A.pipe(`loop${i}`, circle(c, n, r, 28, i * 0.7).slice(0, -1), cord, {closed: true, limp: true, maxLength: 10, meta: {owner: `${name}.core`, touch: [`${name}.*`]}});
   });
   // the free end: out of the wound ball (from the core surface, under the loops), down and away
   const out: Point3 = [0.62, 0.62, -0.48];

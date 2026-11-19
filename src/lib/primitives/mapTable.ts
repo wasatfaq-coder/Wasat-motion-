@@ -100,6 +100,10 @@ export const mapTable = (
     // the top edge of each plate is traced again so neighbouring plates of equal height stay apart on screen
     A.extruded(`region.${r.id}`, ring, seaTop, r.height, {tone: 'hi', lit: r.lit, over: K.lineSvg(K.onTop(ring, seaTop + r.height, A.P, true), {tone: 'lo'}), meta: {owner: `${A.name}.table.sea`}});
   }
+  // a compass in the north-west corner of the sea: north is towards −y (the back of the table)
+  const [kx, ky] = [x0 + 6, y0 + 6];
+  A.cyl('compass', kx, ky, 3.2, seaTop, 0.6, {tone: 'mid', bevel: 0.15});
+  A.prism('compass.needle', {o: [kx, ky, seaTop + 0.6], a: [0, 0, 1], u: [1, 0, 0], v: [0, -1, 0]}, [[0, 2.8], [0.7, 0], [0, -2.8], [-0.7, 0]], 0, 0.3, {tone: 'hi', meta: {owner: 'compass'}});
   const surface = (x: number, y: number) => {
     for (const {r, ring} of plans) if (inside([x, y], ring)) return seaTop + r.height;
     return seaTop;
@@ -154,11 +158,13 @@ export const route = (
         const dirx = cur[0] - prev[0];
         const diry = cur[1] - prev[1];
         const dl = Math.hypot(dirx, diry) || 1;
-        const clear = r + 1.2;
+        const clear = r + 3.5;
         const up = cur[2] > prev[2];
         const foot: Point3 = up ? [edge[0] - (dirx / dl) * clear, edge[1] - (diry / dl) * clear, prev[2]] : [edge[0] + (dirx / dl) * clear, edge[1] + (diry / dl) * clear, cur[2]];
-        if (up) pts.push(foot, [foot[0], foot[1], cur[2]]);
-        else pts.push([foot[0], foot[1], prev[2]], foot);
+        // a ramp from the foot on the low side to the edge at the high level (a vertical step folds on screen)
+        const top: Point3 = [edge[0], edge[1], Math.max(cur[2], prev[2])];
+        if (up) pts.push(foot, top);
+        else pts.push(top, foot);
       }
       if (j === n || Math.abs(cur[2] - prev[2]) > 1e-6) pts.push(cur);
       prev = cur;
@@ -170,5 +176,5 @@ export const route = (
       const g = map.toKit(lon, lat, 0);
       A.cyl(`${name}.stop${i}`, g[0], g[1], r * 2.4, g[2], 0.4, {tone: 'mid', bevel: 0.1, lit: o.lit ?? true});
     });
-  return A.pipe(name, clean, r, {lit: o.lit ?? true, tone: 'hi', bend: r * 2.6, ends: [false, false], meta: {touch: [`${A.name}.region.*`, `${A.name}.table.sea`]}});
+  return A.pipe(name, clean, r, {lit: o.lit ?? true, tone: 'hi', bend: r * 4, ends: [false, false], meta: {touch: [`${A.name}.region.*`, `${A.name}.table.sea`]}});
 };

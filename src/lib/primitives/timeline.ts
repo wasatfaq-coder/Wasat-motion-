@@ -82,10 +82,7 @@ export const gearPlate = (A: Assembly, name: string, [x, y, z]: Point3, w: numbe
   return z + 1.6;
 };
 
-/** A causal link between two stations as a tube on posts above the rail (when gears would not fit): from the cause's
- *  post top to the effect's, arched `lift` above. The tube is the one coral part when the link is the subject. */
-export const link = (A: Assembly, name: string, a: Point3, b: Point3, o: {lift?: number; lit?: boolean} = {}) => {
-  const lift = o.lift ?? 8;
-  const mid: Point3 = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, Math.max(a[2], b[2]) + lift];
-  return A.pipe(name, [a, [a[0], a[1], a[2] + lift * 0.6], mid, [b[0], b[1], b[2] + lift * 0.6], b], 0.6, {bend: 4, lit: o.lit, tone: 'hi'});
-};
+/** A causal link between two stations: a straight rod resting on the lamps on top of their posts (`station().top`).
+ *  An arched tube was tried and folds on screen at its corners. The rod is the one coral part when the link is the
+ *  subject. */
+export const link = (A: Assembly, name: string, a: Point3, b: Point3, o: {lit?: boolean} = {}) => A.pipe(name, [a, b], 0.6, {lit: o.lit, tone: 'hi'});

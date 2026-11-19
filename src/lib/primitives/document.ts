@@ -37,7 +37,7 @@ export const sheet = (A: Assembly, [x, y, z]: Point3, o: SheetOpts = {}) => {
       tone: lit ? 'hi' : 'mid',
       bevel: 0.05,
       lit,
-      ...(lit ? {piece: `${p}.line`, move: [0, 6, 4] as Point3} : {}),
+      ...(lit ? {piece: `${p}.line`, move: [0, 2, 3] as Point3} : {}),
       meta: {owner: `${A.name}.${p}`},
     });
   }
@@ -100,7 +100,9 @@ export const archive = (A: Assembly, [x, y, z]: Point3, o: {rows?: number; cols?
       A.slab(`${id}`, {x: dx + 0.3, y: y + D - 1.4, w: cw - 0.6, d: 1.4, r: 0.4}, dz, ch, {tone: 'hi', bevel: 0.3, ...pc});
       A.slab(`${id}.slot`, {x: dx + cw / 2 - 4, y: y + D, w: 8, d: 0.4, r: 0.2}, dz + ch - 4.5, 2.4, {tone: 'mid', bevel: 0.05, ...pc, ...own});
       const hz = dz + 3;
-      A.pipe(`${id}.handle`, [[dx + cw / 2 - 4, y + D, hz], [dx + cw / 2 - 4, y + D + 1.8, hz], [dx + cw / 2 + 4, y + D + 1.8, hz], [dx + cw / 2 + 4, y + D, hz]], 0.5, {bend: 1.3, ...pc});
+      // a bar handle on two posts (a bent tube handle folds on screen: its corners turn towards the viewer)
+      for (const hx of [dx + cw / 2 - 4, dx + cw / 2 + 4]) A.turned(`${id}.post${Math.round(hx)}`, [[0, 0.5], [1.4, 0.5]], G.frameAlong([hx, y + D, hz], [0, 1, 0]), {tone: 'mid', ...pc, ...own});
+      A.slab(`${id}.handle`, {x: dx + cw / 2 - 4.8, y: y + D + 1.4, w: 9.6, d: 1, r: 0.4}, hz - 0.6, 1.2, {tone: 'hi', bevel: 0.2, ...pc, ...own});
       if (open) {
         // the drawer box (floor and two sides) and the folders standing in it
         A.slab(`${id}.floor`, {x: dx + 0.6, y: y + t + 1, w: cw - 1.2, d: inner - 1, r: 0.2}, dz, 0.6, {tone: 'lo', bevel: 0.1, ...pc, ...own});

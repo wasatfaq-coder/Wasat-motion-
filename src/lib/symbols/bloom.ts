@@ -22,7 +22,7 @@ export const bloom = (name: string, P: K.Projection, [x, y, z]: Point3, open = 1
   const top = base + 26;
   // stem in four slices with a collar disc between each (a ring round a whole rod cannot be painted in order)
   const cuts = [6, 13, 20];
-  let s0 = base - 1;
+  let s0 = z + 1.2 + 12.8; // on the soil
   [...cuts, top - base].forEach((s, i) => {
     const s1 = base + s;
     A.turned(i ? `stem.${i}` : 'stem', [[0, 1.1], [s1 - s0, 1.1]], up(x, y, s0), {tone: 'mid', meta: {owner: `${name}.pot`}});
@@ -39,7 +39,7 @@ export const bloom = (name: string, P: K.Projection, [x, y, z]: Point3, open = 1
     petal(A, `leaf${i}`, planeFrame([x + Math.cos(a) * 1, y + Math.sin(a) * 1, base + s], dir, [0, 0, 1]), 9, 4.2, 0.5, {tone: 'mid', meta: {owner: `${name}.stem`}});
   });
   // hub (the coral heart when joy is the topic's coral meaning), sepals, two rings of petals on pins
-  A.turned('hub', [[0, 2.6], [1.6, 3.6, 1], [3.2, 3, 1], [4, 0.0001]], up(x, y, top - 0.6), {tone: 'hi', lit: o.lit, meta: {owner: `${name}.stem`}});
+  A.turned('hub', [[0, 2.6], [1.6, 3.6, 1], [3.2, 3, 1], [4, 0.0001]], up(x, y, top - 0.6), {tone: 'hi', lit: o.lit, meta: {owner: `${name}.pot`}});
   const ringPetals = (prefix: string, n: number, len: number, w: number, zOff: number, phase: number, closed: number, opened: number) => {
     for (let i = 0; i < n; i++) {
       const a = phase + (i / n) * Math.PI * 2;

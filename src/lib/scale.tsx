@@ -1,5 +1,5 @@
 import React from 'react';
-import {camOn, boxCorners, Cam, ROOM_S} from './camera';
+import {camFit, boxCorners, Cam, Rect, ROOM_S, safeRect} from './camera';
 import {iso, P3} from './iso';
 
 // Scale chain (MASTER_PROMPT_FINAL §24.3): cell → organ → body → city → planet as nested models with one continuous
@@ -22,14 +22,16 @@ const roomPx = (p: P3) => iso(ROOM_S)(p);
 
 /** Camera and layers for position `s` in [0, levels.length − 1]: 0 = the first level framed, 1 = the second, …
  *  The scene passes a frame-driven `s` (spring or interpolate per step) and renders `layers` inside RoomSvg. */
-export const scaleView = (levels: ScaleLevel[], s: number, fill = 0.6) => {
+export const scaleView = (levels: ScaleLevel[], s: number, o: {rect?: Rect; fill?: number} = {}) => {
+  // framing by camFit in the safe rect (camOn with zoom numbers cropped heroes, PR #21)
+  const frame = (min: P3, size: P3) => camFit(boxCorners(min, size), {rect: o.rect ?? safeRect(), fill: o.fill ?? 0.94});
   const n = levels.length;
   const k = Math.max(0, Math.min(n - 1, s));
   const i = Math.min(n - 2, Math.floor(k));
   const f = n === 1 ? 0 : k - i;
   if (n === 1) {
     const [min, size] = levels[0].box;
-    return {cam: camOn(boxCorners(min, size), fill), layers: [{id: levels[0].id, node: levels[0].draw(), transform: '', opacity: 1}], level: 0, f: 0};
+    return {cam: frame(min, size), layers: [{id: levels[0].id, node: levels[0].draw(), transform: '', opacity: 1}], level: 0, f: 0};
   }
   const outer = levels[i];
   const inner = levels[i + 1];
@@ -38,8 +40,8 @@ export const scaleView = (levels: ScaleLevel[], s: number, fill = 0.6) => {
   const [imin, isize] = inner.box;
   // the inner box mapped into the outer room space
   const mapped: [P3, P3] = [[at[0] + imin[0] / factor, at[1] + imin[1] / factor, at[2] + imin[2] / factor], [isize[0] / factor, isize[1] / factor, isize[2] / factor]];
-  const a = camOn(boxCorners(...outer.box), fill);
-  const b = camOn(boxCorners(...mapped), fill);
+  const a = frame(...outer.box);
+  const b = frame(...mapped);
   const zoom = a.zoom * Math.pow(b.zoom / a.zoom, f);
   // the focus follows the zoom (not the frame share), so the spot stays put on screen as it grows
   const w = Math.abs(b.zoom - a.zoom) < 1e-9 ? f : (zoom - a.zoom) / (b.zoom - a.zoom);

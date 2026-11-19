@@ -12,6 +12,7 @@
 //      jerk       a point that jumps or changes speed abruptly between two frames (not on a declared cut)
 //      pop        a part, arrow or plate that appears or vanishes within a frame or two instead of fading
 //      seam       a looping reel whose last frame does not lead into the first
+//      small      a drawn inset (plate kind 'inset') smaller than LIMITS.insetMin on its short side
 //    node scripts/motion-check.mjs [files…]            (default: every src/**/*.motion.ts)
 //
 // 2) PIXELS of a rendered video (review-video, the quality gate): any mp4 of any topic.
@@ -54,6 +55,7 @@ export const LIMITS = {
   late: 8, // frames an arrow may stay hidden after its owner has stopped (it annotates the pose it stops in, R6)
   tipOn: 14, // px from an arrow tip to the axis of a moving body that is not its owner (the head lands on it, R4)
   tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
+  insetMin: 320, // px: the shorter side of a drawn inset (kind 'inset'); a 240 px inset left a 35 px current dot (N6)
 };
 
 const walk = (dir) =>
@@ -196,6 +198,9 @@ export const checkSpec = async (spec) => {
     if (out.length) addOnce('crop', 'keep', f, `${out.length} hero point(s) outside the safe rect at frame ${f} (${out.map((k) => k.name).slice(0, 4).join(', ')})`);
     for (const p of pose.plates.filter((x) => x.opacity > 0.05))
       if (p.x < r.x0 - 1 || p.y < r.y0 - 1 || p.x + p.w > r.x1 + 1 || p.y + p.h > r.y1 + 1) addOnce('crop', p.name, f, `plate ${p.name} leaves the safe rect at frame ${f}`);
+    // small: a drawn inset below the floor (its marks are read on a phone, N6)
+    for (const p of pose.plates.filter((x) => x.opacity > 0.05 && x.kind === 'inset'))
+      if (Math.min(p.w, p.h) < LIMITS.insetMin) addOnce('small', p.name, f, `inset ${p.name} is ${Math.round(Math.min(p.w, p.h))} px on its short side at frame ${f} (≥ ${LIMITS.insetMin})`);
     // layout: the hero fills the rect and sits in its middle
     if (xy.length) {
       const xs = xy.map((p) => p[0]);

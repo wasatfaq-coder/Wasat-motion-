@@ -55,8 +55,9 @@ export const blendCam = (a: Cam, b: Cam, t: number): Cam => ({
  *  bar) and off moving bodies other than the owner. `along`: name prefixes the head may run onto (a current arrow
  *  that follows its conductor round a corner). */
 export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: number; tip?: Point3; along?: string[]; svg?: string};
-/** A frontal plate or inset in screen pixels. */
-export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number};
+/** A frontal plate or inset in screen pixels. `kind: 'inset'` marks a drawn inset (a section, a plan view): its side
+ *  must be at least LIMITS.insetMin px (scripts/motion-check.mjs), smaller its glyphs vanish on a phone (N6). */
+export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; kind?: 'label' | 'inset'};
 
 /** Everything scripts/motion-check.mjs needs to judge one frame without rendering it. */
 export type MotionPose = {

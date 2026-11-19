@@ -112,7 +112,34 @@ export class Assembly {
   private put(name: string, at: Point3, svg: string, shapes: unknown[], c: Common, extra: Record<string, unknown> = {}): Item {
     const item = this.R.put({name, at, bias: c.bias ?? 0, piece: c.piece ?? '', move: c.move ?? [0, 0, 0], svg: svg + (c.over ?? ''), shapes, ...extra});
     item.baseKey = item.key;
+    item.pos = at; // kept for lint (the recorder keeps only the depth key)
     return item as Item;
+  }
+
+  /** A ring sector round a vertical axis at centre `c` (a half-shell, an arc magnet, a clamp band) from angle a0 to a1
+   *  (radians), radii rIn…rOut, z…z + h. Split at the view's silhouette azimuths (A ± 90°) into `name`, `name.b`, `name.c`
+   *  so every piece is wholly in front of or behind what it wraps (lint `arc`). Returns the part names. */
+  arc(name: string, c: [number, number], rIn: number, rOut: number, a0: number, a1: number, z: number, h: number, opts: SolidOpts = {}) {
+    const az = (((this.P as {azimuth?: number}).azimuth ?? 45) * Math.PI) / 180;
+    const cuts: number[] = [];
+    for (const s of [az + Math.PI / 2, az - Math.PI / 2])
+      for (let k = -2; k <= 2; k++) {
+        const a = s + 2 * Math.PI * k;
+        if (a > a0 + 0.02 && a < a1 - 0.02) cuts.push(a);
+      }
+    const edges = [a0, ...cuts.sort((x, y) => x - y), a1];
+    const names: string[] = [];
+    for (let i = 0; i < edges.length - 1; i++) {
+      const [b0, b1] = [edges[i], edges[i + 1]];
+      const steps = Math.max(2, Math.ceil(((b1 - b0) / Math.PI) * 18));
+      const ring: K.Plane[] = [];
+      for (let k = 0; k <= steps; k++) ring.push([c[0] + rOut * Math.cos(b0 + ((b1 - b0) * k) / steps), c[1] + rOut * Math.sin(b0 + ((b1 - b0) * k) / steps)]);
+      for (let k = steps; k >= 0; k--) ring.push([c[0] + rIn * Math.cos(b0 + ((b1 - b0) * k) / steps), c[1] + rIn * Math.sin(b0 + ((b1 - b0) * k) / steps)]);
+      const n = i === 0 ? name : `${name}.${String.fromCharCode(97 + i)}`;
+      this.extruded(n, ring, z, h, opts);
+      names.push(n);
+    }
+    return names;
   }
 
   /** A box with rounded plan corners standing at z (plan in kit units). */
@@ -300,6 +327,59 @@ export class Assembly {
     const at = (p?: number[]) => (p ? ` at [${p.map((v) => v.toFixed(1)).join(', ')}]` : '');
     for (const f of A.folds(this.R.routes, this.P, {items: this.R.items}) as {name: string; flatTurn: number; at?: number[]}[])
       out.push(`fold: «${f.name}» turns ${Math.round(f.flatTurn)}° on screen${at(f.at)}; widen the bend (≥ 2.6·r), turn the corner across the view, or use a ramp instead of a vertical step`);
+    // piece: a piece that does not move, or an `order` entry no part uses. Every piece multiplies the share states
+    // the audit walks; a dead one turned 90 real problems into 3000 repeats (motor 130, 2026-11-19)
+    type PItem = {name: string; pos: Point3; piece: string; move: Point3};
+    const items = this.R.items as PItem[];
+    const pieces = new Map<string, PItem[]>();
+    for (const it of items) if (it.piece) pieces.set(it.piece, [...(pieces.get(it.piece) ?? []), it]);
+    for (const [piece, list] of pieces) if (list.every((it) => Math.hypot(...it.move) < 1e-6)) out.push(`piece: «${piece}» never moves (move [0, 0, 0]); drop the piece, a part that turns is a dynamicShapes part`);
+    for (const name of this.opts.order ?? []) if (!pieces.has(name)) out.push(`piece: the order names «${name}», but no part belongs to it`);
+    // arc: a ring sector round a vertical axis (a half-shell, an arc magnet, a clamp band) that runs across the
+    // silhouette azimuth (A ± 90°) of a body on that axis: one part of it is in front of the body and another beside or
+    // behind it, which no single paint key can say (500 depth cycles in the motor 130 housing, 2026-11-19).
+    // Build such parts with Assembly.arc(): it splits them there.
+    const az = (((this.P as {azimuth?: number}).azimuth ?? 45) * Math.PI) / 180;
+    type Prism = {name: string; kind: string; F: Frame; poly: number[][]; s0: number; s1: number};
+    const prisms = (this.R.solids as Prism[]).filter((p) => p.kind === 'prism' && Math.abs(p.F.a[2]) > 0.999);
+    const axes = bodies.filter((b) => Math.abs(b.F.a[2]) > 0.999);
+    const wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
+    for (const pr of prisms) {
+      for (const ax of axes) {
+        const sp = span(ax);
+        const z0 = ax.F.o[2] + sp.s0 * ax.F.a[2];
+        const z1 = ax.F.o[2] + sp.s1 * ax.F.a[2];
+        if (Math.min(z0, z1) >= pr.s1 - 0.05 || Math.max(z0, z1) <= pr.s0 + 0.05) continue;
+        const c = [ax.F.o[0], ax.F.o[1]];
+        const d = pr.poly.map((p) => Math.hypot(p[0] - c[0], p[1] - c[1]));
+        const rIn = Math.min(...d);
+        if (rIn < sp.r - 0.01 || rIn < 0.3 * Math.max(...d)) continue; // not a sector round this body
+        const rOut = Math.max(...d);
+        // a true ring sector: its outline lies on two circles round this axis (a box near a bolt is not one)
+        const onBand = (v: number) => Math.abs(v - rIn) < 0.04 * rOut || Math.abs(v - rOut) < 0.04 * rOut;
+        // the midpoints of its edges lie on those circles too (a long straight wall has corners on two radii, not arcs)
+        // (weighted by edge length: a rounded box has many tiny corner edges and four long straight ones)
+        let arcLen = 0;
+        let perimeter = 0;
+        pr.poly.forEach((p, i) => {
+          const q = pr.poly[(i + 1) % pr.poly.length];
+          const l = Math.hypot(q[0] - p[0], q[1] - p[1]);
+          perimeter += l;
+          if (onBand(Math.hypot((p[0] + q[0]) / 2 - c[0], (p[1] + q[1]) / 2 - c[1]))) arcLen += l;
+        });
+        if (pr.poly.length < 8 || d.filter(onBand).length < 0.9 * d.length || arcLen < 0.6 * perimeter) continue;
+        const mean = [pr.poly.reduce((a, p) => a + p[0], 0) / pr.poly.length - c[0], pr.poly.reduce((a, p) => a + p[1], 0) / pr.poly.length - c[1]];
+        const m = Math.atan2(mean[1], mean[0]);
+        const rel = pr.poly.map((p) => wrap(Math.atan2(p[1] - c[1], p[0] - c[0]) - m));
+        const lo = Math.min(...rel);
+        const hi = Math.max(...rel);
+        const cut = [az + Math.PI / 2, az - Math.PI / 2].map((a) => wrap(a - m)).find((a) => a > lo + 0.05 && a < hi - 0.05);
+        if (cut !== undefined) {
+          out.push(`arc: «${pr.name}» wraps round the axis of «${ax.name}» across the silhouette at ${Math.round((((wrap(cut + m) * 180) / Math.PI + 360) % 360))}°; split it there (build it with Assembly.arc)`);
+          break;
+        }
+      }
+    }
     return [...new Set(out)];
   }
 

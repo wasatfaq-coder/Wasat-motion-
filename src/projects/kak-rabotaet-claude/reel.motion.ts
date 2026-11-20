@@ -176,18 +176,24 @@ export const schemeShot = (t: number): SchemeState => {
   const comma = LINE1.length - 1;
   const hops = LINE1.map((_, i) => hopOf(t, i));
   // (every tile of the line is a moving part from the cut on: a static tile handed over to a moving copy mid-shot pops)
+  // The coral is a lit copy laid over its tile (`.coral`, drawn after it): it fades in as a tile lands and out as the next
+  // one lands, 0.1 s each, so no still tile changes colour in one frame (motion-check pixel `pop`).
+  const landAt = (i: number) => T.type0 + i * T.typeStep + T.flight;
+  const coralO = (i: number) => (i < 0 ? 1 : clamp01((t - (landAt(i) - 0.1)) / 0.1)) * (i + 1 < LINE2[0].length ? 1 - clamp01((t - landAt(i + 1)) / 0.1) : 1);
+  const coral = (lit: Dyn, o: number) => o > 0.001 && extra.push({...lit, name: `${lit.name}.coral`, opacity: o, bias: 0.05});
   LINE1.forEach((tile, i) => {
-    const lit = i === comma && landed === 0;
     hide.add(`scheme.p0.t1.${i}`);
-    extra.push(tileDyn(0, `t1.${i}.p0`, XS1[i], ROW1_Y + hops[i], [...tile.text].length, {lit}));
+    extra.push(tileDyn(0, `t1.${i}.p0`, XS1[i], ROW1_Y + hops[i], [...tile.text].length));
+    if (i === comma) coral(tileDyn(0, `t1.${i}.p0`, XS1[i], ROW1_Y + hops[i], [...tile.text].length, {lit: true}), coralO(-1));
   });
   // line 2: tiles in flight and the last landed one are moving parts; the one that landed last is coral
   LINE2[0].forEach((tile, i) => {
     const {p, dy, dn} = landing(t, i);
-    const lit = landed > 0 && i === landed - 1;
     hide.add(`scheme.p0.t2.${i}`);
     if (p <= 0) return;
-    extra.push(tileDyn(0, `t2.${i}.p0`, XS2[i], ROW2_Y + dy, [...tile.text].length, {lit, n0: 1.2 + dn, opacity: clamp01(p / 0.35)}));
+    const o = {n0: 1.2 + dn, opacity: clamp01(p / 0.35)};
+    extra.push(tileDyn(0, `t2.${i}.p0`, XS2[i], ROW2_Y + dy, [...tile.text].length, o));
+    coral(tileDyn(0, `t2.${i}.p0`, XS2[i], ROW2_Y + dy, [...tile.text].length, {...o, lit: true}), coralO(i) * o.opacity);
   });
   // the concept «rabbit»: rises on «внутрь» (low relief, dimmed), lights on «до» (full relief, tone lo → mid → hi)
   const rise = smooth(ramp(t, T.rise));
@@ -202,16 +208,6 @@ export const schemeShot = (t: number): SchemeState => {
   const cx = moving >= 0 ? end(moving) + (end(moving + 1) - end(moving)) * smooth(typed[moving]) : end(landed);
   extra.push(cursorDyn(0, cx, {opacity: cursorO(t)}));
 
-  // the coral leaves the old end over 0.1 s (a lit copy over it fades out; a colour change in one frame on a still tile
-  // is a pop); the new end is coral from its landing frame on
-  const landAt = (i: number) => T.type0 + i * T.typeStep + T.flight;
-  if (landed > 0) {
-    const k = clamp01((t - landAt(landed - 1)) / 0.1);
-    if (k < 1) {
-      const prev = landed === 1 ? tileDyn(0, `t1.${comma}.p0`, XS1[comma], ROW1_Y, 1, {lit: true}) : tileDyn(0, `t2.${landed - 2}.p0`, XS2[landed - 2], ROW2_Y, [...LINE2[0][landed - 2].text].length, {lit: true});
-      extra.push({...prev, name: `${prev.name}.coral`, opacity: 1 - k, bias: 0.05});
-    }
-  }
   // words on the tiles of panel 1 (the type follows the stand's scale) and on the concept
   const words: WordAt[] = [];
   if (readable) {

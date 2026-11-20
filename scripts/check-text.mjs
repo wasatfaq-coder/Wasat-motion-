@@ -12,7 +12,8 @@ const fail = (msg) => {
 
 const ti = process.argv.indexOf('--timeline');
 if (ti > 0 && !process.argv[ti + 1]) fail('check-text: --timeline needs a path');
-const file = ti > 0 ? process.argv[ti + 1] : 'src/data/timeline.json';
+if (ti < 0) fail('check-text: pass --timeline src/projects/<slug>/data/timeline.json (there is no root topic since regulation v3.0)');
+const file = process.argv[ti + 1];
 
 let tl;
 try {

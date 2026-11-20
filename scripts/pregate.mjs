@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Pre-gate: everything a machine can check BEFORE the quality-gate agents see a frame (MASTER_PROMPT_FINAL §15, §22.4).
+// Pre-gate: the FULL level of machine checks (decision 7), BEFORE the gate agent sees a frame (MASTER_PROMPT_FINAL v3.0).
+// After an edit the fast level is enough: node scripts/audit.mjs --topic <slug> --quick.
 // Root cause of the long gate loops of the pilot: known defects (hidden arrows, a tiny hero, a mirrored force, a cut
 // picture) were found by the agents, round after round. The gate runs only when this is green, and a round that only
 // repeats a pre-gate finding is wasted.
@@ -20,8 +21,7 @@ const jobs = [
   ['handedness', 'node', ['scripts/handed-check.mjs']],
 ];
 if (slug) {
-  const flags = ['--scenes', `src/projects/${slug}/scenes`, '--content', `projects/${slug}/content`, '--timeline', `src/projects/${slug}/data/timeline.json`];
-  jobs.push(['audit (topic)', 'node', ['scripts/audit.mjs', ...flags]]);
+  jobs.push(['audit (topic)', 'node', ['scripts/audit.mjs', '--topic', slug]]);
   const covers = `src/projects/${slug}/covers.ts`;
   if (fs.existsSync(covers)) jobs.push(['cover-check', 'node', ['scripts/cover-check.mjs', '--quiet', covers]]);
 } else if (kitOnly) jobs.push(['audit (kit)', 'node', ['scripts/audit.mjs']]);

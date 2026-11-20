@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Every frame of a range as one strip (MASTER_PROMPT_FINAL §6 ±3 frames, §15 motion): anchors, landings,
 // squash/bounce, cuts. 2 fps sheets cannot show these.
-//   node scripts/frame-strip.mjs <fromFrame> <toFrame> [out.png] [--comp Main] [--scale 0.3] [--cols 10]
+//   node scripts/frame-strip.mjs <fromFrame> <toFrame> [out.png] --comp <Composition> [--scale 0.3] [--cols 10]
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -25,7 +25,9 @@ fs.mkdirSync(path.dirname(out), {recursive: true});
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'strip-'));
 const browserExecutable = findBrowser();
 const serveUrl = await bundle({entryPoint: path.resolve('src/index.ts')});
-const comp = await selectComposition({serveUrl, id: arg('comp', 'Main'), browserExecutable});
+const compId = arg('comp', null);
+if (!compId) throw new Error('frame-strip: pass --comp <Composition> (e.g. <Slug>Main); there is no root composition since regulation v3.0');
+const comp = await selectComposition({serveUrl, id: compId, browserExecutable});
 const files = [];
 for (let f = from; f <= to; f++) {
   const file = path.join(tmp, `f${String(f).padStart(5, '0')}.png`);

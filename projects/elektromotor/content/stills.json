@@ -1,7 +1,0 @@
-{
-  "_doc": "Style frames measured by scripts/still-check.mjs before the quality gate (composition ElektromotorStand: frame 0 = scene 2, 1 = scene 3, 2 = scene 4, 3 = scene 5). Coral = the conductor with current.",
-  "comp": "ElektromotorStand",
-  "frames": [0, 1, 2, 3],
-  "coral": true,
-  "heroMinWidth": 0.3
-}

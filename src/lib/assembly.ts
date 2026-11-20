@@ -25,12 +25,15 @@ const A: any = AuditKit;
 export {G, T, A, K};
 export type Point3 = K.Point3;
 export type Frame = {o: Point3; a: Point3; u: Point3; v: Point3};
-export type Role = 'hero' | 'secondary' | 'environment';
+/** hero = a real device shown literally; mechanism = an invented mechanism (MASTER_PROMPT_FINAL «Механизм»);
+ *  secondary = a supporting object; prop = small props, symbols, data (no count, the 4× loupe only); environment. */
+export type Role = 'hero' | 'mechanism' | 'secondary' | 'prop' | 'environment';
 /** How the object is meant to be read. The part-count norm does not change with this flag (§22.2). */
 export type Detail = 'complex' | 'simple' | 'schematic';
 
-/** §22.2 detail norm: recorded parts per role. Environment is a warning in object-audit, not an error. */
-export const PART_NORM: Record<Role, number> = {hero: 80, secondary: 40, environment: 15};
+/** Detail norm by role (regulation v3.0, decision 3): recorded parts per role. Environment is a warning in object-audit,
+ *  not an error; props, symbols and data have no count. */
+export const PART_NORM: Record<Role, number> = {hero: 80, mechanism: 30, secondary: 15, prop: 0, environment: 15};
 
 /** An environment object stays supporting: at most this share of the hero part count in the same file (§22.2). */
 export const ENV_HERO_SHARE = 0.4;

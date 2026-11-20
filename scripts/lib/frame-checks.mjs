@@ -5,8 +5,9 @@
 // under the button column), the graphics band's fade cutting a body, and two or zero coral meanings all passed.
 //   fill    the drawn content's box fills ≥ `minFill` of the safe rect on its tighter side (§19.2)
 //   bounds  no content outside the safe rect (side columns, the band's fades): the hero is cut or under the buttons
-//   coral   exactly one connected coral region of ≥ `coralMin` (0.2 %, the still-check floor) of the frame (one meaning, visible on a phone), unless
-//           the frame declares `coral: 'none'` with a reason
+//   coral   at least one coral region of ≥ `coralMin` (0.2 %, the still-check floor) of the frame (the topic's one meaning,
+//           visible on a phone; several coral parts may carry that one meaning, regulation v3.0), unless the frame declares
+//           `coral: 'none'` with a reason
 // `bleed` (a reason) lets environment run past the safe rect (a zoom into part of a bigger object); fill still holds.
 
 /** The safe rect of src/lib/camera.tsx safeRect() with captions (x 64–904, y 300–1170). */
@@ -98,7 +99,6 @@ export const checkFrame = (img, {rect = SAFE_RECT, minFill = 0.7, coral = true, 
   const big = regs.filter((a) => a >= coralMin / 6);
   if (coral === true) {
     if (!big.length || big[0] < coralMin) errors.push(`coral: ${big.length ? `the coral region is ${(big[0] * 100).toFixed(2)} % of the frame` : 'no coral'} (< ${(coralMin * 100).toFixed(1)} %): the one meaning is missing or invisible on a phone; or declare coral: 'none' with a reason`);
-    if (big.length > 1) errors.push(`coral: ${big.length} separate coral regions (${big.map((a) => (a * 100).toFixed(2) + ' %').join(', ')}): one coral meaning per frame (§22.1)`);
   } else if (big.length) errors.push(`coral: the frame declares no coral («${coral}») but shows ${big.length} coral region(s)`);
   return {errors, stats: {fill, out: out * S * S, coral: regs.slice(0, 3)}};
 };
@@ -154,7 +154,7 @@ export const selftest = () => {
   expect('the same with bleed declared', faded, {bleed: 'zoom'}, null);
   const two = good();
   box(two, 200, 900, 320, 1000, red);
-  expect('two coral meanings', two, {}, /separate coral/);
+  expect('two coral parts of one meaning', two, {}, null);
   const thin = good();
   box(thin, 400, 600, 520, 720, tone);
   box(thin, 300, 700, 500, 703, red);

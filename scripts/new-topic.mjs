@@ -1,14 +1,31 @@
 #!/usr/bin/env node
-// Scaffold a new topic (CLAUDE.md «one folder per topic», MASTER_PROMPT_FINAL §13, §20):
-//   node scripts/new-topic.mjs <slug> "<Тема>"
-// Creates projects/<slug>/content (brief, register, templates), public/<slug>/audio/vo, src/projects/<slug> (Main, data)
-// and registers the compositions <Pascal>Main and <Pascal>Cover (three cover variants, §19.5) in src/Root.tsx.
-// Refuses to overwrite an existing topic.
+// Scaffold a new topic (CLAUDE.md «one folder per topic», MASTER_PROMPT_FINAL v3.0):
+//   node scripts/new-topic.mjs <slug> "<Тема>" --format how|why|history|numbers|faith [--sensitive none|religion|politics|health]
+// Creates projects/<slug>/content (brief, concept, register with the format's chapter skeleton, templates),
+// public/<slug>/audio/vo, src/projects/<slug> (Main, covers, motion, data) and registers <Pascal>Main and <Pascal>Cover in
+// src/Root.tsx. Refuses to overwrite an existing topic.
 import fs from 'node:fs';
 import path from 'node:path';
 
-const [slug, title = ''] = process.argv.slice(2);
-if (!slug || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('usage: new-topic.mjs <slug: lowercase-latin-with-dashes> "<Тема>"');
+const argv = process.argv.slice(2);
+const opt = (k, d) => (argv.includes(`--${k}`) ? argv[argv.indexOf(`--${k}`) + 1] : d);
+const [slug, title = ''] = argv.filter((a, i) => !a.startsWith('--') && !(argv[i - 1] ?? '').startsWith('--'));
+if (!slug || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('usage: new-topic.mjs <slug: lowercase-latin-with-dashes> "<Тема>" --format how|why|history|numbers|faith');
+
+// The five formats (decision 9): a chapter skeleton, the usual modes and the kit bricks to start from. Images and
+// mechanisms are invented anew for every topic; the skeleton is only where the chapters stand.
+const FORMATS = {
+  how: {name: 'Как работает', chapters: ['Целое и загадка', 'Что внутри', 'Как движется', 'Деталь, на которой всё держится'], modes: 'literal (вскрытие: разрез, разбор), schematic', kit: 'assembly (lathe, tube), transitions (cutaway, peel, zoomInto), techniques (dye, section, pullOut), Frontal'},
+  why: {name: 'Почему мы…', chapters: ['Знакомая ситуация', 'Механизм причины', 'Что его запускает', 'Что с этим делать'], modes: 'mechanism (выдуманный механизм, карточка), symbol (состояние человека), literal (люди, место)', kit: 'character / crowd, symbols, assembly для механизма, Frontal (момент правды)'},
+  history: {name: 'История', chapters: ['Событие и вопрос', 'Где и когда', 'Как развивалось', 'Что изменилось'], modes: 'literal (эпоха, место, люди), schematic (карта, хроника)', kit: 'mapTable + route (границы на год события), timeline (rail, stations), character (эпохи), document'},
+  numbers: {name: 'В цифрах', chapters: ['Неожиданное число', 'Из чего оно складывается', 'С чем сравнить', 'Что из этого следует'], modes: 'literal (предметы счёта), schematic (плашки, шкала от нуля)', kit: 'data (bars, ruler, balance), money, scale, Frontal (счётчик, источник и дата)'},
+  faith: {name: 'Понятие и вера', chapters: ['Вопрос о понятии', 'Источник: текст и ссылка', 'Как устроено понятие', 'Разные мнения и итог'], modes: 'literal (места, предметы, тексты, карты), schematic (понятие: календарь, расчёт); вера и поклонение — не механизм', kit: 'document, mapTable, timeline, Frontal (цитата с сурой и аятом, перевод)'},
+};
+const format = opt('format', null);
+if (!FORMATS[format]) throw new Error(`new-topic: pass --format ${Object.keys(FORMATS).join('|')} (decision 9)`);
+const F = FORMATS[format];
+const sensitive = opt('sensitive', format === 'faith' ? 'religion' : 'none');
+if (!['none', 'religion', 'politics', 'health'].includes(sensitive)) throw new Error('new-topic: --sensitive none|religion|politics|health');
 const pascal = slug.split('-').map((p) => p[0].toUpperCase() + p.slice(1)).join('');
 const content = path.join('projects', slug, 'content');
 const srcDir = path.join('src', 'projects', slug);
@@ -20,42 +37,70 @@ const write = (file, text) => {
 };
 const json = (o) => JSON.stringify(o, null, 2) + '\n';
 
-write(path.join(content, 'brief.yaml'), `# MASTER_PROMPT_FINAL §3. Fill before the analysis; defaults are named, not assumed.
+write(path.join(content, 'brief.yaml'), `# MASTER_PROMPT_FINAL v3.0, «Бриф». Defaults are named, not assumed.
 topic: "${title}"
+format: ${format}                # how | why | history | numbers | faith (${F.name})
+sensitive: ${sensitive}               # none | religion | politics | health
 source: null                # file, text or URL
-research_mode: supplied     # supplied | web
+research_mode: web          # supplied | web
 audience: general_adults
-goal: understand_main_idea
-duration_sec: 60
-duration_tolerance: 0.10
+duration_sec: 60            # Shorts 9:16 only
+series: null                # a series name lets a mechanism repeat inside it (decision 14)
 language: ru
-style: anatomy_toned_solids    # §22: toned solids in our palette, thick contour, one coral part
-accent_colors: 1            # coral; a second accent only by the user's decision
-metaphor_policy: accuracy_first   # §20: literal > schematic > metaphor; a leading metaphor needs a later schematic scene
 voice_provider: elevenlabs
-voice_id: 3EuKHIEZbSzrHGNmdYsx
+voice_id: 3EuKHIEZbSzrHGNmdYsx   # the narrator: «спокойный инженер»
 voice_model: eleven_v4
+arabic_voice_id: null       # the second voice for ayat and Arabic phrases (the user names it, decision 42)
 voice_budget: null
-captions: on
 music: forbidden
-cover: on
+cta: null
 `);
-write(path.join(content, 'distinct.json'), json({_why: 'MASTER_PROMPT_FINAL §25.2: after the script, compare this topic with the last finished one on six axes; at least four must differ. Replace status with against + axes.', status: 'pending', against: '', axes: {structure: {this: '', previous: '', differs: null}, opening: {this: '', previous: '', differs: null}, signatureShot: {this: '', previous: '', differs: null}, camera: {this: '', previous: '', differs: null}, soundShape: {this: '', previous: '', differs: null}, ending: {this: '', previous: '', differs: null}}}));
-write(path.join(content, 'progress.md'), `# Прогресс: ${title}\n\nСоздано ${today}. Слаг: \`${slug}\`.\n\n## Шаги (§8)\n- [ ] Бриф и источники\n- [ ] analysis.md (topic-analyst): оценка длительности и один выпуск или серия\n- [ ] Сценарий и реестр сцен/метафор (metaphor-auditor, fact-checker)\n- [ ] СТОП 1: сценарий, раскадровка, реестр метафор; для ведущей метафоры — metaphor-prep.md и проверка эскиза\n- [ ] Стайлфреймы локаций и тестовый фрагмент\n- [ ] СТОП 2\n- [ ] Аниматик (стоп-кадры под голос)\n- [ ] Сборка, аудит, gate\n- [ ] СТОП 3: полный черновик\n- [ ] Мастер (scripts/master.mjs)\n- [ ] Превью 360×640 из MP4, просмотр со звуком, зрительский пересказ и независимое подтверждение правок\n`);
+write(path.join(content, 'concept.md'), `# Концепт: ${title}
+
+Формат: **${F.name}**. Один файл до СТОП 1 (решение 8): структура, хук, главы, образы и механизмы.
+
+## Три структуры
+| # | Форма | Открытие | Концовка |
+| --- | --- | --- | --- |
+| 1 |  |  |  |
+| 2 |  |  |  |
+| 3 |  |  |  |
+
+Выбрана: … потому что …
+
+## Хук (0–2 с)
+Что с предметом не так; вопрос со словом-интригой. Движение с первого кадра.
+
+## Главы («Табл. NN / NN»)
+${F.chapters.map((c, i) => `${i + 1}. ${c} — шаг: утверждение → как работает → пример`).join('\n')}
+
+Режимы формата: ${F.modes}.
+Кирпичи набора: ${F.kit}.
+
+## Образы и механизмы
+Для каждого механизма — карточка в visual-register.json (\`mechanisms\`): что объясняет; деталь → утверждение → источник; законы и глагол движения; где упрощает и как можно понять неверно; момент правды. Три кандидата образа из словаря темы, сверка с docs/style/images-log.json.
+
+## Финал
+Тот же предмет, что в первом кадре, собран; коралловая метка ответа. Честно: чего не знаем, и один сильный факт.
+`);
+write(path.join(content, 'progress.md'), `# Прогресс: ${title}\n\nСоздано ${today}. Слаг: \`${slug}\`. Формат: ${F.name}.\n\n## Шаги\n- [ ] Бриф и источники\n- [ ] Анализ и досье (исследователь): утверждения с уровнем доверия\n- [ ] Концепт, сценарий, раскадровка, карточки механизмов (fact-checker, metaphor-auditor)\n- [ ] Эскиз ключевого образа 360×640 (out/sketch/eskiz-*)\n- [ ] СТОП 1: сценарий, раскадровка, карточки, эскиз\n- [ ] Голос, таймлайн, сборка, быстрые проверки после правок\n- [ ] pregate (полный уровень) и общий гейт\n- [ ] СТОП 2: полный черновик\n- [ ] Мастер (node scripts/master.mjs --topic ${slug}), запись образов в docs/style/images-log.json\n`);
 write(path.join(content, 'decisions.md'), `# Решения: ${title}\n\n| Дата | Решение | Кто |\n| --- | --- | --- |\n`);
-write(path.join(content, 'sources.md'), `# Источники\n\nКаждый факт: S<n>, ссылка, страница/раздел, границы применимости (§7).\n`);
-write(path.join(content, 'storyboard.md'), `# Раскадровка: ${title}\n\nДля каждой сцены (§8, §20, §22.5): мысль · режим (literal / schematic / metaphor / symbol) · локация · главный объект · движение · якорное слово · звук · ожидаемый пересказ · ошибочное прочтение · смысловая пауза.\n\n| Сцена | Мысль | Режим | Локация | Главный объект | Метафоры (id) | Якорное слово | Что говорит голос | Что показывает кадр | Звук | Ожидаемый пересказ | Ошибочное прочтение | Смысловая пауза (диапазон и цель) |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n\nПеред СТОП 1 сверь каждую строку со списком типовых ошибок §20.5: кадр не противоречит голосу, единицы совпадают, один образ — один смысл, гипотезы помечены в голосе. Ориентир темпа 1,5–3 с (§19.3): длинный план допустим, если действие развивается; паузу без события запиши в последней колонке.\n`);
-write(path.join(content, 'metaphor-prep.md'), `# Подготовка визуальной метафоры: ${title}\n\nЗаполни, если метафора ведёт ключевую сцену. До СТОП 1 и до моделирования. Прикрепи результат metaphor-auditor и решение из decisions.md. Если ведущей метафоры нет, так и напиши в первой строке.\n\n| Пункт | Что записать |\n| --- | --- |\n| Мысль и источник | Одна фраза для пересказа, источник и пределы утверждения |\n| Варианты | Два узнаваемых образа и точная схема для сравнения |\n| Соответствия | Что означает каждый предмет, действие и направление |\n| Досье | Как узнать предмет по силуэту, какие детали определяют его функцию, на какие материалы опираемся |\n| Ошибочное прочтение | Что зритель может понять неверно и как это снимает кадр или голос |\n| Кадры | Общий план, крупный план и точная схема. Отметь объект и действие на каждом |\n| Проверка эскиза | На 360×640 без озвучки рецензент называет видимый предмет и действие. Запиши ответ и замечания |\n| Схема следом | Id сцены реестра, где роли и связи показаны буквально или схемой |\n| Решение | Выбранный образ, основание выбора, ссылка на проверку и согласование |\n`);
-write(path.join(content, 'series-plan.md'), `# План серии: ${title}\n\nЗаполни, только если тема не помещается в один выпуск (§19.3, дополнение 4.1). Один выпуск эту таблицу не обязан заполнять фактами: напиши «один выпуск» и вопрос, на который он отвечает.\n\n| Вопрос или связь | Выпуск | Сцена | Что зритель уже знает | Законченный ответ |\n| --- | --- | --- | --- | --- |\n`);
-write(path.join(content, 'script.json'), json({scenes: []}));
-write(path.join(content, 'sound-map.json'), json({_doc: 'Per scene: [{beat, offset, file, volume, reason}]. Review after every scene change, then node scripts/audit.mjs --stamp-sfx.'}));
+write(path.join(content, 'sources.md'), `# Источники\n\nКаждый факт: S<n>, ссылка, страница/раздел, границы применимости, уровень доверия (обзор/метаанализ > повторённое исследование > одно исследование > мнение).\n`);
+write(path.join(content, 'storyboard.md'), `# Раскадровка: ${title}\n\n| Сцена | Глава | Мысль | Режим | Локация | Главный объект | Механизм | Якорное слово | Что говорит голос | Что показывает кадр | Три слоя движения (событие · отклик · жизнь) | Переход | Звук | Ожидаемый пересказ | Ошибочное прочтение |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n\nКадр не противоречит голосу; единица образа = единица утверждения; один образ — один смысл; гипотезы и уровень доверия сказаны в голосе. Событие каждые 1,5–2,5 с, микроинтрига каждые 5–8 с, повторный хук на 40–50 %.\n`);
+write(path.join(content, 'script.json'), json({mainClaim: null, scenes: []}));
+write(path.join(content, 'sound-map.json'), json({_doc: 'Per scene: [{beat, offset, file, volume, reason, layer: event | response | life}]. Review after every scene change, then node scripts/audit.mjs --topic <slug> --stamp-sfx.'}));
 write(path.join(content, 'timing.json'), json({firstVoiceStartFrames: 6, lastTailMs: 300, pauses: {}, extraTailFrames: {}, spokenNumbers: {}}));
 write(path.join(content, 'visual-register.json'), json({
-  _choose: 'Way of showing, per scene, first that carries the idea (§20.1, §24): literal (real objects, interfaces, data) → schematic (structure, steps, scale) → metaphor (a machine for what has no form; approved at STOP 1) → symbol (a person\'s state only: a symbol from src/lib/symbols/catalog.json, with cause, appearsOn and leavesOn beats). Interfaces and data are never metaphor or symbol.',
-  _doc: 'MASTER_PROMPT_FINAL §20: every scene declares location and mode; every metaphor is justified and approved at STOP 1; measured data sits on a frontal plate. A leading metaphor sets leadingMetaphor (metaphor id) and schemeScene (a later schematic scene id). interface: real requires literal mode. whyNotLiteral and rationale are the same slot.',
+  _choose: 'Per scene, the first mode that carries the idea: literal (real objects, places, interfaces, data; the cut for real devices) → schematic (structure, steps, scale, frontal plates) → mechanism (an invented mechanism for what has no visible form: feelings, decisions, society, concepts) → symbol (a person\'s state, src/lib/symbols/catalog.json). Interfaces and data are never mechanism or symbol.',
+  _doc: 'MASTER_PROMPT_FINAL v3.0. chapters: [{n, title}] («Табл. NN / NN»; chapter 0 = hook or finale). scenes: {id: {chapter, mode, location, mechanism?, symbols?, data?: {plane: frontal, source}, interface?, coral?: true, dark?: true}}. One mechanism per chapter; one dark scene per video; coral means coralMeaning only. mechanisms: {id: {name, idea, parts: [{part, claim, source}], laws, verb, simplifies, misread, truth, status: proposed|approved|rejected}}. heroes: names of hero objects (for the image journal). series: a series name lets a mechanism repeat inside it.',
+  coralMeaning: '',
+  chapters: F.chapters.map((t, i) => ({n: i + 1, title: t})),
   scenes: {},
+  mechanisms: {},
+  heroes: [],
   locationReuse: [],
-  metaphors: {},
+  ...(sensitive === 'religion' ? {sensitive: {noDepiction: false, worshipNotMechanism: false, quotesWithReference: false, opinionsAsOpinions: false, exactArabic: false, restrainedSound: false, noCoralOnHoly: false}} : {}),
+  ...(sensitive === 'politics' || sensitive === 'health' ? {sensitive: {sourcesOnScreen: false}} : {}),
 }));
 write(path.join(content, 'reviews', '.gitkeep'), '');
 write(path.join('public', slug, 'audio', 'vo', '.gitkeep'), '');
@@ -68,7 +113,7 @@ import {anatomyProjection} from '../../lib/anatomy';
 import {CoverSpec} from '../../lib/coverLayout';
 import {P3} from '../../lib/iso';
 
-// Covers of «${title}» (MASTER_PROMPT_FINAL §19.5): three variants, each with a different technique
+// Covers of «${title}» (MASTER_PROMPT_FINAL v3.0, «Обложка»): three variants, each with a different technique
 // (gap, violation, incomplete, contrast, specific); title 2–4 words with one coral word; the image is the topic's
 // hero object drawn in the house style (§22), framed by \`frame\` (room points). Checked by scripts/cover-check.mjs.
 // PLACEHOLDERS: replace \`art\`, \`frame\` and \`lines\` and drop \`placeholder\` before the gate.
@@ -125,7 +170,7 @@ if (!r.includes(marker)) throw new Error('Root.tsx marker not found');
 let imports = `import {${pascal}Main, ${pascal}Selected} from './projects/${slug}/Main';\nimport {${pascal}Cover} from './projects/${slug}/Cover';`;
 if (!/import \{episodeSchema\} from '\.\/components\/Episode';/.test(r)) imports += "\nimport {episodeSchema} from './components/Episode';";
 if (!/import \{anatomyCoverSchema\} from '\.\/components\/AnatomyCover';/.test(r)) imports += "\nimport {anatomyCoverSchema} from './components/AnatomyCover';";
-r = r.replace("import {Cover, coverSchema} from './Cover';", `import {Cover, coverSchema} from './Cover';\n${imports}`);
+r = r.replace("import {FORMAT} from './theme/format';", `import {FORMAT} from './theme/format';\n${imports}`);
 r = r.replace(marker, `  <Composition
     id="${pascal}Main"
     component={${pascal}Main}
@@ -142,9 +187,9 @@ ${marker}`);
 fs.writeFileSync(root, r);
 
 console.log(`Topic ${slug} created:
-  ${content}/        brief.yaml, storyboard.md, metaphor-prep.md, series-plan.md, visual-register.json, timing.json, sound-map.json, progress.md, decisions.md
+  ${content}/        brief.yaml (format ${format}, sensitive ${sensitive}), concept.md, storyboard.md, visual-register.json (chapters of «${F.name}»), timing.json, sound-map.json, progress.md, decisions.md
   public/${slug}/audio/vo/
   ${srcDir}/Main.tsx  composition ${pascal}Main registered in src/Root.tsx
   ${srcDir}/scenes.motion.ts  per-frame state of moving scenes (motion-check walks it)
   ${srcDir}/covers.ts, Cover.tsx  composition ${pascal}Cover (variants a/b/c: placeholders to replace)
-Next: fill brief.yaml and sources.md, run topic-analyst. Timeline: node scripts/build-timeline.mjs --content ${content} --public-prefix ${slug} --out ${srcDir}/data/timeline.json`);
+Next: fill brief.yaml and sources.md, run the researcher. Checks: node scripts/audit.mjs --topic ${slug} [--quick]. Timeline after the voice: node scripts/build-timeline.mjs --topic ${slug}`);

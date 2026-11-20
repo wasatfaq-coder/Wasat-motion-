@@ -133,7 +133,12 @@ const main = () => {
     return i >= 0 ? argv[i + 1] : def;
   };
   if (argv.includes('--selftest')) return selftest() ? 1 : 0;
-  const content = opt('content', 'content');
+  const topic = opt('topic', null);
+  const content = opt('content', topic ? path.join('projects', topic, 'content') : null);
+  if (!content) {
+    console.error('vo-check: pass --topic <slug> (there is no root topic since regulation v3.0)');
+    return 2;
+  }
   const threshold = Number(opt('threshold', '0.9'));
   const scriptFile = path.join(content, 'script.json');
   if (!fs.existsSync(scriptFile)) {

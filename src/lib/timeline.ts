@@ -1,5 +1,4 @@
-import timelineJson from '../data/timeline.json';
-
+// Timeline types shared by every topic; each topic imports its own src/projects/<slug>/data/timeline.json.
 export type Word = {text: string; startFrame: number; endFrame: number; status: string};
 export type Page = {text: string; startFrame: number; endFrame: number; words: Word[]};
 export type Beat = {id: string; word: string; frame: number | null; status: string};
@@ -18,10 +17,8 @@ export type SceneData = {
 };
 export type Timeline = {fps: number; totalFrames: number; scenes: SceneData[]};
 
-export const TIMELINE = timelineJson as Timeline;
-
-export const sceneById = (id: string) => {
-  const s = TIMELINE.scenes.find((x) => x.id === id);
+export const sceneById = (timeline: Timeline, id: string) => {
+  const s = timeline.scenes.find((x) => x.id === id);
   if (!s) throw new Error(`Scene ${id} not in timeline`);
   return s;
 };

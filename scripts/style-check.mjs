@@ -6,12 +6,13 @@
 //            accepted with --update (the new stills become the references, reviewed in the PR diff).
 //   palette  no saturated colour except the one coral accent: a pixel with saturation > 0.35 must have the coral hue.
 //   frame    scripts/lib/frame-checks.mjs on the full frame: the drawn content fills the safe rect, nothing outside it
-//            (unless the page declares `bleed`), exactly one visible coral region (unless `coral: 'none: …'`). The
+//            (unless the page declares `bleed`), a visible coral region (unless `coral: 'none: …'`). The
 //            references were taken from frames with exactly these defects, so drift alone passed them (gate round 1).
+// Drift is a WARNING (regulation v3.0, decision 7): a change in shared code must not keep CI red until a gate round.
 // Root cause it guards (docs/root-causes.md): a change in src/lib or src/theme altered the look of every object, and
 // nothing compared pictures, so it was found by eye one topic later.
 //   node scripts/style-check.mjs [--comp AnatomyUniversal] [--frames 15] [--update] [--keep <dir>]
-// Exit code 1 on drift or a foreign colour. Needs only a browser for Remotion stills (PNG work is plain Node).
+// Exit code 1 on a frame-check error or a foreign colour; drift only warns. Needs only a browser for Remotion stills (PNG work is plain Node).
 import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -91,7 +92,7 @@ for (let f = 0; f < frames; f++) {
   if (update || !fs.existsSync(ref)) {
     fs.copyFileSync(small, ref);
     notes.push(`reference ${update ? 'updated' : 'created'}: ${ref}`);
-  } else if (r.changed > 0.004) (errors++, notes.push(`ERROR ${(r.changed * 100).toFixed(2)} % of the phone-size frame changed against ${ref}: if the change is intended, run with --update and review the stills in the PR`));
+  } else if (r.changed > 0.004) notes.push(`WARN ${(r.changed * 100).toFixed(2)} % of the phone-size frame changed against ${ref}: if the change is intended, run with --update and review the stills in the PR (drift is a warning, regulation v3.0)`);
   console.log(`${comp} frame ${f}: foreign ${(r.foreign * 100).toFixed(3)} %${r.changed === null ? '' : `, changed ${(r.changed * 100).toFixed(2)} %`}${notes.length ? '\n  ' + notes.join('\n  ') : ' — ok'}`);
 }
 // pages of one showcase must show different pictures (zoom and pull-out came out as one frame, gate round 3)

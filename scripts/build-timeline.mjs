@@ -4,17 +4,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {requireTopic} from './lib/topic.mjs';
 
 // Topic-agnostic: paths come from flags, topic-specific timing from <content>/timing.json.
-//   node scripts/build-timeline.mjs                       (root topic: content/, public/, src/data/timeline.json)
-//   node scripts/build-timeline.mjs --content projects/<slug>/content --public-prefix <slug> --out src/projects/<slug>/data/timeline.json
+//   node scripts/build-timeline.mjs --topic <slug>   (projects/<slug>/content, public/<slug>/audio/vo, src/projects/<slug>/data/timeline.json)
+//   --content / --public-prefix / --out override one path
 const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : def;
 };
-const CONTENT = arg('content', 'content');
-const PREFIX = arg('public-prefix', ''); // sub-folder of public/ that holds audio/vo for this topic
-const OUT = arg('out', 'src/data/timeline.json');
+const TOPIC = requireTopic('build-timeline');
+const CONTENT = TOPIC.content;
+const PREFIX = TOPIC.prefix; // sub-folder of public/ that holds audio/vo for this topic
+const OUT = arg('out', TOPIC.timeline);
 const pub = (rel) => (PREFIX ? `${PREFIX}/${rel}` : rel); // path as Remotion staticFile() sees it
 
 const FPS = 60;

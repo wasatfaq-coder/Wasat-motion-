@@ -1,3 +1,0 @@
-{
-  "_doc": "Per scene: [{beat, offset, file, volume, reason}]. Review after every scene change, then node scripts/audit.mjs --stamp-sfx."
-}

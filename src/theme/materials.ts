@@ -72,6 +72,6 @@ export const grain = (m: Material, plan: K.Plan, z: number, P: K.Projection, see
   return out.join('');
 };
 
-/** The materials an object uses, for the parts list (PARTS) and the art-director's check. */
+/** The materials an object uses, for the parts list (PARTS) and the gate's loupe check. */
 export const describe = (used: Material[]): string => used.map((m) => `${m}: ${MATERIALS[m].note}`).join('; ');
 export type {Point3};

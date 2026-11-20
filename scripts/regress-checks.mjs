@@ -146,16 +146,14 @@ if (goodText.code !== 0) fail(`check-text: верный пример долже�
 const missing = run(['scripts/check-text.mjs', '--timeline', path.join(dir, 'no-such.json')]);
 if (missing.code === 0) fail('check-text: отсутствующий таймлайн должен завершаться с ошибкой');
 
-const root = run(['scripts/audit.mjs', '--only', 'captions']);
-if (root.code !== 0) fail(`audit --only captions: корневой таймлайн должен проходить\n${root.out.slice(-600)}`);
-
-const topicArgs = ['scripts/audit.mjs', '--only', 'captions', '--scenes', 'src/projects/elektromotor/scenes', '--content', 'projects/elektromotor/content'];
+// audit forwards the topic's --timeline to check-text as an argv element (a defective topic timeline must fail)
+const topicArgs = ['scripts/audit.mjs', '--only', 'captions', '--topic', 'zz-regress', '--content', dir];
 const topicBad = run([...topicArgs, '--timeline', bad]);
 if (topicBad.code === 0) fail('audit темы с дефектным --timeline должен завершаться с ошибкой');
 if (!/ends with "в"/.test(topicBad.out)) fail(`audit не передал дефектный таймлайн в check-text\n${topicBad.out.slice(-800)}`);
 
-const topicGood = run([...topicArgs, '--timeline', 'src/projects/elektromotor/data/timeline.json']);
-if (topicGood.code !== 0) fail(`audit темы с её таймлайном должен проходить проверку субтитров\n${topicGood.out.slice(-600)}`);
+const topicGood = run([...topicArgs, '--timeline', good]);
+if (topicGood.code !== 0) fail(`audit темы с верным таймлайном должен проходить проверку субтитров\n${topicGood.out.slice(-600)}`);
 
 if (!has('ffmpeg') || !has('ffprobe')) {
   console.log('review-video: ffmpeg не найден, регрессия превью пропущена');

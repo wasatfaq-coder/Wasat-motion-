@@ -1,0 +1,4 @@
+{
+  "_doc": "The image journal (regulation v3.0, decision 14): mechanisms, heroes and locations of finished topics and demos. scripts/audit.mjs refuses a topic that reuses one, unless both topics declare the same `series`. Add the topic's entries when its master is delivered.",
+  "entries": []
+}

@@ -3,20 +3,22 @@
 //  - <out>/scene-NN.png       2 fps contact sheet per scene (structure, pacing), tiles at --scale (default 0.25)
 //  - <out>/key/scene-NN-<beat>.png  one frame per beat at --key-scale (default 0.5): details, faces, labels, colour
 // The gate must judge details on key frames, not on the small tiles.
-//   node scripts/contact-sheet.mjs <outDir> [--comp Main] [--timeline src/data/timeline.json] [--fps 2] [--scale 0.25] [--key-scale 0.5]
+//   node scripts/contact-sheet.mjs <outDir> --topic <slug> [--comp <Slug>Main] [--timeline …] [--fps 2] [--scale 0.25] [--key-scale 0.5]
 import path from 'node:path';
 import fs from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {bundle} from '@remotion/bundler';
 import {renderStill, selectComposition} from '@remotion/renderer';
+import {requireTopic} from './lib/topic.mjs';
 
 const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : def;
 };
 const outDir = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : 'out/sheets';
-const compId = arg('comp', 'Main');
-const timelineFile = arg('timeline', 'src/data/timeline.json');
+const TOPIC = requireTopic('contact-sheet');
+const compId = TOPIC.comp;
+const timelineFile = TOPIC.timeline;
 const perSec = Number(arg('fps', '2'));
 const scale = Number(arg('scale', '0.25'));
 const keyScale = Number(arg('key-scale', '0.5'));

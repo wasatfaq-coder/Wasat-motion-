@@ -1,17 +1,60 @@
 {
   "_doc": "Catalog of reusable house-style objects (MASTER_PROMPT_FINAL §24, §4). «kit» entries are builders in src/lib that any topic may use (they build a NEW object for the topic). «topic» entries are finished objects of one topic: another topic may import one only when `consent` lists that topic's slug, recorded after the user said yes (decisions.md). scripts/audit.mjs refuses a topic that imports another topic's code or the demo samples without it.",
   "objects": {
-    "organic": {"kind": "kit", "module": "src/lib/organic.ts", "what": "capsule, loft, blob, petal: plants, animals, organs, cells"},
-    "data": {"kind": "kit", "module": "src/lib/primitives/data.ts", "what": "bars, pie, ruler, balance"},
-    "document": {"kind": "kit", "module": "src/lib/primitives/document.ts", "what": "sheet, stamp, archive cabinet"},
-    "mapTable": {"kind": "kit", "module": "src/lib/primitives/mapTable.ts", "what": "relief table, route between pins"},
-    "timeline": {"kind": "kit", "module": "src/lib/primitives/timeline.ts", "what": "rail, stations, carriage, gears, link"},
-    "symbols": {"kind": "kit", "module": "src/lib/symbols/index.ts", "what": "storm, tangle, bloom, sparks, trapdoor, levitation"},
-    "nature": {"kind": "kit", "module": "src/lib/nature.ts", "what": "particles (smoke, steam, fire, drops, gas), vessel with liquid"},
-    "crowd": {"kind": "kit", "module": "src/lib/crowd.ts", "what": "crowd figures, queue, stream, cluster"},
-    "device": {"kind": "kit", "module": "src/lib/device.ts", "what": "phone, monitor, faceMatrix, screenCorners"},
-    "money": {"kind": "kit", "module": "src/lib/money.ts", "what": "coin, stacks, banknotes, flow dots"},
-    "character": {"kind": "kit", "module": "src/lib/character.ts", "what": "faceless mannequin (~80 parts)"},
-    "elektromotor.stand": {"kind": "topic", "module": "src/projects/elektromotor/stand.parts.ts", "topic": "elektromotor", "consent": []}
+    "organic": {
+      "kind": "kit",
+      "module": "src/lib/organic.ts",
+      "what": "capsule, loft, blob, petal: plants, animals, organs, cells"
+    },
+    "data": {
+      "kind": "kit",
+      "module": "src/lib/primitives/data.ts",
+      "what": "bars, pie, ruler, balance"
+    },
+    "document": {
+      "kind": "kit",
+      "module": "src/lib/primitives/document.ts",
+      "what": "sheet, stamp, archive cabinet"
+    },
+    "mapTable": {
+      "kind": "kit",
+      "module": "src/lib/primitives/mapTable.ts",
+      "what": "relief table, route between pins"
+    },
+    "timeline": {
+      "kind": "kit",
+      "module": "src/lib/primitives/timeline.ts",
+      "what": "rail, stations, carriage, gears, link"
+    },
+    "symbols": {
+      "kind": "kit",
+      "module": "src/lib/symbols/index.ts",
+      "what": "storm, tangle, bloom, sparks, trapdoor, levitation"
+    },
+    "nature": {
+      "kind": "kit",
+      "module": "src/lib/nature.ts",
+      "what": "particles (smoke, steam, fire, drops, gas), vessel with liquid"
+    },
+    "crowd": {
+      "kind": "kit",
+      "module": "src/lib/crowd.ts",
+      "what": "crowd figures, queue, stream, cluster"
+    },
+    "device": {
+      "kind": "kit",
+      "module": "src/lib/device.ts",
+      "what": "phone, monitor, faceMatrix, screenCorners"
+    },
+    "money": {
+      "kind": "kit",
+      "module": "src/lib/money.ts",
+      "what": "coin, stacks, banknotes, flow dots"
+    },
+    "character": {
+      "kind": "kit",
+      "module": "src/lib/character.ts",
+      "what": "faceless mannequin (~80 parts)"
+    }
   }
 }

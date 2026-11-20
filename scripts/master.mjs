@@ -2,8 +2,7 @@
 // Master pipeline (MASTER_PROMPT_FINAL §14, §16): render video and audio, two-pass loudnorm to −14 LUFS with a
 // true-peak check on the ENCODED AAC (retries with more headroom), format checks, faststart, cover, JSON report.
 //
-//   node scripts/master.mjs                                   # root topic: Main + Cover, src/data/timeline.json
-//   node scripts/master.mjs --comp <Slug>Main --cover <Slug>Cover --timeline src/projects/<slug>/data/timeline.json --out out/<slug>
+//   node scripts/master.mjs --topic <slug>                    # <Slug>Main + <Slug>Cover, src/projects/<slug>/data/timeline.json, out/<slug>
 //   node scripts/master.mjs --skip-render                     # reuse out/master_video.mp4 and out/master_audio.wav
 //
 // Writes <out>/final.mp4, <out>/cover.png, <out>/master-report.json. Exit code 1 if any check fails.
@@ -11,20 +10,21 @@ import {execFileSync, spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {requireTopic} from './lib/topic.mjs';
 
 const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > 0 ? process.argv[i + 1] : def;
 };
-const COMP = arg('comp', 'Main');
+const TOPIC = requireTopic('master');
+const COMP = TOPIC.comp;
 // a topic's cover is <Slug>Cover next to <Slug>Main; its variant is the one the user chose (projects/<slug>/content/cover.json)
-const COVER = arg('cover', COMP === 'Main' ? 'Cover' : COMP.replace(/Main$/, 'Cover'));
-const TIMELINE = arg('timeline', 'src/data/timeline.json');
-const topicSlug = (TIMELINE.match(/src\/projects\/([^/]+)\//) ?? [])[1];
-const coverFile = topicSlug ? path.join('projects', topicSlug, 'content', 'cover.json') : null;
+const COVER = TOPIC.cover;
+const TIMELINE = TOPIC.timeline;
+const coverFile = path.join(TOPIC.content, 'cover.json');
 const coverChoice = coverFile && fs.existsSync(coverFile) ? JSON.parse(fs.readFileSync(coverFile, 'utf8')) : null;
 const COVER_PROPS = arg('cover-props', JSON.stringify({variant: coverChoice?.variant ?? 'a'}));
-const OUT = arg('out', 'out');
+const OUT = arg('out', path.join('out', TOPIC.slug));
 const CONC = arg('concurrency', String(Math.max(1, os.cpus().length - 1)));
 const SKIP = process.argv.includes('--skip-render');
 const TARGET = {I: -14, I_TOL: 0.5, TP_MAX: -1.5, LRA: 11};

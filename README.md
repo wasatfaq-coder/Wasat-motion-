@@ -1,8 +1,8 @@
 # Wasat Motion
 
-Вертикальные моушн-эксплейнеры для Shorts на Remotion.
+Вертикальные моушн-эксплейнеры для Shorts на Remotion в стиле Anatomy.
 
-- Правила: `MASTER_PROMPT_FINAL.md` (v2.5), журнал: `docs/CHANGELOG.md`, инструменты: §21. Превью мастера: `node scripts/review-video.mjs <master.mp4> <каталог-reviews>`.
-- Агенты-проверяющие: `.claude/agents/` (обязательные — `shorts-quality-gate` и `metaphor-auditor`).
-- Новая тема: откройте сессию Claude Code на этом репозитории и напишите «Новая тема: … Источник: …» — тема создаётся в `projects/<slug>/` (`node scripts/new-topic.mjs <slug> "<Тема>"`).
-- Продолжить тему: «Продолжи тему <slug>» (или «Продолжи по content/progress.md» для ролика про время).
+- Правила: `MASTER_PROMPT_FINAL.md` (v3.0), по разделам — `docs/rules/INDEX.md`, журнал — `docs/CHANGELOG.md`, шпаргалка стиля — `styles/anatomy/STYLE.md`.
+- Новая тема: «Новая тема: … Формат: как работает / почему мы / история / в цифрах / понятие и вера» → `node scripts/new-topic.mjs <slug> "<Тема>" --format how|why|history|numbers|faith`.
+- Продолжить тему: «Продолжи тему <slug>».
+- Проверки: `node scripts/audit.mjs --topic <slug> --quick` после правки, `node scripts/pregate.mjs <slug>` на СТОПе.

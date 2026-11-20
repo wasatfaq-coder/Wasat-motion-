@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Measures style frames BEFORE the quality gate (stills only, no video render). Everything the gate used to find by eye
 // and that a number can find first:
-//   hero      the coral part (the conductor with current) bounding box: ≥ `heroMinWidth` of the frame width (§19.2)
+//   hero      the coral part's bounding box: advice ≥ `heroMinWidth` (default 0.45) of the frame width — the hero fills
+//             45–55 % of the working area (decision 50)
 //   band      content cut by the graphics band's fade (rows 240–290 and 1160–1215): no bright content there
 //   empty     the share of the working band that holds nothing (a lost, tiny object)
 //   coral     coral area share of the band (the one meaning must be visible)
@@ -64,7 +65,7 @@ for (const f of spec.frames) {
   const err = (m) => (errors++, out.push(`ERROR ${m}`));
   if (spec.coral !== false && r.coral < 0.004) err(`no visible coral part (${(r.coral * 100).toFixed(2)} % of the band): the one meaning is missing or tiny`);
   // a tall hero (a loop seen edge-on, a bottle) counts by its height in the working band
-  if (spec.coral !== false && r.coralW > 0 && r.coralW < (spec.heroMinWidth ?? 0.3) * 0.9 && r.coralH < (spec.heroMinHeight ?? 0.5)) out.push(`WARN  the coral hero is ${(r.coralW * 100).toFixed(0)} % of the frame width and ${(r.coralH * 100).toFixed(0)} % of the band height; aim ≥ ${(spec.heroMinWidth ?? 0.3) * 100} % wide or ≥ ${(spec.heroMinHeight ?? 0.5) * 100} % tall (§19.2)`);
+  if (spec.coral !== false && r.coralW > 0 && r.coralW < (spec.heroMinWidth ?? 0.45) * 0.9 && r.coralH < (spec.heroMinHeight ?? 0.5)) out.push(`WARN  the coral hero is ${(r.coralW * 100).toFixed(0)} % of the frame width and ${(r.coralH * 100).toFixed(0)} % of the band height; aim ≥ ${(spec.heroMinWidth ?? 0.45) * 100} % wide or ≥ ${(spec.heroMinHeight ?? 0.5) * 100} % tall (§19.2)`);
   if (r.fade > 0.25) out.push(`WARN  content runs into the graphics band's fade (${(r.fade * 100).toFixed(0)} % of the edge rows): the picture is cut at y ≈ 240 or 1200`);
   if (r.content < 0.18) err(`the working band is ${((1 - r.content) * 100).toFixed(0)} % empty: the object is lost or too small`);
   console.log(`frame ${f}: content ${(r.content * 100).toFixed(0)} %, coral ${(r.coral * 100).toFixed(1)} % (width ${(r.coralW * 100).toFixed(0)} %, height ${(r.coralH * 100).toFixed(0)} %)${out.length ? '\n  ' + out.join('\n  ') : ' — ok'}`);

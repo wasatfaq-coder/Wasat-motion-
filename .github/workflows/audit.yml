@@ -1,5 +1,4 @@
-# Static checks on every push and PR (no rendering): types, lint, captions, palette, projection,
-# visual register (locations, metaphors, data accuracy), timeline and sound map. MASTER_PROMPT_FINAL §12, §20.
+# Static checks on every push and PR (no rendering): the FULL level (decision 7). MASTER_PROMPT_FINAL v3.0, «Проверки».
 name: audit
 on:
   push:
@@ -19,12 +18,12 @@ jobs:
       - run: node scripts/audit.mjs
       - name: audit every topic in projects/
         run: |
-          # audit.mjs scopes a topic run to that topic plus the shared core (not the root topic)
+          # audit.mjs --topic checks one topic plus the shared core; without --topic it checks the shared core
           for d in projects/*/; do
             [ -d "$d" ] || continue
             slug=$(basename "$d")
             echo "== $slug"
-            node scripts/audit.mjs --scenes "src/projects/$slug/scenes" --content "projects/$slug/content" --timeline "src/projects/$slug/data/timeline.json"
+            node scripts/audit.mjs --topic "$slug"
           done
       - name: line-end checker (the rule itself; scene findings are warnings inside audit)
         run: node scripts/lines-check.mjs --selftest

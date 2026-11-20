@@ -4,8 +4,8 @@ import {COLORS} from '../theme/tokens';
 import {iso, P3} from './iso';
 import {SAFE, ZONES} from '../theme/layout';
 
-/** Top of the illustration band (no headings inside the video, only the opening preview title). */
-export const GRAPHICS_TOP = 240;
+/** Top of the illustration band: under the captions and the chapter mark (regulation v3.0, section 10). */
+export const GRAPHICS_TOP = ZONES.graphicsTop;
 
 export const ROOM_S = 54; // px per room unit at camera scale 1
 export const ROOM_ORIGIN: [number, number] = [540, 880]; // screen point of the back floor corner
@@ -25,13 +25,13 @@ export type Cam = {focus: [number, number]; zoom: number; screen?: [number, numb
  *  bottom of the band: a close-up whose environment runs past the band's bottom needs a long fade (≥ 80 px), or the
  *  band cuts it in a flat edge (motion-check --video reports it as a horizontal cut). The hero must still stay inside
  *  the safe rect (camFit, motion-check). */
-export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: number; bottom?: number; sides?: number; fade?: number}> = ({cam, children, top = GRAPHICS_TOP, bottom = ZONES.captionsTop, sides = 0, fade = 30}) => {
+export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: number; bottom?: number; sides?: number; fade?: number; dark?: boolean; under?: React.ReactNode}> = ({cam, children, top = GRAPHICS_TOP, bottom = ZONES.graphicsBottom, sides = 0, fade = 30, dark = false, under = null}) => {
   const [fx, fy] = cam.focus;
   const [sx, sy] = cam.screen ?? [540, 760];
   return (
-    <svg className="iso-svg" width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0, background: COLORS.bg}}>
+    <svg className="iso-svg" width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0, background: dark ? COLORS.bgDark : COLORS.bg}}>
       <defs>
-        {/* Graphics live only in the band between the thesis and the caption zone; edges fade to the background. */}
+        {/* Graphics live only in the band under the captions and the chapter mark; edges fade to the background. */}
         <linearGradient id="graphicsBand" x1="0" y1="0" x2="0" y2="1920" gradientUnits="userSpaceOnUse">
           <stop offset={top / 1920} stopColor="white" stopOpacity={0} />
           <stop offset={(top + 50) / 1920} stopColor="white" stopOpacity={1} />
@@ -51,6 +51,7 @@ export const RoomSvg: React.FC<{cam: Cam; children: React.ReactNode; top?: numbe
           <rect x={0} y={0} width={1080} height={1920} fill="url(#graphicsSides)" />
         </mask>
       </defs>
+      {under}
       <g mask="url(#graphicsMask)">
         <g mask="url(#graphicsSideMask)">
           <g transform={`translate(${sx} ${sy}) scale(${cam.zoom}) translate(${-fx} ${-fy})`}>
@@ -72,8 +73,9 @@ export type Rect = {x0: number; y0: number; x1: number; y1: number};
 export const safeRect = ({captions = true, top = GRAPHICS_TOP}: {captions?: boolean; top?: number} = {}): Rect => ({
   x0: SAFE.left,
   x1: 1080 - SAFE.right,
-  y0: Math.max(top + 50, SAFE.top),
-  y1: captions ? ZONES.graphicsBottom - 40 : FRAME_BOTTOM - 40,
+  // captions sit ON TOP since regulation v3.0: with captions the band starts under them and the chapter mark
+  y0: captions ? top + 50 : SAFE.top + 50,
+  y1: FRAME_BOTTOM - 40,
 });
 
 /** A frontal plate pinned to a room point: its rect in screen px relative to the pinned point (x0, y0, x1, y1). */
@@ -189,7 +191,7 @@ export const camOn = (points: P3[], fill = 0.55, screen: [number, number] = [540
   const ys = xy.map((p) => p[1]);
   const w = Math.max(1, Math.max(...xs) - Math.min(...xs));
   const h = Math.max(1, Math.max(...ys) - Math.min(...ys));
-  const band = 1170 - GRAPHICS_TOP;
+  const band = FRAME_BOTTOM - 40 - GRAPHICS_TOP;
   const zoom = Math.min((1080 * fill) / w, (band * fill) / h);
   return {focus: [(Math.max(...xs) + Math.min(...xs)) / 2, (Math.max(...ys) + Math.min(...ys)) / 2], zoom, screen};
 };
@@ -208,3 +210,11 @@ export const screenOf = (cam: Cam, p: P3): [number, number] => {
 
 /** Camera on an axis-aligned box in room units: the safe way to frame an object (all eight corners). */
 export const camOnBox = (min: P3, size: P3, fill = 0.55, screen: [number, number] = [540, 720]): Cam => camOn(boxCorners(min, size), fill, screen);
+
+/** The camera breathes (regulation v3.0, section 9): a slow push-in of `amount` (2–3 %) over a shot, t = 0..1 of the
+ *  shot. Framing stays camFit's: only the zoom grows around the same focus. */
+export const breathe = (cam: Cam, t: number, amount = 0.025): Cam => ({...cam, zoom: cam.zoom * (1 + amount * Math.max(0, Math.min(1, t)))});
+
+/** Parallax: the screen shift (px) of a layer at depth `depth` (−1 = near foreground, 0 = the hero, 1 = far
+ *  background) for a camera drift of `drift` px at the hero. The foreground moves faster than the background. */
+export const parallaxShift = (drift: number, depth: number) => drift * (depth < 0 ? 1 + 0.6 * -depth : 1 - 0.5 * depth) - drift;

@@ -10,8 +10,8 @@
 //           `coral: 'none'` with a reason
 // `bleed` (a reason) lets environment run past the safe rect (a zoom into part of a bigger object); fill still holds.
 
-/** The safe rect of src/lib/camera.tsx safeRect() with captions (x 64–904, y 300–1170). */
-export const SAFE_RECT = {x0: 64, x1: 904, y0: 300, y1: 1170};
+/** The safe rect of src/lib/camera.tsx safeRect() with captions on top (x 64–904, y 560–1430, regulation v3.0). */
+export const SAFE_RECT = {x0: 64, x1: 904, y0: 560, y1: 1430};
 
 const hsv = (r, g, b) => {
   const mx = Math.max(r, g, b);
@@ -130,8 +130,8 @@ export const selftest = () => {
   const red = [232, 96, 76];
   const good = () => {
     const g = blank();
-    box(g, 150, 400, 820, 1050, tone);
-    box(g, 400, 600, 520, 720, red);
+    box(g, 150, 660, 820, 1310, tone);
+    box(g, 400, 860, 520, 980, red);
     return g;
   };
   const fails = [];
@@ -142,25 +142,25 @@ export const selftest = () => {
   };
   expect('a clean frame', good(), {}, null);
   const small = blank();
-  box(small, 400, 600, 600, 800, tone);
-  box(small, 470, 650, 550, 730, red);
+  box(small, 400, 860, 600, 1060, tone);
+  box(small, 470, 910, 550, 990, red);
   expect('a tiny hero', small, {}, /^fill/);
   const cut = good();
-  box(cut, 800, 500, 1000, 700, tone);
+  box(cut, 800, 760, 1000, 960, tone);
   expect('content under the button column', cut, {}, /^bounds/);
   const faded = good();
-  box(faded, 200, 1150, 700, 1200, tone);
+  box(faded, 200, 1410, 700, 1460, tone);
   expect('a body cut by the bottom fade', faded, {}, /^bounds/);
   expect('the same with bleed declared', faded, {bleed: 'zoom'}, null);
   const two = good();
-  box(two, 200, 900, 320, 1000, red);
+  box(two, 200, 1160, 320, 1260, red);
   expect('two coral parts of one meaning', two, {}, null);
   const thin = good();
-  box(thin, 400, 600, 520, 720, tone);
-  box(thin, 300, 700, 500, 703, red);
+  box(thin, 400, 860, 520, 980, tone);
+  box(thin, 300, 960, 500, 963, red);
   expect('an invisible coral line', thin, {}, /^coral/);
   const none = good();
-  box(none, 400, 600, 520, 720, tone);
+  box(none, 400, 860, 520, 980, tone);
   expect('no coral without a reason', none, {}, /^coral/);
   expect('no coral with a reason', none, {coral: 'kit object, no meaning'}, null);
   if (frameDiff(good(), good()) >= MIN_PAGE_DIFF) fails.push('frame-checks: two identical pages were not caught as the same picture');

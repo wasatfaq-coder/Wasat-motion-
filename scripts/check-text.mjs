@@ -58,7 +58,9 @@ for (const s of tl.scenes) {
     const lines = p.text.length > MAX_LINE ? 2 : 1;
     const problems = [];
     if (p.text.length > MAX_LINE * 2) problems.push(`too long (${p.text.length} chars)`);
-    if (!(shown >= 0) || shown < 0.6) problems.push(`short on screen ${Number.isFinite(shown) ? shown.toFixed(2) : 'NaN'} s`);
+    // a page changes no faster than every 1.5 s and holds 2–5 words (regulation v3.0, section 10)
+    if (!(shown >= 0) || shown < 1.5) problems.push(`short on screen ${Number.isFinite(shown) ? shown.toFixed(2) : 'NaN'} s (< 1.5 s)`);
+    if (words.length > 5) problems.push(`${words.length} words (> 5)`);
     if (HANGING.has(last)) problems.push(`ends with "${last}"`);
     if (words.length < 2) problems.push('single word page');
     if (problems.length) {

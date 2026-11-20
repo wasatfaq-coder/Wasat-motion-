@@ -3,7 +3,7 @@
 // and that a number can find first:
 //   hero      the coral part's bounding box: advice ≥ `heroMinWidth` (default 0.45) of the frame width — the hero fills
 //             45–55 % of the working area (decision 50)
-//   band      content cut by the graphics band's fade (rows 240–290 and 1160–1215): no bright content there
+//   band      content cut by the graphics band's fade (rows 510–560 and 1460–1515, regulation v3.0 grid): no bright content there
 //   empty     the share of the working band that holds nothing (a lost, tiny object)
 //   coral     coral area share of the band (the one meaning must be visible)
 //   text      type size is not measured here. Floors live in the components: captions TYPE.caption (rule 64–72 px,
@@ -33,7 +33,7 @@ px = im.load()
 BG = (245, 240, 232)
 def content(c): return sum(abs(c[i]-BG[i]) for i in range(3)) > 26
 def coral(c): return c[0] > 190 and 60 < c[1] < 130 and 40 < c[2] < 110
-top, bot = 240, 1170
+top, bot = 510, 1470
 n = band = cor = 0
 xs = []
 cx0 = cx1 = cy0 = cy1 = None

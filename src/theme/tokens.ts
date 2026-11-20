@@ -12,6 +12,8 @@ export const COLORS = {
   accent: '#E8604C',      // coral: novelty and the key meaning
   captionBg: 'rgba(37,36,43,0.82)', // fallback plate only, when ink-on-bg contrast fails (§19.1)
   captionText: '#FCFAF6',
+  bgDark: '#2B2A30',      // the one dark scene of a video (regulation v3.0, section 7)
+  plateDark: '#3A3940',   // a frontal plate on the dark scene
 } as const;
 
 const rgb = (hex: string) => {

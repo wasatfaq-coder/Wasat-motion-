@@ -7,7 +7,7 @@ import KEYS from './desk.parts.keys.json';
 // Environment of «Как работает Claude» (parts-plan.md §1.4): DESK (scenes 1–4, 9: the table the phone and the token board
 // stand on, with a wall behind) and ROOM (scenes 5–8: the floor, back wall and podium the scheme stand stands on).
 // Both are role 'environment'; the hero files hold the heroes, so the share rule (≤ 40 % of the hero) is met by the plan
-// (35 of 94, 18 of 140). Same kit units as the phone and the board (anatomyProjection(6): 1 unit = 5 mm).
+// (35 of 94 = 37 %, 18 of 140; this file holds no hero, so the audit has no share to compare with). Same kit units as the phone and the board (anatomyProjection(6): 1 unit = 5 mm).
 // Scene axes (the board's, board.parts.ts): rx = right along the screen, fh = towards the viewer (horizontal), z = up,
 // turned by AZ = 46° like the board (45° + YAW 1°: with a face exactly square to the view the kit's hull drops corners).
 // The desk's top is z = 0; the phone's plate stands on it at the world origin. No logos, no brand, nothing that reads as
@@ -31,12 +31,12 @@ const rect = (x0: number, y0: number, x1: number, y1: number, r = 0.3) => roundR
 // ═════════════════════════════════════ DESK ═════════════════════════════════════
 export const DESK_PARTS = [
   {group: 'стол', parts: ['3 доски столешницы', '2 вставки швов', 'кромка', 'коврик и 2 полосы прострочки'], count: 9},
-  {group: 'стена', parts: ['панель стены', 'плинтус', 'розетка: рамка, лицевая, винт, 2 гнезда', 'вилка в розетке', 'шнур'], count: 10},
+  {group: 'стена', parts: ['панель стены', 'плинтус', 'розетка: рамка, лицевая, винт, 2 гнезда', 'вилка в розетке', 'шнур'], count: 8},
   {group: 'зарядка', parts: ['корпус вилки кабеля', 'металл вилки', 'зарядный блок'], count: 3},
   {group: 'кружка', parts: ['корпус', 'ободок', 'ручка', 'подставка'], count: 4},
   {group: 'блокнот и ручка', parts: ['обложка', 'блок страниц', '4 кольца спирали', 'резинка', 'корпус ручки', 'колпачок', 'клип', 'наконечник'], count: 11},
 ] as const;
-export const DESK_PARTS_TOTAL = DESK_PARTS.reduce((s, g) => s + g.count, 0); // 37
+export const DESK_PARTS_TOTAL = DESK_PARTS.reduce((s, g) => s + g.count, 0); // 35 = the plan's 35 (parts-plan §1.4)
 
 export const DESK = new Assembly('desk', P, {role: 'environment', detail: 'simple'});
 const D = DESK;
@@ -50,7 +50,7 @@ for (const k of [1, 2]) D.prism(`top.seam${k}`, DF, rect(TOP.x0 + 0.4, TOP.y0 + 
 D.prism('top.edge', DF, rect(TOP.x0, TOP.y1 - 0.3, TOP.x1, TOP.y1 + 1.1, 0.4), -TOP.t - 0.8, 0, {tone: 'mid', bevel: 0.4, meta: {touch: ['top.board2']}});
 
 // ── the wall behind the desk: a panel (its face at fh = −30, the desk's back edge) and a skirting strip on the desk
-const WALL = {x0: -56, x1: 110, z0: -10, z1: 70, s0: -TOP.y0, s1: -TOP.y0 + 6};
+const WALL = {x0: -52, x1: 106, z0: -TOP.t, z1: 70, s0: -TOP.y0, s1: -TOP.y0 + 6};
 D.prism('wall.panel', wallF, rect(WALL.x0, WALL.z0, WALL.x1, WALL.z1, 0.4), WALL.s0, WALL.s1, {tone: 'lo', bevel: 0.4, ground: true});
 D.prism('wall.skirt', DF, rect(TOP.x0, TOP.y0, TOP.x1, TOP.y0 + 3.4, 0.3), 0, 3.4, {tone: 'mid', bevel: 0.3, meta: {touch: ['wall.panel', 'top.board0']}});
 
@@ -95,7 +95,7 @@ const plugBack: Point3 = scene(PLUG.rx, -PLUG.s0, OUT.z);
 D.pipe('cord', [exit, scene(erx + 0.5, efh - 3, CORD_R), scene(erx + 6, -12, CORD_R), scene(PLUG.rx - 6, -17, 5), scene(PLUG.rx - 1, -PLUG.s0 + 4, OUT.z - 0.6), plugBack], CORD_R, {bend: 1.2, limp: true, maxLength: 4, meta: {touch: ['charger', 'outlet.plug', 'top.board1', 'top.board0']}});
 
 // ── a mug on a cork coaster on the mat (coffee, not data): body, rim, handle, coaster
-const MUG = {rx: -32, fh: -2, r: 6.8, h: 16};
+const MUG = {rx: -32, fh: -7.7, r: 6.8, h: 16};
 const mugAxis = (z: number) => G.frameAlong(scene(MUG.rx, MUG.fh, z), [0, 0, 1]);
 D.disc('mug.coaster', MAT.h, MAT.h + 0.7, 8.4, {...mugAxis(0), o: scene(MUG.rx, MUG.fh, 0)}, {tone: 'lo', meta: {touch: ['mat']}});
 const MZ = MAT.h + 0.7;
@@ -103,7 +103,7 @@ D.turned('mug.body', [[0, MUG.r - 1], [0.8, MUG.r, 1], [MUG.h, MUG.r]], mugAxis(
 D.ring('mug.rim', MUG.h - 0.2, MUG.h + 0.6, MUG.r - 1.5, MUG.r + 0.3, mugAxis(MZ), {tone: 'lo', meta: {touch: ['mug.body']}});
 const hx = MUG.rx + MUG.r;
 const hz = (z: number) => scene(hx, MUG.fh, MZ + z);
-D.pipe('mug.handle', [hz(3.2), scene(hx + 4.6, MUG.fh, MZ + 3.2), scene(hx + 4.6, MUG.fh, MZ + 11.4), hz(11.4)], 0.85, {bend: 2.4, meta: {touch: ['mug.body']}, ends: [true, true]});
+D.pipe('mug.handle', [hz(4.2), scene(hx + 4.4, MUG.fh, MZ + 4.2), scene(hx + 4.4, MUG.fh, MZ + 9.8), hz(9.8)], 0.85, {bend: 2.4, meta: {touch: ['mug.body']}, ends: [true, true]});
 
 // ── a notebook on the mat: cover, page block, four spiral rings along its back edge, an elastic band; a pen on top
 const NB = {x0: -44, x1: -20, y0: 8, y1: 38, c: 1.3, p: 1.5};

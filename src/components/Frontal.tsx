@@ -149,6 +149,7 @@ type WordProps = {
   size?: number; // px; never below the 26 px floor of an auxiliary label (§5)
   tone?: 'ink' | 'accent' | 'paper'; // paper: light text on a dark body
   show?: number; // 0..1 appearance (fade + a small rise)
+  angle?: number; // degrees: follow the on-screen direction of the face's rows (a face turned off the line of sight); never a skew
 };
 
 /** A word or token with NO frame (§20.4): screen-aligned bold Rubik pinned to a body it names, e.g. the text of a chip
@@ -156,13 +157,13 @@ type WordProps = {
  *  it is the plate. `accent` makes the word coral; use it only when the word itself carries the frame's one coral
  *  meaning and no part does (§22.1: coral belongs on a part; a coral word on a coral chip vanishes). Probe it for
  *  motion-check with wordProbe (reading time, crop). */
-export const Word: React.FC<WordProps> = ({at, text, size = TYPE.label, tone = 'ink', show = 1}) => {
+export const Word: React.FC<WordProps> = ({at, text, size = TYPE.label, tone = 'ink', show = 1, angle = 0}) => {
   const k = clamp01(show);
   if (k <= 0) return null;
   const px = Math.max(size, TYPE_FLOOR.auxiliary);
   const fill = tone === 'accent' ? COLORS.accent : tone === 'paper' ? COLORS.fillLight : COLORS.ink;
   return (
-    <text x={at[0]} y={at[1] + px * 0.36 + (1 - k) * px * 0.3} opacity={k} textAnchor="middle" fontFamily={fontFamily} fontWeight={TYPE.weightBold} fontSize={px} fill={fill}>
+    <text x={at[0]} y={at[1] + px * 0.36 + (1 - k) * px * 0.3} opacity={k} transform={angle ? `rotate(${angle.toFixed(2)} ${at[0]} ${at[1]})` : undefined} textAnchor="middle" fontFamily={fontFamily} fontWeight={TYPE.weightBold} fontSize={px} fill={fill}>
       {text}
     </text>
   );

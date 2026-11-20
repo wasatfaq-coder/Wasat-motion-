@@ -26,11 +26,12 @@ export const PHONE_P = anatomyProjection(PHONE_U);
 const P = PHONE_P;
 
 /** The answer split into eight pieces, one per chip: neutral Russian (decisions.md 19.11.2026), an EXAMPLE split, not a
- *  real tokenizer's, until the script fixes the text. A chip is as wide as its piece: 0.86 kit units per character
- *  (bold Rubik at 1.45 × the screen's px per unit, PhoneFrames.tsx) plus 0.7 of padding. */
+ *  real tokenizer's, until the script fixes the text. A chip is as wide as its piece: CHAR_W kit units per character
+ *  (bold Rubik sized to it, PhoneFrames.tsx) plus 0.7 of padding, and CHIP_H tall (the coral chip must read on a phone). */
 export const PIECES = ['Сол', 'неч', 'ный', 'свет', 'рас', 'сеи', 'ва', 'ется'];
 export const QUESTION = ['Почему небо', 'голубое?'];
-export const CHAR_W = 0.86;
+export const CHAR_W = 1.0;
+export const CHIP_H = 1.6;
 export const CHIP_W = PIECES.map((p) => p.length * CHAR_W + 0.7);
 
 export const PHONE = new Assembly('phone', P, {role: 'hero', detail: 'complex'});
@@ -39,7 +40,7 @@ const F = leanFrame([0, 0, 8]);
 const stand = phoneStand(A, F);
 const ph = standingPhone(A, F, {lit: undefined});
 export const SCREEN = ph.screen;
-export const CHIPS: ChatChip[] = chatUi(A, SCREEN, CHIP_W);
+export const CHIPS: ChatChip[] = chatUi(A, SCREEN, CHIP_W, {chipH: CHIP_H});
 
 // ── the charging cable: plug in the port, strain relief, down past the hinge onto the mat, through a clip, off the
 // plate's side to the table (it runs on to the wall charger of the desk environment)

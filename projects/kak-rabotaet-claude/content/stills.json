@@ -1,0 +1,7 @@
+{
+  "_doc": "Style frames measured by scripts/still-check.mjs before the quality gate (composition KakRabotaetClaudePhone: frame 0 = scene 1 wide, the phone on its stand; frame 1 = scene 1 close-up on the screen). Coral = the piece the answer currently ends with: a chip, small by nature (§0 p. 5 of parts-plan.md), so heroMinWidth is the chip's share, not a hero body's.",
+  "comp": "KakRabotaetClaudePhone",
+  "frames": [0, 1],
+  "coral": true,
+  "heroMinWidth": 0.05
+}

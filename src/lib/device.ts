@@ -332,7 +332,7 @@ export type ChatChip = {name: string; poly: number[][]; x: number; y: number; w:
  *  three menu dots), divider, the question bubble with its tail (x 0.16·W … W − 0.8, y 5.2 … 8.2), answer chips (one per piece of text, widths in kit
  *  units, flowed into lines) and the input (field, hint line, send button, arrow): 21 parts + one per chip. Readable
  *  text never goes on the face: pin a frontal Word or Plate to the chip centres (screenOf). Returns the chips in order. */
-export const chatUi = (A: Assembly, s: ScreenRect, chips: number[], o: {chipTone?: K.Tone} = {}) => {
+export const chatUi = (A: Assembly, s: ScreenRect, chips: number[], o: {chipTone?: K.Tone; chipH?: number} = {}) => {
   const W = G.len3(s.u) as number;
   const H = G.len3(s.v) as number;
   const blk = (n: string, poly: number[][], c: FaceOpts & {lift?: number} = {}, h = 0.04) => facePrism(A, s, `chat.${n}`, poly, h, {tone: 'lo', ...c});
@@ -356,7 +356,7 @@ export const chatUi = (A: Assembly, s: ScreenRect, chips: number[], o: {chipTone
   const out: ChatChip[] = [];
   let x = 0.8;
   let y = 9.7;
-  const ch = 1.3;
+  const ch = o.chipH ?? 1.3;
   for (const [i, w] of chips.entries()) {
     if (x + w > W - 0.8 && x > 0.8) {
       x = 0.8;
@@ -384,7 +384,12 @@ export const faceDyn = (P: K.Projection, s: ScreenRect, name: string, poly: numb
   const [s0, s1] = [-lift - h, -lift];
   const cx = poly.reduce((t, p) => t + p[0], 0) / poly.length;
   const cy = poly.reduce((t, p) => t + p[1], 0) / poly.length;
-  return dynSolid(name, ptOf(F, cx, cy, (s0 + s1) / 2), K.solidSvg(G.prismOf(F, poly, s0, s1, P), {tone: o.tone ?? 'mid', lit: o.lit}), AK.prism(F, poly, s0, s1, {name}), o.opacity);
+  const paths = G.prismOf(F, poly, s0, s1, P);
+  // a lit block faces the viewer: its face lands in a shade band and takes the dark lit shade (#B13D30), not the
+  // accent, so the one coral piece read as dark red and still-check found no coral. The face of a block on a screen
+  // is its top: draw it (and its hair-thin sides) in the top band.
+  if (o.lit) Object.assign(paths, {top: [paths.top, ...paths.shades].join(''), shades: paths.shades.map(() => '')});
+  return dynSolid(name, ptOf(F, cx, cy, (s0 + s1) / 2), K.solidSvg(paths, {tone: o.tone ?? (o.lit ? 'hi' : 'mid'), lit: o.lit}), AK.prism(F, poly, s0, s1, {name}), o.opacity);
 };
 
 /** The 3D point at (x, y) kit units from a screen's top-left corner, `out` units in front of the glass (pins a frontal

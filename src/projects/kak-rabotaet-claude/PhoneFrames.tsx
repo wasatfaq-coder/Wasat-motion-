@@ -31,8 +31,10 @@ const PhoneView: React.FC<{state: PhoneState}> = ({state}) => {
   const hidden = new Set(CHIPS.map((c, i) => (i >= typed || i === last ? `phone.${c.name}` : '')).filter(Boolean));
   const picture = PHONE.svg({}, {hide: (n) => hidden.has(n), extra: last >= 0 ? [chipItem(last, {lit: true})] : []});
   const at = (p: [number, number, number]) => screenOf(cam, room(p));
-  // the question bubble spans x 0.28·W … W − 0.8, y 5.2 … 8.2 of the screen (device.ts chatUi): two lines in it
-  const q = (k: number) => at(facePoint(SCREEN, 7.66, 6.1 + k * 1.2, 0.1));
+  // the question bubble spans x 0.16·W … W − 0.8, y 5.2 … 8.2 of the screen (device.ts chatUi): two lines in it
+  const q = (k: number) => at(facePoint(SCREEN, 6.9, 6.1 + k * 1.2, 0.1));
+  // the rows of the face run at this angle on screen (it is turned 10° off the line of sight): the words follow them
+  const angle = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
   return (
     <AnatomyStage>
       <RoomSvg cam={cam}>
@@ -40,10 +42,10 @@ const PhoneView: React.FC<{state: PhoneState}> = ({state}) => {
       </RoomSvg>
       <FrontalLayer>
         {QUESTION.map((t, k) => (
-          <Word key={t} at={q(k)} text={t} size={size * 0.8} />
+          <Word key={t} at={q(k)} text={t} size={size * 0.8} angle={angle} />
         ))}
         {PIECES.slice(0, typed).map((t, i) => (
-          <Word key={i} at={at(chipAnchor(i))} text={t} size={size} />
+          <Word key={i} at={at(chipAnchor(i))} text={t} size={size} angle={angle} />
         ))}
       </FrontalLayer>
     </AnatomyStage>

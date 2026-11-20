@@ -84,6 +84,16 @@ for (const [id, row] of Object.entries(JSON.parse(fs.readFileSync('src/lib/symbo
 // one browser lookup (scripts/lib/browser.mjs): a script with its own copy pinned a version path that stopped matching
 for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))
   if (fs.readFileSync(path.join('scripts', f), 'utf8').includes('/opt/pw-' + 'browsers')) fail(`scripts/${f} names the browser directory itself; use findBrowser() from scripts/lib/browser.mjs`);
+// …and imported at the top: contact-sheet.mjs and frame-strip.mjs had the import line pasted inside a Python template
+// string, so `findBrowser` was undefined and both died before rendering a frame (docs/root-causes.md)
+for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs') && n !== 'regress-checks.mjs')) {
+  const src = fs.readFileSync(path.join('scripts', f), 'utf8');
+  const call = src.search(/findBrowser\(\)/);
+  if (call < 0) continue;
+  const imp = src.search(/^import \{findBrowser\} from '\.\/lib\/browser\.mjs';$/m);
+  const inTemplate = imp >= 0 && (src.slice(0, imp).match(/`/g) ?? []).length % 2 === 1;
+  if (imp < 0 || imp > call || inTemplate) fail(`scripts/${f} calls findBrowser() without importing it at the top (outside any template string, before the call)`);
+}
 
 // the frame checks of style-check / still-check bite on broken frames (a tiny hero, a part outside the safe rect, a
 // body cut by the band's fade, two or no coral meanings) and pass a clean one

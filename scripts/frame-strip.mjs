@@ -8,6 +8,7 @@ import os from 'node:os';
 import {execFileSync} from 'node:child_process';
 import {bundle} from '@remotion/bundler';
 import {renderStill, selectComposition} from '@remotion/renderer';
+import {findBrowser} from './lib/browser.mjs';
 
 const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -34,7 +35,6 @@ for (let f = from; f <= to; f++) {
 }
 execFileSync('python3', ['-I', '-c', `
 import sys
-import {findBrowser} from './lib/browser.mjs';
 from PIL import Image, ImageDraw
 c=int(sys.argv[2]); fs=sys.argv[3:]; ims=[Image.open(f) for f in fs]; w,h=ims[0].size; r=(len(ims)+c-1)//c
 s=Image.new('RGB',(w*c,h*r),'white'); d=ImageDraw.Draw(s)

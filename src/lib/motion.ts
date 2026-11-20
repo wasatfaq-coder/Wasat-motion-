@@ -59,7 +59,10 @@ export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: nu
  *  must be at least LIMITS.insetMin px (scripts/motion-check.mjs), smaller its glyphs vanish on a phone (N6).
  *  `text` is the label a plate shows (omit it for an inset): motion-check keeps every plate with text fully visible
  *  long enough to be read (kind `read`, LIMITS.read*). */
-export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; kind?: 'label' | 'inset'; text?: string};
+/** `size`: the type size the text was laid out for (px); below TYPE_FLOOR.auxiliary (26) the drawn type is larger than
+ *  what it sits on and unreadable on a phone (motion-check `type`). `seen`: seconds the text was already fully visible
+ *  before frame 0 (a reel that is an excerpt of a longer scene: the tiles of the board were read in scenes 2–4). */
+export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; kind?: 'label' | 'inset'; text?: string; size?: number; seen?: number};
 
 /** Everything scripts/motion-check.mjs needs to judge one frame without rendering it. */
 export type MotionPose = {
@@ -91,4 +94,7 @@ export type MotionPose = {
 
 /** A reel or scene the motion check walks frame by frame. `cuts` are frames where a hard cut is intended.
  *  `stills`: the frames are separate style frames (one per beat), not a timeline, so no time-based rule (read) applies. */
-export type MotionSpec = {id: string; frames: number; fps: number; loop: boolean; cuts?: number[]; stills?: boolean; pose: (frame: number) => MotionPose};
+/** `holds`: the planned still moments of a timed reel, [from, to] in seconds (a silence of §25.3, a breath of §19.3).
+ *  Nothing may stand still longer than a planned hold + LIMITS.stillPad (motion-check `still`): a stop of 1.6 s where the
+ *  storyboard planned 0.6 s read as a dead stretch (KRC-07). */
+export type MotionSpec = {id: string; frames: number; fps: number; loop: boolean; cuts?: number[]; stills?: boolean; holds?: [number, number][]; pose: (frame: number) => MotionPose};

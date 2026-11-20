@@ -5,10 +5,14 @@ import {MotionPose, MotionSpec, PlateProbe, settle} from '../../lib/motion';
 import {wordProbe} from '../../components/Frontal';
 import {FORMAT} from '../../theme/format';
 import * as K from '../../vendor/anatomy/iso-kit';
-import {BOARD, BOARD_U, boardPoint, CW as BOARD_CW, PANEL_H as BOARD_H, ROW1, ROW1_Y as BOARD_ROW1_Y, ROW2, ROW2_Y as BOARD_ROW2_Y, rowXs as boardRowXs, tileAnchor as boardTileAnchor, tileDyn as boardTileDyn} from './board.parts';
+import {BOARD, BOARD_U, boardPoint, cellMid, CW as BOARD_CW, PANEL_H as BOARD_H, ROW1, ROW1_Y as BOARD_ROW1_Y, ROW2, ROW2_Y as BOARD_ROW2_Y, rowXs as boardRowXs, TILE_H as BOARD_TILE_H, tileAnchor as boardTileAnchor, tileDyn as boardTileDyn, tileWidth as boardTileWidth, TRAY_X0} from './board.parts';
 import {TYPE_FLOOR} from '../../theme/tokens';
 import {
   conceptAnchor,
+  CONCEPT_H,
+  CONCEPT_Y,
+  conceptWidth,
+  conceptX,
   conceptDyn,
   CONCEPTS,
   conceptPanel,
@@ -23,6 +27,7 @@ import {
   SCHEME,
   SCHEME_U,
   schemePoint,
+  panelsCorners,
   STAND_CORNERS,
   tabAnchor,
   TILE_H,
@@ -30,7 +35,7 @@ import {
   tileDyn,
   tileWidth,
 } from './scheme.parts';
-import {PLATE_SIZE, PlateAt, probesOf, SchemeState, SRC_H, SRC_LIFT, SRC_LINES, SRC_SIZE, STAND_CAM, typeOf, WordAt} from './scheme.motion';
+import {PLATE_SIZE, PlateAt, probesOf, SchemeState, SRC_H, SRC_LIFT, SRC_LINES, SRC_SIZE, typeOf, WordAt} from './scheme.motion';
 
 // Silent test reel of STOP 2 (§8): scenes 5–6 of the storyboard, «визуальное превью без диктора». A pure state per frame,
 // read by ReelFrames.tsx and by scripts/motion-check.mjs.
@@ -51,11 +56,12 @@ import {PLATE_SIZE, PlateAt, probesOf, SchemeState, SRC_H, SRC_LIFT, SRC_LINES, 
 //   8.2–10   hold on the planned word (the plates are read)
 // Coral (parts-plan §5): the end of the output. Board: the last tile of row 2; stand: the «,» that ends line 1 until line 2
 // starts, then the last written tile of line 2. Concepts are never coral.
-export const REEL_RECT = safeRect({captions: true}); // framed as the scenes will be, with the caption band (no captions without a voice)
+export const REEL_RECT = safeRect({captions: false}); // a silent preview has no captions: the picture takes their band too (KRC-04)
 const FPS = FORMAT.fps;
 export const REEL_FRAMES = Math.round(10 * FPS);
 const T = {
-  pick: [0, 0.4],
+  pick: [0, 0.45],
+  candOut: [0.55, 1.4],
   pickBounce: 0.15,
   silence1: [1.4, 2.0],
   cut: 2.0,
@@ -93,44 +99,58 @@ const ramp = (t: number, [a, b]: readonly [number, number] | readonly number[]) 
 // ── the board (end of scene 4 → «автодополнение»): close on the end of the two rows. At this scale the type on the tiles
 // is above the 26 px floor (a letter is CW = 0.68 units; the whole board in the band would put it at ≈ 21 px). The camera
 // holds still: a word that crosses the frame edge during a move could not be read for its full time (§25.4).
-const BOARD_REGION: Point3[] = [13, 42].flatMap((x) => [0, BOARD_H].flatMap((y) => [boardPoint(x, y, 0), boardPoint(x, y, 3.6)]));
+const BOARD_REGION: Point3[] = [27, 49].flatMap((x) => [0, BOARD_H].flatMap((y) => [boardPoint(x, y, 0), boardPoint(x, y, 3.6)]));
 const BOARD_CAM: Cam = camFit(BOARD_REGION.map((p) => toRoom(p, BOARD_U)), {rect: REEL_RECT, fill: 1});
 export type BoardShot = {cam: Cam; extra: Dyn[]; hide: Set<string>; keep: Point3[]; words: WordAt[]; size: number; angle: number};
 const X1 = boardRowXs(ROW1);
 const X2 = boardRowXs(ROW2);
-const PICK_FROM = 40.5; // panel-local x where the last pick appears (on its way from the candidate column, right of the frame)
+/** the candidates of the last round (an example, like every candidate of the board); cell 0 is the one picked */
+const LAST_ROUND = ['чем', 'и', 'а', 'как'];
+/** seconds the board's words were already on screen before the reel starts (scenes 2–4 of the film, §25.4) */
+const BOARD_SEEN = 1.5;
 const boardShot = (t: number): BoardShot => {
   const cam = BOARD_CAM;
   const at = (p: Point3) => screenOf(cam, toRoom(p, BOARD_U));
   const [a, b] = [at(boardPoint(0, 0, 0)), at(boardPoint(10, 0, 0))];
   const size = (BOARD_CW * Math.hypot(b[0] - a[0], b[1] - a[1]) * 0.1) / 0.66;
-  const hide = new Set<string>(['board.tile2.4']);
+  const hide = new Set<string>(['board.tile2.4', ...LAST_ROUND.flatMap((_, k) => [`board.cand${k}`, `board.bar${k}`, `board.barcap${k}`])]);
   const last = ROW2.length - 1;
-  // the last pick flies on a falling arc (above the rail's end stop and below rail 1), lands, bounces once
+  // the pick leaves its cell in front of the panel (clear of row 1), falls onto the end of row 2, bounces once
   const p = clamp01((t - T.pick[0]) / (T.pick[1] - T.pick[0]));
   const q = clamp01((t - T.pick[1]) / T.pickBounce);
-  const x = PICK_FROM + (X2[last] - PICK_FROM) * (1 - (1 - p) * (1 - p));
-  const dy = p < 1 ? 2.6 * (1 - p * p) : 0.2 * Math.sin(Math.PI * q) * (1 - q);
+  const from = {x: TRAY_X0 + 1.2, y: cellMid(0) - BOARD_TILE_H / 2};
+  const x = from.x + (X2[last] - from.x) * smooth(p);
+  const y = p < 1 ? from.y + (BOARD_ROW2_Y - from.y) * smooth(p) : BOARD_ROW2_Y + 0.2 * Math.sin(Math.PI * q) * (1 - q);
+  const n0 = 1.8 + (1.2 - 1.8) * p + 3 * Math.sin(Math.PI * p);
   const landed = p >= 1;
   const extra: Dyn[] = [];
   // tiles 4–6 of row 2 (4 is the static tile without its coral; 5, 6 were picked in scenes 3–4); the coral is the tile
   // that ends the output: «,» until «чем» lands
   for (let i = 4; i < last; i++) extra.push(boardTileDyn(`tile2.${i}`, X2[i], BOARD_ROW2_Y, ROW2[i].text, {lit: i === last - 1 && !landed}));
-  extra.push(boardTileDyn(`tile2.${last}`, x, BOARD_ROW2_Y + dy, ROW2[last].text, {lit: landed, opacity: clamp01(0.25 + t / 0.12)}));
-  // words: the tiles whose word lies inside the frame (a tile cut by the frame's edge carries none)
+  extra.push(boardTileDyn(`tile2.${last}`, x, y, ROW2[last].text, {lit: landed, n0}));
+  // the rest of the column leaves: the candidates slide out of their cells to the right and fade (the column empties)
+  const out = smooth(ramp(t, T.candOut));
+  const candX = (k: number) => TRAY_X0 + 1.2 + 14 * out * (1 + 0.15 * k);
+  for (let k = 1; k < LAST_ROUND.length; k++) if (out < 0.999) extra.push(boardTileDyn(`cand${k}`, candX(k), cellMid(k) - BOARD_TILE_H / 2, LAST_ROUND[k], {n0: 1.8, opacity: 1 - out}));
+  // words on every tile whose word lies inside the rect (the frame's side fade hides what is past it)
   const words: WordAt[] = [];
   const word = (name: string, text: string, p0: Point3, show = 1) => {
     const w = at(p0);
     const half = (text.length * 0.62 * Math.max(size, TYPE_FLOOR.auxiliary)) / 2;
-    if (w[0] - half > REEL_RECT.x0 + 30 && w[0] + half < REEL_RECT.x1 - 30) words.push({name, text, at: w, size, tone: 'ink', show});
+    const edge = clamp01(Math.min(w[0] - half - REEL_RECT.x0, REEL_RECT.x1 - w[0] - half) / 40); // a word leaving the rect fades first
+    if (edge > 0) words.push({name, text, at: w, size, tone: 'ink', show: show * edge});
   };
   ROW1.forEach((tk, i) => word(`b1.${i}`, tk.text, boardTileAnchor(X1[i], BOARD_ROW1_Y, tk.text)));
   ROW2.forEach((tk, i) => (i < last ? word(`b2.${i}`, tk.text, boardTileAnchor(X2[i], BOARD_ROW2_Y, tk.text)) : null));
-  word(`b2.${last}`, ROW2[last].text, boardTileAnchor(x, BOARD_ROW2_Y + dy, ROW2[last].text), smooth(ramp(p, [0.6, 1])));
+  word(`b2.${last}`, ROW2[last].text, boardPoint(x + boardTileWidth(ROW2[last].text) / 2, y + BOARD_TILE_H / 2, n0 + 2));
+  for (let k = 1; k < LAST_ROUND.length; k++) if (out < 0.999) word(`cand${k}`, LAST_ROUND[k], boardPoint(candX(k) + boardTileWidth(LAST_ROUND[k]) / 2, cellMid(k), 3.8), 1 - out);
   return {cam, extra, hide, keep: BOARD_REGION, words, size, angle: (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI};
 };
 
 // ── the scheme stand (after the cut)
+/** the three panels fill the band's width (the posts beside them run into the side fade): the type on the tiles grows by ≈ 10 % */
+export const REEL_STAND = panelsCorners(0, 2);
+const REEL_STAND_CAM: Cam = camFit(REEL_STAND.map((p) => toRoom(p, SCHEME_U)), {rect: REEL_RECT, fill: 1}); // keep adds the caps and the plinth (they stay in the rect)
 const XS1 = rowXs(LINE1);
 const XS2 = rowXs(LINE2[0]);
 const W2 = LINE2[0].map((t) => tileWidth([...t.text].length));
@@ -152,13 +172,14 @@ const hopOf = (t: number, i: number) => {
 };
 /** the cursor blinks (soft edges: no pop) while it waits; it is solid while line 2 is written */
 const cursorO = (t: number) => {
-  const blink = clamp01(0.5 + 2.5 * Math.cos((2 * Math.PI * (t - T.cut)) / 1.06));
-  const solid = smooth(ramp(t, [T.type0 - 0.25, T.type0]));
+  const blink = clamp01(0.5 + 0.6 * Math.cos((2 * Math.PI * (t - T.cut)) / 1.06));
+  const end = T.type0 + 7 * T.typeStep + T.flight;
+  const solid = smooth(ramp(t, [T.type0 - 0.25, T.type0])) * (1 - smooth(ramp(t, [end + 0.2, end + 0.45])));
   return blink + (1 - blink) * solid;
 };
 
 export const schemeShot = (t: number): SchemeState => {
-  const cam = STAND_CAM;
+  const cam = REEL_STAND_CAM;
   const at = (p: Point3) => screenOf(cam, room(p));
   const {size, angle, readable} = typeOf(cam);
   const hide = new Set<string>();
@@ -227,12 +248,14 @@ export const schemeShot = (t: number): SchemeState => {
     plates.push({name: 'title0', text: 'без вмешательства', at: [330, top], to: at(tabAnchor('title0')), size: PLATE_SIZE, show: srcO});
   }
   const notes = smooth(ramp(t, T.labelsIn));
+  // the legend points at the lit concept itself (its top edge), not at a tab of the panel (KRC-06)
+  const conceptCorner = schemePoint(0, conceptX('rabbit1') + conceptWidth('rabbit1') * 0.75, CONCEPT_Y + CONCEPT_H, 1.2 + relief);
   if (notes > 0) {
-    plates.push({name: 'legend', text: 'горит = задействовано в вычислениях', at: [480, top], to: at(tabAnchor('legend')), size: 36, show: notes});
+    plates.push({name: 'legend', text: 'горит = задействовано в вычислениях', at: [480, top], to: at(conceptCorner), size: 36, show: notes});
     const tab = at(tabAnchor('rabbit1'));
     plates.push({name: 'concept', text: 'понятие', at: [320, tab[1] - 30], to: tab, size: PLATE_SIZE, show: notes});
   }
-  return {cfg: {typed: [landed, 0, 0], coral: null, concepts: {}, clamp: [null, null], open: [0, 0], cursor: 0}, cam, extra, hide, size, angle, readable, words, plates, inset: null, keep: STAND_CORNERS};
+  return {cfg: {typed: [landed, 0, 0], coral: null, concepts: {}, clamp: [null, null], open: [0, 0], cursor: 0}, cam, extra, hide, size, angle, readable, words, plates, inset: null, keep: [...REEL_STAND, ...STAND_CORNERS.slice(-4)]};
 };
 
 export type ReelState = {loc: 'board'; board: BoardShot} | {loc: 'scheme'; scheme: SchemeState};
@@ -245,7 +268,7 @@ const poseOf = (frame: number): MotionPose => {
   const s = reelState(frame);
   if (s.loc === 'board') {
     const b = s.board;
-    const plates: PlateProbe[] = b.words.map((w) => wordProbe(w.name, w.at, w.text, w.size, w.show ?? 1));
+    const plates: PlateProbe[] = b.words.map((w) => ({...wordProbe(w.name, w.at, w.text, w.size, w.show ?? 1), seen: BOARD_SEEN}));
     return {cam: b.cam, rect: REEL_RECT, unit: BOARD_U, assembly: BOARD, extra: b.extra, arrows: [], keep: b.keep.map((p, i) => ({name: `board${i}`, at: p})), plates, hide: (n) => b.hide.has(n)};
   }
   const c = s.scheme;
@@ -263,4 +286,4 @@ const poseOf = (frame: number): MotionPose => {
   };
 };
 
-export const MOTION: MotionSpec[] = [{id: 'KakRabotaetClaudeReel', frames: REEL_FRAMES, fps: FPS, loop: false, cuts: [CUT_FRAME], pose: poseOf}];
+export const MOTION: MotionSpec[] = [{id: 'KakRabotaetClaudeReel', frames: REEL_FRAMES, fps: FPS, loop: false, cuts: [CUT_FRAME], holds: [[...T.silence1], [...T.silence2]], pose: poseOf}];

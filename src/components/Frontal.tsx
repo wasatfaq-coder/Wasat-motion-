@@ -173,5 +173,5 @@ export const Word: React.FC<WordProps> = ({at, text, size = TYPE.label, tone = '
 export const wordProbe = (name: string, at: [number, number], text: string, size: number = TYPE.label, opacity = 1) => {
   const px = Math.max(size, TYPE_FLOOR.auxiliary);
   const w = textWidth(text, px);
-  return {name, x: at[0] - w / 2, y: at[1] - px * 0.6, w, h: px * 1.2, opacity, kind: 'label' as const, text};
+  return {name, x: at[0] - w / 2, y: at[1] - px * 0.6, w, h: px * 1.2, opacity, kind: 'label' as const, text, size};
 };

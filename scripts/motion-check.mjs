@@ -14,6 +14,8 @@
 //      read       a plate with text that is fully visible for less than the time to read it (chars ÷ readCps + readPad)
 //      seam       a looping reel whose last frame does not lead into the first
 //      small      a drawn inset (plate kind 'inset') smaller than LIMITS.insetMin on its short side
+//      type       a word laid out below LIMITS.typeMin px (the drawn type is larger than the tile it sits on)
+//      still      a timed reel where nothing changes for longer than a planned hold (spec.holds) + LIMITS.stillPad
 //    node scripts/motion-check.mjs [files…]            (default: every src/**/*.motion.ts)
 //
 // 2) PIXELS of a rendered video (review-video, the quality gate): any mp4 of any topic.
@@ -59,6 +61,8 @@ export const LIMITS = {
   readPad: 1.2, // seconds to find the label and its leader before reading starts
   readMin: 1.5, // seconds any label stays, however short (a single letter still has to be found)
   tips: 40, // px between the tips of two visible arrows (closer, two arrows read as one bar, R4 2026-11-19)
+  typeMin: 26, // px: TYPE_FLOOR.auxiliary, the smallest type laid out on a part (a word on a tile)
+  stillPad: 0.3, // s a still stretch may run past a planned hold (spec.holds)
   insetMin: 320, // px: the shorter side of a drawn inset (kind 'inset'); a 240 px inset left a 35 px current dot (N6)
 };
 
@@ -207,6 +211,9 @@ export const checkSpec = async (spec) => {
     // small: a drawn inset below the floor (its marks are read on a phone, N6)
     for (const p of pose.plates.filter((x) => x.opacity > 0.05 && x.kind === 'inset'))
       if (Math.min(p.w, p.h) < LIMITS.insetMin) addOnce('small', p.name, f, `inset ${p.name} is ${Math.round(Math.min(p.w, p.h))} px on its short side at frame ${f} (≥ ${LIMITS.insetMin})`);
+    // type: a word laid out below the floor (Word draws it at the floor: larger than its tile)
+    for (const p of pose.plates.filter((x) => x.opacity > 0.05 && x.size !== undefined && x.size < LIMITS.typeMin - 1e-6))
+      addOnce('type', p.name, f, `${p.name} «${p.text}» is laid out at ${p.size.toFixed(1)} px at frame ${f} (≥ ${LIMITS.typeMin}): frame closer or make the part larger`);
     // layout: the hero fills the rect and sits in its middle
     if (xy.length) {
       const xs = xy.map((p) => p[0]);
@@ -250,9 +257,34 @@ export const checkSpec = async (spec) => {
       while (end < spec.frames && full(end)) end++;
       let run = end - start;
       if (spec.loop && end >= spec.frames) for (let f = 0; f < start && full(f); f++) run++;
+      if (start === 0) run += Math.round((spec.pose(0).plates.find((p) => p.name === name)?.seen ?? 0) * spec.fps);
       const need = Math.max(LIMITS.readMin, [...text].filter((c) => !/\s/.test(c)).length / LIMITS.readCps + LIMITS.readPad);
       if (run / spec.fps < need - 1e-6) add('read', start, `plate ${name} «${text}» is fully visible for ${(run / spec.fps).toFixed(2)} s from frame ${start}; reading it needs ${need.toFixed(2)} s`);
     }
+  }
+  // still: a timed reel holds no longer than its planned holds (+ stillPad). A frame is still when no tracked point moves
+  // more than 0.5 px and no opacity changes more than 0.01 against the frame before.
+  if (!spec.stills) {
+    const holds = spec.holds ?? [];
+    let from = null;
+    const close = (f) => {
+      if (from === null) return;
+      const [a, b] = [from / spec.fps, f / spec.fps];
+      const planned = holds.some(([h0, h1]) => a >= h0 - LIMITS.stillPad && b <= h1 + LIMITS.stillPad);
+      if (b - a > LIMITS.stillPad && !planned) add('still', from, `nothing moves from ${a.toFixed(2)} s to ${b.toFixed(2)} s (${(b - a).toFixed(2)} s) and no hold is planned there (spec.holds ${JSON.stringify(holds)}): a dead stretch`);
+      from = null;
+    };
+    for (let f = 1; f < tracks.length; f++) {
+      let moved = cuts.has(f);
+      for (const [k, q] of tracks[f]) {
+        const p = tracks[f - 1].get(k);
+        if (!p || Math.abs(p.o - q.o) > 0.01 || (p.x !== undefined && Math.hypot(q.x - p.x, q.y - p.y) > 0.5)) moved = true;
+        if (moved) break;
+      }
+      if (!moved && from === null) from = f - 1;
+      if (moved) close(f - 1);
+    }
+    close(tracks.length - 1);
   }
   // late: an arrow that comes back after its owner stopped leaves the pose bare (the owner settles, the note lags)
   const owners = new Map();

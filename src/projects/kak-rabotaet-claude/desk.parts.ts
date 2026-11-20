@@ -42,7 +42,7 @@ export const DESK = new Assembly('desk', P, {role: 'environment', detail: 'simpl
 const D = DESK;
 
 // ── table: three boards (along rx) with inlaid seams, a front edge; the top is z = 0
-export const TOP = {x0: -56, x1: 124, y0: -30, y1: 60, t: 4};
+export const TOP = {x0: -50, x1: 104, y0: -28, y1: 56, t: 4};
 const boardD = (TOP.y1 - TOP.y0) / 3;
 for (let k = 0; k < 3; k++)
   D.prism(`top.board${k}`, DF, rect(TOP.x0, TOP.y0 + k * boardD + 0.3, TOP.x1, TOP.y0 + (k + 1) * boardD - 0.3, 0.4), -TOP.t, 0, {tone: 'lo', bevel: 0.4, ground: true});
@@ -50,12 +50,12 @@ for (const k of [1, 2]) D.prism(`top.seam${k}`, DF, rect(TOP.x0 + 0.4, TOP.y0 + 
 D.prism('top.edge', DF, rect(TOP.x0, TOP.y1, TOP.x1, TOP.y1 + 1.4, 0.4), -TOP.t - 0.8, 0, {tone: 'mid', bevel: 0.4, meta: {touch: ['top.board2']}});
 
 // ── the wall behind the desk: a panel (its face at fh = −30, the desk's back edge) and a skirting strip on the desk
-const WALL = {x0: -62, x1: 130, z0: -10, z1: 74, s0: -TOP.y0, s1: -TOP.y0 + 6};
+const WALL = {x0: -56, x1: 110, z0: -10, z1: 70, s0: -TOP.y0, s1: -TOP.y0 + 6};
 D.prism('wall.panel', wallF, rect(WALL.x0, WALL.z0, WALL.x1, WALL.z1, 0.4), WALL.s0, WALL.s1, {tone: 'lo', bevel: 0.4, ground: true});
 D.prism('wall.skirt', DF, rect(TOP.x0, TOP.y0, TOP.x1, TOP.y0 + 3.4, 0.3), 0, 3.4, {tone: 'mid', bevel: 0.3, meta: {touch: ['wall.panel', 'top.board0']}});
 
 // ── a felt mat under the mug and the notebook, with two stitched lines along its long sides
-const MAT = {x0: -54, x1: -15, y0: -24, y1: 44, h: 0.5};
+const MAT = {x0: -48, x1: -15, y0: -22, y1: 44, h: 0.5};
 D.prism('mat', DF, rect(MAT.x0, MAT.y0, MAT.x1, MAT.y1, 2.5), 0, MAT.h, {tone: 'mid', bevel: 0.25, meta: {touch: ['top.board0', 'top.board1']}});
 for (const [k, x] of [MAT.x0 + 2.4, MAT.x1 - 2.4].entries()) D.prism(`mat.stitch${k}`, DF, rect(x - 0.2, MAT.y0 + 2.4, x + 0.2, MAT.y1 - 2.4, 0), MAT.h, MAT.h + 0.15, {tone: 'lo', bevel: 0, meta: {owner: 'mat'}});
 
@@ -95,7 +95,7 @@ const plugBack: Point3 = scene(PLUG.rx, -PLUG.s0, OUT.z);
 D.pipe('cord', [exit, scene(erx + 0.5, efh - 3, CORD_R), scene(erx + 6, -12, CORD_R), scene(PLUG.rx - 6, -17, 5), scene(PLUG.rx - 1, -PLUG.s0 + 4, OUT.z - 0.6), plugBack], CORD_R, {bend: 1.2, limp: true, maxLength: 4, meta: {touch: ['charger', 'outlet.plug', 'top.board1', 'top.board0']}});
 
 // ── a mug on a cork coaster on the mat (coffee, not data): body, rim, handle, coaster
-const MUG = {rx: -35, fh: -10, r: 6.8, h: 16};
+const MUG = {rx: -32, fh: -10, r: 6.8, h: 16};
 const mugAxis = (z: number) => G.frameAlong(scene(MUG.rx, MUG.fh, z), [0, 0, 1]);
 D.disc('mug.coaster', MAT.h, MAT.h + 0.7, 8.4, {...mugAxis(0), o: scene(MUG.rx, MUG.fh, 0)}, {tone: 'lo', meta: {touch: ['mat']}});
 const MZ = MAT.h + 0.7;
@@ -106,7 +106,7 @@ const hz = (z: number) => scene(hx, MUG.fh, MZ + z);
 D.pipe('mug.handle', [hz(3.2), scene(hx + 4.6, MUG.fh, MZ + 3.2), scene(hx + 4.6, MUG.fh, MZ + 11.4), hz(11.4)], 0.85, {bend: 2.4, meta: {touch: ['mug.body']}, ends: [true, true]});
 
 // ── a notebook on the mat: cover, page block, four spiral rings along its back edge, an elastic band; a pen on top
-const NB = {x0: -50, x1: -21, y0: 8, y1: 40, c: 1.3, p: 1.5};
+const NB = {x0: -44, x1: -20, y0: 8, y1: 38, c: 1.3, p: 1.5};
 D.prism('notebook.cover', DF, rect(NB.x0, NB.y0, NB.x1, NB.y1, 1.2), MAT.h, MAT.h + NB.c, {tone: 'mid', bevel: 0.35, meta: {touch: ['mat']}});
 D.prism('notebook.pages', DF, rect(NB.x0 + 0.8, NB.y0 + 0.8, NB.x1 - 0.8, NB.y1 - 0.8, 0.6), MAT.h + NB.c, MAT.h + NB.c + NB.p, {tone: 'faint', bevel: 0.25, meta: {touch: ['notebook.cover']}});
 const NZ = MAT.h + NB.c + NB.p;
@@ -117,7 +117,7 @@ for (let k = 0; k < 4; k++) {
 D.prism('notebook.band', DF, rect(NB.x1 - 6.5, NB.y0 + 0.4, NB.x1 - 5.1, NB.y1 + 0.4, 0.1), MAT.h, NZ + 0.25, {tone: 'lo', bevel: 0.1, meta: {touch: ['notebook.pages']}});
 // the pen lies across the page block, turned 20° off the rx axis: body, cap, clip, tip
 const penDir = G.unit3(scene(Math.cos(0.35), Math.sin(0.35), 0));
-const penAt = (s: number): Point3 => G.add3(scene(-44, 26, NZ + 0.55), G.mul3(penDir, s)) as Point3;
+const penAt = (s: number): Point3 => G.add3(scene(-39, 24, NZ + 0.55), G.mul3(penDir, s)) as Point3;
 const penF = (s: number) => G.frameAlong(penAt(s), penDir);
 D.turned('pen.body', [[0, 0.55], [14, 0.55], [15.4, 0.3, 1]], penF(0), {tone: 'mid', meta: {touch: ['notebook.pages']}});
 D.turned('pen.cap', [[-9, 0.65], [0, 0.65]], penF(0), {tone: 'lo', meta: {touch: ['pen.body']}});
@@ -141,7 +141,7 @@ export const ROOM_PARTS_TOTAL = ROOM_PARTS.reduce((s, g) => s + g.count, 0); // 
 
 export const ROOM = new Assembly('room', P, {role: 'environment', detail: 'simple'});
 const R = ROOM;
-export const FLOOR = {x0: -96, x1: 96, y0: -44, y1: 64, t: 4};
+export const FLOOR = {x0: -72, x1: 72, y0: -40, y1: 56, t: 4};
 export const PODIUM = {x0: -38, x1: 38, y0: -16, y1: 16, h: 4};
 R.prism('floor', DF, rect(FLOOR.x0, FLOOR.y0, FLOOR.x1, FLOOR.y1, 0.5), -FLOOR.t, 0, {tone: 'lo', bevel: 0.5, ground: true});
 const plankD = (FLOOR.y1 - FLOOR.y0) / 7;

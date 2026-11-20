@@ -354,7 +354,9 @@ export class Assembly {
     const prisms = (this.R.solids as Prism[]).filter((p) => p.kind === 'prism' && Math.abs(p.F.a[2]) > 0.999);
     const axes = bodies.filter((b) => Math.abs(b.F.a[2]) > 0.999);
     const wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
-    for (const pr of prisms) {
+    for (const prism of prisms) {
+      // the outline is in the prism's own (u, v) frame: bring it to world plan coordinates (a desk turned 46° is not a ring sector)
+      const pr = {...prism, poly: prism.poly.map((q) => [prism.F.o[0] + prism.F.u[0] * q[0] + prism.F.v[0] * q[1], prism.F.o[1] + prism.F.u[1] * q[0] + prism.F.v[1] * q[1]])};
       for (const ax of axes) {
         const sp = span(ax);
         const z0 = ax.F.o[2] + sp.s0 * ax.F.a[2];

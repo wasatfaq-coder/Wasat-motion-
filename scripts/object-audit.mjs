@@ -107,6 +107,17 @@ if (args.includes('--selftest')) {
     const blade = d.R.solids.find((x) => x.name === 'd.blade');
     if (!sweepDynamic(d.R, () => [{name: 'blade', shape: blade}]).doubles.size) fails.push('a turning part also drawn in the static object was not caught (double)');
   }
+  {
+    // root cause (desk.parts.ts, 20.11.2026): the arc lint read a prism's outline as world coordinates; a long strip in a
+    // frame turned 46° next to a bolt looked like a ring sector round it. A strip in a turned frame must NOT be an arc.
+    const {roundRect} = await tsImport(pathToFileURL(join(root, 'src/lib/device.ts')).href, import.meta.url);
+    const r = new Asm('r', P);
+    const az = (46 * Math.PI) / 180;
+    const [rx, fh] = [-32, -10]; // the mug's axis in scene axes (desk.parts.ts), the strip is the notebook's band
+    r.cyl('bolt', rx * Math.cos(az) + fh * Math.sin(az), -rx * Math.sin(az) + fh * Math.cos(az), 6.8, 0, 16, {ground: true});
+    r.prism('strip', {o: [0, 0, 0], a: [0, 0, 1], u: [Math.cos(az), -Math.sin(az), 0], v: [Math.sin(az), Math.cos(az), 0]}, roundRect(-26.5, 8.4, -25.1, 38.4, 0.1), 0, 1, {meta: {touch: ['bolt']}});
+    if (r.lint().some((l) => l.startsWith('arc:'))) fails.push('arc lint took a strip in a turned frame for a ring sector (outline not brought to world coordinates)');
+  }
   const t = new Asm('t', P);
   t.slab('base', {x: 0, y: 0, w: 4, d: 4, r: 0.4}, 0, 1, {ground: true});
   t.slab('monitor.column', {x: 0, y: 0, w: 2, d: 2, r: 0.2}, 1, 4, {meta: {touch: 'base'}});

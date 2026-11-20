@@ -35,22 +35,23 @@ export const LINE2: Tile[][] = [LINE2_P1.map((t) => tile(t)), [...LINE2_P1.slice
 export const PANEL_NAMES = ['без вмешательства', 'rabbit подавлен', 'вставлен green'] as const;
 
 // ── sizes, panel-local units (bx right, by up the panel, bn out of the face)
-export const CW = 1.45; // tile width per letter (a letter of the bold type is ≈ 0.66 em: the font follows the screen scale)
-export const PAD = 1.1;
-export const GAP = 0.4;
-export const TILE_H = 2.9; // < BEVEL_ACROSS (3): a tile is a thin block, the hero bevel lint starts at 3
+export const CW = 1.5; // tile width per letter (a letter of the bold type is ≈ 0.66 em: the font follows the screen scale)
+export const PAD = 0.9;
+export const GAP = 0.35;
+export const TILE_H = 2.8; // < BEVEL_ACROSS (3): a tile is a thin block, the hero bevel lint starts at 3
 export const TILE_N0 = 1.2;
 export const TILE_N1 = 3.2;
 export const tileWidth = (chars: number) => chars * CW + PAD;
 export const PANEL_W = 62;
-export const PANEL_H = 22;
-export const PANEL_GAP = 5;
+export const PANEL_H = 19;
+export const PANEL_GAP = 3.5;
 const ROW_X0 = 2.6;
-const RAIL1_Y = 13;
-const RAIL2_Y = 2;
+const RAIL1_Y = 12;
+const RAIL2_Y = 1.3;
 const RAIL_H = 0.7;
 export const ROW1_Y = RAIL1_Y + RAIL_H;
 export const ROW2_Y = RAIL2_Y + RAIL_H;
+const TAB_Y = 16.2; // y of the tabs in the top band of panel 1 (panels 2 and 3 have the blind's roller there)
 const FR = 0.9; // frame rail width
 const FRAME_N1 = 4.6; // frame depth: it holds the blind
 
@@ -73,11 +74,12 @@ for (const [k, l] of LINE2.entries()) if (rowEnd(l) > PANEL_W - FR - 0.4) throw 
 if (rowEnd(LINE1) > PANEL_W - FR - 0.4) throw new Error('scheme.parts: line 1 does not fit the panel');
 
 // ── concepts: one bright neutral plate each, between the two lines, over the end of line 2
-export const CONCEPT_H = 3.8;
-export const CONCEPT_Y = 8.4;
+export const CONCEPT_H = 3.6;
+export const CONCEPT_Y = 6.4;
 export const RELIEF_LO = 0.6; // not lit: a low relief
 export const RELIEF_HI = 1.8; // lit («горит»): a raised plate
 const CONCEPT_PAD = 1.8;
+const TABD = 1.3; // a concept's tab hangs this far below its plate (between the plate and line 2)
 export type ConceptId = 'rabbit1' | 'rabbit2' | 'habit2' | 'green3';
 const CONCEPT_TEXT: Record<ConceptId, string> = {rabbit1: 'rabbit', rabbit2: 'rabbit', habit2: 'habit', green3: 'green'};
 export const conceptWidth = (id: ConceptId) => CONCEPT_TEXT[id].length * CW + CONCEPT_PAD;
@@ -110,8 +112,8 @@ const BR = RH;
 const BU = lin([-Math.sin(T), FH], [Math.cos(T), ZZ]);
 const BN = lin([Math.cos(T), FH], [Math.sin(T), ZZ]);
 const AT: Point3 = [48, 14, 0];
-const POST_X: [number, number] = [-3.2, PANEL_W + 3.2];
-const Y0 = 4; // post foot → bottom panel along BU
+const POST_X: [number, number] = [-2.2, PANEL_W + 2.2]; // post centres: the posts stand close beside the panels (the safe band is only 840 px wide)
+const Y0 = 2.5; // post foot → bottom panel along BU
 const BEAM_Z0 = 2.6;
 const FOOT_H = 0.5;
 const O: Point3 = lin([1, [0, 0, BEAM_Z0]], [-POST_X[0], BR], [Y0, BU]);
@@ -170,6 +172,17 @@ export const PARTS = [
 ] as const;
 export const PARTS_TOTAL = PARTS.reduce((s, p) => s + p.count, 0); // 140
 
+// the blind's slat lines (thin lines across its front face, from the roller down), so a closed blind reads as a blind
+const BLIND_N = 4.0; // front face of the blind
+const SLAT = 1.7;
+const slatLines = (k: number, top: number, bottom: number): string => {
+  const segs: string[] = [];
+  for (let y = top - SLAT; y > bottom + 0.2; y -= SLAT) segs.push(K.lineSvg(K.pathOf([K.iso(schemePoint(k, FR, y, BLIND_N), P), K.iso(schemePoint(k, PANEL_W - FR, y, BLIND_N), P)]), {tone: 'lo'}));
+  return segs.join('');
+};
+export const BLIND_TOP = PANEL_H - FR - 2.2; // the blind hangs from the roller's lower edge
+export const BLIND_BOTTOM = FR + 0.3;
+
 // ── the object
 export type SchemeOpts = {relief?: number};
 /** `relief` is the height of the concept plates above the panel (the state sweep rebuilds it; default = lit). */
@@ -195,16 +208,16 @@ export const buildScheme = (o: SchemeOpts = {}) => {
   // posts beside the stack, caps, crossbars in the two gaps
   for (const [i, bxc] of POST_X.entries()) {
     const post = G.frameOf(schemePoint(2, bxc, -Y0, 0), BU, BR, BN) as Frame;
-    S.prism(`post${i}`, post, [[-1.2, -1.2], [1.2, -1.2], [1.2, 2.4], [-1.2, 2.4]], 0, Y0 + STACK_H + 1.5, {tone: 'mid'});
+    S.prism(`post${i}`, post, [[-1, -1.2], [1, -1.2], [1, 2.4], [-1, 2.4]], 0, Y0 + STACK_H + 1.5, {tone: 'mid'});
     S.turned(`cap${i}`, [[0, 1.05], [0.4, 1.05, 1], [0.75, 0.55]], G.frameAlong(schemePoint(0, bxc, PANEL_H + 1.5, 0.6), BU), {tone: 'hi', meta: {owner: `post${i}`}});
   }
-  for (const k of [1, 2]) plate(k, `bar${k}`, POST_X[0] + 1.2, PANEL_H + 1.4, POST_X[1] - POST_X[0] - 2.4, 2.2, -0.6, 1.2, {tone: 'lo'}); // in the gap above panel k (panel k's top edge is at PANEL_H)
+  for (const k of [1, 2]) plate(k, `bar${k}`, POST_X[0] + 1, PANEL_H + (PANEL_GAP - 2) / 2, POST_X[1] - POST_X[0] - 2, 2, -0.6, 1.2, {tone: 'lo'}); // in the gap above panel k (panel k's top edge is at PANEL_H)
 
   for (const k of [0, 1, 2]) {
     // brackets that carry the panel by its side faces, one screw each
-    for (const [i, bx0] of [-2, PANEL_W].entries()) {
-      plate(k, `p${k}.bracket${i}`, bx0, 5, 2, 6, -0.6, 1.8, {tone: 'mid'});
-      S.turned(`p${k}.bracket${i}.screw`, [[0, 0.45], [0.2, 0.45, 1], [0.3, 0]], G.frameAlong(schemePoint(k, bx0 + 1, 8, 1.8), BN), {tone: 'hi', meta: {owner: `p${k}.bracket${i}`}});
+    for (const [i, bx0] of [-1.2, PANEL_W].entries()) {
+      plate(k, `p${k}.bracket${i}`, bx0, 4, 1.2, 6, -0.6, 1.8, {tone: 'mid'});
+      S.turned(`p${k}.bracket${i}.screw`, [[0, 0.4], [0.2, 0.4, 1], [0.3, 0]], G.frameAlong(schemePoint(k, bx0 + 0.6, 7, 1.8), BN), {tone: 'hi', meta: {owner: `p${k}.bracket${i}`}});
     }
     // panel + deep frame (it holds the blind), corner plates
     plate(k, `p${k}.plate`, 0, 0, PANEL_W, PANEL_H, 0, 1.2, {tone: 'mid', shadow: 'hero', bevel: 0.5});
@@ -238,20 +251,20 @@ export const buildScheme = (o: SchemeOpts = {}) => {
     if (k > 0) {
       const ry = PANEL_H - FR - 1.1;
       S.turned(`p${k}.roller`, [[0, 1.1], [PANEL_W - 2 * FR, 1.1]], G.frameAlong(schemePoint(k, FR, ry, 3.7), BR), {tone: 'mid', meta: {touch: [`p${k}.frame.left`, `p${k}.frame.right`]}});
-      plate(k, `p${k}.blind`, FR, FR + 0.3, PANEL_W - 2 * FR, ry - 1.1 - FR - 0.3, 3.4, 4.0, {tone: 'lo', bevel: 0.2, meta: {touch: [`p${k}.roller`, `p${k}.frame.left`, `p${k}.frame.right`]}});
+      plate(k, `p${k}.blind`, FR, FR + 0.3, PANEL_W - 2 * FR, ry - 1.1 - FR - 0.3, 3.4, BLIND_N, {tone: 'hi', bevel: 0.2, over: slatLines(k, BLIND_TOP, BLIND_BOTTOM), meta: {touch: [`p${k}.roller`, `p${k}.frame.left`, `p${k}.frame.right`]}});
     }
   }
 
-  // legend tab (panel 1, right) and the heading tab of panel 1 «без вмешательства» (stands on the frame's top edge; panels 2 and 3 are named by their clamp tabs)
-  plate(0, 'p0.tab.legend', 46, 17.2, 7, 1.6, 1.2, 1.8, {tone: 'mid'});
-  plate(0, 'p0.tab.title', 2.6, PANEL_H, 7, 2.2, 1.2, 2.4, {tone: 'mid'});
+  // legend tab (panel 1, right) and the heading tab of panel 1 «без вмешательства» (top band; panels 2 and 3 are named by their clamp tabs)
+  plate(0, 'p0.tab.legend', 50, TAB_Y, 7, 1.4, 1.2, 1.8, {tone: 'mid'});
+  plate(0, 'p0.tab.title', 2.6, TAB_Y, 7, 1.4, 1.2, 1.8, {tone: 'mid'});
 
   // concepts: a plate between the lines over the end of line 2 + its tab (label tabs hang just under the plate)
   const conceptPlate = (id: ConceptId, extra: C = {}) => {
     const k = conceptPanel(id);
     const w = conceptWidth(id);
     plate(k, `p${k}.concept.${id}`, conceptX(id), CONCEPT_Y, w, CONCEPT_H, 1.2, 1.2 + relief, {tone: id === 'rabbit2' ? 'lo' : 'hi', bevel: 0.3, ...extra}, chamfer(w, CONCEPT_H, 0.9));
-    plate(k, `p${k}.concept.${id}.tab`, conceptX(id) + w / 2 - 1.8, CONCEPT_Y - 2.1, 3.6, 1.4, 1.2, 1.8, {tone: 'mid'});
+    plate(k, `p${k}.concept.${id}.tab`, conceptX(id) + w / 2 - 1.8, CONCEPT_Y - TABD, 3.6, 1, 1.2, 1.8, {tone: 'mid'});
   };
   for (const id of CONCEPTS) conceptPlate(id);
 
@@ -264,7 +277,7 @@ export const buildScheme = (o: SchemeOpts = {}) => {
     // each corner piece sits just outside a corner of the concept plate, its hypotenuse facing it
     for (const [n, cx, cy, sx, sy] of [['bl', xa, ya, 1, 1], ['br', xb, ya, -1, 1], ['tl', xa, yb, 1, -1], ['tr', xb, yb, -1, -1]] as const)
       plate(k, `p${k}.clamp.${n}`, Math.min(cx, cx + sx * CLAMP_L), Math.min(cy, cy + sy * CLAMP_L), CLAMP_L, CLAMP_L, 1.2, 2.4, piece, corner(CLAMP_L).map(([x, y]) => [sx > 0 ? x : CLAMP_L - x, sy > 0 ? y : CLAMP_L - y]));
-    plate(k, `p${k}.clamp.tab`, x0 + w / 2 - 1.8, CONCEPT_Y - 2.1, 3.6, 1.4, 1.2, 1.8, piece);
+    plate(k, `p${k}.clamp.tab`, x0 + w / 2 - 1.8, CONCEPT_Y - TABD, 3.6, 1, 1.2, 1.8, piece);
   }
 
   S.applyKeys((KEYS as Record<string, Record<string, number>>).SCHEME);
@@ -283,11 +296,13 @@ const prismDyn = (name: string, F: Frame, poly: number[][], d: number, at: Point
   if (o.lit) asTopFace(paths); // the face looks at the viewer: draw it in the top band so the coral reads as coral
   return dynSolid(name, at, K.solidSvg(paths, {tone: o.tone ?? 'hi', lit: o.lit}), A.prism(F, poly, 0, d, {name}), o.opacity);
 };
+const LIFT = 0.06;
 /** A tile whose bottom-left corner is at panel-local (x, y) of panel k and whose back is at n0; `lit` makes it THE coral part. */
 export const tileDyn = (k: number, name: string, x: number, y: number, chars: number, o: {n0?: number; lit?: boolean; tone?: K.Tone; opacity?: number} = {}): Dyn => {
   const n0 = o.n0 ?? TILE_N0;
   const w = tileWidth(chars);
   const d = TILE_N1 - TILE_N0;
+  y += LIFT; // a hair above the rail: a tile in contact with its rail made the ray-tested depth order paint the rail's top face over the tile's foot
   return prismDyn(name, faceFrame(k, x, y, n0), flip(chamfer(w, TILE_H)), d, schemePoint(k, x + w / 2, y + TILE_H / 2, n0 + d / 2), o);
 };
 /** Tile i of line `line` (1 or 2) of panel k at its place on the rail. */
@@ -308,15 +323,14 @@ export const cursorDyn = (k: number, x: number, o: {opacity?: number} = {}): Dyn
   const F = faceFrame(k, x, ROW2_Y, TILE_N0 + 0.1);
   return prismDyn(`cursor.p${k}`, F, flip(box(0.5, TILE_H)), 1.2, schemePoint(k, x + 0.25, ROW2_Y + TILE_H / 2, TILE_N0 + 0.7), {tone: 'mid', opacity: o.opacity});
 };
-export const BLIND_TOP = PANEL_H - FR - 2.2; // the blind hangs from the roller's lower edge
-export const BLIND_BOTTOM = FR + 0.3;
 /** The roll-up blind of panel k (1 or 2) at `open` 0 (closed, as the static part) … 1 (rolled up into the roller). */
 export const blindDyn = (k: number, open: number, o: {opacity?: number} = {}): Dyn[] => {
   const full = BLIND_TOP - BLIND_BOTTOM;
   const h = Math.max(0, full * (1 - open));
   if (h < 0.05) return [];
   const w = PANEL_W - 2 * FR;
-  return [prismDyn(`blind${k}.dyn`, faceFrame(k, FR, BLIND_TOP - h, 3.4), flip(box(w, h)), 0.6, schemePoint(k, FR + w / 2, BLIND_TOP - h / 2, 3.7), {tone: 'lo', opacity: o.opacity})];
+  const d = prismDyn(`blind${k}.dyn`, faceFrame(k, FR, BLIND_TOP - h, 3.4), flip(box(w, h)), BLIND_N - 3.4, schemePoint(k, FR + w / 2, BLIND_TOP - h / 2, 3.7), {tone: 'hi', opacity: o.opacity});
+  return [{...d, svg: d.svg + slatLines(k, BLIND_TOP, BLIND_TOP - h)}];
 };
 
 /** The clamp of panel k (1 or 2) arriving round its concept: share 0 = out to the left and `CLAMP_LIFT` off the face, 1 = seated.
@@ -334,7 +348,7 @@ export const clampDyn = (k: number, share: number, o: {opacity?: number} = {}): 
     ...([['bl', xa, ya, 1, 1], ['br', xb, ya, -1, 1], ['tl', xa, yb, 1, -1], ['tr', xb, yb, -1, -1]] as const).map(([n, cx, cy, sx, sy]) =>
       part(n, Math.min(cx, cx + sx * CLAMP_L), Math.min(cy, cy + sy * CLAMP_L), CLAMP_L, CLAMP_L, corner(CLAMP_L).map(([x, y]) => [sx > 0 ? x : CLAMP_L - x, sy > 0 ? y : CLAMP_L - y])),
     ),
-    part('tab', x0 + w / 2 - 1.8, CONCEPT_Y - 2.1, 3.6, 1.4, box(3.6, 1.4)),
+    part('tab', x0 + w / 2 - 1.8, CONCEPT_Y - TABD, 3.6, 1, box(3.6, 1)),
   ];
 };
 
@@ -349,19 +363,20 @@ export const tileAnchor = (k: number, line: 1 | 2, i: number): Point3 => {
 export const conceptAnchor = (id: ConceptId, r = RELIEF_HI): Point3 => schemePoint(conceptPanel(id), conceptX(id) + conceptWidth(id) / 2, CONCEPT_Y + CONCEPT_H / 2, 1.2 + r);
 /** World point of the middle of a tab's front face. */
 export const tabAnchor = (name: 'title0' | 'title1' | 'title2' | 'legend' | ConceptId | 'clamp2' | 'clamp3'): Point3 => {
-  if (name === 'legend') return schemePoint(0, 49.5, 18, 1.8);
-  if (name.startsWith('title')) return schemePoint(Number(name.slice(5)), 6.1, PANEL_H + 1.1, 2.4);
+  if (name === 'legend') return schemePoint(0, 53.5, TAB_Y + 0.7, 1.8);
+  if (name.startsWith('title')) return schemePoint(Number(name.slice(5)), 6.1, TAB_Y + 0.7, 1.8);
   if (name === 'clamp2' || name === 'clamp3') {
     const id = name === 'clamp2' ? 'rabbit2' : 'green3';
-    return schemePoint(Number(name.slice(5)) - 1, conceptX(id) + conceptWidth(id) / 2, CONCEPT_Y - 1.4, 1.8);
+    return schemePoint(Number(name.slice(5)) - 1, conceptX(id) + conceptWidth(id) / 2, CONCEPT_Y - TABD + 0.5, 1.8);
   }
-  return schemePoint(conceptPanel(name), conceptX(name) + conceptWidth(name) / 2, CONCEPT_Y - 1.4, 1.8);
+  const id = name as ConceptId;
+  return schemePoint(conceptPanel(id), conceptX(id) + conceptWidth(id) / 2, CONCEPT_Y - TABD + 0.5, 1.8);
 };
 const cornersOf = (k0: number, k1: number, x0: number, x1: number): Point3[] =>
-  [x0, x1].flatMap((x) => [schemePoint(k0, x, 0, 0), schemePoint(k0, x, 0, FRAME_N1), schemePoint(k1, x, PANEL_H + 2.2, 0), schemePoint(k1, x, PANEL_H + 2.2, FRAME_N1)]);
+  [x0, x1].flatMap((x) => [schemePoint(k0, x, 0, 0), schemePoint(k0, x, 0, FRAME_N1), schemePoint(k1, x, PANEL_H, 0), schemePoint(k1, x, PANEL_H, FRAME_N1)]);
 /** Corners of panel k with its tab row. */
 export const panelCorners = (k: number): Point3[] => cornersOf(k, k, -2, PANEL_W + 2);
 /** Corners of panels k0..k1. */
 export const panelsCorners = (k0: number, k1: number): Point3[] => cornersOf(k1, k0, -2, PANEL_W + 2);
 /** The whole stand: the three panels, both posts and the plinth. */
-export const STAND_CORNERS: Point3[] = [...cornersOf(2, 0, POST_X[0] - 1.4, POST_X[1] + 1.4), schemePoint(2, POST_X[0] - 4, -Y0, 0), schemePoint(2, POST_X[1] + 4, -Y0, 0), schemePoint(2, POST_X[0] - 4, -Y0, -4), schemePoint(2, POST_X[1] + 4, -Y0, -4)];
+export const STAND_CORNERS: Point3[] = [...cornersOf(2, 0, POST_X[0] - 1, POST_X[1] + 1), schemePoint(0, POST_X[0], PANEL_H + 1.5, 0.6), schemePoint(0, POST_X[1], PANEL_H + 1.5, 0.6), schemePoint(2, POST_X[0] - 3, -Y0, -3), schemePoint(2, POST_X[1] + 3, -Y0, -3)];

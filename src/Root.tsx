@@ -10,6 +10,7 @@ import {AnatomyStyleSample} from './samples/AnatomyStyleSample';
 import {AnatomyKitSample} from './samples/AnatomyKitSample';
 import {KIT_PAGES, UniversalKitSample} from './samples/UniversalKitSample';
 import {AnatomyCoverSample} from './samples/AnatomyCoverSample';
+import {CLAUDE_SKETCH_FRAMES, ClaudeSketch} from './samples/ClaudeSketch';
 import {anatomyCoverSchema} from './components/AnatomyCover';
 import {AnatomyCastSample, AnatomyCharacterSample, AnatomyGaitSample} from './samples/AnatomyCharacterSample';
 import {ElektromotorReel, ElektromotorStand, REEL_FRAMES} from './projects/elektromotor/StandFrames';
@@ -34,6 +35,7 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="AnatomyStyle" component={AnatomyStyleSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={240} />
   <Composition id="AnatomyKit" component={AnatomyKitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={240} />
   <Composition id="AnatomyUniversal" component={UniversalKitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={KIT_PAGES.length} />
+  <Composition id="ClaudeSketch" component={ClaudeSketch} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={CLAUDE_SKETCH_FRAMES} />
   <Composition id="AnatomyCharacter" component={AnatomyCharacterSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={420} />
   <Composition id="AnatomyGait" component={AnatomyGaitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={300} />
   <Composition id="AnatomyCoverSample" component={AnatomyCoverSample} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />

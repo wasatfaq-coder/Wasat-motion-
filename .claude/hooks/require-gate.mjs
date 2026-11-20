@@ -13,7 +13,10 @@ const files = data.tool_input?.files ?? [];
 const root = process.env.CLAUDE_PROJECT_DIR ?? process.cwd();
 const store = path.join(root, '.claude', 'gate-pass.json');
 const db = fs.existsSync(store) ? JSON.parse(fs.readFileSync(store, 'utf8')) : {};
-const media = files.filter((f) => /\.(png|jpe?g|gif|webp|mp4|webm|mov)$/i.test(f));
+// Sketches (user's decision 20.11.2026, docs/proposals): out/sketch/eskiz-* carry an «ЭСКИЗ» stamp in the frame and go
+// to the user after the machine checks only; the gate runs at the stops and before the master.
+const sketch = (f) => /(^|[\\/])out[\\/]sketch[\\/]eskiz-[^\\/]+$/i.test(f);
+const media = files.filter((f) => /\.(png|jpe?g|gif|webp|mp4|webm|mov)$/i.test(f) && !sketch(f));
 const missing = media.filter((f) => {
   const p = path.isAbsolute(f) ? f : path.join(root, f);
   if (!fs.existsSync(p)) return true;

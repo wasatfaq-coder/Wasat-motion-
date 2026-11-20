@@ -202,6 +202,16 @@ export const schemeShot = (t: number): SchemeState => {
   const cx = moving >= 0 ? end(moving) + (end(moving + 1) - end(moving)) * smooth(typed[moving]) : end(landed);
   extra.push(cursorDyn(0, cx, {opacity: cursorO(t)}));
 
+  // the coral leaves the old end over 0.1 s (a lit copy over it fades out; a colour change in one frame on a still tile
+  // is a pop); the new end is coral from its landing frame on
+  const landAt = (i: number) => T.type0 + i * T.typeStep + T.flight;
+  if (landed > 0) {
+    const k = clamp01((t - landAt(landed - 1)) / 0.1);
+    if (k < 1) {
+      const prev = landed === 1 ? tileDyn(0, `t1.${comma}.p0`, XS1[comma], ROW1_Y, 1, {lit: true}) : tileDyn(0, `t2.${landed - 2}.p0`, XS2[landed - 2], ROW2_Y, [...LINE2[0][landed - 2].text].length, {lit: true});
+      extra.push({...prev, name: `${prev.name}.coral`, opacity: 1 - k, bias: 0.05});
+    }
+  }
   // words on the tiles of panel 1 (the type follows the stand's scale) and on the concept
   const words: WordAt[] = [];
   if (readable) {

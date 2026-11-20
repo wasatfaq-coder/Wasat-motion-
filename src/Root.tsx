@@ -5,6 +5,8 @@ import {Main, mainSchema, MainProps, selectedScenes} from './Main';
 import {Cover, coverSchema} from './Cover';
 import {KakRabotaetClaudeMain, KakRabotaetClaudeSelected} from './projects/kak-rabotaet-claude/Main';
 import {KakRabotaetClaudeCover} from './projects/kak-rabotaet-claude/Cover';
+import {KakRabotaetClaudePhone} from './projects/kak-rabotaet-claude/PhoneFrames';
+import {KakRabotaetClaudeBoard} from './projects/kak-rabotaet-claude/BoardFrames';
 import {ElektromotorMain, ElektromotorSelected} from './projects/elektromotor/Main';
 import {ElektromotorCover} from './projects/elektromotor/Cover';
 import {episodeSchema} from './components/Episode';
@@ -67,6 +69,8 @@ export const RemotionRoot: React.FC = () => (
     calculateMetadata={({props}) => ({durationInFrames: Math.max(1, KakRabotaetClaudeSelected(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0))})}
   />
   <Composition id="KakRabotaetClaudeCover" component={KakRabotaetClaudeCover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
+  <Composition id="KakRabotaetClaudeBoard" component={KakRabotaetClaudeBoard} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={3} />
+  <Composition id="KakRabotaetClaudePhone" component={KakRabotaetClaudePhone} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={2} />
   {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}
   <Composition id="Cover" component={Cover} schema={coverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   </>

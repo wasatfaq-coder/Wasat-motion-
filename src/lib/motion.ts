@@ -88,3 +88,22 @@ export type MotionPose = {
 /** A reel or scene the motion check walks frame by frame. `cuts` are frames where a hard cut is intended.
  *  `stills`: the frames are separate style frames (one per beat), not a timeline, so no time-based rule (read) applies. */
 export type MotionSpec = {id: string; frames: number; fps: number; loop: boolean; cuts?: number[]; stills?: boolean; pose: (frame: number) => MotionPose};
+
+// ── The handwriting of the style (regulation v3.0, section 9): one set of curves for every topic ────────────────────
+/** Fast start, soft landing «into place»: the eased share of a move at linear progress t (0..1). */
+export const snap = (t: number) => {
+  const k = Math.max(0, Math.min(1, t));
+  return 1 - Math.pow(1 - k, 3.2);
+};
+
+/** Cascade: the eased share of element `i` of a group whose elements start `step` frames apart (2–4 frames) and each
+ *  take `dur` frames. Pure; `frame` is relative to the cascade's start. */
+export const cascade = (frame: number, i: number, {step = 3, dur = 18}: {step?: number; dur?: number} = {}) => snap((frame - i * step) / dur);
+
+/** The three layers of every shot (section 9): the main event on the voice's word, the response of 2–3 details with a
+ *  lag, and the quiet life of the world. Each is an eased share or a phase the scene's *.motion.ts reads. */
+export const layers = (frame: number, eventFrame: number, {dur = 24, lag = 6, lifePeriod = 120}: {dur?: number; lag?: number; lifePeriod?: number} = {}) => ({
+  event: snap((frame - eventFrame) / dur),
+  response: (i: number) => snap((frame - eventFrame - lag * (i + 1)) / dur),
+  life: (frame % lifePeriod) / lifePeriod,
+});

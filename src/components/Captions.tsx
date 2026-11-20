@@ -1,14 +1,14 @@
 import React from 'react';
 import {interpolate, useCurrentFrame} from 'remotion';
-import {captionNeedsPlate, COLORS, TYPE} from '../theme/tokens';
+import {COLORS, TYPE} from '../theme/tokens';
 import {ZONES, SAFE} from '../theme/layout';
 import {fontFamily} from '../theme/font';
 import {Beat, Page, SceneData} from '../lib/timeline';
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-zа-яё0-9]/gi, '');
 
-/** The page's key word is the beat that lands inside it (§10, §19.1). One word, bold for the whole page. */
-const keyWordIndex = (page: Page, beats: Beat[]) => {
+/** The page's key word is the word the beat inside the page lands on (regulation v3.0, section 10). */
+export const keyWordIndex = (page: Page, beats: Beat[]) => {
   const beat = beats.find((b) => b.frame !== null && b.frame >= page.startFrame && b.frame < page.endFrame);
   if (!beat || beat.frame === null) return -1;
   const at = beat.frame;
@@ -18,68 +18,60 @@ const keyWordIndex = (page: Page, beats: Beat[]) => {
   return page.words.findIndex((w) => norm(w.text) === target);
 };
 
+/** Reveal of one word from blur: 0 before it is spoken, 1 from its start (over `REVEAL` frames). Pure, per frame. */
+export const REVEAL = 6;
+export const wordReveal = (frame: number, startFrame: number) => interpolate(frame, [startFrame - REVEAL, startFrame], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+
+/** The caption colours on a light or on the one dark scene. The pill is ink with light text (never coral: coral belongs
+ *  to the topic's meaning in the picture, decision 12); on the dark scene it inverts. */
+export const captionInk = (dark = false) => ({
+  text: dark ? COLORS.fillLight : COLORS.ink,
+  pill: dark ? COLORS.fillLight : COLORS.ink,
+  pillText: dark ? COLORS.ink : COLORS.fillLight,
+});
+
+/** One caption line set as words: spoken words sharp, coming words in blur, the key word in the pill. Used by
+ *  Captions and by the showcase (src/samples), so the look is one. */
+export const CaptionLine: React.FC<{words: {text: string; reveal: number}[]; keyIndex: number; dark?: boolean}> = ({words, keyIndex, dark}) => {
+  const ink = captionInk(dark);
+  return (
+    <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px 18px', alignItems: 'center', fontFamily, fontSize: TYPE.caption, fontWeight: TYPE.weightCaption, lineHeight: 1.16, color: ink.text}}>
+      {words.map((w, i) => {
+        const key = i === keyIndex;
+        return (
+          <span
+            key={i}
+            style={{
+              filter: w.reveal < 1 ? `blur(${((1 - w.reveal) * 9).toFixed(1)}px)` : undefined,
+              opacity: 0.35 + 0.65 * w.reveal,
+              ...(key ? {background: ink.pill, color: ink.pillText, fontWeight: TYPE.weightKey, padding: '0 18px', borderRadius: 18} : {}),
+            }}
+          >
+            {w.text}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
 /**
- * Caption pages in the reserved band y=1210…1470. No plate while ink on the background clears 4.5:1;
- * captionBg is the fallback when that check fails (§19.1). Pages stay 2–6 words. Only the key word
- * is bold, with a coral underline that does not change the line width as speech moves on.
+ * Captions ON TOP (regulation v3.0, section 10): the band y 262…450 under the platform UI, left-aligned in the safe
+ * column. A page is 2–5 words; its words come out of blur as they are spoken and stay; the page holds until the next
+ * page or the end of the scene. The key word sits in the dark pill.
  */
-export const Captions: React.FC<{scene: SceneData; hideBefore?: number}> = ({scene, hideBefore = 0}) => {
+export const Captions: React.FC<{scene: SceneData; hideBefore?: number; dark?: boolean}> = ({scene, hideBefore = 0, dark}) => {
   const frame = useCurrentFrame();
   if (frame < hideBefore) return null;
   const page = scene.pages.find((p, i) => {
     const next = scene.pages[i + 1];
     const end = next ? next.startFrame : scene.durationInFrames;
-    return frame >= p.startFrame - 4 && frame < end;
+    return frame >= p.startFrame - REVEAL && frame < end;
   });
   if (!page) return null;
-  const appear = interpolate(frame, [page.startFrame - 4, page.startFrame + 4], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: SAFE.left,
-        width: 1080 - SAFE.left - SAFE.right,
-        top: ZONES.captionsTop + 24,
-        height: ZONES.captionsBottom - ZONES.captionsTop - 24,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        opacity: appear,
-        transform: `translateY(${(1 - appear) * 12}px)`,
-      }}
-    >
-      <div
-        style={{
-          fontFamily,
-          fontWeight: TYPE.weightCaption,
-          fontSize: TYPE.caption,
-          lineHeight: 1.18,
-          color: captionNeedsPlate ? COLORS.captionText : COLORS.ink,
-          background: captionNeedsPlate ? COLORS.captionBg : 'transparent',
-          borderRadius: captionNeedsPlate ? 12 : 0,
-          padding: captionNeedsPlate ? '8px 16px' : 0,
-          textAlign: 'center',
-          maxWidth: 840,
-          textWrap: 'balance',
-        }}
-      >
-        {page.words.map((w, i) => {
-          const key = i === keyWordIndex(page, scene.beats);
-          return (
-            <span
-              key={i}
-              style={{
-                fontWeight: key ? TYPE.weightKey : TYPE.weightCaption,
-                boxShadow: key ? `inset 0 -0.16em 0 ${COLORS.accent}` : 'none',
-                borderRadius: 4,
-              }}
-            >
-              {w.text}
-              {i < page.words.length - 1 ? ' ' : ''}
-            </span>
-          );
-        })}
-      </div>
+    <div style={{position: 'absolute', left: SAFE.left, width: 1080 - SAFE.left - SAFE.right, top: ZONES.captionsTop, height: ZONES.captionsBottom - ZONES.captionsTop}}>
+      <CaptionLine words={page.words.map((w) => ({text: w.text, reveal: wordReveal(frame, w.startFrame)}))} keyIndex={keyWordIndex(page, scene.beats)} dark={dark} />
     </div>
   );
 };

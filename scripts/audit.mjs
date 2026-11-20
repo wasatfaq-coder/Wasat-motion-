@@ -141,7 +141,7 @@ for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`
 }
 
 // 3) on-screen text: everything except captions, the preview title and labelled plates must be reviewed (§19.1)
-const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal)\.tsx|Cover\.tsx)$/;
+const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal|Atlas)\.tsx|Cover\.tsx)$/;
 for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) {
   const n = (fs.readFileSync(f, 'utf8').match(/<text\b/g) ?? []).length;
   if (n) add('warn', `text in frame: ${f} draws ${n} <text> node(s); allowed only as labels on frontal plates or data values (§19.1, §20.4)`);
@@ -424,6 +424,16 @@ else {
       add('error', `location: «${loc}» reused in scene ${n} after scene ${prev} — design a new location or record the return in locationReuse`);
     seen.set(loc, n);
   });
+  // transitions (section 9): six kinds inside a chapter, never twice in a row; a hard cut only between chapters
+  {
+    const {tsImport} = await import('tsx/esm/api');
+    const {transitionProblems} = await tsImport(new URL('../src/lib/transitions.ts', import.meta.url).href, import.meta.url);
+    // scene i (from the second) declares `transition`: how the picture arrives from scene i − 1
+    const idx = order.map((id, i) => i).filter((i) => i > 0 && scenes[order[i]]?.transition);
+    const seq = idx.map((i) => scenes[order[i]].transition);
+    const chapters = idx.length ? [scenes[order[idx[0] - 1]]?.chapter ?? 0, ...idx.map((i) => scenes[order[i]]?.chapter ?? 0)] : [];
+    for (const p of transitionProblems(seq, chapters)) add('error', `transitions: ${p} (section 9)`);
+  }
   if (darks.length > 1) add('error', `register: ${darks.length} dark scenes (${darks.join(', ')}); the dark scene is used once per video (decision 13)`);
   // coral: one meaning per topic, any number of coral parts (decision 21)
   const withCoral = Object.entries(scenes).filter(([, v]) => v.coral);

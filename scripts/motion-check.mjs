@@ -340,7 +340,8 @@ const geometry = async (files) => {
 const HEAD_LEN = 3.5; // kit units of an arrow head, sampled from its tip back along the shaft
 const W = 270;
 const H = 480;
-const BAND = {top: 290 / 1920, captions: 1170 / 1920, full: 1430 / 1920};
+// the graphics band of regulation v3.0: captions on top, the band 510–1470 (safe rect 560–1430)
+const BAND = {top: 550 / 1920, captions: 1430 / 1920, full: 1430 / 1920};
 
 /** Decode a video to gray frames W×H (Uint8Array each). */
 export const decode = (file) => {
@@ -496,7 +497,8 @@ const selftest = async () => {
   const clean = Array.from({length: N}, (_, i) => frame(smooth(i), 130, 150, 260));
   expect('pixels clean loop', checkFrames(clean, {loop: true}), []);
   expect('pixels crop', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i) - 80, 130, 200, 260)), {}), ['crop']);
-  expect('pixels empty bottom', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 150, 150, 110)), {}), ['layout']);
+  // the band is 550–1430 of 1920 since regulation v3.0 (rows 137–357 here): a short picture high in the band leaves the bottom empty
+  expect('pixels empty bottom', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 140, 150, 80)), {}), ['layout']);
   expect('pixels cut by the band', checkFrames(Array.from({length: N}, (_, i) => frame(smooth(i), 200, 150, 400)), {}), ['crop']);
   // the same block, but the band FADES it out over 30 rows (≈ 120 px): environment running past the band is allowed
   const faded = (f) => {

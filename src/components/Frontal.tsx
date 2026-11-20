@@ -3,7 +3,7 @@ import {COLORS, STROKE, TYPE, TYPE_FLOOR} from '../theme/tokens';
 import {fontFamily} from '../theme/font';
 import {SAFE, ZONES} from '../theme/layout';
 
-// Frontal plates and charts (MASTER_PROMPT_FINAL §20.4): labels and data are never drawn on a slanted plane.
+// Frontal plates and charts (MASTER_PROMPT_FINAL v3.0, section 10): labels and data are never drawn on a slanted plane.
 // They live in screen space (FrontalLayer, over RoomSvg), keep their pixel size at any zoom and point to the object
 // with a leader. Pin them to 3D points with screenOf(cam, roomPoint) from src/lib/camera.tsx.
 
@@ -72,10 +72,11 @@ type ChartProps = {
   highlight?: number; // index drawn in coral (the key value)
   values?: boolean; // print values over the marks
   format?: (v: number) => string;
+  source?: string; // source and date of the data, printed under the chart (regulation v3.0, section 10)
 };
 
 /** A literal chart on a frontal plate: zero baseline, labelled axis with its unit, values from the source. */
-export const FrontalChart: React.FC<ChartProps> = ({x, y, w, h, kind, data, unit, title, max, progress = 1, highlight, values = true, format = (v) => String(v)}) => {
+export const FrontalChart: React.FC<ChartProps> = ({x, y, w, h, kind, data, unit, title, max, progress = 1, highlight, values = true, format = (v) => String(v), source}) => {
   const pad = 28;
   const head = title ? 58 : 18;
   const foot = 56;
@@ -139,6 +140,92 @@ export const FrontalChart: React.FC<ChartProps> = ({x, y, w, h, kind, data, unit
           </g>
         );
       })}
+      {source ? <SourceLine x={x + pad} y={y + h + 34} text={source} /> : null}
     </g>
   );
 };
+
+/** The source and date under a plate, ≥ 26 px (regulation v3.0, section 10). */
+export const SourceLine: React.FC<{x: number; y: number; text: string; dark?: boolean}> = ({x, y, text, dark}) => (
+  <text x={x} y={y} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={TYPE_FLOOR.auxiliary} fill={dark ? COLORS.fillMid : COLORS.inkSoft}>
+    {text}
+  </text>
+);
+
+/** A counter value at progress t (0..1): fast at first, a strong slow-down, landing exactly on `to` at t = 1, the
+ *  anchor word (regulation v3.0, section 10). Pure. */
+export const counterValue = (t: number, from: number, to: number) => {
+  const k = clamp01(t);
+  const eased = 1 - Math.pow(1 - k, 4);
+  return from + (to - from) * eased;
+};
+
+const plateBox = (x: number, y: number, w: number, h: number, dark?: boolean) => (
+  <>
+    <rect x={x + 6} y={y + 6} width={w} height={h} rx={22} fill={dark ? COLORS.ink : COLORS.fillDark} opacity={dark ? 0.6 : 1} />
+    <rect x={x} y={y} width={w} height={h} rx={22} fill={dark ? COLORS.plateDark : COLORS.fillLight} stroke={dark ? COLORS.inkSoft : COLORS.ink} strokeWidth={STROKE.main} />
+  </>
+);
+
+/** A counter plate: the number counts up with a strong slow-down and lands on the anchor word; unit and source. */
+export const CounterPlate: React.FC<{x: number; y: number; t: number; to: number; from?: number; unit: string; source?: string; format?: (v: number) => string; dark?: boolean; accent?: boolean}> = ({x, y, t, to, from = 0, unit, source, format = (v) => Math.round(v).toLocaleString('ru-RU'), dark, accent}) => {
+  const text = format(counterValue(t, from, to));
+  const size = 72;
+  const w = Math.max(textWidth(format(to), size), textWidth(unit, TYPE.label)) + 64;
+  const h = 150;
+  const ink = dark ? COLORS.fillLight : COLORS.ink;
+  return (
+    <g>
+      {plateBox(x, y, w, h, dark)}
+      <text x={x + 32} y={y + 82} fontFamily={fontFamily} fontWeight={TYPE.weightBold} fontSize={size} fill={accent ? COLORS.accent : ink} style={{fontVariantNumeric: 'tabular-nums'}}>
+        {text}
+      </text>
+      <text x={x + 32} y={y + 128} fontFamily={fontFamily} fontWeight={TYPE.weightMedium} fontSize={TYPE_FLOOR.figure} fill={dark ? COLORS.fillMid : COLORS.inkSoft}>
+        {unit}
+      </text>
+      {source ? <SourceLine x={x + 8} y={y + h + 34} text={source} dark={dark} /> : null}
+    </g>
+  );
+};
+
+/** A list or comparison plate: rows of «name — value», one row may carry the topic's coral meaning. Data and lists
+ *  only, never a thesis (regulation v3.0, section 10). `show` 0..1 brings rows in one by one. */
+export const ListPlate: React.FC<{x: number; y: number; w: number; rows: [string, string?][]; title?: string; foot?: string; highlight?: number; show?: number; dark?: boolean}> = ({x, y, w, rows, title, foot, highlight, show = 1, dark}) => {
+  const rowH = 52;
+  const head = title ? 56 : 18;
+  const h = head + rows.length * rowH + (foot ? 44 : 18);
+  const ink = dark ? COLORS.fillLight : COLORS.ink;
+  const font = {fontFamily, fontWeight: TYPE.weightBold} as const;
+  return (
+    <g>
+      {plateBox(x, y, w, h, dark)}
+      {title ? (
+        <text x={x + 28} y={y + 42} fontSize={34} fill={ink} {...font}>
+          {title}
+        </text>
+      ) : null}
+      {rows.map(([a, b], i) => {
+        const k = clamp01(show * rows.length - i);
+        const on = highlight === i;
+        return (
+          <g key={i} opacity={k}>
+            <text x={x + 28} y={y + head + rowH * (i + 0.7)} fontSize={36} fill={on ? COLORS.accent : ink} {...font}>
+              {a}
+            </text>
+            {b ? (
+              <text x={x + w - 28} y={y + head + rowH * (i + 0.7)} textAnchor="end" fontSize={36} fill={on ? COLORS.accent : ink} {...font} style={{fontVariantNumeric: 'tabular-nums'}}>
+                {b}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
+      {foot ? <SourceLine x={x + 28} y={y + h - 16} text={foot} dark={dark} /> : null}
+    </g>
+  );
+};
+
+/** The moment of truth beside a mechanism (regulation v3.0, section 6): a sourced fact and «упрощённо». */
+export const TruthPlate: React.FC<{x: number; y: number; w: number; fact: string; source: string; dark?: boolean}> = ({x, y, w, fact, source, dark}) => (
+  <ListPlate x={x} y={y} w={w} rows={[[fact]]} title="Упрощённо. На деле:" foot={source} dark={dark} />
+);

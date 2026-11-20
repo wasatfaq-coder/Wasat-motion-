@@ -60,3 +60,46 @@ export const peel = (layers: string[], t: number): Record<string, number> =>
 /** A meaning hand-over between two objects in the same place (the old one leaves in the first half of the move, the
  *  new one arrives in the second: two meanings never overlap, §20.5). */
 export const swap = (t: number) => ({out: handOver(1, 0, t), in: handOver(0, 1, t)});
+
+// ── The six transitions inside a chapter (regulation v3.0, section 9); a hard cut only between chapters ──────────────
+export const TRANSITIONS = ['zoom-into-detail', 'through-the-cut', 'shape-match', 'bridge-object', 'morph-to-scheme', 'pull-out'] as const;
+export type TransitionKind = (typeof TRANSITIONS)[number] | 'hard-cut';
+
+/** Problems of a sequence of transitions of one video: an unknown kind, the same transition twice in a row, a hard cut
+ *  that is not between chapters (`chapters[i]` is the chapter of the scene the i-th transition leads into). */
+export const transitionProblems = (kinds: TransitionKind[], chapters: number[] = []) => {
+  const out: string[] = [];
+  kinds.forEach((k, i) => {
+    if (k !== 'hard-cut' && !(TRANSITIONS as readonly string[]).includes(k)) out.push(`transition ${i + 1}: unknown «${k}»`);
+    if (i > 0 && k === kinds[i - 1] && k !== 'hard-cut') out.push(`transition ${i + 1}: «${k}» twice in a row`);
+    if (chapters.length > i + 1 && k === 'hard-cut' && chapters[i] === chapters[i + 1]) out.push(`transition ${i + 1}: a hard cut inside chapter ${chapters[i]}`);
+  });
+  return out;
+};
+
+type Pt = [number, number];
+/** Resample a closed outline to `n` points spaced evenly along its perimeter (so two shapes can morph point to point). */
+export const resample = (pts: Pt[], n: number): Pt[] => {
+  const segs = pts.map((p, i) => [p, pts[(i + 1) % pts.length]] as [Pt, Pt]);
+  const lens = segs.map(([a, b]) => Math.hypot(b[0] - a[0], b[1] - a[1]));
+  const total = lens.reduce((a, b) => a + b, 0) || 1;
+  const out: Pt[] = [];
+  for (let k = 0; k < n; k++) {
+    let d = (k / n) * total;
+    let i = 0;
+    while (i < lens.length - 1 && d > lens[i]) d -= lens[i++];
+    const [a, b] = segs[i];
+    const f = lens[i] ? d / lens[i] : 0;
+    out.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]);
+  }
+  return out;
+};
+
+/** Morph «real → scheme»: the outline of a real part at t = 0 becomes its simplified shape at t = 1, point to point
+ *  over evenly resampled outlines (a dissolve of one picture into another is not a morph). Returns an SVG path. */
+export const morph = (from: Pt[], to: Pt[], t: number, n = 64) => {
+  const a = resample(from, n);
+  const b = resample(to, n);
+  const k = settle(Math.max(0, Math.min(1, t)));
+  return a.map((p, i) => `${i ? 'L' : 'M'}${(p[0] + (b[i][0] - p[0]) * k).toFixed(2)} ${(p[1] + (b[i][1] - p[1]) * k).toFixed(2)}`).join('') + 'Z';
+};

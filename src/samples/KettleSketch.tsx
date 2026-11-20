@@ -26,19 +26,19 @@ const VIEW = Math.atan2(new Assembly('v', P).V[1], new Assembly('v', P).V[0]); /
 
 // ── the kitchen: a floor, two walls with tile lines and a counter with doors (every chapter has its own place) ───────
 const kitchen = (A: Assembly) => {
-  A.slab('floor', {x: 0, y: 0, w: 90, d: 60, r: 0}, -1, 1, {tone: 'mid', ground: true, bevel: 0, bias: -3000});
+  A.slab('floor', {x: 0, y: 0, w: 90, d: 60, r: 0}, -1, 1, {tone: 'mid', ground: true, bevel: 0, bias: -3000, texture: 'grain'});
   for (let i = 1; i < 6; i++) A.slab(`floor.board${i}`, {x: i * 15 - 0.12, y: 0.5, w: 0.24, d: 59, r: 0}, 0, 0.03, {tone: 'lo', bevel: 0, bias: -2999});
-  A.slab('wall.back', {x: 0, y: -2, w: 90, d: 2, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000});
-  A.slab('wall.left', {x: -2, y: -2, w: 2, d: 62, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000});
+  A.slab('wall.back', {x: 0, y: -2, w: 90, d: 2, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000, texture: 'dots'});
+  A.slab('wall.left', {x: -2, y: -2, w: 2, d: 62, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000, texture: 'dots'});
   for (let r = 0; r < 8; r++) A.slab(`tile${r}`, {x: 0.5, y: -0.05, w: 89, d: 0.05, r: 0}, Z0 + 2 + r * 4, 0.2, {tone: 'lo', bevel: 0, bias: -3900});
   A.slab('counter', {x: 2, y: 2, w: 82, d: 34, r: 0.6}, 0, Z0, {tone: 'mid', ground: true, bevel: 0.5, bias: -2000});
-  A.slab('counter.top', {x: 1, y: 1, w: 84, d: 36, r: 0.6}, Z0, 2.4, {tone: 'hi', bevel: 0.5, bias: -1900});
-  for (let i = 0; i < 4; i++) A.slab(`door${i}`, {x: 4 + i * 20, y: 36, w: 18, d: 0.3, r: 0.3}, 4, Z0 - 8, {tone: 'lo', bevel: 0.15, bias: -1800});
+  A.slab('counter.top', {x: 1, y: 1, w: 84, d: 36, r: 0.6}, Z0, 2.4, {tone: 'hi', bevel: 0.5, bias: -1900, texture: 'grain'});
+  for (let i = 0; i < 4; i++) A.slab(`door${i}`, {x: 4 + i * 20, y: 36, w: 18, d: 0.3, r: 0.3}, 4, Z0 - 8, {tone: 'lo', bevel: 0.15, bias: -1800, texture: 'weave'});
   for (let i = 0; i < 4; i++) A.cyl(`knob${i}`, 20 + i * 20, 36.4, 0.7, Z0 - 8, 0.4, {tone: 'mid', bevel: 0.1, bias: -1700});
 };
 
 const mug = (A: Assembly, x: number, y: number) => {
-  A.cyl('mug', x, y, 4, Z0 + 2.4, 8, {tone: 'hi', bevel: 0.5, shadow: 'part'});
+  A.cyl('mug', x, y, 4, Z0 + 2.4, 8, {tone: 'hi', bevel: 0.5, shadow: 'part', texture: 'dots'});
   A.cyl('mug.tea', x, y, 3.4, Z0 + 10, 0.5, {tone: 'lo', bevel: 0});
   A.pipe('mug.handle', [[x + 4, y, Z0 + 8], [x + 7, y, Z0 + 8], [x + 7, y, Z0 + 5], [x + 4, y, Z0 + 4]], 0.7, {bend: 1.5, tone: 'hi'});
 };
@@ -57,7 +57,7 @@ const nearness = (mid: number) => Math.abs(Math.atan2(Math.sin(mid - VIEW), Math
 const kettle = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
   const AH = VIEW + Math.PI * 0.72; // the handle side (away from the viewer, to the left)
   const at = (r: number, z: number, a = AH): Point3 => [cx + r * Math.cos(a), cy + r * Math.sin(a), z0 + z];
-  A.cyl('base', cx, cy, 15.5, z0, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero'});
+  A.cyl('base', cx, cy, 15.5, z0, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero', texture: 'ridges'});
   A.cyl('base.ring', cx, cy, 14.4, z0 + 2, 1.2, {tone: 'lo', bevel: 0.3});
   A.cyl('floor', cx, cy, R - WALL, z0 + 3.2, 0.8, {tone: 'lo', bevel: 0.1});
   // the coil: two closed rings of a lit tube on the floor, fixed with four feet
@@ -66,14 +66,19 @@ const kettle = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
   A.pipe('coil.b', ring(5), 0.8, {closed: true, bend: 2, lit: true, tone: 'hi'});
   for (let i = 0; i < 4; i++) A.cyl(`coil.foot${i}`, cx + 6.7 * Math.cos((i * Math.PI) / 2 + 0.4), cy + 6.7 * Math.sin((i * Math.PI) / 2 + 0.4), 0.9, z0 + 4, 1.1, {tone: 'lo', bevel: 0.1});
   // water: two halves (back, front) so the near one can leave in the section
-  A.extruded('water.back', [...half([cx, cy], R - WALL - 0.1, VIEW + Math.PI / 2)], z0 + 4, 15, {tone: 'mid'});
-  A.extruded('water.front', [...half([cx, cy], R - WALL - 0.1, VIEW - Math.PI / 2)], z0 + 4, 15, {tone: 'mid'});
-  // wall: 12 sectors
-  for (let i = 0; i < 12; i++) A.arc(`wall${i}`, [cx, cy], R - WALL, R, (i * Math.PI) / 6, ((i + 1) * Math.PI) / 6, z0 + 3, 26, {tone: 'hi'});
-  A.cyl('wall.band', cx, cy, R + 0.4, z0 + 3, 3, {tone: 'mid', bevel: 0.3});
-  A.cyl('lid', cx, cy, R + 0.5, z0 + 29, 1.6, {tone: 'hi', bevel: 0.6});
-  A.cyl('lid.knob', cx, cy, 2.4, z0 + 30.6, 1.8, {tone: 'mid', bevel: 0.5});
-  A.slab('spout', {x: cx - (R + 1.5) * Math.cos(AH) - 2.5, y: cy - (R + 1.5) * Math.sin(AH) - 3, w: 7, d: 8, r: 1.6}, z0 + 20, 9, {tone: 'hi', bevel: 0.5});
+  A.extruded('water.back', [...half([cx, cy], R - WALL - 0.1, VIEW + Math.PI / 2)], z0 + 4, 15, {tone: 'lo', texture: 'waves'});
+  A.extruded('water.front', [...half([cx, cy], R - WALL - 0.1, VIEW - Math.PI / 2)], z0 + 4, 15, {tone: 'lo', texture: 'waves'});
+  // wall: three tiers of 12 sectors (a body, a shoulder, a neck) so the silhouette reads as a kettle
+  for (let i = 0; i < 12; i++) {
+    const [a0, a1] = [(i * Math.PI) / 6, ((i + 1) * Math.PI) / 6];
+    A.arc(`wall${i}`, [cx, cy], R - WALL, R, a0, a1, z0 + 3, 17, {tone: 'hi', texture: 'ridges'});
+    A.arc(`shoulder${i}`, [cx, cy], R - 1 - WALL, R - 1, a0, a1, z0 + 20, 6, {tone: 'hi', texture: 'ridges'});
+    A.arc(`neck${i}`, [cx, cy], R - 2.5 - WALL, R - 2.5, a0, a1, z0 + 26, 4, {tone: 'hi', texture: 'ridges'});
+  }
+  A.cyl('wall.band', cx, cy, R + 0.4, z0 + 3, 3, {tone: 'mid', bevel: 0.3, texture: 'dots'});
+  A.cyl('lid', cx, cy, R - 2, z0 + 30, 1.6, {tone: 'hi', bevel: 0.6, texture: 'ridges'});
+  A.cyl('lid.knob', cx, cy, 2.4, z0 + 31.6, 1.8, {tone: 'mid', bevel: 0.5});
+  A.slab('spout', {x: cx - (R + 1.5) * Math.cos(AH) - 2.5, y: cy - (R + 1.5) * Math.sin(AH) - 3, w: 7, d: 8, r: 1.6}, z0 + 21, 8, {tone: 'hi', bevel: 0.5});
   A.pipe('handle', [at(R - 1, 6), at(R + 5, 7), at(R + 8, 16), at(R + 5, 26), at(R - 1, 27)], 1.3, {bend: 4, tone: 'mid'});
   A.slab('switch', {x: at(R + 4, 27)[0] - 1.6, y: at(R + 4, 27)[1] - 1.6, w: 3.2, d: 3.2, r: 0.8}, z0 + 27.6, 1.4, {tone: 'lo', bevel: 0.3});
   A.cyl('led', at(R + 7, 6)[0], at(R + 7, 6)[1], 0.7, z0 + 6.6, 0.4, {tone: 'hi', bevel: 0.1});
@@ -82,7 +87,7 @@ const kettle = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
 
 const hideNear = (full: string) => {
   const n = full.replace(/^k\.[a-z]+\./, ''); // part names carry the object's name: k.sec.wall3
-  const m = /^wall(\d+)/.exec(n);
+  const m = /^(?:wall|shoulder|neck)(\d+)/.exec(n);
   if (m) return nearness(((Number(m[1]) + 0.5) * Math.PI) / 6) < 1.45;
   return n === 'water.front' || n.startsWith('lid');
 };
@@ -91,8 +96,8 @@ const hideNear = (full: string) => {
 const thermostat = (bend: number) => {
   const T = new Assembly('therm', P, {role: 'mechanism'});
   const z = 0;
-  T.slab('plate', {x: 0, y: 0, w: 30, d: 14, r: 1}, z, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero'});
-  T.slab('post.a', {x: 2, y: 4, w: 3, d: 6, r: 0.5}, z + 2, 9, {tone: 'lo', bevel: 0.3});
+  T.slab('plate', {x: 0, y: 0, w: 30, d: 14, r: 1}, z, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero', texture: 'cells'});
+  T.slab('post.a', {x: 2, y: 4, w: 3, d: 6, r: 0.5}, z + 2, 9, {tone: 'lo', bevel: 0.3, texture: 'ridges'});
   T.slab('post.b', {x: 22, y: 4, w: 3, d: 6, r: 0.5}, z + 2, 15, {tone: 'lo', bevel: 0.3});
   T.cyl('contact.a', 17.5, 7, 1.3, z + 2, 6.4, {tone: 'hi', bevel: 0.3});
   T.cyl('contact.b', 17.5, 7, 1.0, z + 12.4 + bend * 3, 1.2, {tone: 'hi', bevel: 0.2});

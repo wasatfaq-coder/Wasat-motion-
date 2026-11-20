@@ -2,29 +2,244 @@
   "object": "Hero A: generic smartphone on a desk stand with a chat screen (scenes 1, 7, desk-phone). Secondary B: token board (scenes 2-3). Schematic C: inside-model graph after S1 (scenes 4-6).",
   "status": "PARTIAL: transformer-circuits.pub, support.apple.com, store.google.com, m3.material.io did not resolve from this session (network allowlist). Figures of S1 are images without alt text, so their visual form is NOT verified. Everything not in sources is marked simplified.",
   "sources": [
-    {"id": "D1", "url": "https://www.anthropic.com/research/tracing-thoughts-language-model", "what": "S1 page: captions and text of the poem-planning figure (rabbit suppressed -> habit, green injected -> green), limits ('only captures a fraction of the total computation'). Figure images have empty alt text; their drawing was not seen.", "accessed": "2026-11-19"},
-    {"id": "D2", "url": "https://platform.claude.com/docs/en/resources/glossary", "what": "Glossary (page now served at /docs/en/about-claude/glossary): Tokens = 'words, subwords, characters, or even bytes'; text 'encoded into a series of tokens'; Pretraining = 'predict the next word, given the previous context'; Temperature = 'controls the randomness of a model's predictions'.", "accessed": "2026-11-19"},
-    {"id": "D3", "url": "https://store.google.com/us/product/pixel_9_specs", "what": "Base Pixel 9 spec page: 152.8 x 72 x 8.5 mm (height x width x depth), 6.3 in display, 1080x2424, 20:9. NOT opened directly (host unreachable); figures confirmed only via search-result summary quoting Google Store AU, O2 UK and GSMArena. Google notes sizes vary by configuration. Use as a typical value for a generic phone, not a model to copy.", "accessed": "2026-11-19"},
-    {"id": "D4", "url": "https://developer.apple.com/design/human-interface-guidelines/layout", "what": "Page opened but returned only its title; no numbers verified. Tap target 44 pt and status bar values mentioned in the fetch were from model memory and are NOT used as facts.", "accessed": "2026-11-19"},
-    {"id": "D5", "url": "https://transformer-circuits.pub/2025/attribution-graphs/biology.html", "what": "'On the Biology of a Large Language Model' (Lindsey et al., 2025): planning-in-poems section and graph figure conventions. UNREACHABLE from this session; nothing verified.", "accessed": "2026-11-19"},
-    {"id": "D6", "url": "/home/user/Wasat-motion-/src/lib/device.ts", "what": "Repo kit: `phone` (screen up, lying flat) already has back, frame, glass, screen, earpiece, front cam, power/volume/mute, port, speaker, mic, screws, sim. Reuse the parts list; stand pose needs a new orientation. Not a source of real-world fact.", "accessed": "2026-11-19"}
+    {
+      "id": "D1",
+      "url": "https://www.anthropic.com/research/tracing-thoughts-language-model",
+      "what": "S1 page: captions and text of the poem-planning figure (rabbit suppressed -> habit, green injected -> green), limits ('only captures a fraction of the total computation'). Figure images have empty alt text; their drawing was not seen.",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "D2",
+      "url": "https://platform.claude.com/docs/en/resources/glossary",
+      "what": "Glossary (page now served at /docs/en/about-claude/glossary): Tokens = 'words, subwords, characters, or even bytes'; text 'encoded into a series of tokens'; Pretraining = 'predict the next word, given the previous context'; Temperature = 'controls the randomness of a model's predictions'.",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "D3",
+      "url": "https://store.google.com/us/product/pixel_9_specs",
+      "what": "Base Pixel 9 spec page: 152.8 x 72 x 8.5 mm (height x width x depth), 6.3 in display, 1080x2424, 20:9. NOT opened directly (host unreachable); figures confirmed only via search-result summary quoting Google Store AU, O2 UK and GSMArena. Google notes sizes vary by configuration. Use as a typical value for a generic phone, not a model to copy.",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "D4",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/layout",
+      "what": "Page opened but returned only its title; no numbers verified. Tap target 44 pt and status bar values mentioned in the fetch were from model memory and are NOT used as facts.",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "D5",
+      "url": "https://transformer-circuits.pub/2025/attribution-graphs/biology.html",
+      "what": "'On the Biology of a Large Language Model' (Lindsey et al., 2025): planning-in-poems section and graph figure conventions. UNREACHABLE from this session; nothing verified.",
+      "accessed": "2026-11-19"
+    },
+    {
+      "id": "D6",
+      "url": "/home/user/Wasat-motion-/src/lib/device.ts",
+      "what": "Repo kit: `phone` (screen up, lying flat) already has back, frame, glass, screen, earpiece, front cam, power/volume/mute, port, speaker, mic, screws, sim. Reuse the parts list; stand pose needs a new orientation. Not a source of real-world fact.",
+      "accessed": "2026-11-19"
+    }
   ],
   "units": [
-    {"name": "Smartphone body (generic)", "parts": ["frame band (rounded rectangle, corner radius ~ 9-10 mm in plan)", "back plate", "front glass", "screen", "earpiece slot", "front camera hole", "proximity sensor (hidden)", "power button (right side)", "volume buttons x2 (left side)", "mute/action switch (left, optional)", "bottom edge: USB-C port, speaker grille, microphone holes, 2 screws (optional)", "camera bump on back: 2 lenses + flash + sensor dot", "SIM tray (side)"], "size_mm": [72, 8.5, 152.8], "material": "aluminium or titanium-like frame (toned mid), glass front and back (toned lo/hi), matte back; no logo, no text", "visible": "outside", "source": "D3 (size only)", "simplified": false, "reason": null},
-    {"name": "Bezels and corner radius", "parts": ["side bezel", "top bezel", "bottom bezel"], "size_mm": [2.5, null, 3.0], "material": "black glass border of the screen", "visible": "outside", "source": null, "simplified": true, "reason": "No primary figure verified. Draw about 2.5 mm sides, 3 mm top/bottom as a style choice; screen area ~ 67 x 146 mm."},
-    {"name": "Camera bump (back)", "parts": ["raised plate or two ring lenses", "flash", "mic hole"], "size_mm": [30, 1.5, 30], "material": "glass + metal rings", "visible": "section or back view only (on stand the back faces the wall/viewer-opposite, so mostly hidden)", "source": null, "simplified": true, "reason": "Size unsourced; generic. Hidden from the front shot of scenes 1 and 7, shown only if the camera orbits."},
-    {"name": "Desk stand (generic)", "parts": ["base plate (weighted, rounded rectangle)", "upright back support / spine", "front lip (ledge for phone bottom edge)", "rubber pad on lip", "rubber feet x4", "small cable cut-out"], "size_mm": [90, 70, 105], "material": "aluminium or ABS body with silicone pads (toned mid; pads lo)", "visible": "outside", "source": null, "simplified": true, "reason": "No standard dims; generic stand: tilt ~ 65-75 deg from the desk is a design choice. Not a sourced product."},
-    {"name": "Chat UI on screen (generic, no brand)", "parts": ["status bar (time, signal bars, battery icon, as simple glyphs, no real clock text needed)", "header bar with back arrow and a neutral title block (a plain line, not a brand word)", "message list area", "user bubble (right-aligned, rounded rectangle, toned light)", "AI answer area (left, no bubble or light bubble; text lines)", "answer text appearing token by token", "cursor (thin vertical bar or small block at the end of the text, blinking)", "input field with placeholder line and send button (round)", "optional on-screen keyboard (omit: the answer is being generated, keyboard hidden)"], "size_mm": null, "material": "emissive screen layer (lit)", "visible": "closeup", "source": null, "simplified": true, "reason": "The UI is our design; the real Claude app is not copied and logos or UI copy are excluded by the brief. Proportions: status bar ~ 4% of the screen height, header ~ 6%, input ~ 7%, rest message list (design choice, not measured). Text content comes from our script, not from any app."},
-    {"name": "Token board (B)", "parts": ["answer line tiles (rounded rectangles of different width: whole word, word part, punctuation, space-carrying tile)", "gaps of constant width between tiles", "three callout plates: word / part of word / symbol (D2)", "candidate column on the right: 4 tiles stacked", "4 bars of unequal length, no numbers", "selected tile (coral)", "row highlight (the context so far)"], "size_mm": null, "material": "toned solid slabs on a flat board; not a real object", "visible": "closeup", "source": "D2 (token kinds); unequal bars are conceptual", "simplified": true, "reason": "A schematic by design (storyboard: not a measurement). Tile widths approximate text length; real token boundaries not shown: never claim the cut matches Claude's tokenizer (needs user/storyboard sentence)."},
-    {"name": "Inside-model graph (C)", "parts": ["token-position row at the bottom or top: the line's words/tokens (horizontal axis = position)", "layers as horizontal tiers (vertical axis = depth in the model)", "node = a feature, drawn as a labelled box", "edges between nodes (thin lines, direction from input toward output)", "highlighted node 'rabbit' (coral) at the line end position", "dim nodes (the unexamined remainder), a few lit"], "size_mm": null, "material": "flat/low slabs on a plane, schematic", "visible": "closeup", "source": "D1 (what the experiment showed); figure form: NOT verified", "simplified": true, "reason": "The images in S1 and the paper could not be seen (no alt text; paper host blocked). The layout described (nodes as labelled boxes, edges, layers vs token positions) is the standard attribution-graph description and must be confirmed against the figures before it is called faithful. Say 'схема по мотивам рисунка', not 'рисунок'."}
+    {
+      "name": "Smartphone body (generic)",
+      "parts": [
+        "frame band (rounded rectangle, corner radius ~ 9-10 mm in plan)",
+        "back plate",
+        "front glass",
+        "screen",
+        "earpiece slot",
+        "front camera hole",
+        "proximity sensor (hidden)",
+        "power button (right side)",
+        "volume buttons x2 (left side)",
+        "mute/action switch (left, optional)",
+        "bottom edge: USB-C port, speaker grille, microphone holes, 2 screws (optional)",
+        "camera bump on back: 2 lenses + flash + sensor dot",
+        "SIM tray (side)"
+      ],
+      "size_mm": [
+        72,
+        8.5,
+        152.8
+      ],
+      "material": "aluminium or titanium-like frame (toned mid), glass front and back (toned lo/hi), matte back; no logo, no text",
+      "visible": "outside",
+      "source": "D3 (size only)",
+      "simplified": false,
+      "reason": null
+    },
+    {
+      "name": "Bezels and corner radius",
+      "parts": [
+        "side bezel",
+        "top bezel",
+        "bottom bezel"
+      ],
+      "size_mm": [
+        2.5,
+        null,
+        3.0
+      ],
+      "material": "black glass border of the screen",
+      "visible": "outside",
+      "source": null,
+      "simplified": true,
+      "reason": "No primary figure verified. Draw about 2.5 mm sides, 3 mm top/bottom as a style choice; screen area ~ 67 x 146 mm."
+    },
+    {
+      "name": "Camera bump (back)",
+      "parts": [
+        "raised plate or two ring lenses",
+        "flash",
+        "mic hole"
+      ],
+      "size_mm": [
+        30,
+        1.5,
+        30
+      ],
+      "material": "glass + metal rings",
+      "visible": "section or back view only (on stand the back faces the wall/viewer-opposite, so mostly hidden)",
+      "source": null,
+      "simplified": true,
+      "reason": "Size unsourced; generic. Hidden from the front shot of scenes 1 and 7, shown only if the camera orbits."
+    },
+    {
+      "name": "Desk stand (generic)",
+      "parts": [
+        "base plate (weighted, rounded rectangle)",
+        "upright back support / spine",
+        "front lip (ledge for phone bottom edge)",
+        "rubber pad on lip",
+        "rubber feet x4",
+        "small cable cut-out"
+      ],
+      "size_mm": [
+        90,
+        70,
+        105
+      ],
+      "material": "aluminium or ABS body with silicone pads (toned mid; pads lo)",
+      "visible": "outside",
+      "source": null,
+      "simplified": true,
+      "reason": "No standard dims; generic stand: tilt ~ 65-75 deg from the desk is a design choice. Not a sourced product."
+    },
+    {
+      "name": "Chat UI on screen (generic, no brand)",
+      "parts": [
+        "status bar (time, signal bars, battery icon, as simple glyphs, no real clock text needed)",
+        "header bar with back arrow and a neutral title block (a plain line, not a brand word)",
+        "message list area",
+        "user bubble (right-aligned, rounded rectangle, toned light)",
+        "AI answer area (left, no bubble or light bubble; text lines)",
+        "answer text appearing token by token",
+        "cursor (thin vertical bar or small block at the end of the text, blinking)",
+        "input field with placeholder line and send button (round)",
+        "optional on-screen keyboard (omit: the answer is being generated, keyboard hidden)"
+      ],
+      "size_mm": null,
+      "material": "emissive screen layer (lit)",
+      "visible": "closeup",
+      "source": null,
+      "simplified": true,
+      "reason": "The UI is our design; the real Claude app is not copied and logos or UI copy are excluded by the brief. Proportions: status bar ~ 4% of the screen height, header ~ 6%, input ~ 7%, rest message list (design choice, not measured). Text content comes from our script, not from any app."
+    },
+    {
+      "name": "Token board (B)",
+      "parts": [
+        "answer line tiles (rounded rectangles of different width: whole word, word part, punctuation, space-carrying tile)",
+        "gaps of constant width between tiles",
+        "three callout plates: word / part of word / symbol (D2)",
+        "candidate column on the right: 4 tiles stacked",
+        "4 bars of unequal length, no numbers",
+        "selected tile (coral)",
+        "row highlight (the context so far)"
+      ],
+      "size_mm": null,
+      "material": "toned solid slabs on a flat board; not a real object",
+      "visible": "closeup",
+      "source": "D2 (token kinds); unequal bars are conceptual",
+      "simplified": true,
+      "reason": "A schematic by design (storyboard: not a measurement). Tile widths approximate text length; real token boundaries not shown: never claim the cut matches Claude's tokenizer (needs user/storyboard sentence)."
+    },
+    {
+      "name": "Inside-model graph (C)",
+      "parts": [
+        "token-position row at the bottom or top: the line's words/tokens (horizontal axis = position)",
+        "layers as horizontal tiers (vertical axis = depth in the model)",
+        "node = a feature, drawn as a labelled box",
+        "edges between nodes (thin lines, direction from input toward output)",
+        "highlighted node 'rabbit' (coral) at the line end position",
+        "dim nodes (the unexamined remainder), a few lit"
+      ],
+      "size_mm": null,
+      "material": "flat/low slabs on a plane, schematic",
+      "visible": "closeup",
+      "source": "D1 (what the experiment showed); figure form: NOT verified",
+      "simplified": true,
+      "reason": "The images in S1 and the paper could not be seen (no alt text; paper host blocked). The layout described (nodes as labelled boxes, edges, layers vs token positions) is the standard attribution-graph description and must be confirmed against the figures before it is called faithful. Say 'схема по мотивам рисунка', not 'рисунок'."
+    }
   ],
   "principle": [
-    {"step": 1, "what happens": "Reply appears on the screen in pieces; each piece is appended after the previous one.", "moving parts": ["answer text", "cursor"], "speed or time": "not sourced; pick a readable rate (about 0.15-0.3 s per piece in the film)", "source": "D1 ('writes text one word at a time', per sources.md S1 check)"},
-    {"step": 2, "what happens": "Text is encoded into tokens: words, subwords, characters, bytes.", "moving parts": ["tiles"], "speed or time": "n/a", "source": "D2"},
-    {"step": 3, "what happens": "The model is trained to predict the next piece from the previous context; one piece is chosen and appended, then the cycle repeats.", "moving parts": ["row", "candidate column", "selected tile"], "speed or time": "n/a", "source": "D2 (Pretraining)"},
-    {"step": 4, "what happens": "Choice randomness is controlled by temperature (not shown as dice).", "moving parts": [], "speed or time": "n/a", "source": "D2 (Temperature)"},
-    {"step": 5, "what happens": "Poem: 'rabbit' as end-word is planned before line 2 begins; suppressing it gives 'habit'; injecting 'green' gives a line ending in 'green'.", "moving parts": ["node rabbit", "node habit", "node green", "line 2"], "speed or time": "n/a", "source": "D1 (text and caption)"},
-    {"step": 6, "what happens": "The method captures only a fraction of the computation; it was studied on one model (Claude 3.5 Haiku per sources.md).", "moving parts": ["lit vs dark nodes"], "speed or time": "n/a", "source": "D1"}
+    {
+      "step": 1,
+      "what happens": "Reply appears on the screen in pieces; each piece is appended after the previous one.",
+      "moving parts": [
+        "answer text",
+        "cursor"
+      ],
+      "speed or time": "not sourced; pick a readable rate (about 0.15-0.3 s per piece in the film)",
+      "source": "D1 ('writes text one word at a time', per sources.md S1 check)"
+    },
+    {
+      "step": 2,
+      "what happens": "Text is encoded into tokens: words, subwords, characters, bytes.",
+      "moving parts": [
+        "tiles"
+      ],
+      "speed or time": "n/a",
+      "source": "D2"
+    },
+    {
+      "step": 3,
+      "what happens": "The model is trained to predict the next piece from the previous context; one piece is chosen and appended, then the cycle repeats.",
+      "moving parts": [
+        "row",
+        "candidate column",
+        "selected tile"
+      ],
+      "speed or time": "n/a",
+      "source": "D2 (Pretraining)"
+    },
+    {
+      "step": 4,
+      "what happens": "Choice randomness is controlled by temperature (not shown as dice).",
+      "moving parts": [],
+      "speed or time": "n/a",
+      "source": "D2 (Temperature)"
+    },
+    {
+      "step": 5,
+      "what happens": "Poem: 'rabbit' as end-word is planned before line 2 begins; suppressing it gives 'habit'; injecting 'green' gives a line ending in 'green'.",
+      "moving parts": [
+        "node rabbit",
+        "node habit",
+        "node green",
+        "line 2"
+      ],
+      "speed or time": "n/a",
+      "source": "D1 (text and caption)"
+    },
+    {
+      "step": 6,
+      "what happens": "The method captures only a fraction of the computation; it was studied on one model (Claude 3.5 Haiku per sources.md).",
+      "moving parts": [
+        "lit vs dark nodes"
+      ],
+      "speed or time": "n/a",
+      "source": "D1"
+    }
   ],
   "proportions": "Phone 152.8 : 72 : 8.5 mm (height : width : thickness), ratio about 2.12 : 1; thickness about 5.6% of height. Screen about 6.3 in diagonal, 20:9. Stand lip about 8-10 mm tall, phone leaning back about 70 deg; stand footprint about 1.2 x phone width. Chat UI: bubble text must stay at least the sizes required for legibility (Frontal rules, 26 px+ for labels in the frame). Token board: tile height equal, width proportional to character count (design choice); candidate bars clearly different lengths.",
   "cutaways": [
@@ -53,5 +268,20 @@
       "Exact text on the 'rabbit' and 'habit' nodes in the figure."
     ],
     "how_to_close": "Allow transformer-circuits.pub and open the planning-in-poems section, or have the user send a screenshot of the Anthropic figure."
-  }
+  },
+  "verification": [
+    {
+      "id": "S1",
+      "status": "подтверждено",
+      "source": "anthropic.com/research/tracing-thoughts-language-model",
+      "note": "страница прочитана 19.11.2026: модель Claude 3.5 Haiku; двустишие grab it / rabbit; «Claude plans ahead»; подавление → «habit»; вставка «green»; «only captures a fraction»; рисунок и раскладка статьи transformer-circuits.pub недоступны (хост закрыт), схема по описанию"
+    },
+    {
+      "id": "S6",
+      "status": "подтверждено",
+      "source": "platform.claude.com/docs/en/resources/glossary",
+      "note": "Tokens, Pretraining, Temperature — цитаты в sources.md"
+    }
+  ],
+  "verification_note": "Досье телефона: размеры и детали интерфейса — общие, без бренда; сверка устройства телефона не по первоисточнику производителя, а по типовым размерам (ориентиры, не измерения). Устаревшее в черновике: «камера под доской», коралловый узел rabbit, 7 сцен — заменено parts-plan.md (9 сцен, плоская схема, коралл = слово конца выдачи)."
 }

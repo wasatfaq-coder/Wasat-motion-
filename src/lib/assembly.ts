@@ -161,13 +161,14 @@ export class Assembly {
 
   /** A prism of a CONVEX polygon in the frame's (u, v) plane, extruded along F.a from s0 to s1 — on ANY axis
    *  (beams, bars, plates that are not upright). A concave outline (a half-ring) must be an upright `extruded`. */
-  prism(name: string, F: Frame, polygon: number[][], s0: number, s1: number, c: SolidOpts & {bevel?: number} = {}) {
+  prism(name: string, F: Frame, polygon: number[][], s0: number, s1: number, c: SolidOpts & {bevel?: number; topFace?: boolean} = {}) {
     const n = this.full(name);
     const cx = polygon.reduce((t, q) => t + q[0], 0) / polygon.length;
     const cy = polygon.reduce((t, q) => t + q[1], 0) / polygon.length;
     const at = G.add3(G.add3(G.add3(F.o, G.mul3(F.u, cx)), G.mul3(F.v, cy)), G.mul3(F.a, (s0 + s1) / 2)) as Point3;
     const paths = G.prismOf(F, polygon, s0, s1, this.P);
     if (c.bevel) paths.bevel = prismBevel(F, polygon, s0, s1, c.bevel, this.P, this.V);
+    if (c.topFace) asTopFace(paths);
     // the bevel is recorded with the shape: lint «bevel» refuses a large tilted hero body drawn without one (§22.1)
     return this.put(n, at, K.solidSvg(paths, this.styled(c)), [this.shape(A.prism(F, polygon, s0, s1), {...c, meta: {...(c.meta ?? {}), bevel: c.bevel ?? 0}}, n)], c);
   }
@@ -557,6 +558,12 @@ export class Assembly {
   }
 
 }
+
+/** Draw every visible face of a thin block in the top band: a block whose face looks at the viewer (a chip on a screen, a
+ *  tile on an upright board) lands in a shade band, and lit it takes the dark lit shade (#B13D30) instead of the coral
+ *  accent, so the one coral part read as dark red and still-check found no coral (20.11.2026). Opt in with
+ *  Assembly.prism {topFace: true}; device.ts faceDyn does it for a lit chip. Mutates and returns the paths. */
+export const asTopFace = <T extends {top: string; shades: string[]}>(paths: T): T => Object.assign(paths, {top: [paths.top, ...paths.shades].join(''), shades: paths.shades.map(() => '')});
 
 /** Smallest cross-section (kit units) of a tilted hero prism that must carry a bevel (lint «bevel»). */
 export const BEVEL_ACROSS = 3;

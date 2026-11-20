@@ -1,6 +1,7 @@
 import {Assembly, G, Point3} from '../../lib/assembly';
 import {anatomyProjection} from '../../lib/anatomy';
 import {ChatChip, chatUi, faceDyn, facePoint, leanFrame, phoneStand, roundRect, screenCorners, standingPhone} from '../../lib/device';
+import {ROW1, ROW2} from './board.parts';
 import KEYS from './phone.parts.keys.json';
 
 // Hero of «Как работает Claude» (scenes 1 and 9, the cover): a phone leaning on a desk stand, its screen turned to the
@@ -25,13 +26,16 @@ export const PHONE_U = 6;
 export const PHONE_P = anatomyProjection(PHONE_U);
 const P = PHONE_P;
 
-/** The answer split into eight pieces, one per chip: neutral Russian (decisions.md 19.11.2026), an EXAMPLE split, not a
- *  real tokenizer's, until the script fixes the text. A chip is as wide as its piece: CHAR_W kit units per character
- *  (bold Rubik sized to it, PhoneFrames.tsx) plus 0.7 of padding, and CHIP_H tall (the coral chip must read on a phone). */
-export const PIECES = ['Сол', 'неч', 'ный', 'свет', 'рас', 'сеи', 'ва', 'ется'];
-export const QUESTION = ['Почему небо', 'голубое?'];
-export const CHAR_W = 1.0;
+/** The chat text is the board's (board.parts.ts, decisions.md 19.11.2026: neutral Russian in scenes 1–4): the question is
+ *  row 1, the answer chips are the pieces of row 2 in order (an EXAMPLE split, not a real tokenizer's). A chip is as wide
+ *  as its piece, CHAR_W kit units a letter plus 0.7 of padding, and CHIP_H tall; the question takes four lines. */
+export const PIECES = ROW2.map((t) => t.text);
+export const QUESTION = ['Объясни просто,', 'почему небо', 'голубое в ясный', 'день?'];
+const letters = (t: string) => t.replace(/[\s,?]/g, '');
+if (letters(QUESTION.join('')) !== letters(ROW1.map((t) => t.text).join(''))) throw new Error('phone.parts: the question lines no longer spell row 1 of the board');
+export const CHAR_W = 0.75;
 export const CHIP_H = 1.6;
+export const QUESTION_H = 4.6;
 export const CHIP_W = PIECES.map((p) => p.length * CHAR_W + 0.7);
 
 export const PHONE = new Assembly('phone', P, {role: 'hero', detail: 'complex'});
@@ -40,7 +44,7 @@ const F = leanFrame([0, 0, 8]);
 const stand = phoneStand(A, F);
 const ph = standingPhone(A, F, {lit: undefined});
 export const SCREEN = ph.screen;
-export const CHIPS: ChatChip[] = chatUi(A, SCREEN, CHIP_W, {chipH: CHIP_H});
+export const CHIPS: ChatChip[] = chatUi(A, SCREEN, CHIP_W, {chipH: CHIP_H, questionH: QUESTION_H});
 
 // ── the charging cable: plug in the port, strain relief, down past the hinge onto the mat, through a clip, off the
 // plate's side to the table (it runs on to the wall charger of the desk environment)

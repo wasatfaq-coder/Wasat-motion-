@@ -1,5 +1,5 @@
 import * as K from '../vendor/anatomy/iso-kit';
-import {A as AK, Assembly, Dyn, dynSolid, Frame, G, Point3} from './assembly';
+import {A as AK, asTopFace, Assembly, Dyn, dynSolid, Frame, G, Point3} from './assembly';
 
 // Screens and interfaces (MASTER_PROMPT_FINAL §24.3, §20.1: an interface is shown LITERALLY). A phone or a monitor is
 // a solid with thickness and its real parts; the screen face carries the interface. Layout blocks of the interface
@@ -329,10 +329,10 @@ export type ChatChip = {name: string; poly: number[][]; x: number; y: number; w:
 
 /** A literal messenger layout as raised blocks on a screen (§20.1: an interface is shown literally; no logos, no brand
  *  layout): status bar (time, four signal bars, battery and its nub), header (bar, back chevron, avatar, title line,
- *  three menu dots), divider, the question bubble with its tail (x 0.16·W … W − 0.8, y 5.2 … 8.2), answer chips (one per piece of text, widths in kit
+ *  three menu dots), divider, the question bubble with its tail (x 0.16·W … W − 0.8, y 5.2 … 5.2 + questionH), answer chips (one per piece of text, widths in kit
  *  units, flowed into lines) and the input (field, hint line, send button, arrow): 21 parts + one per chip. Readable
  *  text never goes on the face: pin a frontal Word or Plate to the chip centres (screenOf). Returns the chips in order. */
-export const chatUi = (A: Assembly, s: ScreenRect, chips: number[], o: {chipTone?: K.Tone; chipH?: number} = {}) => {
+export const chatUi = (A: Assembly, s: ScreenRect, chips: number[], o: {chipTone?: K.Tone; chipH?: number; questionH?: number} = {}) => {
   const W = G.len3(s.u) as number;
   const H = G.len3(s.v) as number;
   const blk = (n: string, poly: number[][], c: FaceOpts & {lift?: number} = {}, h = 0.04) => facePrism(A, s, `chat.${n}`, poly, h, {tone: 'lo', ...c});
@@ -350,12 +350,13 @@ export const chatUi = (A: Assembly, s: ScreenRect, chips: number[], o: {chipTone
   for (let i = 0; i < 3; i++) faceDisc(A, s, `chat.dot${i}`, W - 1.2, 2.35 + i * 0.55, 0.16, 0.04, {tone: 'lo', ...on('header')});
   blk('divider', [[0.3, 4.35], [W - 0.3, 4.35], [W - 0.3, 4.5], [0.3, 4.5]]);
   // the question: a bubble on the right with its tail
-  blk('question', roundRect(W * 0.16, 5.2, W - 0.8, 8.2, 0.8), {tone: 'mid'});
-  blk('question.tail', [[W - 1.9, 8.2], [W - 0.9, 8.2], [W - 0.6, 8.9]], {tone: 'mid', meta: {owner: 'chat.question'}});
+  const qb = 5.2 + (o.questionH ?? 3);
+  blk('question', roundRect(W * 0.16, 5.2, W - 0.8, qb, 0.8), {tone: 'mid'});
+  blk('question.tail', [[W - 1.9, qb], [W - 0.9, qb], [W - 0.6, qb + 0.7]], {tone: 'mid', meta: {owner: 'chat.question'}});
   // the answer: chips flowed into lines from the left
   const out: ChatChip[] = [];
   let x = 0.8;
-  let y = 9.7;
+  let y = qb + 1.5;
   const ch = o.chipH ?? 1.3;
   for (const [i, w] of chips.entries()) {
     if (x + w > W - 0.8 && x > 0.8) {
@@ -388,7 +389,7 @@ export const faceDyn = (P: K.Projection, s: ScreenRect, name: string, poly: numb
   // a lit block faces the viewer: its face lands in a shade band and takes the dark lit shade (#B13D30), not the
   // accent, so the one coral piece read as dark red and still-check found no coral. The face of a block on a screen
   // is its top: draw it (and its hair-thin sides) in the top band.
-  if (o.lit) Object.assign(paths, {top: [paths.top, ...paths.shades].join(''), shades: paths.shades.map(() => '')});
+  if (o.lit) asTopFace(paths);
   return dynSolid(name, ptOf(F, cx, cy, (s0 + s1) / 2), K.solidSvg(paths, {tone: o.tone ?? (o.lit ? 'hi' : 'mid'), lit: o.lit}), AK.prism(F, poly, s0, s1, {name}), o.opacity);
 };
 

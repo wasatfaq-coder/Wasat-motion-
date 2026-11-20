@@ -1,5 +1,5 @@
 import * as K from '../../vendor/anatomy/iso-kit';
-import {A, Assembly, Dyn, dynSolid, Frame, G, Point3} from '../../lib/assembly';
+import {A, asTopFace, Assembly, Dyn, dynSolid, Frame, G, Point3} from '../../lib/assembly';
 import {anatomyProjection} from '../../lib/anatomy';
 import KEYS from './board.parts.keys.json';
 
@@ -217,7 +217,7 @@ export const buildBoard = (bars: readonly number[] = BAR_SHARES) => {
   const x2 = rowXs(ROW2);
   for (let i = 0; i < ROW2_TYPED; i++) {
     const w = tileWidth(ROW2[i].text);
-    plate(S, `tile2.${i}`, x2[i], ROW2_Y, w, TILE_H, TILE_N0, TILE_N1, {tone: 'hi', lit: i === ROW2_TYPED - 1}, chamfer(w, TILE_H, 0.3));
+    plate(S, `tile2.${i}`, x2[i], ROW2_Y, w, TILE_H, TILE_N0, TILE_N1, {tone: 'hi', lit: i === ROW2_TYPED - 1, topFace: i === ROW2_TYPED - 1}, chamfer(w, TILE_H, 0.3)); // the coral face looks at the viewer: drawn in the top band (R1)
   }
   // candidates in the tray, bars on the tracks, end caps
   CANDIDATES.forEach((t, k) => {
@@ -253,7 +253,9 @@ export const tileDyn = (name: string, x: number, y: number, text: string, o: {n0
   const poly = flip(chamfer(w, TILE_H, 0.3));
   const d = TILE_N1 - TILE_N0;
   const at = boardPoint(x + w / 2, y + TILE_H / 2, n0 + d / 2);
-  return dynSolid(name, at, K.solidSvg(G.prismOf(F, poly, 0, d, P), {tone: o.tone ?? 'hi', lit: o.lit}), A.prism(F, poly, 0, d, {name}), o.opacity);
+  const paths = G.prismOf(F, poly, 0, d, P);
+  if (o.lit) asTopFace(paths); // the coral face looks at the viewer: drawn in the top band so it reads as coral (R1)
+  return dynSolid(name, at, K.solidSvg(paths, {tone: o.tone ?? 'hi', lit: o.lit}), A.prism(F, poly, 0, d, {name}), o.opacity);
 };
 /** Bar k at `share` of the track (one shared scale for all four; never a number). */
 export const barDyn = (k: number, share: number, o: {opacity?: number} = {}): Dyn[] => {

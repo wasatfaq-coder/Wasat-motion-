@@ -1,7 +1,0 @@
-{
-  "_doc": "Style frames of the token board (composition KakRabotaetClaudeBoard): frame 0 = scene 2 (rows, three labels), 1 = scene 3 (candidate column), 2 = scene 4 (a candidate flies to the row). Coral = the tile that ends the output. still-check reads one comp per file, so the phone still has its own spec; merge when a multi-comp format exists.",
-  "comp": "KakRabotaetClaudeBoard",
-  "frames": [0, 1, 2],
-  "coral": false,
-  "coralNote": "coral is off ON PURPOSE: the tile faces the camera, its big face is the lit SHADE #B13D30 (r = 177), and still-check counts coral only at r > 190 (the top face); see docs/progress/kak-rabotaet-claude.md, request R1"
-}

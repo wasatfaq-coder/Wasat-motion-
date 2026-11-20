@@ -111,12 +111,16 @@ const lin = (...terms: [number, Point3][]): Point3 => [0, 1, 2].map((k) => terms
 const BR = RH;
 const BU = lin([-Math.sin(T), FH], [Math.cos(T), ZZ]);
 const BN = lin([Math.cos(T), FH], [Math.sin(T), ZZ]);
-const AT: Point3 = [48, 14, 0];
 const POST_X: [number, number] = [-2.2, PANEL_W + 2.2]; // post centres: the posts stand close beside the panels (the safe band is only 840 px wide)
 const Y0 = 2.5; // post foot → bottom panel along BU
 const BEAM_Z0 = 2.6;
 const FOOT_H = 0.5;
 const O: Point3 = lin([1, [0, 0, BEAM_Z0]], [-POST_X[0], BR], [Y0, BU]);
+/** The stand stands on the podium of ROOM (desk.parts.ts: PODIUM centred on the scene origin, top at z = 4, the same 46°
+ *  turn): the middle of the panels sits over the podium's centre, the beam and feet on its top. */
+const PODIUM_TOP = 4;
+const MID = lin([1, O], [PANEL_W / 2, BR]);
+const AT: Point3 = [-MID[0], -MID[1], PODIUM_TOP];
 /** y (along BU, from the bottom panel's bottom edge) of the bottom edge of panel k (0 = top). */
 export const panelY = (k: number) => (2 - k) * (PANEL_H + PANEL_GAP);
 export const STACK_H = panelY(0) + PANEL_H;
@@ -202,7 +206,7 @@ export const buildScheme = (o: SchemeOpts = {}) => {
   for (const [i, rx] of [beamRx0 + 2.4, beamRx1 - 2.4].entries())
     for (const fh of [-2.6, 2.6]) {
       const w = scenePoint(rx, fh, 0);
-      S.cyl(`foot${i}${fh > 0 ? 'f' : 'b'}`, w[0], w[1], 1.1, 0, FOOT_H, {tone: 'mid', ground: true, bevel: 0.1, meta: {owner: 'foot'}});
+      S.cyl(`foot${i}${fh > 0 ? 'f' : 'b'}`, w[0], w[1], 1.1, w[2], FOOT_H, {tone: 'mid', ground: true, bevel: 0.1, meta: {owner: 'foot'}});
     }
 
   // posts beside the stack, caps, crossbars in the two gaps
@@ -296,13 +300,12 @@ const prismDyn = (name: string, F: Frame, poly: number[][], d: number, at: Point
   if (o.lit) asTopFace(paths); // the face looks at the viewer: draw it in the top band so the coral reads as coral
   return dynSolid(name, at, K.solidSvg(paths, {tone: o.tone ?? 'hi', lit: o.lit}), A.prism(F, poly, 0, d, {name}), o.opacity);
 };
-const LIFT = 0.06;
-/** A tile whose bottom-left corner is at panel-local (x, y) of panel k and whose back is at n0; `lit` makes it THE coral part. */
+/** A tile whose bottom-left corner is at panel-local (x, y) of panel k and whose back is at n0; `lit` makes it THE coral part.
+ *  It stands ON its rail (no lift): src/lib/depth.ts orders a thin turned part against what it touches (R5). */
 export const tileDyn = (k: number, name: string, x: number, y: number, chars: number, o: {n0?: number; lit?: boolean; tone?: K.Tone; opacity?: number} = {}): Dyn => {
   const n0 = o.n0 ?? TILE_N0;
   const w = tileWidth(chars);
   const d = TILE_N1 - TILE_N0;
-  y += LIFT; // a hair above the rail: a tile in contact with its rail made the ray-tested depth order paint the rail's top face over the tile's foot
   return prismDyn(name, faceFrame(k, x, y, n0), flip(chamfer(w, TILE_H)), d, schemePoint(k, x + w / 2, y + TILE_H / 2, n0 + d / 2), o);
 };
 /** Tile i of line `line` (1 or 2) of panel k at its place on the rail. */

@@ -125,7 +125,8 @@ export const checkSpec = async (spec) => {
     const scr = (p) => camera.screenOf(pose.cam, room(p));
     const live = pose.extra.filter((d) => (d.opacity ?? 1) > 0.05);
     // depth: the order the scene paints, with its conflicts
-    const plan = pose.assembly.paintPlan({}, {extra: pose.extra});
+    const hidden = pose.hide ?? (() => false);
+    const plan = pose.assembly.paintPlan({}, {extra: pose.extra, hide: pose.hide});
     // a cycle is allowed only where every link is a joint by design (parts of one body, or a declared touch pair)
     const groupOf = (n) => n.replace(/^[^.]+\.(?=brush|bearing|axis|wire)/, '').split(/[.:#]/)[0];
     const touchPairs = pose.touch ?? [];
@@ -144,6 +145,7 @@ export const checkSpec = async (spec) => {
         const bd = A.boundsOf(shape);
         let pts = null;
         for (const s of pose.assembly.R.solids) {
+          if (hidden(s.name)) continue;
           if (touch.some(([a, b]) => d.name.startsWith(a) && nameOf(s).includes(b))) continue;
           if (!boxesMeet(bd, A.boundsOf(s))) continue;
           pts ??= insidePoints(A, shape);

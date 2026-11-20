@@ -103,5 +103,8 @@ export const CASES: [string, MotionSpec, string[]][] = [
   ['a label held for 3 s', spec('labelok', {label: (f) => (f < 6 ? f / 6 : f < 194 ? 1 : (200 - f) / 6)}, {frames: 200, loop: false}), []],
   ['a label up for 0.4 s', spec('labelshort', {label: (f) => (f < 6 ? f / 6 : f < 30 ? 1 : f < 36 ? (36 - f) / 6 : 0)}, {frames: 200, loop: false}), ['read']],
   ['declared cut is allowed', spec('cut', {jumpAt: 30}, {cuts: [30], loop: false}), []],
+  // a moving copy of the wall stands where the wall is: reported as sinking, unless the frame hides the static wall
+  ['a moving copy inside its static original', spec('copy', {extra: () => dynTube('wallcopy', [[32, 10, 8], [32, 30, 8]], 1.5, P)}), ['through']],
+  ['a moving copy with its original hidden', {...spec('copyhidden', {extra: () => dynTube('wallcopy', [[32, 10, 8], [32, 30, 8]], 1.5, P)}), pose: (f: number) => ({...pose(f, {extra: () => dynTube('wallcopy', [[32, 10, 8], [32, 30, 8]], 1.5, P)}), hide: (n: string) => n === 'fixture.wall'})}, []],
   ['held beat, then an eased move', {id: 'eased', frames: FRAMES, fps: 60, loop: false, pose: (f) => pose(f < 20 ? 0 : 15 * ease((f - 20) / 40), {})}, []],
 ];

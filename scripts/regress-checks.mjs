@@ -122,6 +122,32 @@ for (const m of (await import('./lib/code-rules.mjs')).selftest()) fail(m);
   }
   if (!refused) fail('transitions: a cutaway through the whole object was not refused');
 }
+// depth (R5): a thin moving tile standing ON its rail, on a panel turned 46° and leaned back 24° to face the camera, is
+// painted in front of the rail. The 5 × 5 ray grid over the parts' world-bounds screen box missed the thin strip where
+// they meet, the pair got no order and the rail's top face was painted over the tile's foot.
+{
+  const {tsImport} = await import('tsx/esm/api');
+  const {A, G} = await tsImport(new URL('../src/lib/assembly.ts', import.meta.url).href, import.meta.url);
+  const {anatomyProjection} = await tsImport(new URL('../src/lib/anatomy.tsx', import.meta.url).href, import.meta.url);
+  const {coverOrder, basisOf} = await tsImport(new URL('../src/lib/depth.ts', import.meta.url).href, import.meta.url);
+  const B = basisOf(anatomyProjection(6));
+  const az = (46 * Math.PI) / 180;
+  const t = (24 * Math.PI) / 180;
+  const RH = [Math.cos(az), -Math.sin(az), 0];
+  const FH = [Math.sin(az), Math.cos(az), 0];
+  const BU = [0, 1, 2].map((k) => -Math.sin(t) * FH[k] + Math.cos(t) * [0, 0, 1][k]);
+  const BN = [0, 1, 2].map((k) => Math.cos(t) * FH[k] + Math.sin(t) * [0, 0, 1][k]);
+  const pt = (x, y, n) => [0, 1, 2].map((k) => 40 + x * RH[k] + y * BU[k] + n * BN[k]);
+  const face = (x, y, n) => G.frameOf(pt(x, y, n), BN, BU, RH);
+  const rect = (w, h) => [[0, 0], [0, w], [h, w], [h, 0]];
+  const rail = A.prism(face(0, 0, 1.2), rect(56, 0.7), 0, 1.2, {name: 'rail'});
+  const misses = [];
+  for (const x of [3, 20, 47.6]) {
+    const tile = A.prism(face(x, 0.7, 1.2), rect(9.9, 2.8), 0, 2, {name: 'tile'});
+    if (coverOrder([tile], [rail], B) !== 1) misses.push(x);
+  }
+  if (misses.length) fail(`depth: a tile standing on its rail is not ordered in front of it (x = ${misses.join(', ')}): the rail's top face is painted over its foot (R5)`);
+}
 // camFitSvg frames by the drawn points only: markup under a transform (a screen interface) is in its own pixel space
 {
   const {tsImport} = await import('tsx/esm/api');
@@ -233,6 +259,13 @@ if (!has('ffmpeg') || !has('ffprobe')) {
   const off = (i) => T.explodeOffset(i, 4, 1, 10)[2];
   if (!(off(0) === 0 && off(1) < off(2) && off(2) < off(3))) fail('techniques: an exploded stack must keep its layer order');
   if (T.explodeOffset(3, 4, 0, 10)[2] !== 0) fail('techniques: at progress 0 the stack must be assembled');
+}
+
+// still-check (R4): a small coral tile passes only with a spec floor and a note; a hairline or no coral never passes;
+// several compositions share one stills.json
+{
+  const r = run(['scripts/still-check.mjs', '--selftest']);
+  if (r.code !== 0) fail(`still-check --selftest failed\n${r.out.slice(-600)}`);
 }
 
 // the voice check catches a skipped clause, a swapped word and digits in the voice text, and passes a clean line

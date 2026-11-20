@@ -6,6 +6,8 @@ import {FrontalLayer, Plate, Word} from '../../components/Frontal';
 import {Inset} from '../../components/Inset';
 import {COLORS, STROKE} from '../../theme/tokens';
 import {SCHEME} from './scheme.parts';
+import {ROOM} from './desk.parts';
+import {onTop} from '../../lib/assembly';
 import {INSET_TEXT, PLATE_SIZE, SchemeState, schemeState} from './scheme.motion';
 
 // Style frames of the scheme stand (STOP 2, scenes 5–8 and the inset of scene 9). The state of every frame is
@@ -63,23 +65,24 @@ export const SchemeView: React.FC<{state: SchemeState}> = ({state}) => {
         </FrontalLayer>
       </AnatomyStage>
     );
-  const picture = SCHEME.svg({}, {extra: state.extra, hide: (n) => state.hide.has(n)});
+  // the stand stands on the podium of the room (desk.parts.ts ROOM: floor, back wall, podium): room first, stand over it
+  const picture = onTop(ROOM.svg(), [SCHEME.svg({}, {extra: state.extra, hide: (n) => state.hide.has(n)})], 'the stand stands on the podium in front of the wall: room first, stand over it');
   return (
     <AnatomyStage>
-      <RoomSvg cam={state.cam}>
+      <RoomSvg cam={state.cam} sides={60} fade={80}>
         <Kit svg={picture} />
       </RoomSvg>
       <FrontalLayer>
         {state.words.map((w) => (
-          <Word key={w.name} at={w.at} text={w.text} size={w.size} angle={state.angle} tone={w.tone} />
+          <Word key={w.name} at={w.at} text={w.text} size={w.size} angle={state.angle} tone={w.tone} show={w.show ?? 1} />
         ))}
         {state.plates.map((p) => (
-          <Plate key={p.name} at={p.at} to={p.to} text={p.text} size={p.size} />
+          <Plate key={p.name} at={p.at} to={p.to} text={p.text} size={p.size} show={p.show ?? 1} />
         ))}
       </FrontalLayer>
     </AnatomyStage>
   );
 };
 
-/** Style frames of the scheme stand (projects/kak-rabotaet-claude/content/stills-scheme.json). */
+/** Style frames of the scheme stand (projects/kak-rabotaet-claude/content/stills.json). */
 export const KakRabotaetClaudeScheme: React.FC = () => <SchemeView state={schemeState(useCurrentFrame())} />;

@@ -69,6 +69,7 @@ const poseOf = (frame: number): MotionPose => {
     arrows: [],
     keep: (f === 0 ? ROWS_CORNERS : [boardPoint(X_ACTION[f], 0, 0), boardPoint(63, PANEL_H, 3.6)]).map((p, i) => ({name: `hero${i}`, at: p})),
     plates: platesOf(s),
+    hide: (n) => s.hide.includes(n),
   };
 };
 

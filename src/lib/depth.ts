@@ -108,15 +108,50 @@ export const coverOrder = (a: unknown[], b: unknown[], B: Basis, samples = 5): n
     const v = dot(p, B.D);
     if (u > u0 && u < u1 && v > v0 && v < v1) at.push([u, v]);
   }
-  let vote = 0;
-  for (const [u, v] of at) {
-    const ta = hit(a, ba, u, v, B);
-    if (ta === null) continue;
-    const tb = hit(b, bb, u, v, B);
-    if (tb === null) continue;
-    if (Math.abs(ta - tb) > 0.02) vote += ta > tb ? 1 : -1;
+  const vote = (pts: [number, number][]) => {
+    let sum = 0;
+    let both = 0;
+    for (const [u, v] of pts) {
+      const ta = hit(a, ba, u, v, B);
+      if (ta === null) continue;
+      const tb = hit(b, bb, u, v, B);
+      if (tb === null) continue;
+      both++;
+      if (Math.abs(ta - tb) > 0.02) sum += ta > tb ? 1 : -1;
+    }
+    return {sum, both};
+  };
+  const first = vote(at);
+  if (first.sum !== 0 || first.both > 0) return Math.sign(first.sum);
+  // R5 (docs/root-causes.md): the grid spans the screen box of the parts' WORLD bounds. For a thin part turned in the
+  // world (a tile on a leaned, turned panel) that box is many times the part, the 5 × 5 grid misses the thin strip
+  // where the part really covers its neighbour (a tile standing on its rail), the pair gets no order and the painter's
+  // key paints the rail's top face over the tile's foot. When no ray met both parts, look again through points INSIDE
+  // each part: a ray through them is sure to meet that part.
+  const inner: [number, number][] = [];
+  for (const p of [...innerPoints(a), ...innerPoints(b)]) {
+    const u = dot(p, B.R);
+    const v = dot(p, B.D);
+    if (u > u0 && u < u1 && v > v0 && v < v1) inner.push([u, v]);
   }
-  return Math.sign(vote);
+  return Math.sign(vote(inner).sum);
+};
+
+/** points inside the solid shapes (a 6 × 6 × 6 grid of each shape's bounds kept where it is inside); tubes give their axis */
+const innerPoints = (shapes: unknown[]): Point3[] => {
+  const out: Point3[] = [];
+  const n = 6;
+  for (const s of shapes as {kind: string}[]) {
+    if (s.kind === 'tube') continue; // axisPoints already sampled it
+    const {min, max} = A.boundsOf(s) as {min: Point3; max: Point3};
+    for (let i = 0; i < n; i++)
+      for (let j = 0; j < n; j++)
+        for (let k = 0; k < n; k++) {
+          const p: Point3 = [min[0] + ((max[0] - min[0]) * (i + 0.5)) / n, min[1] + ((max[1] - min[1]) * (j + 0.5)) / n, min[2] + ((max[2] - min[2]) * (k + 0.5)) / n];
+          if ((A.sdf(s, p) as number) < -0.01) out.push(p);
+        }
+  }
+  return out;
 };
 
 // static shapes do not change between frames: whether two of them cover each other is computed once

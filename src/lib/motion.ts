@@ -83,6 +83,10 @@ export type MotionPose = {
   heads?: {name: string; at: Point3; base?: Point3; opacity: number}[];
   /** moving × static name prefixes allowed to touch or sink (an axle in its bearing, a brush on the commutator) */
   touch?: [string, string][];
+  /** static parts the frame does not draw (Assembly.svg `hide`): a part handed over to a moving copy of itself (a tile
+   *  that starts to move, the coral tile drawn lit) is skipped by the checks, so the copy is not reported as sinking into
+   *  its hidden original and no `touch` pair has to excuse it (a broad pair excused real sinks too) */
+  hide?: (name: string) => boolean;
 };
 
 /** A reel or scene the motion check walks frame by frame. `cuts` are frames where a hard cut is intended.

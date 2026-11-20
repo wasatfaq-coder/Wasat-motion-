@@ -47,7 +47,7 @@ const boardD = (TOP.y1 - TOP.y0) / 3;
 for (let k = 0; k < 3; k++)
   D.prism(`top.board${k}`, DF, rect(TOP.x0, TOP.y0 + k * boardD + 0.3, TOP.x1, TOP.y0 + (k + 1) * boardD - 0.3, 0.4), -TOP.t, 0, {tone: 'lo', bevel: 0.4, ground: true});
 for (const k of [1, 2]) D.prism(`top.seam${k}`, DF, rect(TOP.x0 + 0.4, TOP.y0 + k * boardD - 0.3, TOP.x1 - 0.4, TOP.y0 + k * boardD + 0.3, 0), -TOP.t + 0.4, -0.5, {tone: 'faint', bevel: 0, meta: {touch: [`top.board${k - 1}`, `top.board${k}`]}});
-D.prism('top.edge', DF, rect(TOP.x0, TOP.y1, TOP.x1, TOP.y1 + 1.4, 0.4), -TOP.t - 0.8, 0, {tone: 'mid', bevel: 0.4, meta: {touch: ['top.board2']}});
+D.prism('top.edge', DF, rect(TOP.x0, TOP.y1 - 0.3, TOP.x1, TOP.y1 + 1.1, 0.4), -TOP.t - 0.8, 0, {tone: 'mid', bevel: 0.4, meta: {touch: ['top.board2']}});
 
 // ── the wall behind the desk: a panel (its face at fh = −30, the desk's back edge) and a skirting strip on the desk
 const WALL = {x0: -56, x1: 110, z0: -10, z1: 70, s0: -TOP.y0, s1: -TOP.y0 + 6};
@@ -81,9 +81,9 @@ const [orx] = [OUT.rx];
 // outlet on the wall: frame, raised face plate, a screw between the two sockets (the sockets are dark discs)
 D.prism('outlet.frame', wallF, rect(orx - 5.6, OUT.z - 3.6, orx + 5.6, OUT.z + 3.6, 0.6), WALL.s0 - 0.6, WALL.s0, {tone: 'mid', bevel: 0.3, meta: {touch: ['wall.panel']}});
 D.prism('outlet.face', wallF, rect(orx - 4.8, OUT.z - 2.8, orx + 4.8, OUT.z + 2.8, 0.5), WALL.s0 - 1.1, WALL.s0 - 0.6, {tone: 'faint', bevel: 0.2, meta: {touch: ['outlet.frame']}});
-D.disc('outlet.screw', WALL.s0 - 1.3, WALL.s0 - 1.1, 0.5, {...wallF, o: scene(orx, -WALL.s0, OUT.z)}, {tone: 'lo', meta: {owner: 'outlet.face'}});
+D.disc('outlet.screw', -1.3, -1.1, 0.5, {...wallF, o: scene(orx, -WALL.s0, OUT.z)}, {tone: 'lo', meta: {owner: 'outlet.face'}});
 const SOCK = [orx - 2.6, orx + 2.6];
-D.disc('outlet.socket', WALL.s0 - 1.3, WALL.s0 - 1.1, 1.05, {...wallF, o: scene(SOCK[0], -WALL.s0, OUT.z)}, {tone: 'lo', meta: {owner: 'outlet.face'}});
+D.disc('outlet.socket', -1.3, -1.1, 1.05, {...wallF, o: scene(SOCK[0], -WALL.s0, OUT.z)}, {tone: 'lo', meta: {owner: 'outlet.face'}});
 // the plug sits in the right socket, flush against the face plate (s runs along the wall's normal, away from the viewer)
 const PLUG = {rx: SOCK[1], s0: WALL.s0 - 1.1 - 4.2, s1: WALL.s0 - 1.1};
 D.prism('outlet.plug', wallF, rect(PLUG.rx - 1.9, OUT.z - 1.6, PLUG.rx + 1.9, OUT.z + 1.6, 0.8), PLUG.s0, PLUG.s1, {tone: 'mid', bevel: 0.35, meta: {touch: ['outlet.face']}});
@@ -95,7 +95,7 @@ const plugBack: Point3 = scene(PLUG.rx, -PLUG.s0, OUT.z);
 D.pipe('cord', [exit, scene(erx + 0.5, efh - 3, CORD_R), scene(erx + 6, -12, CORD_R), scene(PLUG.rx - 6, -17, 5), scene(PLUG.rx - 1, -PLUG.s0 + 4, OUT.z - 0.6), plugBack], CORD_R, {bend: 1.2, limp: true, maxLength: 4, meta: {touch: ['charger', 'outlet.plug', 'top.board1', 'top.board0']}});
 
 // ── a mug on a cork coaster on the mat (coffee, not data): body, rim, handle, coaster
-const MUG = {rx: -32, fh: -10, r: 6.8, h: 16};
+const MUG = {rx: -32, fh: -2, r: 6.8, h: 16};
 const mugAxis = (z: number) => G.frameAlong(scene(MUG.rx, MUG.fh, z), [0, 0, 1]);
 D.disc('mug.coaster', MAT.h, MAT.h + 0.7, 8.4, {...mugAxis(0), o: scene(MUG.rx, MUG.fh, 0)}, {tone: 'lo', meta: {touch: ['mat']}});
 const MZ = MAT.h + 0.7;
@@ -112,9 +112,9 @@ D.prism('notebook.pages', DF, rect(NB.x0 + 0.8, NB.y0 + 0.8, NB.x1 - 0.8, NB.y1 
 const NZ = MAT.h + NB.c + NB.p;
 for (let k = 0; k < 4; k++) {
   const x = NB.x0 + 4.5 + k * ((NB.x1 - NB.x0 - 9) / 3);
-  D.ring(`notebook.ring${k}`, -0.45, 0.45, 0.85, 1.55, G.frameAlong(scene(x, NB.y0 + 0.2, MAT.h + NB.c + NB.p / 2 + 0.3), RH), {tone: 'lo', meta: {touch: ['notebook.pages', 'notebook.cover']}});
+  D.ring(`notebook.ring${k}`, -0.45, 0.45, 0.85, 1.55, G.frameAlong(scene(x, NB.y0 - 1.0, MAT.h + NB.c + NB.p / 2 + 0.3), RH), {tone: 'lo', meta: {touch: ['notebook.pages', 'notebook.cover']}});
 }
-D.prism('notebook.band', DF, rect(NB.x1 - 6.5, NB.y0 + 0.4, NB.x1 - 5.1, NB.y1 + 0.4, 0.1), MAT.h, NZ + 0.25, {tone: 'lo', bevel: 0.1, meta: {touch: ['notebook.pages']}});
+D.prism('notebook.band', DF, rect(NB.x1 - 6.5, NB.y0 + 0.4, NB.x1 - 5.1, NB.y1 + 0.4, 0.1), NZ, NZ + 0.25, {tone: 'lo', bevel: 0.1, meta: {touch: ['notebook.pages']}});
 // the pen lies across the page block, turned 20° off the rx axis: body, cap, clip, tip
 const penDir = G.unit3(scene(Math.cos(0.35), Math.sin(0.35), 0));
 const penAt = (s: number): Point3 => G.add3(scene(-39, 24, NZ + 0.55), G.mul3(penDir, s)) as Point3;

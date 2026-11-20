@@ -4,7 +4,7 @@
 // lints, passes its own audit and cover-check with ERRORS = 0 (placeholders are warnings), refuses a scene animated
 // the old way (camOn, lerpCam, state outside a *.motion.ts), a solid past Assembly, a sample imported without consent,
 // a repeated defect fixed without a guard, the rules of the visual register (mechanism cards, one mechanism per
-// chapter, one dark scene, the image journal, sensitive topics) and removes it again.
+// chapter, the light/dark field per chapter, the image journal, sensitive topics) and removes it again.
 import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 
@@ -62,7 +62,7 @@ try {
   expectError('the old status «verified»', /notes: T2 has status «verified»/);
   fs.writeFileSync(notes, JSON.stringify([{id: 'T3', status: 'fixed', text: 'first time', fix: 'done'}]));
   if (audit().code !== 0) throw new Error('the topic audit refused a first-time defect fixed in the topic (decision 4)');
-  // the visual register: mechanism card, one mechanism per chapter, one dark scene, the old metaphor registry
+  // the visual register: mechanism card, one mechanism per chapter, the field per chapter, the old metaphor registry
   const regFile = `projects/${slug}/content/visual-register.json`;
   const base = JSON.parse(fs.readFileSync(regFile, 'utf8'));
   const card = {name: 'весы привычки', idea: 'x', parts: [{part: 'чаша', claim: 'C1', source: 'S1'}], laws: 'x', verb: 'перевешивает', simplifies: 'x', misread: 'x', truth: 'x', status: 'approved'};
@@ -71,8 +71,13 @@ try {
   expectError('a mechanism without its card', /mechanism «m1»: card misses/);
   put({mechanisms: {m1: card, m2: {...card, name: 'насос'}}, scenes: {'scene-01': {chapter: 1, mode: 'mechanism', mechanism: 'm1', location: 'кухня'}, 'scene-02': {chapter: 1, mode: 'mechanism', mechanism: 'm2', location: 'кухня'}}});
   expectError('two mechanisms in one chapter', /one mechanism per chapter/);
-  put({scenes: {'scene-01': {chapter: 1, mode: 'literal', location: 'а', dark: true}, 'scene-02': {chapter: 2, mode: 'literal', location: 'б', dark: true}}});
-  expectError('two dark scenes', /dark scene is used once/);
+  // dark and light chapters alternate by meaning; a dark scene in a light chapter, or a mixed chapter, is refused
+  put({chapters: [{n: 1, title: 'а', field: 'light'}], scenes: {'scene-01': {chapter: 1, mode: 'literal', location: 'а', dark: true}}});
+  expectError('a dark scene in a light chapter', /scene-01 is dark but chapter 1 is a light chapter/);
+  put({chapters: [], scenes: {'scene-01': {chapter: 1, mode: 'literal', location: 'а'}, 'scene-02': {chapter: 1, mode: 'literal', location: 'б', dark: true}}});
+  expectError('a chapter mixing light and dark scenes', /chapter 1 mixes light and dark/);
+  put({chapters: [{n: 1, title: 'а', field: 'light'}, {n: 2, title: 'б', field: 'dark'}, {n: 3, title: 'в', field: 'light'}], scenes: {'scene-01': {chapter: 1, mode: 'literal', location: 'а'}, 'scene-02': {chapter: 2, mode: 'literal', location: 'б', dark: true}, 'scene-03': {chapter: 3, mode: 'literal', location: 'в'}}});
+  if (audit().code !== 0) throw new Error('the topic audit refused light and dark chapters that alternate by meaning');
   put({metaphors: {x: {}}, scenes: {}});
   expectError('the old metaphor registry', /`metaphors` is the old registry/);
   // the image journal: another topic's mechanism is refused, the same series is allowed

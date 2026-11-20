@@ -20,7 +20,7 @@ Check, in this order, and give each item PASS or FAIL with concrete evidence (sc
 4. Retention (section 5): hook 0–2 s with motion from the first frame and no intro; an event every 1.5–2.5 s; a micro-intrigue every 5–8 s; the re-hook at 40–50 %; the opening and the finale on the same object; an honest finale.
 5. Sound (section 11): no music; sound in layers; two real silences; the sound signature in its place.
 6. Covers (section 12): 3 variants with different techniques, cover-check passed; the image ≥ 22 % with the hook on the hero; ONE coral spot on the answer; dark field with vignette; 270×480 in colour and grey; the 0.5-second test; 4:5 crop; every cover element in the first 2 s. Rank the variants.
-7. House style (section 7): toned solids in our palette, dark contours, one accent; coral means the topic's one meaning (several coral parts allowed); the one dark scene at most; thin light (contact shadows, vignette, gradient, paper grain).
+7. House style (section 7): toned solids in our palette, dark contours, one accent; coral means the topic's one meaning (several coral parts allowed); light or dark chapters by meaning (dark for action and the main answer, light for data and maps), the field changing only between chapters; thin light (contact shadows, vignette, gradient, paper grain).
 8. Uniqueness: the mechanisms, heroes and locations do not repeat another topic (docs/style/images-log.json).
 9. Sensitive topics (section 13): no depiction of prophets, companions or Allah; worship not a mechanism; quotes with references; restrained sound; no coral on the holy.
 10. Final master only: video-review.json sha256 matches the file; near-black or empty frames written as open notes.

@@ -3,7 +3,9 @@ import {useCurrentFrame} from 'remotion';
 import * as K from '../vendor/anatomy/iso-kit';
 import {A, Assembly, Point3} from '../lib/assembly';
 import {AnatomyStage, Kit, toRoom} from '../lib/anatomy';
-import {boxCorners, Cam, camFit, camFitSvg, RoomSvg, safeRect} from '../lib/camera';
+import {boxCorners, Cam, camFit, camFitSvg, RoomSvg, safeRect, screenOf} from '../lib/camera';
+import {FrontalLayer} from '../components/Frontal';
+import {COLORS, STROKE} from '../theme/tokens';
 import {P3} from '../lib/iso';
 import {crowd, figure, queue, stream} from '../lib/crowd';
 import {screenCorners} from '../lib/device';
@@ -51,6 +53,39 @@ const sinkRoom = (): [P3, P3] => {
   return [lo, [hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]]];
 };
 import {BLOOM, STORM, TANGLE} from './kit/symbols.parts';
+import {STANDPHONE, STANDPHONE_CHIPS, STANDPHONE_CORAL_PART, STANDPHONE_SCREEN, STANDPHONE_WORDS, standphoneCoral, standphoneWordAt} from './kit/standphone.parts';
+import {Word, wordProbe} from '../components/Frontal';
+import {Inset, insetProbe, insetRect} from '../components/Inset';
+
+// the standing phone page: the static picture without the coral chip, which is drawn as its moving part
+const standphoneSvg = () => STANDPHONE.svg({}, {hide: (n) => n === STANDPHONE_CORAL_PART, extra: [standphoneCoral()]});
+// room for the inset in the bottom-left corner of the safe rect: the phone is framed beside it
+const STANDPHONE_INSET = insetRect(safeRect(), {w: 320, h: 320}, 'bl');
+/** frontal words on the chips (no frame: the chip is the plate) and an inset with the answer's chips as a plan. The
+ *  probes are what a scene passes to motion-check (MotionPose.plates); here they keep every word inside the frame. */
+const standphoneFront = (cam: Cam) => {
+  const at = (i: number, dx = 0) => screenOf(cam, toRoom(standphoneWordAt(i, dx), UNI_U));
+  // a letter is 1 kit unit of chip: the type follows the screen's scale (bold Cyrillic ≈ 0.7 em a letter)
+  const [a, b] = [at(0), at(0, 1)];
+  const unit = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const size = unit / 0.7;
+  const angle = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+  const rect = safeRect();
+  const probes = [...STANDPHONE_WORDS.map((w, i) => wordProbe(`word${i}`, at(i), w, size)), insetProbe('inset', STANDPHONE_INSET, 1)];
+  const inside = probes.every((p) => p.x >= rect.x0 && p.x + p.w <= rect.x1 && p.y >= rect.y0 && p.y + p.h <= rect.y1);
+  return (
+    <FrontalLayer>
+      {STANDPHONE_WORDS.map((w, i) => (
+        <Word key={i} at={at(i)} text={w} size={size} angle={angle} />
+      ))}
+      <Inset box={STANDPHONE_INSET} opacity={inside ? 1 : 0}>
+        {STANDPHONE_CHIPS.map((c, i) => (
+          <rect key={i} x={30 + (c.x - c.w / 2) * 15} y={60 + (c.y - 9.7) * 22} width={c.w * 15 - 4} height={c.h * 18} rx={10} fill={COLORS.fillMid} stroke={COLORS.ink} strokeWidth={STROKE.secondary} />
+        ))}
+      </Inset>
+    </FrontalLayer>
+  );
+};
 
 // Showcase of the universal kit (MASTER_PROMPT_FINAL §24): frame N shows page N, framed by camFit in the safe rect.
 // Every exported builder of the kit is called here (scripts/regress-checks.mjs refuses one that is not: code that no
@@ -58,7 +93,7 @@ import {BLOOM, STORM, TANGLE} from './kit/symbols.parts';
 // Illustrative geometry and values, not a topic.
 // coral: the one coral meaning the page shows, or 'none: <reason>'; bleed: why environment may run past the safe rect.
 // scripts/style-check.mjs checks every frame against these (scripts/lib/frame-checks.mjs).
-type Page = {id: string; A: Assembly; svg: () => string; cam?: () => Cam; node?: () => React.ReactNode; coral?: string; bleed?: string};
+type Page = {id: string; A: Assembly; svg: () => string; cam?: () => Cam; node?: () => React.ReactNode; front?: (cam: Cam) => React.ReactNode; coral?: string; bleed?: string};
 const NO_CORAL = 'none: a kit object without a topic meaning';
 const plain = (id: string, a: Assembly, coral = NO_CORAL): Page => ({id, A: a, svg: () => a.svg(), coral});
 const P = UNI_P;
@@ -150,6 +185,10 @@ export const KIT_PAGES: Page[] = [
   // the map helpers: a plan point of the projection and a simplified ring drawn on the table top round the islands
   // (a ring under a raised island has no one depth: it lies on the table, over the sea and under the land)
   {id: 'mapplan', coral: 'the one region', bleed: 'a close-up on half of the table: its far end runs past the frame', cam: () => camFit(boxCorners(...halfOf(boxOf(MAP_TABLE))), {rect: safeRect(), fill: 0.9}), A: MAP_TABLE, svg: () => MAP_TABLE.svg({}, {extra: [{name: 'plan', at: [45, 30, MAP_INFO.top + 0.05], bias: 3, annotation: true, svg: K.lineSvg(K.onTop(simplify([[0.4, 0.4], [15, 0.6], [29.6, 0.4], [29.6, 19.6], [0.4, 19.6]].map(([a, b]) => planOf([[0, 0], [30, 20]], 90, 60)([a, b])), 0.5), MAP_INFO.top + 0.05, P, true), {tone: 'lo'})}]})},
+  // a phone leaning on a desk stand (device.ts leanFrame, phoneStand, standingPhone, chatUi): the last answer chip is the
+  // coral piece (faceDyn), words sit on the chips without a frame (Frontal Word), an inset beside it (components/Inset)
+  // framed on the screen (the chips must read on a phone), the stand runs out of the band below
+  {id: 'standphone', coral: 'the chip the answer ends with', bleed: 'a close shot of the phone: its stand runs past the frame', A: STANDPHONE, svg: standphoneSvg, cam: () => camFit(screenCorners(STANDPHONE_SCREEN).map((p) => toRoom(p, UNI_U)), {rect: safeRect(), fill: 0.92, margin: {left: STANDPHONE_INSET.w + 24}}), front: standphoneFront},
 ];
 
 export const UniversalKitSample: React.FC = () => {
@@ -158,6 +197,7 @@ export const UniversalKitSample: React.FC = () => {
   return (
     <AnatomyStage>
       <RoomSvg cam={cam}>{page.node ? page.node() : <Kit svg={page.svg()} />}</RoomSvg>
+      {page.front ? page.front(cam) : null}
     </AnatomyStage>
   );
 };

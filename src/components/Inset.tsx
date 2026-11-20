@@ -14,11 +14,16 @@ export const INSET_MIN = 320;
 
 export type InsetBox = {x: number; y: number; w: number; h: number};
 
-/** The inset's screen box in a corner of the safe rect, at least INSET_MIN on each side. */
-export const insetRect = (rect: Rect, size: {w: number; h: number} = {w: INSET_MIN, h: INSET_MIN}, corner: 'bl' | 'br' | 'tl' | 'tr' = 'bl'): InsetBox => {
+/** The offset shadow under the frame: 6 grid units, i.e. 6·w/grid px (8 px for a 320 px inset on the 240 grid). */
+const shadowOf = (w: number, grid = 240) => (6 * w) / grid;
+
+/** The inset's screen box in a corner of the safe rect, at least INSET_MIN on each side; the frame's shadow stays inside
+ *  the rect too (a box flush with the corner put the shadow 8 px past it: style-check «bounds», 20.11.2026). */
+export const insetRect = (rect: Rect, size: {w: number; h: number} = {w: INSET_MIN, h: INSET_MIN}, corner: 'bl' | 'br' | 'tl' | 'tr' = 'bl', grid = 240): InsetBox => {
   const w = Math.max(INSET_MIN, size.w);
   const h = Math.max(INSET_MIN, size.h);
-  return {x: corner[1] === 'l' ? rect.x0 : rect.x1 - w, y: corner[0] === 'b' ? rect.y1 - h : rect.y0, w, h};
+  const sh = shadowOf(w, grid);
+  return {x: corner[1] === 'l' ? rect.x0 : rect.x1 - w - sh, y: corner[0] === 'b' ? rect.y1 - h - sh : rect.y0, w, h};
 };
 
 /** The inset as a plate probe for MotionPose.plates. */

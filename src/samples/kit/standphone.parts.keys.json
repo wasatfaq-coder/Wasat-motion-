@@ -78,18 +78,18 @@
   "standphone.chat.divider": 7.521,
   "standphone.chat.question": 7.59,
   "standphone.chat.question.tail": 8.224,
-  "standphone.chat.chip0": 6.878,
-  "standphone.chat.chip1": 7.211,
-  "standphone.chat.chip2": 7.587,
-  "standphone.chat.chip3": 7.991,
-  "standphone.chat.chip4": 6.879,
+  "standphone.chat.chip0": 6.976,
+  "standphone.chat.chip1": 7.621,
+  "standphone.chat.chip2": 8.124,
+  "standphone.chat.chip3": 7.032,
+  "standphone.chat.chip4": 7.23,
   "standphone.chat.input": 7.236,
   "standphone.chat.hint": 8.109,
   "standphone.chat.send": 8.066,
   "standphone.chat.arrow": 9.145,
   "standphone.date": 7.517,
-  "standphone.typing0": 6.741,
-  "standphone.typing1": 6.84,
-  "standphone.typing2": 6.939
+  "standphone.typing0": 6.726,
+  "standphone.typing1": 6.826,
+  "standphone.typing2": 6.925
  }
 }

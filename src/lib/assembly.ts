@@ -161,12 +161,15 @@ export class Assembly {
 
   /** A prism of a CONVEX polygon in the frame's (u, v) plane, extruded along F.a from s0 to s1 — on ANY axis
    *  (beams, bars, plates that are not upright). A concave outline (a half-ring) must be an upright `extruded`. */
-  prism(name: string, F: Frame, polygon: number[][], s0: number, s1: number, c: SolidOpts = {}) {
+  prism(name: string, F: Frame, polygon: number[][], s0: number, s1: number, c: SolidOpts & {bevel?: number} = {}) {
     const n = this.full(name);
     const cx = polygon.reduce((t, q) => t + q[0], 0) / polygon.length;
     const cy = polygon.reduce((t, q) => t + q[1], 0) / polygon.length;
     const at = G.add3(G.add3(G.add3(F.o, G.mul3(F.u, cx)), G.mul3(F.v, cy)), G.mul3(F.a, (s0 + s1) / 2)) as Point3;
-    return this.put(n, at, K.solidSvg(G.prismOf(F, polygon, s0, s1, this.P), this.styled(c)), [this.shape(A.prism(F, polygon, s0, s1), c, n)], c);
+    const paths = G.prismOf(F, polygon, s0, s1, this.P);
+    if (c.bevel) paths.bevel = prismBevel(F, polygon, s0, s1, c.bevel, this.P, this.V);
+    // the bevel is recorded with the shape: lint «bevel» refuses a large tilted hero body drawn without one (§22.1)
+    return this.put(n, at, K.solidSvg(paths, this.styled(c)), [this.shape(A.prism(F, polygon, s0, s1), {...c, meta: {...(c.meta ?? {}), bevel: c.bevel ?? 0}}, n)], c);
   }
 
   /** Upright cylinder (pins, posts, cans standing on the floor). */
@@ -386,6 +389,36 @@ export class Assembly {
         }
       }
     }
+    // bevel: a large tilted body of a hero (a phone leaning on a stand, a sloped panel) drawn as a prism with no bevel
+    // reads as a flat cut-out: §22.1 wants a bevel (0.4–1.6) on every body, and only slab / cyl had one (the tilted
+    // phone of «Как работает Claude», 20.11.2026). Axis-aligned prisms and small parts (buttons, holes) are exempt.
+    if (this.role === 'hero')
+      for (const pr of this.R.solids as (Prism & {bevel?: number})[]) {
+        if (pr.kind !== 'prism' || (pr.bevel ?? 0) > 0) continue;
+        if (Math.max(...pr.F.a.map(Math.abs)) > 0.999) continue;
+        const xs = pr.poly.map((p) => p[0]);
+        const ys = pr.poly.map((p) => p[1]);
+        const across = Math.min(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+        if (across >= BEVEL_ACROSS && Math.abs(pr.s1 - pr.s0) >= 0.2) out.push(`bevel: «${pr.name}» is a tilted body ${across.toFixed(1)} units across with no bevel; pass bevel (0.4–1.6, §22.1)`);
+      }
+    // buried: a block on a screen face (device.ts facePrism / faceDisc, meta {face: true}) whose centre lies inside
+    // another solid is not seen at all: built on the inward normal, the interface sat 0.04 inside the glass, far below
+    // the audit's 0.5 «sunk» limit, and the screen painted over it (20.11.2026)
+    {
+      const solids = this.R.solids as {name: string; kind: string; face?: boolean}[];
+      for (const it of this.R.items as (Item & {pos: Point3})[]) {
+        const own = solids.find((x) => x.name === it.name);
+        if (!own?.face) continue;
+        const host = solids.find((t) => t !== own && t.kind !== 'tube' && (A.sdf(t, it.pos) as number) < -0.005);
+        if (host) out.push(`buried: the face block «${it.name}» has its centre inside «${host.name}»; it is hidden (built on the inward normal?)`);
+        // face-order: a face block is thinner than the depth tolerance, so no order rule ranks it against what it sits
+        // on: its key must already be in front of its host's (device.ts faceBias)
+        const under = (this.R.items as (Item & {pos: Point3})[]).filter((o) => o !== it && !solids.find((x) => x.name === o.name)?.face && o.shapes.length && (o.shapes as unknown[]).some((sh) => Math.abs(A.sdf(sh, it.pos) as number) < 0.12));
+        // (plain keys: lint runs before a settle, on keys a stale keys.json may still hold)
+        const base = (x: Item) => (x as Item & {baseKey: number}).baseKey;
+        for (const u of under) if (base(u) >= base(it)) out.push(`face-order: the face block «${it.name}» is painted before «${u.name}», which it sits on; build it with device.ts facePrism / faceDisc (faceBias)`);
+      }
+    }
     return [...new Set(out)];
   }
 
@@ -524,6 +557,49 @@ export class Assembly {
   }
 
 }
+
+/** Smallest cross-section (kit units) of a tilted hero prism that must carry a bevel (lint «bevel»). */
+export const BEVEL_ACROSS = 3;
+
+/** The bevel line of a prism (§22.1), like the slab's: on the end cap that faces the viewer, a line `by` inside the
+ *  edges it shares with the visible sides. The core's prismOf has no bevel; this adds the same mark to tilted bodies. */
+export const prismBevel = (F: Frame, polygon: number[][], s0: number, s1: number, by: number, P: K.Projection, V: Point3): string => {
+  const area = polygon.reduce((t, p, i) => {
+    const q = polygon[(i + 1) % polygon.length];
+    return t + p[0] * q[1] - q[0] * p[1];
+  }, 0);
+  const ring = area >= 0 ? polygon : [...polygon].reverse();
+  const n = ring.length;
+  const cap = G.dot3(F.a, V) > 1e-6 ? s1 : G.dot3(F.a, V) < -1e-6 ? s0 : null;
+  if (cap === null) return '';
+  const at = (x: number, y: number): Point3 => G.add3(G.add3(G.add3(F.o, G.mul3(F.u, x)), G.mul3(F.v, y)), G.mul3(F.a, cap));
+  const normals = ring.map((p, j) => {
+    const q = ring[(j + 1) % n];
+    const [dx, dy] = [q[0] - p[0], q[1] - p[1]];
+    const l = Math.hypot(dx, dy) || 1;
+    return [dy / l, -dx / l];
+  });
+  const seen = normals.map(([nx, ny]) => G.dot3(G.add3(G.mul3(F.u, nx), G.mul3(F.v, ny)), V) > 1e-6);
+  const inset = ring.map((p, j) => {
+    const [a, b] = [normals[(j - 1 + n) % n], normals[j]];
+    const m = [a[0] + b[0], a[1] + b[1]];
+    const l = Math.hypot(m[0], m[1]) || 1;
+    return at(p[0] - (m[0] / l) * by, p[1] - (m[1] / l) * by);
+  });
+  const corner = ring.map((p) => at(p[0], p[1]));
+  if (seen.every(Boolean) || !seen.some(Boolean)) return '';
+  // runs of visible edges, cyclic: start after an unseen edge
+  const start = seen.findIndex((v, j) => v && !seen[(j - 1 + n) % n]);
+  const runs: number[][] = [];
+  for (let k = 0; k < n; k++) {
+    const j = (start + k) % n;
+    if (!seen[j]) continue;
+    if (!seen[(j - 1 + n) % n] || !runs.length) runs.push([]);
+    runs[runs.length - 1].push(j);
+  }
+  const d = (pts: Point3[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${K.iso(p, P).map((v: number) => v.toFixed(1)).join(' ')}`).join('');
+  return runs.map((run) => d([corner[run[0]], ...run.slice(1).map((j) => inset[j]), corner[(run[run.length - 1] + 1) % n]])).join('');
+};
 
 /** A part drawn outside the static assembly (rebuilt every frame) and passed to Assembly.svg({}, {extra}).
  *  With `shapes` it is ordered by the true 3D geometry (src/lib/depth.ts); without, by one depth key at `at`. */

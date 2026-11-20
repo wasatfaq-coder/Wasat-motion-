@@ -89,7 +89,7 @@ if (args.includes('--selftest')) {
   const objects = Object.entries(fx).filter(([, o]) => typeof o?.lint === 'function');
   for (const [key, obj] of objects) {
     const found = obj.lint();
-    const word = key === 'selfOverlap' ? 'self-overlap' : key;
+    const word = key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`); // selfOverlap → self-overlap, faceOrder → face-order
     if (!found.some((l) => l.startsWith(`${word}:`))) fails.push(`«${key}» not caught (lint said: ${found.join(' | ') || 'nothing'})`);
   }
   const P = anatomyProjection(10);

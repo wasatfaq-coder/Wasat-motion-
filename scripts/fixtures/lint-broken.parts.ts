@@ -70,3 +70,18 @@ arc.cyl('shaft', 0, 0, 2, 0, 10, {ground: true});
   for (let k = 18; k >= 0; k--) ring.push([5 * Math.cos(-0.3 + (k / 18) * 3), 5 * Math.sin(-0.3 + (k / 18) * 3)]);
   arc.extruded('half', ring, 0, 8, {meta: {touch: ['shaft']}});
 }
+
+// a large tilted body of a hero (a phone leaning back on a stand) drawn as a prism with no bevel: reads as a flat cut-out
+export const bevel = new Assembly('bevel', P, {role: 'hero'});
+bevel.slab('base', {x: -10, y: -10, w: 20, d: 20, r: 1}, 0, 1, {ground: true});
+bevel.prism('plate', {o: [0, 0, 1], a: [0.5, 0.5, 0.7071], u: [0.7071, -0.7071, 0], v: [-0.5, -0.5, 0.7071]}, [[-6, 0], [6, 0], [6, 14], [-6, 14]], 0, 1.2);
+
+// a block of a screen interface built on the inward normal: it sits inside the glass and the screen paints over it
+export const buried = make('buried');
+buried.slab('screen', {x: 0, y: 0, w: 10, d: 16, r: 0.5}, 0, 0.5, {ground: true});
+buried.slab('chip', {x: 2, y: 2, w: 3, d: 1.2, r: 0.3}, 0.44, 0.04, {meta: {face: true}});
+
+// a thin block on a face turned off the line of sight, with no paint-order lift: its centre's depth puts it under the face
+export const faceOrder = make('faceOrder');
+faceOrder.slab('screen', {x: 0, y: 0, w: 10, d: 16, r: 0.5}, 0, 0.5, {ground: true});
+faceOrder.slab('chip', {x: 0.5, y: 0.5, w: 3, d: 1.2, r: 0.3}, 0.5, 0.04, {meta: {face: true}});

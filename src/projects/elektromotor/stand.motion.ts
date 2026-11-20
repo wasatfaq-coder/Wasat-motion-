@@ -1,6 +1,7 @@
 import * as K from '../../vendor/anatomy/iso-kit';
 import {Dyn, Point3} from '../../lib/assembly';
 import {toRoom} from '../../lib/anatomy';
+import {insetRect as sharedInsetRect} from '../../components/Inset';
 import {boxCorners, Cam, camFit, Rect, safeRect, screenOf} from '../../lib/camera';
 import {forceOnWire} from '../../lib/handed';
 import {ArrowProbe, beatClock, blendCam, handOver, lerp, MotionPose, MotionSpec, PlateProbe, reelFrames} from '../../lib/motion';
@@ -123,7 +124,7 @@ export const blend = (a: StandState, b: StandState, t: number, raw = t): StandSt
 });
 
 /** Inset rect (screen px): the bottom left corner of the safe rect, over the front of the plate (environment), clear of the hero. */
-export const insetRect = (rect: Rect) => ({x: rect.x0, y: rect.y1 - INSET.h, ...INSET});
+export const insetRect = (rect: Rect) => sharedInsetRect(rect, INSET, 'bl');
 
 /** Moving parts and arrows of a state. */
 export const partsOf = (s: StandState): {extra: Dyn[]; arrows: Arrow[]} => {

@@ -6,8 +6,9 @@ import {Rect, RoomSvg, screenOf} from '../../lib/camera';
 import {screenDir} from '../../lib/handed';
 import {COLORS, STROKE} from '../../theme/tokens';
 import {FrontalLayer, Plate} from '../../components/Frontal';
+import {Inset, InsetBox} from '../../components/Inset';
 import {STAND, STAND_P, STAND_U} from './stand.parts';
-import {FIELD, forceDir, INSET, insetRect, LABEL_ANCHORS, LABEL_LIFT, LABEL_SIZE, partsOf, REEL_RECT, reelState, StandState, STILL_RECT_OF, stillState} from './stand.motion';
+import {FIELD, forceDir, insetRect, LABEL_ANCHORS, LABEL_LIFT, LABEL_SIZE, partsOf, REEL_RECT, reelState, StandState, STILL_RECT_OF, stillState} from './stand.motion';
 export {REEL_FRAMES} from './stand.motion';
 
 // Style frames of the field stand (STOP 2, scenes 2–5) and the silent test reel. The state of every frame comes from
@@ -18,11 +19,10 @@ const norm2 = (v: [number, number]): [number, number] => {
   const l = Math.hypot(v[0], v[1]) || 1;
   return [v[0] / l, v[1] / l];
 };
-const Inset: React.FC<{x: number; y: number; opacity: number}> = ({x, y, opacity}) => {
+const PlanInset: React.FC<{box: InsetBox; opacity: number}> = ({box, opacity}) => {
   // a plan view looking down the wire, turned like the stand on screen: the current comes out of the page (dot); the
   // field and the force use the SAME screen directions as the 3D arrows (derived from the same vectors)
-  // drawn on a 240 px grid and scaled to INSET (320 px, the floor of motion-check `small`, N6)
-  const k0 = INSET.w / 240;
+  // drawn on a 240 px grid and scaled to INSET (320 px, the floor of motion-check `small`, N6) by the shared Inset frame
   const c = {x: 120, y: 100};
   const hi = COLORS.ink;
   const X = norm2(screenDir(FIELD, P));
@@ -34,9 +34,7 @@ const Inset: React.FC<{x: number; y: number; opacity: number}> = ({x, y, opacity
     return <path d={`M${pt(v, k)} L${base[0] + n[0] * w} ${base[1] + n[1] * w} L${base[0] - n[0] * w} ${base[1] - n[1] * w} Z`} fill={fill} stroke={stroke} strokeWidth={3} strokeLinejoin="round" />;
   };
   return (
-    <g opacity={opacity} transform={`translate(${x} ${y}) scale(${k0})`}>
-      <rect x={6} y={6} width={240} height={240} rx={22} fill={COLORS.fillDark} />
-      <rect x={0} y={0} width={240} height={240} rx={22} fill={COLORS.fillLight} stroke={COLORS.ink} strokeWidth={STROKE.main} />
+    <Inset box={box} opacity={opacity} grid={240}>
       <path d={`M${pt(X, -70)} L${pt(X, 76)}`} stroke={COLORS.inkSoft} strokeWidth={4} strokeDasharray="14 10" fill="none" />
       {head(X, 100, 10, COLORS.inkSoft, COLORS.inkSoft)}
       <path d={`M${pt(Y, 14)} L${pt(Y, 62)}`} stroke={hi} strokeWidth={14} strokeLinecap="butt" fill="none" />
@@ -44,7 +42,7 @@ const Inset: React.FC<{x: number; y: number; opacity: number}> = ({x, y, opacity
       {head(Y, 92, 17, COLORS.fillLight, hi)}
       <circle cx={c.x} cy={c.y} r={16} fill={COLORS.accent} stroke={hi} strokeWidth={STROKE.secondary} />
       <circle cx={c.x} cy={c.y} r={4.5} fill={hi} />
-    </g>
+    </Inset>
   );
 };
 
@@ -64,7 +62,7 @@ const StandView: React.FC<{state: StandState; rect: Rect; bottom: number}> = ({s
       <FrontalLayer>
         <Plate at={[nPos[0], nPos[1] - LABEL_LIFT]} to={nPos} text="С" size={LABEL_SIZE} show={state.labels} />
         <Plate at={[sPos[0], sPos[1] - LABEL_LIFT]} to={sPos} text="Ю" size={LABEL_SIZE} show={state.labels} />
-        {state.inset > 0.001 ? <Inset x={ins.x} y={ins.y} opacity={state.inset} /> : null}
+        {state.inset > 0.001 ? <PlanInset box={ins} opacity={state.inset} /> : null}
       </FrontalLayer>
     </AnatomyStage>
   );

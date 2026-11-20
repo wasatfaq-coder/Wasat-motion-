@@ -142,3 +142,35 @@ export const FrontalChart: React.FC<ChartProps> = ({x, y, w, h, kind, data, unit
     </g>
   );
 };
+
+type WordProps = {
+  at: [number, number]; // the word's centre, screen px (screenOf a point on the body it labels)
+  text: string;
+  size?: number; // px; never below the 26 px floor of an auxiliary label (§5)
+  tone?: 'ink' | 'accent' | 'paper'; // paper: light text on a dark body
+  show?: number; // 0..1 appearance (fade + a small rise)
+};
+
+/** A word or token with NO frame (§20.4): screen-aligned bold Rubik pinned to a body it names, e.g. the text of a chip
+ *  or a tile, `at = screenOf(cam, roomPoint)`. Unlike Plate it adds no plate, no leader and no shadow: the body under
+ *  it is the plate. `accent` makes the word coral; use it only when the word itself carries the frame's one coral
+ *  meaning and no part does (§22.1: coral belongs on a part; a coral word on a coral chip vanishes). Probe it for
+ *  motion-check with wordProbe (reading time, crop). */
+export const Word: React.FC<WordProps> = ({at, text, size = TYPE.label, tone = 'ink', show = 1}) => {
+  const k = clamp01(show);
+  if (k <= 0) return null;
+  const px = Math.max(size, TYPE_FLOOR.auxiliary);
+  const fill = tone === 'accent' ? COLORS.accent : tone === 'paper' ? COLORS.fillLight : COLORS.ink;
+  return (
+    <text x={at[0]} y={at[1] + px * 0.36 + (1 - k) * px * 0.3} opacity={k} textAnchor="middle" fontFamily={fontFamily} fontWeight={TYPE.weightBold} fontSize={px} fill={fill}>
+      {text}
+    </text>
+  );
+};
+
+/** The screen rect a Word covers (for MotionPose.plates: motion-check reads its text and keeps it in the frame). */
+export const wordProbe = (name: string, at: [number, number], text: string, size: number = TYPE.label, opacity = 1) => {
+  const px = Math.max(size, TYPE_FLOOR.auxiliary);
+  const w = textWidth(text, px);
+  return {name, x: at[0] - w / 2, y: at[1] - px * 0.6, w, h: px * 1.2, opacity, kind: 'label' as const, text};
+};

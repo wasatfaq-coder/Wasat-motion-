@@ -31,8 +31,10 @@ export const mug = (A: Assembly, x: number, y: number) => {
   A.pipe('mug.handle', [[x + 4, y, Z0 + 8], [x + 7, y, Z0 + 8], [x + 7, y, Z0 + 5], [x + 4, y, Z0 + 4]], 0.7, {bend: 1.5, tone: 'hi'});
 };
 
-// the outline of a jug kettle: [height above the base top, outer radius]; a smooth body of revolution (a lathe), as it is
-const OUTLINE: [number, number][] = [[0, 12.2], [4, 12.9], [8, 12.9], [12, 12.4], [16, 11.7], [20, 10.8], [24, 9.8], [28, 9]];
+// the outline of a jug kettle: [height above the base top, outer radius]. Real proportions: a 1.7 l jug kettle is about
+// 1.6–1.8 times as tall as it is wide (Bosch DesignLine TWK5P471GB: 267 mm tall, 150 mm deep), nearly upright, a little
+// narrower at the top — not the round belly of a teapot
+const OUTLINE: [number, number][] = [[0, 8.3], [1.2, 8.7], [4, 8.8], [12, 8.6], [20, 8.2], [25, 7.8], [27, 7.6], [28, 7.5]];
 const rAt = (z: number) => {
   for (let i = 0; i < OUTLINE.length - 1; i++) {
     const [z0, r0] = OUTLINE[i];
@@ -49,14 +51,14 @@ const AS = VIEW + Math.PI * 1.5 - 0.2; // the spout (right of the viewer)
  *  socket and the water. Drawn first, then the coil, then the shell, which may be made translucent (an x-ray, like a
  *  glass kettle). */
 export const kettleInside = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
-  A.cyl('base', cx, cy, 15.4, z0, 2.2, {tone: 'mid', ground: true, bevel: 0.6, shadow: 'hero'});
-  A.cyl('base.gap', cx, cy, 13.6, z0 + 2.2, 0.5, {tone: 'lo', bevel: 0});
-  A.cyl('base.pad', cx, cy, 12.2, z0 + 2.7, 0.7, {tone: 'hi', bevel: 0.3});
-  A.cyl('floor', cx, cy, 11.4, z0 + 3.4, 0.8, {tone: 'lo', bevel: 0.1});
-  A.slab('socket', {x: cx - 16, y: 0.4, w: 6, d: 1.4, r: 0.4}, z0 + 9, 6, {tone: 'mid', bevel: 0.3, bias: -1000});
-  A.slab('plug', {x: cx - 15, y: 1.6, w: 4, d: 3, r: 0.5}, z0 + 10, 4, {tone: 'lo', bevel: 0.3, bias: -900});
-  A.pipe('cord', [[cx - 2, cy - 15, z0 + 1.2], [cx - 6, 8, z0 + 0.8], [cx - 13, 4, z0 + 0.8], [cx - 13, 3.2, z0 + 10]], 0.7, {bend: 2.5, tone: 'lo', limp: true, ends: [true, true], free: 'cord'});
-  A.cyl('water', cx, cy, 11.2, z0 + 4.2, 14, {tone: 'lo'});
+  A.cyl('base', cx, cy, 10.2, z0, 2.2, {tone: 'mid', ground: true, bevel: 0.6, shadow: 'hero'});
+  A.cyl('base.gap', cx, cy, 9.2, z0 + 2.2, 0.5, {tone: 'lo', bevel: 0});
+  A.cyl('base.pad', cx, cy, 8.4, z0 + 2.7, 0.7, {tone: 'hi', bevel: 0.3});
+  A.cyl('floor', cx, cy, 7.8, z0 + 3.4, 0.8, {tone: 'lo', bevel: 0.1});
+  A.slab('socket', {x: cx - 24, y: 0.4, w: 6, d: 1.4, r: 0.4}, z0 + 9, 6, {tone: 'mid', bevel: 0.3, bias: -1000});
+  A.slab('plug', {x: cx - 23, y: 1.6, w: 4, d: 3, r: 0.5}, z0 + 10, 4, {tone: 'lo', bevel: 0.3, bias: -900});
+  A.pipe('cord', [[cx - 2, cy - 10, z0 + 1.2], [cx - 10, 8, z0 + 0.8], [cx - 21, 4, z0 + 0.8], [cx - 21, 3.2, z0 + 10]], 0.7, {bend: 2.5, tone: 'lo', limp: true, ends: [true, true], free: 'cord'});
+  A.cyl('water', cx, cy, 7.6, z0 + 4.2, 14, {tone: 'lo'});
   // the limescale filter: a curved mesh plate in a slot behind the spout, following the curve of the body
   const rf = rAt(22) - 1.4;
   A.arc('filter', [cx, cy], rf - 0.25, rf, AS - 0.42, AS + 0.42, z0 + BODY0 + 19, 7.5, {tone: 'mid'});
@@ -67,12 +69,12 @@ export const kettleInside = (A: Assembly, [cx, cy]: [number, number], z0: number
 export const kettleCoil = (A: Assembly, [cx, cy]: [number, number], z0: number, o: {coilOn?: boolean} = {}) => {
   const on = o.coilOn ?? true;
   const ring = (r: number, n = 20): Point3[] => Array.from({length: n}, (_, i) => [cx + r * Math.cos((i / n) * Math.PI * 2), cy + r * Math.sin((i / n) * Math.PI * 2), z0 + 5.4]);
-  A.pipe('coil.a', ring(8), 0.8, {closed: true, bend: 2.5, lit: on, tone: 'hi'});
-  A.pipe('coil.b', ring(4.6), 0.8, {closed: true, bend: 2, lit: on, tone: 'hi'});
-  for (let i = 0; i < 4; i++) A.cyl(`coil.foot${i}`, cx + 6.3 * Math.cos((i * Math.PI) / 2 + 0.4), cy + 6.3 * Math.sin((i * Math.PI) / 2 + 0.4), 0.9, z0 + 4.2, 1.2, {tone: 'lo', bevel: 0.1});
+  A.pipe('coil.a', ring(5.4), 0.7, {closed: true, bend: 2.5, lit: on, tone: 'hi'});
+  A.pipe('coil.b', ring(3.1), 0.7, {closed: true, bend: 2, lit: on, tone: 'hi'});
+  for (let i = 0; i < 4; i++) A.cyl(`coil.foot${i}`, cx + 4.25 * Math.cos((i * Math.PI) / 2 + 0.4), cy + 4.25 * Math.sin((i * Math.PI) / 2 + 0.4), 0.7, z0 + 4.2, 1.2, {tone: 'lo', bevel: 0.1});
 };
 
-/** The shell of the kettle: a smooth body of revolution with a steel lower band and a dark neck band, a domed lid with a button, a pouring lip, a side handle with a lit switch. Drawn over the inside. */
+/** The shell of a cordless jug kettle: an upright molded body with a pouring lip from the rim, a flat flip lid, a tall handle with the lid button on top and the rocker switch at its foot. Drawn over the inside. */
 export const kettleShell = (A: Assembly, [cx, cy]: [number, number], z0: number, o: {coilOn?: boolean} = {}) => {
   const on = o.coilOn ?? true;
   const at = (r: number, z: number, a = AH): Point3 => [cx + r * Math.cos(a), cy + r * Math.sin(a), z0 + z];
@@ -89,40 +91,40 @@ export const kettleShell = (A: Assembly, [cx, cy]: [number, number], z0: number,
   const tick = (z: number) => `<path d="${K.pathOf([fl(surf(z, -0.13)), fl(surf(z, 0.13)), fl(surf(z, 0.36))])}" fill="none" stroke="${COLORS.ink}" stroke-width="3.2" stroke-linecap="round"/>`;
   const level = Array.from({length: 7}, (_, i) => fl(surf(14, -0.13 + (i / 6) * 0.26)));
   const window = `<path d="${K.pathOf(ring, true)}" fill="${COLORS.inkSoft}" fill-opacity="0.6"/>` + K.lineSvg(K.pathOf(ring, true), {tone: 'lo'}) + K.lineSvg(K.pathOf(level), {tone: 'hi'}) + tick(7) + tick(19);
-  // the body: one lathe, the profile smooth (third value 1); two thin bands slightly proud of it
   // the body: one molded jug (src/lib/molded.ts). As on a real jug kettle the spout is no tube: the front of the rim
   // rises and pulls forward into a pointed open lip, the same plastic as the body; the lid sits behind it
-  const LIP = 5.2; // how far the lip reaches out past the round body
-  const RISE = 2.6; // how far the rim rises at the lip
+  const LIP = 3.4; // how far the lip reaches out past the round body
+  const RISE = 1.8; // how far the rim rises at the lip
   const wLip = (th: number) => Math.pow(Math.max(0, Math.cos(th - AS)), 9);
   const ZS = Array.from({length: 57}, (_, i) => i * 0.5);
   const NTH = 128;
   const rings: Point3[][] = ZS.map((z) =>
     Array.from({length: NTH}, (_, j) => {
       const th = (j / NTH) * Math.PI * 2;
-      const k = Math.max(0, (z - 17) / 11);
+      const k = Math.max(0, (z - 20) / 8);
       const r = rAt(z) + LIP * wLip(th) * k * k;
       return [cx + r * Math.cos(th), cy + r * Math.sin(th), z0 + BODY0 + z + RISE * wLip(th) * Math.pow(z / 28, 6)] as Point3;
     }),
   );
   // the open channel of the lip in front of the lid, and the limescale filter seen down in it
-  const lipTip = at(rAt(28) + LIP - 0.6, 28 + RISE, AS);
-  const ch = (r: number, da: number) => fl(at(r, 28 + RISE * wLip(AS + da) + 0.05, AS + da));
-  const channel = `<path d="${K.pathOf([ch(8.4, -0.32), ch(rAt(28) + LIP - 0.9, 0), ch(8.4, 0.32)], true)}" fill="${COLORS.inkSoft}" fill-opacity="0.35"/>` + K.lineSvg(K.pathOf([ch(8.4, -0.32), ch(rAt(28) + LIP - 0.9, 0), ch(8.4, 0.32)]), {tone: 'lo'});
+  const TOP = BODY0 + 28; // the rim, above z0
+  const lipTip = at(rAt(28) + LIP - 0.5, TOP + RISE, AS);
+  const ch = (r: number, da: number) => fl(at(r, TOP + RISE * wLip(AS + da) + 0.05, AS + da));
+  const channel = `<path d="${K.pathOf([ch(rAt(28) - 1.1, -0.36), ch(rAt(28) + LIP - 0.8, 0), ch(rAt(28) - 1.1, 0.36)], true)}" fill="${COLORS.inkSoft}" fill-opacity="0.35"/>` + K.lineSvg(K.pathOf([ch(rAt(28) - 1.1, -0.36), ch(rAt(28) + LIP - 0.8, 0), ch(rAt(28) - 1.1, 0.36)]), {tone: 'lo'});
   A.molded('body', rings, A2.solid(F, OUTLINE.map(([z, r]) => [z, r, 1])), {tone: 'hi', molded: {cap: 'top', smooth: true}, over: window + channel});
-  A.turned('band.low', [[0, 12.5], [3, 12.95, 1]], F, {tone: 'mid'});
-  A.turned('band.neck', [[23.5, 9.95], [28, 9.18, 1]], F, {tone: 'mid'});
-  // the lid: a dome of two discs and a button
-  A.cyl('lid.a', cx, cy, 8.6, z0 + 31.4, 1.2, {tone: 'hi', bevel: 0.5});
-  A.cyl('lid.b', cx, cy, 6.8, z0 + 32.6, 1.2, {tone: 'hi', bevel: 0.5});
-  A.cyl('lid.knob', cx, cy, 2.2, z0 + 33.8, 1.6, {tone: 'lo', bevel: 0.5});
-  // the handle: a D loop from under the rim down to the lower body, thick dark plastic
-  A.pipe('handle', [at(rAt(27) - 0.6, 27.4), at(rAt(27) + 3, 28.6), at(rAt(26) + 6.2, 28), at(rAt(23) + 8, 25.2), at(rAt(19) + 8.6, 20.5), at(rAt(14) + 8.4, 14.5), at(rAt(10) + 7.6, 9.5), at(rAt(7) + 5.6, 6.2), at(rAt(5) + 2.6, 4.7), at(rAt(4) - 0.6, 4.4)], 1.9, {bend: 7, tone: 'lo'});
-  // on top of the handle only the small lid-release button; the on/off rocker sits at the foot of the handle with its light
-  A.cyl('lid.release', ...(at(rAt(27) + 3.8, 0).slice(0, 2) as [number, number]), 1.2, z0 + 30.1, 0.6, {tone: 'mid', bevel: 0.2});
-  const sw = at(rAt(4) + 3.6, 0);
-  A.slab('switch', {x: sw[0] - 1.6, y: sw[1] - 1.6, w: 3.2, d: 3.2, r: 0.8}, z0 + 2.3, 1.5, {tone: 'lo', bevel: 0.4});
-  A.cyl('switch.led', sw[0], sw[1], 0.55, z0 + 3.8, 0.3, {tone: 'hi', bevel: 0.1, lit: on});
+  A.turned('band.low', [[0, rAt(0) + 0.25], [2.4, rAt(2.4) + 0.12, 1]], F, {tone: 'mid'});
+  // the lid: a flat flip lid sunk in the rim, hinged at the handle side (opened by the button on the handle), no knob
+  A.cyl('lid', cx, cy, rAt(28) - 1.0, z0 + TOP - 0.45, 0.6, {tone: 'hi', bevel: 0.3});
+  const hg = at(rAt(28) - 1.6, 0);
+  A.slab('lid.hinge', {x: hg[0] - 1.2, y: hg[1] - 1.2, w: 2.4, d: 2.4, r: 0.6}, z0 + TOP - 0.3, 0.9, {tone: 'mid', bevel: 0.2});
+  // the handle: a tall upright grip, its top grows out of the rim level with the lid, its foot joins the lower body
+  A.pipe('handle', [at(rAt(27.5) - 0.6, TOP - 1.2), at(rAt(27) + 2.4, TOP - 0.7), at(rAt(26) + 5, TOP - 1.4), at(rAt(23) + 5.9, TOP - 4.5), at(rAt(16) + 6.1, BODY0 + 16), at(rAt(9) + 5.8, BODY0 + 9), at(rAt(5) + 4.4, BODY0 + 5.2), at(rAt(3) + 1.8, BODY0 + 3.2), at(rAt(3) - 0.6, BODY0 + 3)], 1.7, {bend: 4, tone: 'lo'});
+  // on top of the handle the lid-release button; the on/off rocker at the foot of the handle with its light
+  const rb = at(rAt(27) + 2.6, 0);
+  A.slab('lid.release', {x: rb[0] - 1, y: rb[1] - 1, w: 2, d: 2, r: 0.6}, z0 + TOP + 0.7, 0.5, {tone: 'mid', bevel: 0.2});
+  const sw = at(rAt(2) + 1.3, 0);
+  A.slab('switch', {x: sw[0] - 1.2, y: sw[1] - 1.2, w: 2.4, d: 2.4, r: 0.7}, z0 + BODY0 + 0.4, 1.3, {tone: 'lo', bevel: 0.3});
+  A.cyl('switch.led', sw[0], sw[1], 0.45, z0 + BODY0 + 1.7, 0.3, {tone: 'hi', bevel: 0.1, lit: on});
   return {at, AH, AS, spout: lipTip};
 };
 

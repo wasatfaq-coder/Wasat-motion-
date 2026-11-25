@@ -13,17 +13,17 @@ export const KettleStudy: React.FC = () => {
   kettleInside(scene, KC, Z0 + 2.4);
   const coil = new Assembly('k.coil', P, {role: 'hero'});
   kettleCoil(coil, KC, Z0 + 2.4, {coilOn: f !== 2});
-  if (f === 0) mug(scene, 62, 20);
+  if (f === 0) mug(scene, 50, 27);
   const shell = new Assembly('k.shell', P, {role: 'hero'});
   kettleShell(shell, KC, Z0 + 2.4, {coilOn: f !== 2});
   const opacity = f === 1 ? 0.3 : 1;
-  const lo = toRoom([14, 2, Z0], U);
-  const size = toRoom([f === 2 ? 22 : 44, f === 2 ? 22 : 36, f === 2 ? 22 : 40], U);
-  const cam = camFit(boxCorners(f === 2 ? toRoom([23, 9, Z0 + 20], U) : lo, size), {rect: {x0: 70, x1: 900, y0: 400, y1: 1450}, fill: 0.9});
+  const lo = toRoom([20, 6, Z0], U);
+  const size = toRoom([f === 2 ? 20 : 38, f === 2 ? 20 : 30, f === 2 ? 18 : 38], U);
+  const cam = camFit(boxCorners(f === 2 ? toRoom([KC[0] - 10, KC[1] - 10, Z0 + 20], U) : lo, size), {rect: {x0: 70, x1: 900, y0: 400, y1: 1450}, fill: 0.9});
   return (
     <AnatomyStage>
       <RoomSvg cam={cam} fade={70} sides={60} top={300} bottom={1500}>
-        <Kit svg={scene.svg()} />
+        <Kit svg={scene.svg({}, {hide: (n) => f === 1 && /(socket|plug|cord)/.test(n)})} />
         <Kit svg={coil.svg()} />
         <Kit svg={shell.svg()} opacity={opacity} />
       </RoomSvg>

@@ -10,6 +10,8 @@ export const COLORS = {
   ink: '#25242B',         // dark outline + text (contrast ≈ 14:1 on bg)
   inkSoft: '#6B6770',     // secondary lines and captions (≈ 5:1 on bg)
   accent: '#E8604C',      // coral: novelty and the key meaning
+  norm: '#3F5F86',        // cool state colour «норма»: only data, charts, two-state comparison (regulation section 7); ≈ 5.8:1 on bg
+  normDark: '#8FB0D6',    // the same «норма» on the dark field (≈ 6.3:1 on bgDark)
   captionBg: 'rgba(37,36,43,0.82)', // fallback plate only, when ink-on-bg contrast fails (§19.1)
   captionText: '#FCFAF6',
   bgDark: '#2B2A30',      // the one dark scene of a video (regulation v3.0, section 7)

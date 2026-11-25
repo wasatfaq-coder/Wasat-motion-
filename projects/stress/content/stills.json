@@ -1,0 +1,7 @@
+{
+  "comp": "StressMain",
+  "frames": [180, 640, 1100, 1550, 1860],
+  "coral": true,
+  "heroMinWidth": 0.12,
+  "props": {"muteVoice": true, "hideCaptions": false, "onlyScenes": []}
+}

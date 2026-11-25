@@ -14,6 +14,8 @@ export type SceneData = {
   beats: Beat[];
   pages: Page[];
   sfx: SfxEvent[];
+  /** Dark chapter field (regulation section 7). Episode passes it to captions so the ink stays readable. */
+  dark?: boolean;
 };
 export type Timeline = {fps: number; totalFrames: number; scenes: SceneData[]};
 

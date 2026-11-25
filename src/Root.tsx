@@ -1,6 +1,9 @@
 import React from 'react';
 import {Composition} from 'remotion';
 import {FORMAT} from './theme/format';
+import {StressMain, StressSelected} from './projects/stress/Main';
+import {StressCover} from './projects/stress/Cover';
+import {episodeSchema} from './components/Episode';
 import {AnatomyStyleSample} from './samples/AnatomyStyleSample';
 import {AnatomyKitSample} from './samples/AnatomyKitSample';
 import {KIT_PAGES, UniversalKitSample} from './samples/UniversalKitSample';
@@ -22,6 +25,18 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="AnatomyGait" component={AnatomyGaitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={300} />
   <Composition id="AnatomyCoverSample" component={AnatomyCoverSample} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   <Composition id="AnatomyCast" component={AnatomyCastSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} />
+  <Composition
+    id="StressMain"
+    component={StressMain}
+    schema={episodeSchema}
+    width={FORMAT.width}
+    height={FORMAT.height}
+    fps={FORMAT.fps}
+    durationInFrames={1}
+    defaultProps={{muteVoice: true, hideCaptions: false, onlyScenes: []}}
+    calculateMetadata={({props}) => ({durationInFrames: Math.max(1, StressSelected(props.onlyScenes).reduce((a, s) => a + s.durationInFrames, 0))})}
+  />
+  <Composition id="StressCover" component={StressCover} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   {/* topic compositions: scripts/new-topic.mjs inserts new topics above this line */}
   </>
 );

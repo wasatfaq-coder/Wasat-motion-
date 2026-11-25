@@ -1,0 +1,20 @@
+{
+  "source": "/opt/cursor/artifacts/stress-pilot.mp4",
+  "sha256": "0390d5904f5a3ffd1b0c59a50a2f83d2ae4b27812c4ec602074d1216b76bc931",
+  "preview": null,
+  "frames": 2340,
+  "checks": {
+    "decode": "passed",
+    "nearBlackFrames": 0,
+    "emptyFrames": 0,
+    "motion": [
+      "crop: 1380 frame(s) with the picture cut by the left/right frame edge (first 420)",
+      "crop: 2100 frame(s) where the picture is cut by a horizontal edge (the end of the graphics band or of the frame; first 0)",
+      "pop: 12 frame(s) where part of the picture changes in one frame between still frames (a pop or a jump; first 140, tile 6)"
+    ],
+    "findings": null
+  },
+  "visualReview": "pending",
+  "viewerReview": "pending",
+  "independentReview": "pending"
+}

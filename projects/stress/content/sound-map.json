@@ -1,0 +1,10 @@
+{
+  "_doc": "Per scene: [{beat, offset, file, volume, reason, layer: event | response | life}]. Review after every scene change, then node scripts/audit.mjs --topic <slug> --stamp-sfx.",
+  "_reviewed": {
+    "scene-1": "b1c0f5654d23600b",
+    "scene-2": "3c7550d62970d415",
+    "scene-3": "7936a53a14a43415",
+    "scene-4": "1dd0eacf78bb7417",
+    "scene-5": "291234b8a5798966"
+  }
+}

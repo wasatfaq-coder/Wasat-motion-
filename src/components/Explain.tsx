@@ -15,6 +15,7 @@ export const HONESTY = {
   simplified: 'УПРОЩЁННО',
   exaggerated: 'ПРЕУВЕЛИЧЕНО',
   slowed: 'ЗАМЕДЛЕНО',
+  sped: 'УСКОРЕНО',
 } as const;
 export type HonestyKind = keyof typeof HONESTY;
 

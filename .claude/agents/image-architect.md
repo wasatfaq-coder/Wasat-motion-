@@ -14,3 +14,6 @@ Deliver:
 5. Motion by anchor words in three layers (event on the word, response of 2–3 details with lag, quiet life of the world), the camera breathing 2–3 % per shot, the field of each chapter (dark for action and the main answer, light for data and maps), the opening and the finale on the same object.
 6. A size and time estimate for one video a week.
 Output protocol: try to write your report to the path you were given. If writing fails, do not retry and do not claim it was saved: return the FULL report as your final answer, the main session saves it. If a site cannot be fetched, say which one and what stays unverified; never fill the gap from memory. Answer in Russian.
+
+## Real objects
+For every real object in the plan: ask the main session for photos and the manufacturer's parts diagram (you may not reach the web), write its parts and where each sits from them, and read `src/vendor/anatomy/references/craft.md` (sections 1–3, 8). Mark each part as slab, turned body, pipe or **molded form**; a molded form the kit cannot build is flagged in the plan, never replaced by a cone or a tube.

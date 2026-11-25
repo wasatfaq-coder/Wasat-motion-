@@ -55,3 +55,19 @@ ${tones('cl-mid', MID)}
 .iso .tb[data-lit] .tb-shine{fill:var(--anatomy-lit-top)}
 .iso .tb[data-lit] .iso-line{stroke:var(--anatomy-lit)}
 `;
+
+/** The upstream Anatomy light look (src/vendor/anatomy/iso-kit.ts, light theme): near-white faces, four grey shades,
+ *  a dark thin contour, no patterns. Applied over ANATOMY_CSS by <AnatomyStage look="atlas">. Strokes stay thicker
+ *  than upstream's (0.6 px on a desktop page) so they survive a phone screen. */
+export const ATLAS_BG = '#FBFBFA';
+export const ATLAS_CSS = `
+.iso[data-look="atlas"]{
+ --anatomy-paper:#ffffff;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
+ --anatomy-shade-0:#d6d6d3;--anatomy-shade-1:#e2e2df;--anatomy-shade-2:#ebebe8;--anatomy-shade-3:#f4f4f1;
+ --anatomy-hi:#26262a;--anatomy-mid:#8a8a8f;--anatomy-lo:#b4b4b8;--anatomy-faint:#d4d4d6;
+ --anatomy-halo:#000000;--anatomy-weight:1.3px}
+.iso[data-look="atlas"] .iso-tex{display:none}
+.iso[data-look="atlas"] svg.iso-svg{background:${ATLAS_BG}!important}
+.iso[data-look="atlas"] .iso-line.iso-edge{stroke-width:2px}
+.iso[data-look="atlas"] .iso .iso-halo,.iso[data-look="atlas"] .iso-halo{fill:#000;opacity:.07}
+`;

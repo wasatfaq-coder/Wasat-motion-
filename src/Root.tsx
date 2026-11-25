@@ -8,6 +8,8 @@ import {AnatomyCoverSample} from './samples/AnatomyCoverSample';
 import {DELIVERY_PAGES, DeliverySample} from './samples/DeliverySample';
 import {KETTLE_FRAMES, KettleSketch} from './samples/KettleSketch';
 import {ATLAS_SKETCH_FRAMES, AtlasTableSketch} from './samples/AtlasTableSketch';
+import {KettleStudy} from './samples/KettleStudy';
+import {KETTLE_DEMO_FRAMES, KETTLE_FPS, KettleDemo} from './samples/KettleDemo';
 import {anatomyCoverSchema} from './components/AnatomyCover';
 import {AnatomyCastSample, AnatomyCharacterSample, AnatomyGaitSample} from './samples/AnatomyCharacterSample';
 
@@ -20,6 +22,8 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="AnatomyDelivery" component={DeliverySample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={DELIVERY_PAGES} />
   <Composition id="KettleSketch" component={KettleSketch} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={KETTLE_FRAMES} />
   <Composition id="AtlasTableSketch" component={AtlasTableSketch} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={ATLAS_SKETCH_FRAMES} />
+  <Composition id="KettleDemo" component={KettleDemo} width={FORMAT.width} height={FORMAT.height} fps={KETTLE_FPS} durationInFrames={KETTLE_DEMO_FRAMES} />
+  <Composition id="KettleStudy" component={KettleStudy} width={FORMAT.width} height={FORMAT.height} fps={30} durationInFrames={3} />
   <Composition id="AnatomyCharacter" component={AnatomyCharacterSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={420} />
   <Composition id="AnatomyGait" component={AnatomyGaitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={300} />
   <Composition id="AnatomyCoverSample" component={AnatomyCoverSample} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />

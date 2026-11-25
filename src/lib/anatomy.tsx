@@ -2,7 +2,7 @@ import {TextureDefs} from '../theme/textures';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {depthOf, Point3, Projection} from '../vendor/anatomy/iso-kit';
-import {ANATOMY_CSS} from '../theme/anatomy';
+import {ATLAS_BG, ATLAS_CSS, ANATOMY_CSS} from '../theme/anatomy';
 import {ROOM_S} from './camera';
 import {P3} from './iso';
 
@@ -34,9 +34,12 @@ export const anatomyProjection = (unitsPerRoomUnit = 1, azimuth: number = ANATOM
 export const toRoom = ([x, y, z]: Point3, unitsPerRoomUnit = 1): P3 => [x / unitsPerRoomUnit, y / unitsPerRoomUnit, z / unitsPerRoomUnit];
 
 /** Wraps a scene so the kit's CSS classes take our palette. Use once per scene, around RoomSvg. */
-export const AnatomyStage: React.FC<{children: React.ReactNode}> = ({children}) => (
-  <AbsoluteFill className="iso" data-theme="light">
+/** `look="atlas"`: the upstream Anatomy light look (near-white solids, grey shades, thin contour, no patterns), for
+ *  trying it against the house look (sketches only until the regulation says otherwise). */
+export const AnatomyStage: React.FC<{children: React.ReactNode; look?: 'house' | 'atlas'}> = ({children, look = 'house'}) => (
+  <AbsoluteFill className="iso" data-theme="light" data-look={look} style={look === 'atlas' ? {background: ATLAS_BG} : undefined}>
     <style>{ANATOMY_CSS}</style>
+    {look === 'atlas' ? <style>{ATLAS_CSS}</style> : null}
     <TextureDefs />
     {children}
   </AbsoluteFill>

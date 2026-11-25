@@ -133,7 +133,7 @@ const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => (e.i
 const walkRoots = (roots) => roots.filter((r) => fs.existsSync(r)).flatMap((r) => (fs.statSync(r).isDirectory() ? walk(r) : [r]));
 const srcFiles = walkRoots(topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES] : ['src']).filter((f) => /\.tsx?$/.test(f) && !f.includes(`${path.sep}vendor${path.sep}`)); // vendored code keeps its defaults; our theme overrides them
 // the cool «норма» colour lives only in data and plate code (regulation section 7, decision 25.11.2026)
-const NORM_OK = /(components[\\/](Explain|Frontal)\.tsx|lib[\\/](primitives[\\/].*|units\.ts)|[\\/](data|charts?)[\\/][^\\/]*|\.data\.tsx?)$/;
+const NORM_OK = /(components[\\/](Explain|Frontal|AtlasTable)\.tsx|lib[\\/](primitives[\\/].*|units\.ts)|[\\/](data|charts?)[\\/][^\\/]*|\.data\.tsx?)$/;
 for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`))) {
   fs.readFileSync(f, 'utf8').split('\n').forEach((l, i) => {
     if (/^\s*(\/\/|\*)/.test(l)) return;

@@ -2,59 +2,65 @@
   "_choose": "Per scene, the first mode that carries the idea: literal, then schematic, then mechanism, then symbol.",
   "coralMeaning": "ответ тела",
   "series": null,
-  "heroes": ["манекен у окна"],
+  "heroes": ["тело под стрессом"],
   "sensitive": {"sourcesOnScreen": true},
   "chapters": [
     {"n": 1, "title": "Знакомая ситуация", "field": "dark"},
-    {"n": 2, "title": "Механизм причины", "field": "light"},
-    {"n": 3, "title": "Что его запускает", "field": "light"},
+    {"n": 2, "title": "Механизм причины", "field": "dark"},
+    {"n": 3, "title": "Что его запускает", "field": "dark"},
     {"n": 4, "title": "Что с этим делать", "field": "dark"}
   ],
   "scenes": {
     "scene-1": {
       "chapter": 1,
       "mode": "symbol",
-      "location": "комната у окна",
+      "location": "у сердца",
       "dark": true,
       "coral": true,
       "symbols": [
         {
           "id": "storm",
-          "state": "туча собрана над человеком, без молний: нарастающее напряжение",
+          "state": "туча собрана над сердцем, без молний: нарастающее напряжение",
           "cause": "пришла причина тревоги",
           "appearsOn": "alarm",
           "leavesOn": "after"
         }
-      ]
+      ],
+      "subject": {"name": "сердце", "prefixes": ["heart"]}
     },
     "scene-2": {
       "chapter": 2,
       "mode": "mechanism",
-      "location": "верстак эстафеты",
+      "location": "ось желёз",
       "transition": "hard-cut",
+      "dark": true,
       "mechanism": "relay",
-      "coral": true
+      "coral": true,
+      "subject": {"name": "надпочечник", "prefixes": ["adrenal"]}
     },
     "scene-3": {
       "chapter": 2,
-      "mode": "mechanism",
-      "location": "верстак эстафеты",
-      "transition": "morph-to-scheme",
-      "mechanism": "relay",
-      "coral": true
+      "mode": "literal",
+      "location": "разрез тела",
+      "transition": "zoom-into-detail",
+      "dark": true,
+      "coral": true,
+      "subject": {"name": "лёгкие", "prefixes": ["lung"]}
     },
     "scene-4": {
       "chapter": 3,
       "mode": "schematic",
-      "location": "стенд двух сроков",
+      "location": "у мышцы",
       "transition": "hard-cut",
+      "dark": true,
       "coral": true,
-      "data": {"plane": "frontal", "source": "APA, тело, 21.10.2024"}
+      "data": {"plane": "frontal", "source": "APA, тело, 21.10.2024"},
+      "subject": {"name": "мышцы", "prefixes": ["muscle"]}
     },
     "scene-5": {
       "chapter": 4,
       "mode": "symbol",
-      "location": "комната у окна",
+      "location": "спокойное тело",
       "transition": "hard-cut",
       "dark": true,
       "coral": true,
@@ -73,13 +79,14 @@
           "appearsOn": "held",
           "leavesOn": "unwind"
         }
-      ]
+      ],
+      "subject": {"name": "сосуды", "prefixes": ["vessel"]}
     }
   },
   "mechanisms": {
     "relay": {
       "name": "эстафета оси",
-      "idea": "Быстрый симпатоадреналовый ответ и более медленный кортизол идут по одной цепи, стоящей рядом с телом.",
+      "idea": "Гипоталамус, гипофиз и надпочечники — узнаваемые железы, сигнал бежит к мозговому веществу.",
       "parts": [
         {"part": "bell", "claim": "Гипоталамус выпускает сигнал к гипофизу", "source": "S1"},
         {"part": "gate", "claim": "Гипофиз выпускает АКТГ к надпочечнику", "source": "S1"},
@@ -91,20 +98,14 @@
       "laws": [
         "Сигнал бежит только от колокола к створке и дальше к сосудам, назад не течёт",
         "Быстрый сосуд приходит раньше тяжёлого",
-        "Эстафета стоит на верстаке рядом с человеком и никогда внутри тела"
+        "Железы стоят отдельно от туловища и никогда внутри головы"
       ],
       "verb": "бежит",
       "simplifies": "Два темпа показаны сосудом и гирей, без шкалы секунд: источник не даёт одной цифры для адреналина",
-      "misread": "Верстак можно принять за орган в груди, тучу — за гормон. Подпись говорит: схема, не внутри тела",
+      "misread": "Кластер гипоталамуса можно принять за мозг в черепе. Он стоит отдельно, это схема оси",
       "truth": "Кортизол — десятки минут. Ulrich-Lai, Herman, 2009",
       "status": "proposed"
     }
   },
-  "locationReuse": [
-    {
-      "location": "комната у окна",
-      "scenes": [1, 5],
-      "reason": "финал возвращает того же человека и ту же комнату, что открытие"
-    }
-  ]
+  "locationReuse": []
 }

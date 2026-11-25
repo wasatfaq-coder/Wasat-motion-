@@ -25,6 +25,7 @@
 // --selftest runs both layers on deliberately broken inputs (scripts/fixtures/motion-broken.motion.ts and synthetic
 // frames) and fails unless EVERY defect kind is caught and the clean inputs pass. Exit code 1 on any problem.
 import {execFileSync} from 'node:child_process';
+import {FRAME_LIMITS, checkOccupancy} from './lib/frame-limits.mjs';
 import {readdirSync, statSync} from 'node:fs';
 import {join, relative, resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -219,6 +220,55 @@ export const checkSpec = async (spec) => {
       if (r.y1 - r.y0 > r.x1 - r.x0 && tall < LIMITS.tallMin)
         addOnce('layout', 'tall', f, `the picture spans ${(tall * 100).toFixed(0)} % of the safe rect's height at frame ${f} (≥ ${LIMITS.tallMin * 100} %): a wide, low composition leaves empty bands above and below; frame closer on the hero (camFit on its core) and let the environment run past the sides`);
       if (Math.abs(off) > LIMITS.offCentre) addOnce('layout', 'centre', f, `the picture sits in the ${off < 0 ? 'top' : 'bottom'} part of the frame at frame ${f} (centre ${(off * 100).toFixed(0)} % off; the other part is empty)`);
+    }
+    // The topic's own parts (organs, the axis), not the room: they have to fill the vertical frame, and a plate
+    // must not sit on them (PR #38: the room ended at 60 % and the cortisol card covered the figure).
+    const topicPart = /(?:^|\.)(heart|lung|muscle|gut|vessel|adrenal|hypo|pit|kidney|portal)(?:\.|$)/;
+    const boxesOf = (pred) => {
+      const boxes = [];
+      for (const s of pose.assembly.R.solids) {
+        if (!pred(s.name)) continue;
+        const b = A.boundsOf(s);
+        const c = [(b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2];
+        const [cx, cy] = scr(c);
+        if (cx < r.x0 - 40 || cx > r.x1 + 40 || cy < r.y0 - 40 || cy > r.y1 + 40) continue;
+        let x0 = Infinity;
+        let x1 = -Infinity;
+        let y0 = Infinity;
+        let y1 = -Infinity;
+        for (const x of [b.min[0], b.max[0]])
+          for (const y of [b.min[1], b.max[1]])
+            for (const z of [b.min[2], b.max[2]]) {
+              const [sx, sy] = scr([x, y, z]);
+              x0 = Math.min(x0, sx);
+              x1 = Math.max(x1, sx);
+              y0 = Math.min(y0, sy);
+              y1 = Math.max(y1, sy);
+            }
+        boxes.push({x0, x1, y0, y1});
+      }
+      return boxes;
+    };
+    const unionOf = (boxes) =>
+      boxes.reduce(
+        (u, b) => ({x0: Math.min(u.x0, b.x0), x1: Math.max(u.x1, b.x1), y0: Math.min(u.y0, b.y0), y1: Math.max(u.y1, b.y1)}),
+        {x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity},
+      );
+    const heroBoxes = boxesOf((name) => topicPart.test(name));
+    if (heroBoxes.length) {
+      const heroBox = unionOf(heroBoxes);
+      const span = (heroBox.y1 - heroBox.y0) / (r.y1 - r.y0);
+      if (span < FRAME_LIMITS.heroMinHeight)
+        addOnce('hero', 'span', f, `the subject spans ${(span * 100).toFixed(0)} % of the safe rect height at frame ${f} (≥ ${FRAME_LIMITS.heroMinHeight * 100} %); frame it with camFitHeight so one object fills the vertical frame`);
+      const hits = (a, b) => a.x0 < b.x1 - FRAME_LIMITS.plateOverlapPx && a.x1 > b.x0 + FRAME_LIMITS.plateOverlapPx && a.y0 < b.y1 - FRAME_LIMITS.plateOverlapPx && a.y1 > b.y0 + FRAME_LIMITS.plateOverlapPx;
+      for (const p of pose.plates.filter((x) => x.opacity > 0.5 && x.kind !== 'sensor')) {
+        // A thin callout may sit in the gap between organs: it fails only when it covers one of them.
+        // A wide card is checked against the whole subject (the cortisol plate on the figure, PR #38).
+        const named = p.w <= 280 && p.h <= 64 ? boxesOf((name) => name.includes(`.${p.name}.`) || name.endsWith(`.${p.name}`)) : [];
+        const targets = named.length ? named : [heroBox];
+        if (targets.some((b) => hits(b, {x0: p.x, x1: p.x + p.w, y0: p.y, y1: p.y + p.h})))
+          addOnce('cover', p.name, f, `plate ${p.name} covers the subject at frame ${f}; use a thin callout beside it, not a card on top`);
+      }
     }
     // tracks for jerk / pop / seam
     const t = new Map();
@@ -459,7 +509,7 @@ export const checkFrames = (frames, {loop = false, cuts = [], captions = false} 
 
 const video = (file, opts) => {
   const frames = decode(file);
-  const problems = checkFrames(frames, opts);
+  const problems = [...checkFrames(frames, opts), ...checkOccupancy(frames, W, H, {fps: opts.fps ?? 60})];
   console.log(`${problems.length ? 'ERROR' : 'ok   '} ${relative(process.cwd(), file)}: ${frames.length} frame(s), ${problems.length} problem(s)`);
   for (const p of problems) console.log(`    ${p.kind.padEnd(7)} ${p.text}`);
   return problems.length ? 1 : 0;
@@ -511,6 +561,11 @@ const selftest = async () => {
   expect('pixels jump', checkFrames(Array.from({length: N}, (_, i) => frame(i < 60 ? 40 : 80, 130, 150, 260)), {}), ['pop']);
   expect('pixels declared cut', checkFrames(Array.from({length: N}, (_, i) => frame(i < 60 ? 40 : 80, 130, 150, 260)), {cuts: [60]}), []);
   expect('pixels seam', checkFrames(Array.from({length: N}, (_, i) => frame(40 + Math.round((i / N) * 40), 130, 150, 260)), {loop: true}), ['seam']);
+  const occ = (await import('./lib/frame-limits.mjs')).selftest();
+  if (occ.length) {
+    failed += occ.length;
+    for (const m of occ) console.log(`FAIL  ${m}`);
+  }
   console.log(failed ? `\nmotion-check selftest: ${failed} case(s) FAILED` : '\nmotion-check selftest: every defect kind is caught, clean inputs pass');
   return failed;
 };

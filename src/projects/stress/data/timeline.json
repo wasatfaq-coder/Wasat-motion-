@@ -258,7 +258,8 @@
           ]
         }
       ],
-      "sfx": []
+      "sfx": [],
+      "dark": true
     },
     {
       "id": "scene-3",
@@ -396,7 +397,8 @@
           ]
         }
       ],
-      "sfx": []
+      "sfx": [],
+      "dark": true
     },
     {
       "id": "scene-4",
@@ -503,7 +505,8 @@
           ]
         }
       ],
-      "sfx": []
+      "sfx": [],
+      "dark": true
     },
     {
       "id": "scene-5",
@@ -533,8 +536,8 @@
           "status": "approximate"
         },
         {
-          "id": "ulcer",
-          "word": "бактерия",
+          "id": "calm-body",
+          "word": "спокойно",
           "frame": 396,
           "status": "approximate"
         }
@@ -591,24 +594,24 @@
           ]
         },
         {
-          "text": "Язву вызывает бактерия",
+          "text": "Тело снова спокойно",
           "startFrame": 360,
           "endFrame": 540,
           "words": [
             {
-              "text": "Язву",
+              "text": "Тело",
               "startFrame": 360,
               "endFrame": 374,
               "status": "approximate"
             },
             {
-              "text": "вызывает",
+              "text": "снова",
               "startFrame": 372,
               "endFrame": 386,
               "status": "approximate"
             },
             {
-              "text": "бактерия",
+              "text": "спокойно",
               "startFrame": 384,
               "endFrame": 412,
               "status": "approximate"

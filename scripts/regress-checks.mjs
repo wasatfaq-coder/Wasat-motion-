@@ -88,6 +88,7 @@ for (const f of fs.readdirSync('scripts').filter((n) => n.endsWith('.mjs')))
 // the frame checks of style-check / still-check bite on broken frames (a tiny hero, a part outside the safe rect, a
 // body cut by the band's fade, two or no coral meanings) and pass a clean one
 for (const m of (await import('./lib/frame-checks.mjs')).selftest()) fail(m);
+for (const m of (await import('./lib/frame-limits.mjs')).selftest()) fail(m);
 // the audit rule against markup glued to an Assembly picture as a string bites on broken code and passes clean code
 for (const m of (await import('./lib/code-rules.mjs')).selftest()) fail(m);
 // a nested scale model may stand on a solid of the outer level, never inside one (the bowl stood in a glass)

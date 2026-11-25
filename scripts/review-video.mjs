@@ -152,6 +152,7 @@ const picked = (list, kind) => {
 };
 // motion: the same pixel checks the CI selftest proves on broken inputs
 const {decode, checkFrames} = await import('./motion-check.mjs');
+const {checkOccupancy} = await import('./lib/frame-limits.mjs');
 let cuts = (optOf('cuts') ?? '').split(',').filter(Boolean).map(Number);
 if (optOf('timeline')) {
   const tl = JSON.parse(await readFile(resolve(optOf('timeline')), 'utf8'));
@@ -162,7 +163,11 @@ if (optOf('timeline')) {
     at += sc.durationInFrames - (sc.transitionInFrames ?? 0);
   }
 }
-const motion = checkFrames(decode(input), {loop: argv.includes('--loop'), captions: !argv.includes('--no-captions'), cuts});
+const decoded = decode(input);
+const motion = [
+  ...checkFrames(decoded, {loop: argv.includes('--loop'), captions: !argv.includes('--no-captions'), cuts}),
+  ...checkOccupancy(decoded, 270, 480, {fps: 60}),
+];
 const motionNotes = motion.map((m, i) => ({
   id: `RV-${sha256.slice(0, 8)}-m-${m.kind}-${i}`,
   round: 1,

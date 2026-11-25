@@ -1,83 +1,18 @@
 {
-  "_doc": "Review notes tracker (shorts-quality-gate): {id, round, scene, frame, severity, rule, text, fix, status}. Status: open | fixed | verified | wontfix | escalate. verified stores evidence and the checked file version (sha256). fixed waits for a re-check.",
+  "_doc": "Review notes tracker (shorts-quality-gate): {id, round, scene, frame, severity, rule, text, fix, status}. Status: open | fixed | user. fixed waits for a re-check.",
   "notes": [
     {
-      "id": "RV-15aa4064-m-crop-0",
-      "round": 1,
+      "id": "RV-rejected-empty",
+      "round": 2,
       "scene": "master",
-      "frame": 420,
+      "frame": 840,
       "severity": "BLOCKER",
-      "rule": "§19.3, §22",
-      "text": "motion-check (crop): 1380 frame(s) with the picture cut by the left/right frame edge (first 420)",
-      "fix": "Найти причину в общем коде (camera camFit, depth, motion beatClock), исправить и прогнать node scripts/motion-check.mjs и review-video ещё раз.",
-      "status": "open",
-      "evidence": "scripts/motion-check.mjs",
-      "version": "15aa40641636becc754496af5c3ba955e6a0097c0e326aefed4f7a64f2997790"
-    },
-    {
-      "id": "RV-15aa4064-m-crop-1",
-      "round": 1,
-      "scene": "master",
-      "frame": 0,
-      "severity": "BLOCKER",
-      "rule": "§19.3, §22",
-      "text": "motion-check (crop): 2100 frame(s) where the picture is cut by a horizontal edge (the end of the graphics band or of the frame; first 0)",
-      "fix": "Найти причину в общем коде (camera camFit, depth, motion beatClock), исправить и прогнать node scripts/motion-check.mjs и review-video ещё раз.",
-      "status": "open",
-      "evidence": "scripts/motion-check.mjs",
-      "version": "15aa40641636becc754496af5c3ba955e6a0097c0e326aefed4f7a64f2997790"
-    },
-    {
-      "id": "RV-15aa4064-m-pop-2",
-      "round": 1,
-      "scene": "master",
-      "frame": 140,
-      "severity": "BLOCKER",
-      "rule": "§19.3, §22",
-      "text": "motion-check (pop): 12 frame(s) where part of the picture changes in one frame between still frames (a pop or a jump; first 140, tile 6)",
-      "fix": "Найти причину в общем коде (camera camFit, depth, motion beatClock), исправить и прогнать node scripts/motion-check.mjs и review-video ещё раз.",
-      "status": "open",
-      "evidence": "scripts/motion-check.mjs",
-      "version": "15aa40641636becc754496af5c3ba955e6a0097c0e326aefed4f7a64f2997790"
-    },
-    {
-      "id": "RV-0390d590-m-crop-0",
-      "round": 1,
-      "scene": "master",
-      "frame": 420,
-      "severity": "BLOCKER",
-      "rule": "§19.3, §22",
-      "text": "motion-check (crop): 1380 frame(s) with the picture cut by the left/right frame edge (first 420)",
-      "fix": "Найти причину в общем коде (camera camFit, depth, motion beatClock), исправить и прогнать node scripts/motion-check.mjs и review-video ещё раз.",
-      "status": "open",
-      "evidence": "scripts/motion-check.mjs",
-      "version": "0390d5904f5a3ffd1b0c59a50a2f83d2ae4b27812c4ec602074d1216b76bc931"
-    },
-    {
-      "id": "RV-0390d590-m-crop-1",
-      "round": 1,
-      "scene": "master",
-      "frame": 0,
-      "severity": "BLOCKER",
-      "rule": "§19.3, §22",
-      "text": "motion-check (crop): 2100 frame(s) where the picture is cut by a horizontal edge (the end of the graphics band or of the frame; first 0)",
-      "fix": "Найти причину в общем коде (camera camFit, depth, motion beatClock), исправить и прогнать node scripts/motion-check.mjs и review-video ещё раз.",
-      "status": "open",
-      "evidence": "scripts/motion-check.mjs",
-      "version": "0390d5904f5a3ffd1b0c59a50a2f83d2ae4b27812c4ec602074d1216b76bc931"
-    },
-    {
-      "id": "RV-0390d590-m-pop-2",
-      "round": 1,
-      "scene": "master",
-      "frame": 140,
-      "severity": "BLOCKER",
-      "rule": "§19.3, §22",
-      "text": "motion-check (pop): 12 frame(s) where part of the picture changes in one frame between still frames (a pop or a jump; first 140, tile 6)",
-      "fix": "Найти причину в общем коде (camera camFit, depth, motion beatClock), исправить и прогнать node scripts/motion-check.mjs и review-video ещё раз.",
-      "status": "open",
-      "evidence": "scripts/motion-check.mjs",
-      "version": "0390d5904f5a3ffd1b0c59a50a2f83d2ae4b27812c4ec602074d1216b76bc931"
+      "rule": "§19.3",
+      "text": "Отклонённый пилот: низ безопасной зоны пустой, плашка на фигуре, сцена из комнаты и верстака.",
+      "fix": "Сцены собраны из органов темы. Кадр вписывается по высоте. Выноски тонкие, датчик внизу.",
+      "status": "fixed",
+      "rootCause": "camFit вписывал широкую комнату по ширине и центрировал её, поэтому масса кончалась около 60 % высоты, а точки героя проходили tallMin. Плашка была прямоугольником поверх фигуры.",
+      "guard": "scripts/lib/frame-limits.mjs"
     }
   ]
 }

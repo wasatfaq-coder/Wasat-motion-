@@ -15,5 +15,6 @@ For every scene:
 5. Data: compared values on a frontal plate, scale from zero, honest proportions, source and date.
 6. Voice vs picture at every beat: no opposite image, no other unit, no image with two meanings or meaning with two images, no countable decor that looks like data, no hypothesis stated as fact.
 7. Status: only approved cards are rendered; proposed ones go to the user at STOP 1 with alternatives.
+8. Subject: each scene names its own main object of THIS topic in the register (`subject: {name, prefixes}`). The assembly is mostly that object. Floor, wall, bench, stand, lamp and mannequin together stay under the share in `scripts/lib/frame-limits.mjs` (`genericMaxShare`). A scene that is a borrowed room with one new prop is a fail. `node scripts/audit.mjs --topic <slug>` enforces it.
 Write projects/<slug>/content/reviews/mechanisms.md: verdict «принято» / «нужны правки», a table scene | mode | mechanism | mapping | risk | guard | verdict, exact fixes.
 Output protocol: try to write your report to the path you were given. If writing fails, do not retry and do not claim it was saved: return the FULL report as your final answer, the main session saves it. Report only what you verified in the files you were given. Answer in Russian.

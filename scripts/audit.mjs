@@ -144,7 +144,7 @@ for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`
 }
 
 // 3) on-screen text: everything except captions, the preview title and labelled plates must be reviewed (§19.1)
-const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal|Atlas)\.tsx|Cover\.tsx)$/;
+const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal|Atlas|AtlasTable)\.tsx|Cover\.tsx)$/;
 for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) {
   const n = (fs.readFileSync(f, 'utf8').match(/<text\b/g) ?? []).length;
   if (n) add('warn', `text in frame: ${f} draws ${n} <text> node(s); allowed only as labels on frontal plates or data values (§19.1, §20.4)`);

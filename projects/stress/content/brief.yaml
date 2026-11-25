@@ -1,0 +1,17 @@
+# MASTER_PROMPT_FINAL v3.0, «Бриф». Defaults are named, not assumed.
+topic: "Как стресс влияет на тело"
+format: why                # how | why | history | numbers | faith (Почему мы…)
+sensitive: health               # none | religion | politics | health
+source: null                # file, text or URL
+research_mode: web          # supplied | web
+audience: general_adults
+duration_sec: 37            # Shorts 9:16 only; pilot ~37 s, no voice yet
+series: null                # a series name lets a mechanism repeat inside it (decision 14)
+language: ru
+voice_provider: elevenlabs
+voice_id: 3EuKHIEZbSzrHGNmdYsx   # the narrator: «спокойный инженер»
+voice_model: eleven_v4
+arabic_voice_id: null       # the second voice for ayat and Arabic phrases (the user names it, decision 42)
+voice_budget: null
+music: forbidden
+cta: null

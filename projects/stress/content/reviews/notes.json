@@ -1,0 +1,18 @@
+{
+  "_doc": "Review notes tracker (shorts-quality-gate): {id, round, scene, frame, severity, rule, text, fix, status}. Status: open | fixed | user. fixed waits for a re-check.",
+  "notes": [
+    {
+      "id": "RV-rejected-empty",
+      "round": 2,
+      "scene": "master",
+      "frame": 840,
+      "severity": "BLOCKER",
+      "rule": "§19.3",
+      "text": "Отклонённый пилот: низ безопасной зоны пустой, плашка на фигуре, сцена из комнаты и верстака.",
+      "fix": "Сцены собраны из органов темы. Кадр вписывается по высоте. Выноски тонкие, датчик внизу.",
+      "status": "fixed",
+      "rootCause": "camFit вписывал широкую комнату по ширине и центрировал её, поэтому масса кончалась около 60 % высоты, а точки героя проходили tallMin. Плашка была прямоугольником поверх фигуры.",
+      "guard": "scripts/lib/frame-limits.mjs"
+    }
+  ]
+}

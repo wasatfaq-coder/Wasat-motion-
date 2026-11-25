@@ -40,7 +40,7 @@ export const Episode: React.FC<EpisodeProps & {timeline: Timeline; scenes: Scene
         return (
           <Sequence key={scene.id} from={from} durationInFrames={scene.durationInFrames} name={scene.id}>
             <C scene={scene} />
-            {hideCaptions ? null : <Captions scene={scene} hideBefore={captionsFrom(scene)} />}
+            {hideCaptions ? null : <Captions scene={scene} hideBefore={captionsFrom(scene)} dark={scene.dark} />}
             {muteVoice
               ? null
               : scene.audioSegments.map((seg, i) => (

@@ -211,6 +211,14 @@ export const screenOf = (cam: Cam, p: P3): [number, number] => {
 /** Camera on an axis-aligned box in room units: the safe way to frame an object (all eight corners). */
 export const camOnBox = (min: P3, size: P3, fill = 0.55, screen: [number, number] = [540, 720]): Cam => camOn(boxCorners(min, size), fill, screen);
 
+/** Fit by HEIGHT so one subject fills the vertical frame. Width may run past the sides (RoomSvg fades it).
+ *  The usual camFit is limited by the wider side, which left a short room floating in the upper half (PR #14, PR #38). */
+export const camFitHeight = (points: P3[], opts: Parameters<typeof camFit>[1] = {}): Cam => {
+  const rect = opts.rect ?? safeRect();
+  const mid = (rect.x0 + rect.x1) / 2;
+  return camFit(points, {...opts, rect: {...rect, x0: mid - 8000, x1: mid + 8000}});
+};
+
 /** The camera breathes (regulation v3.0, section 9): a slow push-in of `amount` (2–3 %) over a shot, t = 0..1 of the
  *  shot. Framing stays camFit's: only the zoom grows around the same focus. */
 export const breathe = (cam: Cam, t: number, amount = 0.025): Cam => ({...cam, zoom: cam.zoom * (1 + amount * Math.max(0, Math.min(1, t)))});

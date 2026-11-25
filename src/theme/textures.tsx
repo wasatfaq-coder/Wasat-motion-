@@ -83,8 +83,13 @@ export const TextureDefs: React.FC = () => (
 /** CSS: an overlay path of a face takes the pattern of its texture and face. */
 export const TEXTURE_CSS = TEXTURES.flatMap((t) => (['top', 'a', 'b'] as Face[]).map((f) => `.iso .iso-tex[data-tex="${t}"][data-face="${f}"]{fill:url(#tex-${t}-${f});stroke:none;pointer-events:none}`)).join('\n');
 
-/** Add a pattern layer above every face of a solid's svg (the shades and the top): used by Assembly for `texture`. */
-export const texturize = (svg: string, texture: Texture) =>
-  svg
-    .replace(/<path class="iso-shade" data-shade="(\d)" d="([^"]*)"\/>/g, (m, s: string, d: string) => `${m}<path class="iso-tex" data-tex="${texture}" data-face="${FACE_OF_SHADE(Number(s))}" d="${d}"/>`)
-    .replace(/<path class="iso-top" d="([^"]*)"\/>/g, (m, d: string) => `${m}<path class="iso-tex" data-tex="${texture}" data-face="top" d="${d}"/>`);
+/**
+ * Decorative face patterns (dots, grain, ridges, hatch) are not painted.
+ * The owner asked for clean flat faces: only the kit tones lo/mid/hi. `texture` is still accepted so old
+ * callers compile, but the overlay is not added. This overrides the pattern at our level; the vendor kit is
+ * unchanged. Section 8 still mentions fill patterns — dropping them is a proposal, not a silent rule edit.
+ */
+export const texturize = (svg: string, texture: Texture) => {
+  void texture;
+  return svg;
+};

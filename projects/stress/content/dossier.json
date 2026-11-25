@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {"id": "S1", "cite": "Ulrich-Lai Y.M., Herman J.P. Nat Rev Neurosci. 2009;10:397–409", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4240627/", "trust": "review"},
+    {"id": "S2", "cite": "APA. Stress effects on the body. Reviewed 21 Oct 2024", "url": "https://www.apa.org/topics/stress/body", "trust": "review"},
+    {"id": "S3", "cite": "APA Dictionary. fight-or-flight response", "url": "https://dictionary.apa.org/fight-or-flight-response", "trust": "review"},
+    {"id": "S4", "cite": "Herman J.P. et al. Compr Physiol. 2016", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4867107/", "trust": "review"}
+  ],
+  "verification": [
+    {"id": "c-axis", "claim": "Острый стресс включает симпатоадреналовый ответ и ось гипоталамус → гипофиз → кора надпочечников.", "source": "S1", "status": "подтверждено", "trust": "review"},
+    {"id": "c-fast", "claim": "Симпатоадреналовый ответ быстрее гормональной оси: пик глюкокортикоида наступает через десятки минут, синаптический ответ — раньше.", "source": "S1", "status": "подтверждено", "trust": "review"},
+    {"id": "c-cortisol", "claim": "У человека кора надпочечника выпускает кортизол по сигналу АКТГ из передней доли гипофиза, а гипофиз слушает КРГ гипоталамуса.", "source": "S1", "status": "подтверждено", "trust": "review"},
+    {"id": "c-heart", "claim": "Острый стресс повышает частоту сердцебиения и силу сокращения; кровь идёт к крупным мышцам и сердцу.", "source": "S2", "status": "подтверждено", "trust": "review"},
+    {"id": "c-breath", "claim": "В паттерне fight-or-flight частота дыхания растёт.", "source": "S3", "status": "подтверждено", "trust": "review"},
+    {"id": "c-muscle", "claim": "В том же паттерне кровь идёт к скелетным мышцам.", "source": "S3", "status": "подтверждено", "trust": "review"},
+    {"id": "c-tense", "claim": "При внезапном стрессе мышцы напрягаются сразу и отпускают, когда стресс проходит.", "source": "S2", "status": "подтверждено", "trust": "review"},
+    {"id": "c-gut", "claim": "В паттерне fight-or-flight активность пищеварения падает.", "source": "S3", "status": "подтверждено", "trust": "review"},
+    {"id": "c-acute-ends", "claim": "Когда острый эпизод проходит, тело возвращается к обычному состоянию, а мышцы отпускают напряжение.", "source": "S2", "status": "подтверждено", "trust": "review"},
+    {"id": "c-chronic", "claim": "Если стресс длится, мышцы дольше остаются настороже.", "source": "S2", "status": "подтверждено", "trust": "review"},
+    {"id": "c-ulcer", "claim": "Стресс не повышает кислоту в желудке и не вызывает язву. Язву вызывает бактериальная инфекция.", "source": "S2", "status": "подтверждено", "trust": "review"},
+    {"id": "c-unknown", "claim": "АКТГ и кортизол могут расходиться, поэтому одну величину ответа человека из схемы оси не вывести.", "source": "S4", "status": "упрощено", "trust": "review"}
+  ]
+}

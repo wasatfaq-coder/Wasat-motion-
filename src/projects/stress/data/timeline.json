@@ -1,0 +1,626 @@
+{
+  "fps": 60,
+  "totalFrames": 2340,
+  "scenes": [
+    {
+      "id": "scene-1",
+      "from": 0,
+      "durationInFrames": 420,
+      "audio": "",
+      "audioDurationInFrames": 0,
+      "voiceStartFrame": 0,
+      "audioSegments": [],
+      "beats": [
+        {
+          "id": "alarm",
+          "word": "тревогу",
+          "frame": 24,
+          "status": "approximate"
+        },
+        {
+          "id": "begun",
+          "word": "начался",
+          "frame": 152,
+          "status": "approximate"
+        },
+        {
+          "id": "near",
+          "word": "рядом",
+          "frame": 304,
+          "status": "approximate"
+        }
+      ],
+      "pages": [
+        {
+          "text": "Тело слышит тревогу",
+          "startFrame": 0,
+          "endFrame": 140,
+          "words": [
+            {
+              "text": "Тело",
+              "startFrame": 0,
+              "endFrame": 14,
+              "status": "approximate"
+            },
+            {
+              "text": "слышит",
+              "startFrame": 12,
+              "endFrame": 26,
+              "status": "approximate"
+            },
+            {
+              "text": "тревогу",
+              "startFrame": 24,
+              "endFrame": 52,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Ответ уже начался",
+          "startFrame": 140,
+          "endFrame": 280,
+          "words": [
+            {
+              "text": "Ответ",
+              "startFrame": 140,
+              "endFrame": 154,
+              "status": "approximate"
+            },
+            {
+              "text": "уже",
+              "startFrame": 152,
+              "endFrame": 166,
+              "status": "approximate"
+            },
+            {
+              "text": "начался",
+              "startFrame": 164,
+              "endFrame": 192,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Причина ещё рядом",
+          "startFrame": 280,
+          "endFrame": 420,
+          "words": [
+            {
+              "text": "Причина",
+              "startFrame": 280,
+              "endFrame": 294,
+              "status": "approximate"
+            },
+            {
+              "text": "ещё",
+              "startFrame": 292,
+              "endFrame": 306,
+              "status": "approximate"
+            },
+            {
+              "text": "рядом",
+              "startFrame": 304,
+              "endFrame": 332,
+              "status": "approximate"
+            }
+          ]
+        }
+      ],
+      "sfx": [],
+      "dark": true
+    },
+    {
+      "id": "scene-2",
+      "from": 420,
+      "durationInFrames": 480,
+      "audio": "",
+      "audioDurationInFrames": 0,
+      "voiceStartFrame": 0,
+      "audioSegments": [],
+      "beats": [
+        {
+          "id": "chain",
+          "word": "цепи",
+          "frame": 24,
+          "status": "approximate"
+        },
+        {
+          "id": "apart",
+          "word": "тела",
+          "frame": 156,
+          "status": "approximate"
+        },
+        {
+          "id": "gland",
+          "word": "железу",
+          "frame": 264,
+          "status": "approximate"
+        },
+        {
+          "id": "later",
+          "word": "позже",
+          "frame": 396,
+          "status": "approximate"
+        }
+      ],
+      "pages": [
+        {
+          "text": "Сигнал идёт по цепи",
+          "startFrame": 0,
+          "endFrame": 120,
+          "words": [
+            {
+              "text": "Сигнал",
+              "startFrame": 0,
+              "endFrame": 14,
+              "status": "approximate"
+            },
+            {
+              "text": "идёт",
+              "startFrame": 12,
+              "endFrame": 26,
+              "status": "approximate"
+            },
+            {
+              "text": "по",
+              "startFrame": 24,
+              "endFrame": 38,
+              "status": "approximate"
+            },
+            {
+              "text": "цепи",
+              "startFrame": 36,
+              "endFrame": 64,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Схема, не внутри тела",
+          "startFrame": 120,
+          "endFrame": 240,
+          "words": [
+            {
+              "text": "Схема",
+              "startFrame": 120,
+              "endFrame": 134,
+              "status": "approximate"
+            },
+            {
+              "text": "не",
+              "startFrame": 132,
+              "endFrame": 146,
+              "status": "approximate"
+            },
+            {
+              "text": "внутри",
+              "startFrame": 144,
+              "endFrame": 158,
+              "status": "approximate"
+            },
+            {
+              "text": "тела",
+              "startFrame": 156,
+              "endFrame": 184,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Гипофиз зовёт железу",
+          "startFrame": 240,
+          "endFrame": 360,
+          "words": [
+            {
+              "text": "Гипофиз",
+              "startFrame": 240,
+              "endFrame": 254,
+              "status": "approximate"
+            },
+            {
+              "text": "зовёт",
+              "startFrame": 252,
+              "endFrame": 266,
+              "status": "approximate"
+            },
+            {
+              "text": "железу",
+              "startFrame": 264,
+              "endFrame": 292,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Кортизол приходит позже",
+          "startFrame": 360,
+          "endFrame": 480,
+          "words": [
+            {
+              "text": "Кортизол",
+              "startFrame": 360,
+              "endFrame": 374,
+              "status": "approximate"
+            },
+            {
+              "text": "приходит",
+              "startFrame": 372,
+              "endFrame": 386,
+              "status": "approximate"
+            },
+            {
+              "text": "позже",
+              "startFrame": 384,
+              "endFrame": 412,
+              "status": "approximate"
+            }
+          ]
+        }
+      ],
+      "sfx": [],
+      "dark": true
+    },
+    {
+      "id": "scene-3",
+      "from": 900,
+      "durationInFrames": 480,
+      "audio": "",
+      "audioDurationInFrames": 0,
+      "voiceStartFrame": 0,
+      "audioSegments": [],
+      "beats": [
+        {
+          "id": "heart",
+          "word": "чаще",
+          "frame": 24,
+          "status": "approximate"
+        },
+        {
+          "id": "breath",
+          "word": "чаще",
+          "frame": 156,
+          "status": "approximate"
+        },
+        {
+          "id": "muscle",
+          "word": "мышцы",
+          "frame": 276,
+          "status": "approximate"
+        },
+        {
+          "id": "gut",
+          "word": "уступает",
+          "frame": 372,
+          "status": "approximate"
+        }
+      ],
+      "pages": [
+        {
+          "text": "Сердце бьётся чаще",
+          "startFrame": 0,
+          "endFrame": 120,
+          "words": [
+            {
+              "text": "Сердце",
+              "startFrame": 0,
+              "endFrame": 14,
+              "status": "approximate"
+            },
+            {
+              "text": "бьётся",
+              "startFrame": 12,
+              "endFrame": 26,
+              "status": "approximate"
+            },
+            {
+              "text": "чаще",
+              "startFrame": 24,
+              "endFrame": 52,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Дыхание стало чаще",
+          "startFrame": 120,
+          "endFrame": 240,
+          "words": [
+            {
+              "text": "Дыхание",
+              "startFrame": 120,
+              "endFrame": 134,
+              "status": "approximate"
+            },
+            {
+              "text": "стало",
+              "startFrame": 132,
+              "endFrame": 146,
+              "status": "approximate"
+            },
+            {
+              "text": "чаще",
+              "startFrame": 144,
+              "endFrame": 172,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Кровь идёт в мышцы",
+          "startFrame": 240,
+          "endFrame": 360,
+          "words": [
+            {
+              "text": "Кровь",
+              "startFrame": 240,
+              "endFrame": 254,
+              "status": "approximate"
+            },
+            {
+              "text": "идёт",
+              "startFrame": 252,
+              "endFrame": 266,
+              "status": "approximate"
+            },
+            {
+              "text": "в",
+              "startFrame": 264,
+              "endFrame": 278,
+              "status": "approximate"
+            },
+            {
+              "text": "мышцы",
+              "startFrame": 276,
+              "endFrame": 304,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Пищеварение уступает",
+          "startFrame": 360,
+          "endFrame": 480,
+          "words": [
+            {
+              "text": "Пищеварение",
+              "startFrame": 360,
+              "endFrame": 374,
+              "status": "approximate"
+            },
+            {
+              "text": "уступает",
+              "startFrame": 372,
+              "endFrame": 400,
+              "status": "approximate"
+            }
+          ]
+        }
+      ],
+      "sfx": [],
+      "dark": true
+    },
+    {
+      "id": "scene-4",
+      "from": 1380,
+      "durationInFrames": 420,
+      "audio": "",
+      "audioDurationInFrames": 0,
+      "voiceStartFrame": 0,
+      "audioSegments": [],
+      "beats": [
+        {
+          "id": "fades",
+          "word": "стихает",
+          "frame": 24,
+          "status": "approximate"
+        },
+        {
+          "id": "load",
+          "word": "остаться",
+          "frame": 176,
+          "status": "approximate"
+        },
+        {
+          "id": "guard",
+          "word": "напряжены",
+          "frame": 304,
+          "status": "approximate"
+        }
+      ],
+      "pages": [
+        {
+          "text": "Острый ответ стихает",
+          "startFrame": 0,
+          "endFrame": 140,
+          "words": [
+            {
+              "text": "Острый",
+              "startFrame": 0,
+              "endFrame": 14,
+              "status": "approximate"
+            },
+            {
+              "text": "ответ",
+              "startFrame": 12,
+              "endFrame": 26,
+              "status": "approximate"
+            },
+            {
+              "text": "стихает",
+              "startFrame": 24,
+              "endFrame": 52,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Причина может остаться",
+          "startFrame": 140,
+          "endFrame": 280,
+          "words": [
+            {
+              "text": "Причина",
+              "startFrame": 140,
+              "endFrame": 154,
+              "status": "approximate"
+            },
+            {
+              "text": "может",
+              "startFrame": 152,
+              "endFrame": 166,
+              "status": "approximate"
+            },
+            {
+              "text": "остаться",
+              "startFrame": 164,
+              "endFrame": 192,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Мышцы остаются напряжены",
+          "startFrame": 280,
+          "endFrame": 420,
+          "words": [
+            {
+              "text": "Мышцы",
+              "startFrame": 280,
+              "endFrame": 294,
+              "status": "approximate"
+            },
+            {
+              "text": "остаются",
+              "startFrame": 292,
+              "endFrame": 306,
+              "status": "approximate"
+            },
+            {
+              "text": "напряжены",
+              "startFrame": 304,
+              "endFrame": 332,
+              "status": "approximate"
+            }
+          ]
+        }
+      ],
+      "sfx": [],
+      "dark": true
+    },
+    {
+      "id": "scene-5",
+      "from": 1800,
+      "durationInFrames": 540,
+      "audio": "",
+      "audioDurationInFrames": 0,
+      "voiceStartFrame": 0,
+      "audioSegments": [],
+      "beats": [
+        {
+          "id": "held",
+          "word": "Туча",
+          "frame": 0,
+          "status": "approximate"
+        },
+        {
+          "id": "calm",
+          "word": "уходит",
+          "frame": 24,
+          "status": "approximate"
+        },
+        {
+          "id": "unwind",
+          "word": "слабеет",
+          "frame": 192,
+          "status": "approximate"
+        },
+        {
+          "id": "calm-body",
+          "word": "спокойно",
+          "frame": 396,
+          "status": "approximate"
+        }
+      ],
+      "pages": [
+        {
+          "text": "Туча уходит следом",
+          "startFrame": 0,
+          "endFrame": 180,
+          "words": [
+            {
+              "text": "Туча",
+              "startFrame": 0,
+              "endFrame": 14,
+              "status": "approximate"
+            },
+            {
+              "text": "уходит",
+              "startFrame": 12,
+              "endFrame": 26,
+              "status": "approximate"
+            },
+            {
+              "text": "следом",
+              "startFrame": 24,
+              "endFrame": 52,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Клубок слабеет тоже",
+          "startFrame": 180,
+          "endFrame": 360,
+          "words": [
+            {
+              "text": "Клубок",
+              "startFrame": 180,
+              "endFrame": 194,
+              "status": "approximate"
+            },
+            {
+              "text": "слабеет",
+              "startFrame": 192,
+              "endFrame": 206,
+              "status": "approximate"
+            },
+            {
+              "text": "тоже",
+              "startFrame": 204,
+              "endFrame": 232,
+              "status": "approximate"
+            }
+          ]
+        },
+        {
+          "text": "Тело снова спокойно",
+          "startFrame": 360,
+          "endFrame": 540,
+          "words": [
+            {
+              "text": "Тело",
+              "startFrame": 360,
+              "endFrame": 374,
+              "status": "approximate"
+            },
+            {
+              "text": "снова",
+              "startFrame": 372,
+              "endFrame": 386,
+              "status": "approximate"
+            },
+            {
+              "text": "спокойно",
+              "startFrame": 384,
+              "endFrame": 412,
+              "status": "approximate"
+            }
+          ]
+        }
+      ],
+      "sfx": [],
+      "dark": true
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import {execFileSync, execSync} from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {markPassed, passedBefore} from './lib-cache.mjs';
 import {topicFrom} from './lib/topic.mjs';
 
@@ -468,6 +469,40 @@ else {
     for (const o of own) {
       const clash = journal.entries.find((e) => e.topic !== TOPIC.slug && e.kind === o.kind && norm(e.name) === norm(o.name) && !(reg.series && e.series === reg.series));
       if (clash) add('error', `journal: ${o.kind} «${o.name}» was already used by «${clash.topic}»; design a new one (or declare the same \`series\`, decision 14)`);
+    }
+  }
+  // Each scene names its own subject, and the assembly it draws is mostly that subject, not a borrowed room
+  // (PR #38: the stress pilot was a mannequin in a motor-stand room). Thresholds: scripts/lib/frame-limits.mjs.
+  {
+    const {FRAME_LIMITS} = await import('./lib/frame-limits.mjs');
+    const {tsImport} = await import('tsx/esm/api');
+    const {subjectStats} = await tsImport(new URL('../src/lib/subject.ts', import.meta.url).href, import.meta.url);
+    const motionFile = path.join('src', 'projects', TOPIC.slug, 'scenes.motion.ts');
+    const specs = new Map();
+    if (fs.existsSync(motionFile)) {
+      const mod = await tsImport(pathToFileURL(path.resolve(motionFile)).href, import.meta.url);
+      for (const spec of mod.MOTION ?? []) if (spec?.id && typeof spec.pose === 'function') specs.set(spec.id, spec);
+    }
+    // A register sketch with no built scenes is not a picture yet. Once a scene is drawn, it needs its own subject.
+    if (specs.size) {
+      const names = new Set();
+      let declared = 0;
+      for (const [id, sc] of Object.entries(scenes)) {
+        if (!specs.has(id)) continue;
+        const sub = sc.subject;
+        if (!sub?.name || !(sub.prefixes ?? []).length) {
+          add('error', `subject: ${id} has no subject {name, prefixes}; design the scene from the topic, not from a shared room`);
+          continue;
+        }
+        declared++;
+        names.add(String(sub.name));
+        const asm = specs.get(id).pose(0).assembly;
+        const partNames = [...(asm?.R?.solids ?? []).map((s) => s.name), ...(asm?.R?.routes ?? []).map((s) => s.name)];
+        const st = subjectStats(partNames, sub.prefixes);
+        if (st.hit < FRAME_LIMITS.subjectMinParts) add('error', `subject: ${id} «${sub.name}» owns ${st.hit} part(s) (need ≥ ${FRAME_LIMITS.subjectMinParts}); draw that object, do not borrow a generic stand`);
+        if (st.genericShare > FRAME_LIMITS.genericMaxShare) add('error', `subject: ${id} is ${(st.genericShare * 100).toFixed(0)} % generic room or mannequin (≤ ${FRAME_LIMITS.genericMaxShare * 100} %); design the scene from the topic`);
+      }
+      if (declared >= 3 && names.size < Math.min(3, declared)) add('error', `subject: ${declared} scenes share ${names.size} subject(s); each scene needs its own main object`);
     }
   }
   // sensitive topics (decision 16): the register confirms each rule the gate will check

@@ -59,7 +59,7 @@ export type ArrowProbe = {name: string; tail: Point3; owner: string; opacity: nu
  *  must be at least LIMITS.insetMin px (scripts/motion-check.mjs), smaller its glyphs vanish on a phone (N6).
  *  `text` is the label a plate shows (omit it for an inset): motion-check keeps every plate with text fully visible
  *  long enough to be read (kind `read`, LIMITS.read*). */
-export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; kind?: 'label' | 'inset'; text?: string};
+export type PlateProbe = {name: string; x: number; y: number; w: number; h: number; opacity: number; kind?: 'label' | 'inset' | 'sensor'; text?: string; value?: number};
 
 /** Everything scripts/motion-check.mjs needs to judge one frame without rendering it. */
 export type MotionPose = {

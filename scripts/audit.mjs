@@ -132,16 +132,19 @@ if (only.size && [...only].every((name) => name === 'tsc' || name === 'eslint' |
 const walk = (d) => fs.readdirSync(d, {withFileTypes: true}).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
 const walkRoots = (roots) => roots.filter((r) => fs.existsSync(r)).flatMap((r) => (fs.statSync(r).isDirectory() ? walk(r) : [r]));
 const srcFiles = walkRoots(topicDir ? [topicDir, ...SHARED_DIRS, ...SHARED_FILES] : ['src']).filter((f) => /\.tsx?$/.test(f) && !f.includes(`${path.sep}vendor${path.sep}`)); // vendored code keeps its defaults; our theme overrides them
+// the cool «норма» colour lives only in data and plate code (regulation section 7, decision 25.11.2026)
+const NORM_OK = /(components[\\/](Explain|Frontal|AtlasTable)\.tsx|lib[\\/](primitives[\\/].*|units\.ts)|[\\/](data|charts?)[\\/][^\\/]*|\.data\.tsx?)$/;
 for (const f of srcFiles.filter((f) => !f.includes(`${path.sep}theme${path.sep}`))) {
   fs.readFileSync(f, 'utf8').split('\n').forEach((l, i) => {
     if (/^\s*(\/\/|\*)/.test(l)) return;
     if (/#[0-9a-fA-F]{3,8}\b|rgba?\(|hsla?\(/.test(l)) add('error', `palette: ${f}:${i + 1} colour outside tokens (§19.7): ${l.trim().slice(0, 90)}`);
     if (/accentSoft/.test(l)) add('error', `palette: ${f}:${i + 1} accentSoft is a second accent; use the coral accent or a neutral (§19.7)`);
+    if (/\bnorm(Dark)?\b/.test(l) && /COLORS|\bnorm(Dark)?\s*[,}]/.test(l) && !NORM_OK.test(f)) add('error', `palette: ${f}:${i + 1} the «норма» colour is only for data, charts and two-state comparison (regulation section 7): use it in data/plate code, not on heroes, scenes or covers`);
   });
 }
 
 // 3) on-screen text: everything except captions, the preview title and labelled plates must be reviewed (§19.1)
-const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal|Atlas)\.tsx|Cover\.tsx)$/;
+const TEXT_OK = /(components[\\/](Captions|Thesis|Frontal|Atlas|AtlasTable)\.tsx|Cover\.tsx)$/;
 for (const f of srcFiles.filter((f) => f.endsWith('.tsx') && !TEXT_OK.test(f))) {
   const n = (fs.readFileSync(f, 'utf8').match(/<text\b/g) ?? []).length;
   if (n) add('warn', `text in frame: ${f} draws ${n} <text> node(s); allowed only as labels on frontal plates or data values (§19.1, §20.4)`);

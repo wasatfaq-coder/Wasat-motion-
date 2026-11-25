@@ -15,17 +15,17 @@ import {DeriveChain, HonestyTag, LoupeInset, TriSync} from '../components/Explai
 // views, a loupe in the same isometric world, honesty tags, a light field and a dark field by meaning. Kit bodies only.
 // Illustrative values; the physics is textbook (water 4.18 J/(g·K), 2 kW, no losses).
 
-const U = 10;
-const P = anatomyProjection(U);
+export const U = 10;
+export const P = anatomyProjection(U);
 const GRAPHICS: Rect = {x0: 70, x1: 900, y0: 600, y1: 1420};
-const Z0 = 36; // the counter top
+export const Z0 = 36; // the counter top
 
 const room = (p: Point3) => toRoom(p, U);
 const px = (cam: Cam, p: Point3) => screenOf(cam, room(p));
 const VIEW = Math.atan2(new Assembly('v', P).V[1], new Assembly('v', P).V[0]); // plan angle of the near side
 
 // ── the kitchen: a floor, two walls with tile lines and a counter with doors (every chapter has its own place) ───────
-const kitchen = (A: Assembly) => {
+export const kitchen = (A: Assembly) => {
   A.slab('floor', {x: 0, y: 0, w: 90, d: 60, r: 0}, -1, 1, {tone: 'mid', ground: true, bevel: 0, bias: -3000});
   for (let i = 1; i < 6; i++) A.slab(`floor.board${i}`, {x: i * 15 - 0.12, y: 0.5, w: 0.24, d: 59, r: 0}, 0, 0.03, {tone: 'lo', bevel: 0, bias: -2999});
   A.slab('wall.back', {x: 0, y: -2, w: 90, d: 2, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000});
@@ -44,7 +44,7 @@ const mug = (A: Assembly, x: number, y: number) => {
 };
 
 // ── the kettle: a base, 12 wall sectors, water in two halves, a coil, a lid, a handle, a spout and the switch ───────
-const R = 13;
+export const R = 13;
 const WALL = 0.9;
 const half = (c: [number, number], r: number, from: number): [number, number][] => {
   const out: [number, number][] = [];
@@ -54,7 +54,7 @@ const half = (c: [number, number], r: number, from: number): [number, number][] 
 const nearness = (mid: number) => Math.abs(Math.atan2(Math.sin(mid - VIEW), Math.cos(mid - VIEW)));
 
 /** the kettle at `c`; `section` cuts the near wall, the near half of the water and the lid away (the cut-open view). */
-const kettle = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
+export const kettle = (A: Assembly, [cx, cy]: [number, number], z0: number, o: {heat?: boolean} = {}) => {
   const AH = VIEW + Math.PI * 0.72; // the handle side (away from the viewer, to the left)
   const at = (r: number, z: number, a = AH): Point3 => [cx + r * Math.cos(a), cy + r * Math.sin(a), z0 + z];
   A.cyl('base', cx, cy, 15.5, z0, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero'});
@@ -62,8 +62,8 @@ const kettle = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
   A.cyl('floor', cx, cy, R - WALL, z0 + 3.2, 0.8, {tone: 'lo', bevel: 0.1});
   // the coil: two closed rings of a lit tube on the floor, fixed with four feet
   const ring = (r: number, n = 20): Point3[] => Array.from({length: n}, (_, i) => [cx + r * Math.cos((i / n) * Math.PI * 2), cy + r * Math.sin((i / n) * Math.PI * 2), z0 + 5.2]);
-  A.pipe('coil.a', ring(8.5), 0.8, {closed: true, bend: 2.5, lit: true, tone: 'hi'});
-  A.pipe('coil.b', ring(5), 0.8, {closed: true, bend: 2, lit: true, tone: 'hi'});
+  A.pipe('coil.a', ring(8.5), 0.8, {closed: true, bend: 2.5, lit: o.heat ?? true, tone: 'hi'});
+  A.pipe('coil.b', ring(5), 0.8, {closed: true, bend: 2, lit: o.heat ?? true, tone: 'hi'});
   for (let i = 0; i < 4; i++) A.cyl(`coil.foot${i}`, cx + 6.7 * Math.cos((i * Math.PI) / 2 + 0.4), cy + 6.7 * Math.sin((i * Math.PI) / 2 + 0.4), 0.9, z0 + 4, 1.1, {tone: 'lo', bevel: 0.1});
   // water: two halves (back, front) so the near one can leave in the section
   A.extruded('water.back', [...half([cx, cy], R - WALL - 0.1, VIEW + Math.PI / 2)], z0 + 4, 15, {tone: 'lo'});
@@ -85,7 +85,7 @@ const kettle = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
   return {at, AH};
 };
 
-const hideNear = (full: string) => {
+export const hideNear = (full: string) => {
   const n = full.replace(/^k\.[a-z]+\./, ''); // part names carry the object's name: k.sec.wall3
   const m = /^(?:wall|shoulder|neck)(\d+)/.exec(n);
   if (m) return nearness(((Number(m[1]) + 0.5) * Math.PI) / 6) < 1.45;
@@ -93,7 +93,7 @@ const hideNear = (full: string) => {
 };
 
 // ── the thermostat in the loupe: a bimetal strip that bends, a contact it opens, a lever (the same world) ─────────────
-const thermostat = (bend: number) => {
+export const thermostat = (bend: number) => {
   const T = new Assembly('therm', P, {role: 'mechanism'});
   const z = 0;
   T.slab('plate', {x: 0, y: 0, w: 30, d: 14, r: 1}, z, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero'});
@@ -112,9 +112,9 @@ const thermostat = (bend: number) => {
 
 type Frame = {svg: string; cam: Cam; dark?: boolean; field?: [number, number]; caption: {words: string[]; key: number; spoken: number}; chapter?: [number, number, string]; draw: (cam: Cam) => React.ReactNode};
 
-const steam = (A: Assembly, c: [number, number], n: number) => particles(P, 'steam', {at: [c[0] - 6, c[1] + 2, Z0 + 36], spread: 1.6, rate: n}, 1.4);
+export const steam = (A: Assembly, c: [number, number], n: number) => particles(P, 'steam', {at: [c[0] - 6, c[1] + 2, Z0 + 36], spread: 1.6, rate: n}, 1.4);
 
-const KC: [number, number] = [34, 20];
+export const KC: [number, number] = [34, 20];
 
 // frame 0: the hook, the whole kettle in the kitchen, steam
 const hook = (): Frame => {

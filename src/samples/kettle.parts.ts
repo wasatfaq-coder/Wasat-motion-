@@ -1,6 +1,7 @@
 import {Assembly, Dyn, G, K, Point3} from '../lib/assembly';
 import {anatomyProjection} from '../lib/anatomy';
 import {particles} from '../lib/nature';
+import {COLORS} from '../theme/tokens';
 
 // The kettle world of the «Как работает чайник» demo (not a topic): a kitchen, a kettle that can be cut open, a mug and
 // the thermostat for the loupe. Kit bodies only; part names carry the object's name (k.<variant>.<part>).
@@ -85,9 +86,9 @@ export const kettleShell = (A: Assembly, [cx, cy]: [number, number], z0: number,
   const fl = (p: Point3) => K.iso(p, P);
   const zs = Array.from({length: 9}, (_, i) => 5 + i * 2);
   const ring = [...zs.map((z) => fl(surf(z, -0.13))), ...zs.reverse().map((z) => fl(surf(z, 0.13)))];
-  const tick = (z: number) => `<path d="${K.pathOf([fl(surf(z, -0.13)), fl(surf(z, 0.13)), fl(surf(z, 0.36))])}" fill="none" stroke="#2b2622" stroke-width="3.2" stroke-linecap="round"/>`;
+  const tick = (z: number) => `<path d="${K.pathOf([fl(surf(z, -0.13)), fl(surf(z, 0.13)), fl(surf(z, 0.36))])}" fill="none" stroke="${COLORS.ink}" stroke-width="3.2" stroke-linecap="round"/>`;
   const level = Array.from({length: 7}, (_, i) => fl(surf(14, -0.13 + (i / 6) * 0.26)));
-  const window = `<path d="${K.pathOf(ring, true)}" fill="#3d4a55" fill-opacity="0.55"/>` + K.lineSvg(K.pathOf(ring, true), {tone: 'lo'}) + K.lineSvg(K.pathOf(level), {tone: 'hi'}) + tick(7) + tick(19);
+  const window = `<path d="${K.pathOf(ring, true)}" fill="${COLORS.bgDark}" fill-opacity="0.55"/>` + K.lineSvg(K.pathOf(ring, true), {tone: 'lo'}) + K.lineSvg(K.pathOf(level), {tone: 'hi'}) + tick(7) + tick(19);
   // the body: one lathe, the profile smooth (third value 1); two thin bands slightly proud of it
   A.turned('body', OUTLINE.map(([z, r]) => [z, r, 1]), F, {tone: 'hi', texture: 'ridges', lathe: {smooth: true}, over: window});
   A.turned('band.low', [[0, 12.5], [3, 12.95, 1]], F, {tone: 'mid'});

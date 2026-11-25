@@ -50,10 +50,15 @@ const world = (coilOn: boolean, withMug: boolean): World => {
   }
   return w;
 };
-/** the picture of a world: the scene (with `inner` extras such as bubbles), the coil, then the shell at `shell` opacity
- *  with `outer` extras (steam). A shell below 1 is the x-ray: the water and the coil show through. */
-const draw = (w: World, shell: number, inner: Dyn[] = [], outer: Dyn[] = []) =>
-  w.scene.svg({}, {extra: inner}) + w.coil.svg() + `<g opacity="${shell.toFixed(3)}">${w.shell.svg({}, {extra: outer})}</g>`;
+/** the picture of a world as layers painted in order: the scene (with `inner` extras such as bubbles), the coil, then
+ *  the shell at `shell` opacity with `outer` extras (steam). A shell below 1 is the x-ray: the water and the coil show
+ *  through. Separate <Kit> layers, not one glued string: each Assembly keeps its own depth order (audit «depth»). */
+type Layer = {svg: string; opacity?: number};
+const draw = (w: World, shell: number, inner: Dyn[] = [], outer: Dyn[] = []): Layer[] => [
+  {svg: w.scene.svg({}, {extra: inner})},
+  {svg: w.coil.svg()},
+  {svg: w.shell.svg({}, {extra: outer}), opacity: shell},
+];
 const thermo = new Map<number, string>();
 const thermoSvg = (bend: number) => {
   const q = Math.round(bend * 20);
@@ -69,7 +74,7 @@ function camFitBox(lo: Point3, hi: Point3): [Point3, Point3] {
 }
 const fit = (box: [Point3, Point3], fill: number, bottom = 0, rect: Rect = GRAPHICS) => camFit(boxCorners(...box), {rect, fill, margin: {bottom}});
 
-type Page = {dark?: boolean; svg: string; cam: Cam; overlay: React.ReactNode};
+type Page = {dark?: boolean; svg: Layer[]; cam: Cam; overlay: React.ReactNode};
 
 const Caption: React.FC<{words: string[]; key_: number; every?: number; dark?: boolean}> = ({words, key_, every = 8, dark}) => {
   const f = useCurrentFrame();
@@ -83,7 +88,9 @@ const Caption: React.FC<{words: string[]; key_: number; every?: number; dark?: b
 const Shot: React.FC<{page: Page; chapter?: [number, number, string]; words: string[]; key_: number}> = ({page, chapter, words, key_}) => (
   <>
     <RoomSvg cam={page.cam} dark={page.dark} fade={70} sides={60} under={<AtmosField hero={[480, 960]} dark={page.dark} />}>
-      <Kit svg={page.svg} />
+      {page.svg.map((l, i) => (
+        <Kit key={i} svg={l.svg} opacity={l.opacity} />
+      ))}
     </RoomSvg>
     <Atmos dark={page.dark} />
     {page.overlay}

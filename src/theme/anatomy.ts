@@ -1,36 +1,33 @@
-import {TEXTURE_CSS} from './textures';
-import {COLORS, SHADOW, STROKE} from './tokens';
+import {COLORS, SHADOW} from './tokens';
 import {ISO_CSS} from '../vendor/anatomy/iso-kit';
 
-// House style for new topics (MASTER_PROMPT_FINAL §22): Anatomy's toned solids (four face tones by facing, bevels,
-// a soft halo) in our palette, with our thick dark contour and ONE coral lit part. Face tones live here; the
-// accent and the inks come from COLORS. The four faces are spread so a side still separates from the top under a
-// 3.5 px contour shrunk to a ~390 px phone. Same warm beige; coral stays the only meaning colour.
+// House style (regulation v3.0.4, decision of 25.11.2026): the upstream Anatomy light look — white solids, four grey
+// face tones by facing, a dark contour, a soft grey halo, no surface patterns; coral stays the only meaning colour.
+// Strokes are thicker than upstream's 0.6 px desktop line so they survive a ~390 px phone.
 const SHADE = {
-  s0: '#BFA98E', // face turned away from the light
-  s1: '#D0BCA4',
-  s2: '#E0D0BA',
-  s3: '#EFE2D2', // face turned toward the light
-  top: '#FCF7F0', // the lit top, a step lighter than the background
+  s0: '#D6D6D3', // face turned away from the light
+  s1: '#E2E2DF',
+  s2: '#EBEBE8',
+  s3: '#F4F4F1', // face turned toward the light
+  top: '#FFFFFF', // the lit top
   litShade: '#B13D30', // coral side of the one lit part; the top stays COLORS.accent
-  lo: '#9A949C',
-  faint: '#D9D1C5',
+  lo: '#B4B4B8',
+  faint: '#D4D4D6',
 } as const;
 
 // Clothing tones for the character (hair, trousers, shoes = dark; shirt = mid), so the body reads apart from skin.
 const DARK = {paper: '#7C7882', top: '#8E8A93', s0: '#57535D', s1: COLORS.inkSoft, s2: '#7C7882', s3: '#8E8A93'} as const;
-const MID = {paper: COLORS.fillDark, top: '#EDE6DB', s0: '#CFC5B6', s1: '#D9D0C2', s2: COLORS.fillDark, s3: '#EDE6DB'} as const;
+const MID = {paper: COLORS.fillDark, top: '#EDEDEA', s0: '#C9C9C6', s1: '#D4D4D1', s2: COLORS.fillDark, s3: '#EDEDEA'} as const;
 const tones = (name: string, t: {paper: string; top: string; s0: string; s1: string; s2: string; s3: string}) =>
   `.iso .iso-solid.${name}{--anatomy-paper:${t.paper};--anatomy-top:${t.top};--anatomy-shade-0:${t.s0};--anatomy-shade-1:${t.s1};--anatomy-shade-2:${t.s2};--anatomy-shade-3:${t.s3}}`;
 
 export const ANATOMY_STYLE = {
-  outer: STROKE.main, // outline of every solid
-  inner: STROKE.secondary, // creases, bevels, wires, ticks
+  outer: 2, // outline of every solid (px at 1080)
+  inner: 1.3, // creases, bevels, wires, ticks
 } as const;
 
 /** CSS for the Anatomy kit classes, light theme, mapped to our tokens. Put it once inside <AnatomyStage>. */
 export const ANATOMY_CSS = `${ISO_CSS}
-${TEXTURE_CSS}
 .iso[data-theme="light"]{
  --anatomy-paper:${COLORS.fillLight};--anatomy-face:${COLORS.fillLight};--anatomy-top:${SHADE.top};
  --anatomy-shade-0:${SHADE.s0};--anatomy-shade-1:${SHADE.s1};--anatomy-shade-2:${SHADE.s2};--anatomy-shade-3:${SHADE.s3};
@@ -56,18 +53,3 @@ ${tones('cl-mid', MID)}
 .iso .tb[data-lit] .iso-line{stroke:var(--anatomy-lit)}
 `;
 
-/** The upstream Anatomy light look (src/vendor/anatomy/iso-kit.ts, light theme): near-white faces, four grey shades,
- *  a dark thin contour, no patterns. Applied over ANATOMY_CSS by <AnatomyStage look="atlas">. Strokes stay thicker
- *  than upstream's (0.6 px on a desktop page) so they survive a phone screen. */
-export const ATLAS_BG = '#FBFBFA';
-export const ATLAS_CSS = `
-.iso[data-look="atlas"]{
- --anatomy-paper:#ffffff;--anatomy-face:#ffffff;--anatomy-top:#ffffff;
- --anatomy-shade-0:#d6d6d3;--anatomy-shade-1:#e2e2df;--anatomy-shade-2:#ebebe8;--anatomy-shade-3:#f4f4f1;
- --anatomy-hi:#26262a;--anatomy-mid:#8a8a8f;--anatomy-lo:#b4b4b8;--anatomy-faint:#d4d4d6;
- --anatomy-halo:#000000;--anatomy-weight:1.3px}
-.iso[data-look="atlas"] .iso-tex{display:none}
-.iso[data-look="atlas"] svg.iso-svg{background:${ATLAS_BG}!important}
-.iso[data-look="atlas"] .iso-line.iso-edge{stroke-width:2px}
-.iso[data-look="atlas"] .iso .iso-halo,.iso[data-look="atlas"] .iso-halo{fill:#000;opacity:.07}
-`;

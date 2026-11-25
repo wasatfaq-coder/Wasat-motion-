@@ -3,7 +3,7 @@
 // put the drawing next to photos of the real object and next to the upstream examples, in one sheet, then look at it
 // and compare part by part (silhouette, where each part sits, how it joins the body). A drawing that does not read as
 // the real object at a glance goes back, it is not sent.
-//   node scripts/ref-compare.mjs <drawing.png> [photo …] [--out out/sketch/compare-<name>.png] [--no-upstream]
+//   node scripts/ref-compare.mjs <drawing.png> [photo …] [--out out/sketch/eskiz-compare-<name>.png] [--no-upstream]
 import fs from 'node:fs';
 import path from 'node:path';
 import {createRequire} from 'node:module';
@@ -26,7 +26,7 @@ for (const f of files) if (!fs.existsSync(f)) (console.error(`ref-compare: no fi
 const [drawing, ...photos] = files;
 const UP = 'styles/anatomy/refs/upstream';
 const upstream = flag('no-upstream') ? [] : ['dial-indicator.webp', 'raptor-engine-firing.webp'].map((f) => path.join(UP, f)).filter((f) => fs.existsSync(f));
-const out = opt('out') ?? path.join('out/sketch', `compare-${path.basename(drawing, path.extname(drawing))}.png`);
+const out = opt('out') ?? path.join('out/sketch', `eskiz-compare-${path.basename(drawing, path.extname(drawing))}.png`);
 if (!photos.length) console.warn('ref-compare: no photo of the real object given — the sheet compares with the upstream examples only');
 
 const uri = (f) => `data:image/${path.extname(f).slice(1).replace('jpg', 'jpeg')};base64,${fs.readFileSync(f).toString('base64')}`;

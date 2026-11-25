@@ -55,6 +55,11 @@
       "kind": "kit",
       "module": "src/lib/character.ts",
       "what": "faceless mannequin (~80 parts)"
+    },
+    "units": {
+      "kind": "kit",
+      "module": "src/lib/units.ts",
+      "what": "unit grid: N identical bodies where N is the number said, a marked part in coral"
     }
   }
 }

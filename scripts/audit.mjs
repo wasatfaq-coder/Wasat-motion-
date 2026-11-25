@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Project audit without rendering (MASTER_PROMPT_FINAL v3.0, «Проверки»): types, lint, palette, on-screen text,
 // geometry of house-style objects, motion, covers, rig; for a topic also captions, voice, timeline, the visual register
-// (modes, mechanism cards, chapters, the one dark scene, coral meaning, data plates), the image journal, sensitive
+// (modes, mechanism cards, chapters and their light/dark field, coral meaning, data plates), the image journal, sensitive
 // topics, claims and their trust, review notes and the sound map.
 //
 // Usage (core):   node scripts/audit.mjs            the shared core: src/lib, src/components, src/theme, src/samples
@@ -434,7 +434,26 @@ else {
     const chapters = idx.length ? [scenes[order[idx[0] - 1]]?.chapter ?? 0, ...idx.map((i) => scenes[order[i]]?.chapter ?? 0)] : [];
     for (const p of transitionProblems(seq, chapters)) add('error', `transitions: ${p} (section 9)`);
   }
-  if (darks.length > 1) add('error', `register: ${darks.length} dark scenes (${darks.join(', ')}); the dark scene is used once per video (decision 13)`);
+  // the field (light or dark) belongs to a chapter and changes only on a chapter boundary (decision of 20.11.2026)
+  {
+    const fieldOf = new Map((reg.chapters ?? []).filter((c) => c.field).map((c) => [c.n, c.field]));
+    for (const [n, f] of fieldOf) if (!['light', 'dark'].includes(f)) add('error', `register: chapter ${n} field «${f}» must be light | dark`);
+    const seenField = new Map();
+    for (const id of order) {
+      const sc = scenes[id];
+      if (!sc || sc.chapter === undefined) continue;
+      const f = sc.dark ? 'dark' : 'light';
+      const want = fieldOf.get(sc.chapter) ?? seenField.get(sc.chapter);
+      if (want && want !== f) {
+        if (fieldOf.has(sc.chapter)) add('error', `register: ${id} is ${f} but chapter ${sc.chapter} is a ${want} chapter: the field changes only between chapters`);
+        else add('error', `register: chapter ${sc.chapter} mixes light and dark scenes (${id}); declare \`chapters[].field\` and keep one field per chapter`);
+      }
+      if (!seenField.has(sc.chapter)) seenField.set(sc.chapter, f);
+    }
+    const first = order.map((id) => scenes[id]).find((s) => s?.chapter !== undefined);
+    const last = [...order].reverse().map((id) => scenes[id]).find((s) => s?.chapter !== undefined);
+    if (first && last && !!first.dark !== !!last.dark) add('warn', 'register: the first and the last scene have different fields; the finale returns to the opening field (section 5)');
+  }
   // coral: one meaning per topic, any number of coral parts (decision 21)
   const withCoral = Object.entries(scenes).filter(([, v]) => v.coral);
   if (withCoral.length && !reg.coralMeaning) add('error', 'register: scenes declare `coral` but the register has no `coralMeaning` (one meaning per topic, decision 21)');

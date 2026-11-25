@@ -1,3 +1,4 @@
+import {TextureDefs} from '../theme/textures';
 import React from 'react';
 import {AbsoluteFill} from 'remotion';
 import {depthOf, Point3, Projection} from '../vendor/anatomy/iso-kit';
@@ -36,6 +37,7 @@ export const toRoom = ([x, y, z]: Point3, unitsPerRoomUnit = 1): P3 => [x / unit
 export const AnatomyStage: React.FC<{children: React.ReactNode}> = ({children}) => (
   <AbsoluteFill className="iso" data-theme="light">
     <style>{ANATOMY_CSS}</style>
+    <TextureDefs />
     {children}
   </AbsoluteFill>
 );

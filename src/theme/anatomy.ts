@@ -1,3 +1,4 @@
+import {TEXTURE_CSS} from './textures';
 import {COLORS, SHADOW, STROKE} from './tokens';
 import {ISO_CSS} from '../vendor/anatomy/iso-kit';
 
@@ -29,6 +30,7 @@ export const ANATOMY_STYLE = {
 
 /** CSS for the Anatomy kit classes, light theme, mapped to our tokens. Put it once inside <AnatomyStage>. */
 export const ANATOMY_CSS = `${ISO_CSS}
+${TEXTURE_CSS}
 .iso[data-theme="light"]{
  --anatomy-paper:${COLORS.fillLight};--anatomy-face:${COLORS.fillLight};--anatomy-top:${SHADE.top};
  --anatomy-shade-0:${SHADE.s0};--anatomy-shade-1:${SHADE.s1};--anatomy-shade-2:${SHADE.s2};--anatomy-shade-3:${SHADE.s3};

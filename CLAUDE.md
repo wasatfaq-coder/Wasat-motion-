@@ -9,6 +9,7 @@ This repository produces vertical motion-explainer videos (YouTube Shorts) with 
 - Each topic gets its own working branch and PR.
 
 ## Always
+- **Before drawing any real object** (a device, a building, a tool, a place), look up in the internet how it really looks: photos and the manufacturer's parts diagram («getting to know your …» in a manual). Write down its parts and where each one sits, then build from that list, never from memory.
 - Ask the user one question at a time with options (the grill-me way) when a decision is theirs.
 - Subagents may not be able to write files or open some sites: they return the full report as text, the main session saves it.
 - **Agents** (`.claude/agents/*.md`, six, each sets `model:`): image-architect and shorts-quality-gate on Opus; researcher, fact-checker, metaphor-auditor and speech-sound-editor on Sonnet. A new agent must set a model. Contact sheets for agents at scale 1×.

@@ -1,4 +1,4 @@
-import {Assembly, Dyn, G, K, Point3} from '../lib/assembly';
+import {A as A2, Assembly, Dyn, G, K, Point3} from '../lib/assembly';
 import {anatomyProjection} from '../lib/anatomy';
 import {particles} from '../lib/nature';
 import {COLORS} from '../theme/tokens';
@@ -90,19 +90,32 @@ export const kettleShell = (A: Assembly, [cx, cy]: [number, number], z0: number,
   const level = Array.from({length: 7}, (_, i) => fl(surf(14, -0.13 + (i / 6) * 0.26)));
   const window = `<path d="${K.pathOf(ring, true)}" fill="${COLORS.inkSoft}" fill-opacity="0.6"/>` + K.lineSvg(K.pathOf(ring, true), {tone: 'lo'}) + K.lineSvg(K.pathOf(level), {tone: 'hi'}) + tick(7) + tick(19);
   // the body: one lathe, the profile smooth (third value 1); two thin bands slightly proud of it
-  A.turned('body', OUTLINE.map(([z, r]) => [z, r, 1]), F, {tone: 'hi', lathe: {smooth: true}, over: window});
+  // the body: one molded jug (src/lib/molded.ts). As on a real jug kettle the spout is no tube: the front of the rim
+  // rises and pulls forward into a pointed open lip, the same plastic as the body; the lid sits behind it
+  const LIP = 5.2; // how far the lip reaches out past the round body
+  const RISE = 2.6; // how far the rim rises at the lip
+  const wLip = (th: number) => Math.pow(Math.max(0, Math.cos(th - AS)), 9);
+  const ZS = Array.from({length: 57}, (_, i) => i * 0.5);
+  const NTH = 128;
+  const rings: Point3[][] = ZS.map((z) =>
+    Array.from({length: NTH}, (_, j) => {
+      const th = (j / NTH) * Math.PI * 2;
+      const k = Math.max(0, (z - 17) / 11);
+      const r = rAt(z) + LIP * wLip(th) * k * k;
+      return [cx + r * Math.cos(th), cy + r * Math.sin(th), z0 + BODY0 + z + RISE * wLip(th) * Math.pow(z / 28, 6)] as Point3;
+    }),
+  );
+  // the open channel of the lip in front of the lid, and the limescale filter seen down in it
+  const lipTip = at(rAt(28) + LIP - 0.6, 28 + RISE, AS);
+  const ch = (r: number, da: number) => fl(at(r, 28 + RISE * wLip(AS + da) + 0.05, AS + da));
+  const channel = `<path d="${K.pathOf([ch(8.4, -0.32), ch(rAt(28) + LIP - 0.9, 0), ch(8.4, 0.32)], true)}" fill="${COLORS.inkSoft}" fill-opacity="0.35"/>` + K.lineSvg(K.pathOf([ch(8.4, -0.32), ch(rAt(28) + LIP - 0.9, 0), ch(8.4, 0.32)]), {tone: 'lo'});
+  A.molded('body', rings, A2.solid(F, OUTLINE.map(([z, r]) => [z, r, 1])), {tone: 'hi', molded: {cap: 'top', smooth: true}, over: window + channel});
   A.turned('band.low', [[0, 12.5], [3, 12.95, 1]], F, {tone: 'mid'});
   A.turned('band.neck', [[23.5, 9.95], [28, 9.18, 1]], F, {tone: 'mid'});
   // the lid: a dome of two discs and a button
   A.cyl('lid.a', cx, cy, 8.6, z0 + 31.4, 1.2, {tone: 'hi', bevel: 0.5});
   A.cyl('lid.b', cx, cy, 6.8, z0 + 32.6, 1.2, {tone: 'hi', bevel: 0.5});
   A.cyl('lid.knob', cx, cy, 2.2, z0 + 33.8, 1.6, {tone: 'lo', bevel: 0.5});
-  // the spout: part of the body, a short tapered beak rising out of the shoulder under the rim, the same plastic
-  const dir: Point3 = [Math.cos(AS) * 0.78, Math.sin(AS) * 0.78, 0.63];
-  const so = at(rAt(25) - 2.2, 24.8, AS);
-  const SL = 8;
-  A.turned('spout', [[0, 2.9], [2.6, 2.3, 1], [5.4, 1.7, 1], [SL, 1.25, 1]], G.frameAlong(so, dir), {tone: 'hi', lathe: {smooth: true}});
-  const tip: Point3 = [so[0] + dir[0] * SL, so[1] + dir[1] * SL, so[2] + dir[2] * SL];
   // the handle: a D loop from under the rim down to the lower body, thick dark plastic
   A.pipe('handle', [at(rAt(27) - 0.6, 27.4), at(rAt(27) + 3, 28.6), at(rAt(26) + 6.2, 28), at(rAt(23) + 8, 25.2), at(rAt(19) + 8.6, 20.5), at(rAt(14) + 8.4, 14.5), at(rAt(10) + 7.6, 9.5), at(rAt(7) + 5.6, 6.2), at(rAt(5) + 2.6, 4.7), at(rAt(4) - 0.6, 4.4)], 1.9, {bend: 7, tone: 'lo'});
   // on top of the handle only the small lid-release button; the on/off rocker sits at the foot of the handle with its light
@@ -110,7 +123,7 @@ export const kettleShell = (A: Assembly, [cx, cy]: [number, number], z0: number,
   const sw = at(rAt(4) + 3.6, 0);
   A.slab('switch', {x: sw[0] - 1.6, y: sw[1] - 1.6, w: 3.2, d: 3.2, r: 0.8}, z0 + 2.3, 1.5, {tone: 'lo', bevel: 0.4});
   A.cyl('switch.led', sw[0], sw[1], 0.55, z0 + 3.8, 0.3, {tone: 'hi', bevel: 0.1, lit: on});
-  return {at, AH, AS, spout: tip};
+  return {at, AH, AS, spout: lipTip};
 };
 
 /** the thermostat for the loupe: a bimetal strip that bends with `bend` 0..1 and opens the contact at the end */

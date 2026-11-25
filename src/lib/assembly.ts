@@ -3,6 +3,7 @@ import * as LatheKit from '../vendor/anatomy/lathe.mjs';
 import * as TubeKit from '../vendor/anatomy/tube.mjs';
 import * as AuditKit from '../vendor/anatomy/audit.mjs';
 import {DepthNode, resolveOrder} from './depth';
+import {MoldedOpts, moldedOf} from './molded';
 
 // The vendored .mjs modules are untyped JS (types inferred from defaults are too narrow); use them loosely here.
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -188,6 +189,15 @@ export class Assembly {
     const mid = (Math.min(...s) + Math.max(...s)) / 2;
     const at = G.add3(F.o, G.mul3(F.a, mid)) as Point3;
     return this.put(n, at, K.solidSvg(paths, this.styled(c)), [this.shape(A.solid(F, profile), c, n)], c);
+  }
+
+  /** A molded body from stacked closed rings (src/lib/molded.ts): a jug with its pouring lip, a bottle shoulder.
+   *  `shape` is its true shape for the audit, usually the turned envelope it is molded from (A.solid(F, profile)). */
+  molded(name: string, rings: Point3[][], shape: object, c: SolidOpts & {molded?: MoldedOpts} = {}) {
+    const n = this.full(name);
+    const all = rings.flat();
+    const at = [0, 1, 2].map((k) => all.reduce((t, p) => t + p[k], 0) / all.length) as Point3;
+    return this.put(n, at, K.solidSvg(moldedOf(rings, this.P, c.molded ?? {}), this.styled(c)), [this.shape(shape, c, n)], c);
   }
 
   /** A flat disc / flange / wheel on any axis (s0..s1 along F.a). */

@@ -3,6 +3,7 @@ import {useCurrentFrame} from 'remotion';
 import {AnatomyStage, Kit, toRoom} from '../lib/anatomy';
 import {boxCorners, camFitHeight, RoomSvg, safeRect, screenOf} from '../lib/camera';
 import {Callouts} from '../components/Atlas';
+import {COLORS} from '../theme/tokens';
 import {bezierLoop, branch, coronary, heartAnterior, ribbon, shell, taper, vessel} from '../lib/shell';
 import {APEX_AT, AORTA_AT, HEART_BOX, HEART_MECH, HEART_U, VALVE_AT, VALVE_BOX} from './kit/heart.parts';
 
@@ -39,7 +40,7 @@ export const HeartStudy: React.FC = () => {
     return (
       <AnatomyStage>
         <svg width={1080} height={1920} viewBox="0 0 1080 1920" style={{position: 'absolute', inset: 0}}>
-          <rect width={1080} height={1920} fill="#F5F0E8" />
+          <rect width={1080} height={1920} fill={COLORS.bg} />
           <g dangerouslySetInnerHTML={{__html: pic.svg}} />
         </svg>
         <Callouts items={items} />

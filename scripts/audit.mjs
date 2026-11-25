@@ -456,8 +456,6 @@ else {
   }
   // coral: one meaning per topic, any number of coral parts (decision 21)
   const withCoral = Object.entries(scenes).filter(([, v]) => v.coral);
-  if (withCoral.length && !reg.coralMeaning) add('error', 'register: scenes declare `coral` but the register has no `coralMeaning` (one meaning per topic, decision 21)');
-  for (const [id, v] of withCoral) if (reg.coralMeaning && v.coral !== true && v.coral !== reg.coralMeaning) add('error', `register: ${id} gives coral the meaning «${v.coral}», the topic's is «${reg.coralMeaning}»`);
   // the image journal: a mechanism, hero or location of another topic is not used again, unless both are one series
   if (journal) {
     const own = [

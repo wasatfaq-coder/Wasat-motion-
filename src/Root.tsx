@@ -12,6 +12,7 @@ import {DELIVERY_PAGES, DeliverySample} from './samples/DeliverySample';
 import {KETTLE_FRAMES, KettleSketch} from './samples/KettleSketch';
 import {anatomyCoverSchema} from './components/AnatomyCover';
 import {AnatomyCastSample, AnatomyCharacterSample, AnatomyGaitSample} from './samples/AnatomyCharacterSample';
+import {HEART_STUDY_FRAMES, HeartStudy} from './samples/HeartStudy';
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -25,6 +26,7 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="AnatomyGait" component={AnatomyGaitSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={300} />
   <Composition id="AnatomyCoverSample" component={AnatomyCoverSample} schema={anatomyCoverSchema} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} defaultProps={{variant: 'a' as const}} />
   <Composition id="AnatomyCast" component={AnatomyCastSample} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={1} />
+  <Composition id="HeartStudy" component={HeartStudy} width={FORMAT.width} height={FORMAT.height} fps={FORMAT.fps} durationInFrames={HEART_STUDY_FRAMES} />
   <Composition
     id="StressMain"
     component={StressMain}

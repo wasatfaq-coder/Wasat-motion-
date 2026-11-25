@@ -14,19 +14,19 @@ export const R = 13;
 const VIEW = Math.atan2(new Assembly('v', P).V[1], new Assembly('v', P).V[0]); // plan angle of the near side
 
 export const kitchen = (A: Assembly) => {
-  A.slab('floor', {x: 0, y: 0, w: 90, d: 60, r: 0}, -1, 1, {tone: 'mid', ground: true, bevel: 0, bias: -3000, texture: 'grain'});
+  A.slab('floor', {x: 0, y: 0, w: 90, d: 60, r: 0}, -1, 1, {tone: 'mid', ground: true, bevel: 0, bias: -3000});
   for (let i = 1; i < 6; i++) A.slab(`floor.board${i}`, {x: i * 15 - 0.12, y: 0.5, w: 0.24, d: 59, r: 0}, 0, 0.03, {tone: 'lo', bevel: 0, bias: -2999});
-  A.slab('wall.back', {x: 0, y: -2, w: 90, d: 2, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000, texture: 'dots'});
-  A.slab('wall.left', {x: -2, y: -2, w: 2, d: 62, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000, texture: 'dots'});
+  A.slab('wall.back', {x: 0, y: -2, w: 90, d: 2, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000});
+  A.slab('wall.left', {x: -2, y: -2, w: 2, d: 62, r: 0}, 0, 70, {tone: 'hi', bevel: 0.2, bias: -4000});
   for (let r = 0; r < 8; r++) A.slab(`tile${r}`, {x: 0.5, y: -0.05, w: 89, d: 0.05, r: 0}, Z0 + 2 + r * 4, 0.2, {tone: 'lo', bevel: 0, bias: -3900});
   A.slab('counter', {x: 2, y: 2, w: 82, d: 34, r: 0.6}, 0, Z0, {tone: 'mid', ground: true, bevel: 0.5, bias: -2000});
-  A.slab('counter.top', {x: 1, y: 1, w: 84, d: 36, r: 0.6}, Z0, 2.4, {tone: 'hi', bevel: 0.5, bias: -1900, texture: 'grain'});
-  for (let i = 0; i < 4; i++) A.slab(`door${i}`, {x: 4 + i * 20, y: 36, w: 18, d: 0.3, r: 0.3}, 4, Z0 - 8, {tone: 'lo', bevel: 0.15, bias: -1800, texture: 'weave'});
+  A.slab('counter.top', {x: 1, y: 1, w: 84, d: 36, r: 0.6}, Z0, 2.4, {tone: 'hi', bevel: 0.5, bias: -1900});
+  for (let i = 0; i < 4; i++) A.slab(`door${i}`, {x: 4 + i * 20, y: 36, w: 18, d: 0.3, r: 0.3}, 4, Z0 - 8, {tone: 'lo', bevel: 0.15, bias: -1800});
   for (let i = 0; i < 4; i++) A.cyl(`knob${i}`, 20 + i * 20, 36.4, 0.7, Z0 - 8, 0.4, {tone: 'mid', bevel: 0.1, bias: -1700});
 };
 
 export const mug = (A: Assembly, x: number, y: number) => {
-  A.cyl('mug', x, y, 4, Z0 + 2.4, 8, {tone: 'hi', bevel: 0.5, shadow: 'part', texture: 'dots'});
+  A.cyl('mug', x, y, 4, Z0 + 2.4, 8, {tone: 'hi', bevel: 0.5, shadow: 'part'});
   A.cyl('mug.tea', x, y, 3.4, Z0 + 10, 0.5, {tone: 'lo', bevel: 0});
   A.pipe('mug.handle', [[x + 4, y, Z0 + 8], [x + 7, y, Z0 + 8], [x + 7, y, Z0 + 5], [x + 4, y, Z0 + 4]], 0.7, {bend: 1.5, tone: 'hi'});
 };
@@ -49,17 +49,17 @@ const AS = VIEW + Math.PI * 1.5 - 0.2; // the spout (right of the viewer)
  *  socket and the water. Drawn first, then the coil, then the shell, which may be made translucent (an x-ray, like a
  *  glass kettle). */
 export const kettleInside = (A: Assembly, [cx, cy]: [number, number], z0: number) => {
-  A.cyl('base', cx, cy, 15.4, z0, 2.2, {tone: 'mid', ground: true, bevel: 0.6, shadow: 'hero', texture: 'ridges'});
+  A.cyl('base', cx, cy, 15.4, z0, 2.2, {tone: 'mid', ground: true, bevel: 0.6, shadow: 'hero'});
   A.cyl('base.gap', cx, cy, 13.6, z0 + 2.2, 0.5, {tone: 'lo', bevel: 0});
   A.cyl('base.pad', cx, cy, 12.2, z0 + 2.7, 0.7, {tone: 'hi', bevel: 0.3});
   A.cyl('floor', cx, cy, 11.4, z0 + 3.4, 0.8, {tone: 'lo', bevel: 0.1});
   A.slab('socket', {x: cx - 16, y: 0.4, w: 6, d: 1.4, r: 0.4}, z0 + 9, 6, {tone: 'mid', bevel: 0.3, bias: -1000});
   A.slab('plug', {x: cx - 15, y: 1.6, w: 4, d: 3, r: 0.5}, z0 + 10, 4, {tone: 'lo', bevel: 0.3, bias: -900});
   A.pipe('cord', [[cx - 2, cy - 15, z0 + 1.2], [cx - 6, 8, z0 + 0.8], [cx - 13, 4, z0 + 0.8], [cx - 13, 3.2, z0 + 10]], 0.7, {bend: 2.5, tone: 'lo', limp: true, ends: [true, true], free: 'cord'});
-  A.cyl('water', cx, cy, 11.2, z0 + 4.2, 14, {tone: 'lo', texture: 'waves'});
+  A.cyl('water', cx, cy, 11.2, z0 + 4.2, 14, {tone: 'lo'});
   // the limescale filter: a curved mesh plate in a slot behind the spout, following the curve of the body
   const rf = rAt(22) - 1.4;
-  A.arc('filter', [cx, cy], rf - 0.25, rf, AS - 0.42, AS + 0.42, z0 + BODY0 + 19, 7.5, {tone: 'mid', texture: 'cells'});
+  A.arc('filter', [cx, cy], rf - 0.25, rf, AS - 0.42, AS + 0.42, z0 + BODY0 + 19, 7.5, {tone: 'mid'});
 };
 
 /** The heating coil on its feet: two closed rings of a tube. Drawn after the water and before the shell, so it shows through
@@ -88,13 +88,13 @@ export const kettleShell = (A: Assembly, [cx, cy]: [number, number], z0: number,
   const ring = [...zs.map((z) => fl(surf(z, -0.13))), ...zs.reverse().map((z) => fl(surf(z, 0.13)))];
   const tick = (z: number) => `<path d="${K.pathOf([fl(surf(z, -0.13)), fl(surf(z, 0.13)), fl(surf(z, 0.36))])}" fill="none" stroke="${COLORS.ink}" stroke-width="3.2" stroke-linecap="round"/>`;
   const level = Array.from({length: 7}, (_, i) => fl(surf(14, -0.13 + (i / 6) * 0.26)));
-  const window = `<path d="${K.pathOf(ring, true)}" fill="${COLORS.bgDark}" fill-opacity="0.55"/>` + K.lineSvg(K.pathOf(ring, true), {tone: 'lo'}) + K.lineSvg(K.pathOf(level), {tone: 'hi'}) + tick(7) + tick(19);
+  const window = `<path d="${K.pathOf(ring, true)}" fill="${COLORS.inkSoft}" fill-opacity="0.6"/>` + K.lineSvg(K.pathOf(ring, true), {tone: 'lo'}) + K.lineSvg(K.pathOf(level), {tone: 'hi'}) + tick(7) + tick(19);
   // the body: one lathe, the profile smooth (third value 1); two thin bands slightly proud of it
-  A.turned('body', OUTLINE.map(([z, r]) => [z, r, 1]), F, {tone: 'hi', texture: 'ridges', lathe: {smooth: true}, over: window});
+  A.turned('body', OUTLINE.map(([z, r]) => [z, r, 1]), F, {tone: 'hi', lathe: {smooth: true}, over: window});
   A.turned('band.low', [[0, 12.5], [3, 12.95, 1]], F, {tone: 'mid'});
   A.turned('band.neck', [[23.5, 9.95], [28, 9.18, 1]], F, {tone: 'mid'});
   // the lid: a dome of two discs and a button
-  A.cyl('lid.a', cx, cy, 8.6, z0 + 31.4, 1.2, {tone: 'hi', bevel: 0.5, texture: 'ridges'});
+  A.cyl('lid.a', cx, cy, 8.6, z0 + 31.4, 1.2, {tone: 'hi', bevel: 0.5});
   A.cyl('lid.b', cx, cy, 6.8, z0 + 32.6, 1.2, {tone: 'hi', bevel: 0.5});
   A.cyl('lid.knob', cx, cy, 2.2, z0 + 33.8, 1.6, {tone: 'lo', bevel: 0.5});
   // the spout: part of the body, a short tapered beak rising out of the shoulder under the rim, the same plastic
@@ -117,8 +117,8 @@ export const kettleShell = (A: Assembly, [cx, cy]: [number, number], z0: number,
 export const thermostat = (bend: number) => {
   const T = new Assembly('therm', P, {role: 'mechanism'});
   const z = 0;
-  T.slab('plate', {x: 0, y: 0, w: 30, d: 14, r: 1}, z, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero', texture: 'cells'});
-  T.slab('post.a', {x: 2, y: 4, w: 3, d: 6, r: 0.5}, z + 2, 9, {tone: 'lo', bevel: 0.3, texture: 'ridges'});
+  T.slab('plate', {x: 0, y: 0, w: 30, d: 14, r: 1}, z, 2, {tone: 'mid', ground: true, bevel: 0.5, shadow: 'hero'});
+  T.slab('post.a', {x: 2, y: 4, w: 3, d: 6, r: 0.5}, z + 2, 9, {tone: 'lo', bevel: 0.3});
   T.slab('post.b', {x: 22, y: 4, w: 3, d: 6, r: 0.5}, z + 2, 15, {tone: 'lo', bevel: 0.3});
   T.cyl('contact.a', 17.5, 7, 1.3, z + 2, 6.4, {tone: 'hi', bevel: 0.3});
   T.cyl('contact.b', 17.5, 7, 1.0, z + 12.4 + Math.max(0, bend - 0.75) * 12, 1.2, {tone: 'hi', bevel: 0.2});

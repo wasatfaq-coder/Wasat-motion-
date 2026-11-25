@@ -59,7 +59,7 @@ const regions = (grid, w, h, gap) => {
 };
 
 /** Check one frame. img: {width, height, rgb}. Returns {errors: string[], stats}. */
-export const checkFrame = (img, {rect = SAFE_RECT, minFill = 0.7, coral = true, bleed = null, coralMin = 0.002} = {}) => {
+export const checkFrame = (img, {rect = SAFE_RECT, minFill = 0.7, coral = 'free', bleed = null, coralMin = 0.002} = {}) => {
   const {width: W, height: H, rgb} = img;
   const at = (x, y) => (y * W + x) * 3;
   const bi = at(4, 4);
@@ -97,7 +97,9 @@ export const checkFrame = (img, {rect = SAFE_RECT, minFill = 0.7, coral = true, 
   // coral island in two at 3 cells)
   const regs = regions(cor, gw, gh, 5).map((n) => (n * G * G) / (W * H));
   const big = regs.filter((a) => a >= coralMin / 6);
-  if (coral === true) {
+  if (coral === 'free') {
+    // coral is free (decision of 25.11.2026): any number of coral parts with any meaning, or none
+  } else if (coral === true) {
     if (!big.length || big[0] < coralMin) errors.push(`coral: ${big.length ? `the coral region is ${(big[0] * 100).toFixed(2)} % of the frame` : 'no coral'} (< ${(coralMin * 100).toFixed(1)} %): the one meaning is missing or invisible on a phone; or declare coral: 'none' with a reason`);
   } else if (big.length) errors.push(`coral: the frame declares no coral («${coral}») but shows ${big.length} coral region(s)`);
   return {errors, stats: {fill, out: out * S * S, coral: regs.slice(0, 3)}};
@@ -158,10 +160,11 @@ export const selftest = () => {
   const thin = good();
   box(thin, 400, 860, 520, 980, tone);
   box(thin, 300, 960, 500, 963, red);
-  expect('an invisible coral line', thin, {}, /^coral/);
+  expect('an invisible coral line where coral is required', thin, {coral: true}, /^coral/);
   const none = good();
   box(none, 400, 860, 520, 980, tone);
-  expect('no coral without a reason', none, {}, /^coral/);
+  expect('no coral where it is required', none, {coral: true}, /^coral/);
+  expect('no coral, coral free', none, {}, null);
   expect('no coral with a reason', none, {coral: 'kit object, no meaning'}, null);
   if (frameDiff(good(), good()) >= MIN_PAGE_DIFF) fails.push('frame-checks: two identical pages were not caught as the same picture');
   if (frameDiff(good(), small) < MIN_PAGE_DIFF) fails.push('frame-checks: two different pages were taken for the same picture');

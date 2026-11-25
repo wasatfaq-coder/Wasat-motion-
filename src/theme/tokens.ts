@@ -1,19 +1,20 @@
-// Design tokens: line-art room on a light solid background, one coral accent.
+// Design tokens: white solids with grey face tones on a near-white background (the upstream Anatomy light look,
+// decision of 25.11.2026), dark contour, one coral accent.
 export const COLORS = {
-  bg: '#F5F0E8',          // light solid background
-  wallLeft: '#F1EBE2',    // light fills close to bg; occlude back lines
-  wallRight: '#F8F4EE',
-  floor: '#EFE8DD',
-  fillLight: '#FCFAF6',
-  fillMid: '#F0E9DF',
-  fillDark: '#E3DACD',
+  bg: '#FBFBFA',          // light solid background
+  wallLeft: '#F4F4F1',    // light fills close to bg; occlude back lines
+  wallRight: '#FAFAF8',
+  floor: '#F0F0ED',
+  fillLight: '#FFFFFF',
+  fillMid: '#EFEFEC',
+  fillDark: '#E2E2DF',
   ink: '#25242B',         // dark outline + text (contrast ≈ 14:1 on bg)
   inkSoft: '#6B6770',     // secondary lines and captions (≈ 5:1 on bg)
   accent: '#E8604C',      // coral: novelty and the key meaning
   norm: '#3F5F86',        // cool state colour «норма»: only data, charts, two-state comparison (regulation section 7); ≈ 5.8:1 on bg
   normDark: '#8FB0D6',    // the same «норма» on the dark field (≈ 6.3:1 on bgDark)
   captionBg: 'rgba(37,36,43,0.82)', // fallback plate only, when ink-on-bg contrast fails (§19.1)
-  captionText: '#FCFAF6',
+  captionText: '#FFFFFF',
   bgDark: '#2B2A30',      // the one dark scene of a video (regulation v3.0, section 7)
   plateDark: '#3A3940',   // a frontal plate on the dark scene
 } as const;

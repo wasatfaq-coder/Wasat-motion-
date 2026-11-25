@@ -86,7 +86,7 @@ for (let f = 0; f < frames; f++) {
   const r = measure(png, !update && fs.existsSync(ref) ? ref : null, small);
   const notes = [];
   const page = KIT?.[f];
-  const fc = checkFrame(readPng(png), {coral: page?.coral?.startsWith('none') ? page.coral : true, bleed: page?.bleed ?? null});
+  const fc = checkFrame(readPng(png), {coral: page?.coral?.startsWith('none') ? page.coral : 'free', bleed: page?.bleed ?? null});
   for (const e of fc.errors) (errors++, notes.push(`ERROR ${page ? page.id + ': ' : ''}${e}`));
   if (r.foreign > 0.0005) (errors++, notes.push(`ERROR ${(r.foreign * 100).toFixed(2)} % saturated pixels that are not coral: a colour outside the palette (§22.1)`));
   if (update || !fs.existsSync(ref)) {

@@ -1,4 +1,3 @@
-import {Texture, texturize} from '../theme/textures';
 import * as K from '../vendor/anatomy/iso-kit';
 import * as LatheKit from '../vendor/anatomy/lathe.mjs';
 import * as TubeKit from '../vendor/anatomy/tube.mjs';
@@ -46,7 +45,6 @@ type Common = {
   ground?: boolean; // stands on the floor / is the base everything else rests on
   over?: string; // markup drawn on top of this part (labels, seams, dots on its surface)
   meta?: Record<string, unknown>; // audit meta: owner, touch, seated, cut, limp…
-  texture?: Texture; // a surface pattern laid on every face (src/theme/textures.tsx): ridges, grain, cells, weave, waves, dots
   shadow?: 'hero' | 'part'; // halo blur: hero body 12–16 px, small part 6–8 px (§22.1). Default is the small part.
 };
 type SolidOpts = Common & K.SolidStyle;
@@ -117,7 +115,7 @@ export class Assembly {
   }
 
   private put(name: string, at: Point3, svg: string, shapes: unknown[], c: Common, extra: Record<string, unknown> = {}): Item {
-    const item = this.R.put({name, at, bias: c.bias ?? 0, piece: c.piece ?? '', move: c.move ?? [0, 0, 0], svg: (c.texture ? texturize(svg, c.texture) : svg) + (c.over ?? ''), shapes, ...extra});
+    const item = this.R.put({name, at, bias: c.bias ?? 0, piece: c.piece ?? '', move: c.move ?? [0, 0, 0], svg: svg + (c.over ?? ''), shapes, ...extra});
     item.baseKey = item.key;
     item.pos = at; // kept for lint (the recorder keeps only the depth key)
     return item as Item;
